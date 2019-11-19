@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">DrawerFM</string>
+    <string name="create_shortcut">Add Shortcut</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="invalid_path">Path is invalid!</string>
+    <string name="duplicate_shortcut">This shortcut already exists!</string>
+
+    <!--create shortcut dialog-->
+    <string name="name">Name</string>
+    <string name="path">Path</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="remove_shortcut_message">Are you sure you want to delete this shortcut?</string>
+
+
+</resources>
