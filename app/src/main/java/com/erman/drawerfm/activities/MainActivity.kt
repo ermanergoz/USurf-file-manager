@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         "Music" to "/storage/emulated/0/Music"
     )
 
-    private fun setColorTheme() {
+    private fun setButtonBorderColor() {
         if (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES) {
             storageProgressBarColor = Color.parseColor("#168DDA")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -137,10 +137,6 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         buttonLayoutParams.setMargins(buttonSideMargin, 0, buttonSideMargin, 0)
 
         for (i in 0 until storageDirectories.size) {
-            storageButtonLayout.addView(buttons.get(i), buttonLayoutParams)
-        }
-
-        for (i in 0 until storageDirectories.size) {
             storageUsageBarLayout.addView(storageBars[i], buttonLayoutParams)
         }
     }
@@ -155,7 +151,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         layoutManager = GridLayoutManager(this, 2/*number of columns*/)
         shortcutRecyclerView.layoutManager = layoutManager
 
-        adapter = ShortcutRecyclerViewAdapter(this, buttonBorder)
+        adapter = ShortcutRecyclerViewAdapter(buttonBorder)
 
         shortcutRecyclerView.adapter = adapter
         adapter.updateData(shortcuts)
@@ -194,7 +190,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
 
         storageDirectories = getStorageDirectories(this)
 
-        setColorTheme()
+        setButtonBorderColor()
         createShortcutGrid()
         createButtons()
         createStorageBar()
