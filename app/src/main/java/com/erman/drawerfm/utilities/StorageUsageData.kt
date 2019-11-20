@@ -1,4 +1,3 @@
-
 import android.os.Build
 import android.os.StatFs
 import android.util.Log
@@ -28,7 +27,7 @@ fun getUsedStorage(path: String): Long {
 }
 
 fun getUsedStoragePercentage(path: String): Int {
-    if(path!="/")
+    if (path != "/")
         return ((getUsedStorage(path) * 100 / getTotalStorage(path))).toInt()
     return 0
 }

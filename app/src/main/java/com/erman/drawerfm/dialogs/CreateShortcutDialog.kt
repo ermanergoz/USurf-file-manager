@@ -22,8 +22,8 @@ class CreateShortcutDialog : DialogFragment() {
             val inflater = requireActivity().layoutInflater
             val dialogView: View = inflater.inflate(R.layout.create_shortcut_dialog, null)
 
-            this.pathEditText= dialogView.findViewById(R.id.pathEditText)
-            this.nameEditText= dialogView.findViewById(R.id.nameEditText)
+            this.pathEditText = dialogView.findViewById(R.id.pathEditText)
+            this.nameEditText = dialogView.findViewById(R.id.nameEditText)
 
             // Create the AlertDialog object and return it
             builder.setMessage(R.string.create_shortcut)

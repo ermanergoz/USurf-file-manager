@@ -25,7 +25,7 @@ class ConfirmationDialog(var message: String) : DialogFragment() {
                 .setNegativeButton(R.string.no,
                     DialogInterface.OnClickListener { dialog, id ->
                         getDialog()?.cancel()
-                })
+                    })
             // Create the AlertDialog object and return it
             builder.create()
         } ?: throw IllegalStateException("Activity cannot be null")
