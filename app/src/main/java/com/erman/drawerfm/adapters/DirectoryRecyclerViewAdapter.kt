@@ -12,8 +12,8 @@ import java.text.SimpleDateFormat
 class DirectoryRecyclerViewAdapter :
     RecyclerView.Adapter<DirectoryRecyclerViewAdapter.ViewHolder>() {
 
-    var onItemClickListener: ((DirectoryData) -> Unit)? = null
-    var onItemLongClickListener: ((DirectoryData) -> Unit)? = null
+    var onClickListener: ((DirectoryData) -> Unit)? = null
+    var onLongClickListener: ((DirectoryData) -> Unit)? = null
     var directoryList = listOf<DirectoryData>()
     private var dateFormat = SimpleDateFormat("dd MMMM | HH:mm:ss")
 
@@ -49,11 +49,11 @@ class DirectoryRecyclerViewAdapter :
         }
 
         override fun onClick(p0: View?) {
-            onItemClickListener?.invoke(directoryList[adapterPosition])
+            onClickListener?.invoke(directoryList[adapterPosition])
         }
 
         override fun onLongClick(p0: View?): Boolean {
-            onItemLongClickListener?.invoke(directoryList[adapterPosition])
+            onLongClickListener?.invoke(directoryList[adapterPosition])
             return true
         }
 
