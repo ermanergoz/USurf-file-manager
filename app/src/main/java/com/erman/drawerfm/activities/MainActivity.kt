@@ -77,7 +77,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         )
     }
 
-    private fun nameStorageButtons(button: View) {
+    private fun setStorageButtonName(button: View) {
         var name = ""
 
         for (i in button.tag.toString().length - 1 downTo 1) {
@@ -94,17 +94,17 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         button.textView.text = name
     }
 
-    private fun createButtons() {
+    private fun createStorageButtons() {
         storageButtons = mutableListOf()
 
         for (i in 0 until storageDirectories.size) {
-            var layoutInflater: LayoutInflater = LayoutInflater.from(this);
-            var storageButtonLayout: View =
-                layoutInflater.inflate(R.layout.storage_button, null, false);
+            val layoutInflater: LayoutInflater = LayoutInflater.from(this)
+            val storageButtonLayout: View =
+                layoutInflater.inflate(R.layout.storage_button, null, false)
 
             storageButtons.add(storageButtonLayout)
             storageButtons[i].tag = storageDirectories[i]
-            nameStorageButtons(storageButtons[i])
+            setStorageButtonName(storageButtons[i])
             storageButtons[i].textView.isSingleLine = true
             storageButtons[i].setBackgroundResource(buttonBorder)
 
@@ -126,8 +126,8 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
 
         val buttonLayoutParams = FrameLayout.LayoutParams(
             ((screenWidth - ((buttonSideMargin * 2) * storageDirectories.size)) / storageDirectories.size),
-            (200)
-        //TODO: Change button height in such way that it will look nice on different screen sizes
+            (170)
+        //TODO: Change button height in such way that  it will look nice on different screen sizes
         )
         buttonLayoutParams.setMargins(buttonSideMargin, 0, buttonSideMargin, 0)
 
@@ -186,7 +186,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
 
         setButtonBorderColor()
         createShortcutGrid()
-        createButtons()
+        createStorageButtons()
         addItemsToActivity()
         displayUsedSpace()
         setClickListener()
