@@ -12,7 +12,7 @@ class FragmentActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_fragment)
 
-        this.path=intent.getStringExtra("path")
+        this.path = intent.getStringExtra("path")
 
         var filesListFragment = ListDirFragment.buildFragment(path)
 
