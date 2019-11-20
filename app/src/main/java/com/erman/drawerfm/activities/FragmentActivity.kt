@@ -43,7 +43,6 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
     override fun onLongClick(directoryData: DirectoryData) {
         Log.e("item is", "long clicked")
     }
-
     /* override fun onBackPressed() {
          finish()
      }*/
