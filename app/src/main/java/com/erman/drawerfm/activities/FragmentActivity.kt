@@ -49,10 +49,9 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
     }
 
     override fun onBackPressed() {
-
         //TODO: Change this piece of shit and deal with stacks instead!!
 
-        if(initialPath==path)
+        if (initialPath == path)
             finish()
 
         for (i in path.length - 1 downTo 1) {
@@ -64,11 +63,8 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
 
                 if (File(path).canRead()) {
                     launchFragment(path)
-                }
-                else  {
+                } else
                     finish()
-                    Log.e("paaaaaaaaaaaaaaaath", path)
-                }
                 break
             }
         }
