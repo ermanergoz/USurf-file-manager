@@ -13,5 +13,9 @@
     <string name="no">No</string>
     <string name="remove_shortcut_message">Are you sure you want to delete this shortcut?</string>
 
+    <!--about drawerFM dialog-->
+    <string name="app_version">Version: 1.0.0</string>
+    <string name="credit">Yusuf Erman ERGÖZ</string>
+    <string name="about">About</string>
 
 </resources>
