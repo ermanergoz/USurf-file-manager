@@ -11,7 +11,6 @@ class PreferencesActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_preferences)
 
-
         supportFragmentManager.beginTransaction()
             .replace(R.id.preferencesContainer, PreferencesFragment()).commit()
     }
