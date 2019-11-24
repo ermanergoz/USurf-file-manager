@@ -13,13 +13,17 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import com.erman.drawerfm.R
 import com.erman.drawerfm.dialogs.ErrorDialog
+import com.erman.drawerfm.fragments.SettingsFragment
 import getStorageDirectories
 import getUsedStoragePercentage
 import kotlinx.android.synthetic.main.activity_main.*
@@ -127,7 +131,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         val buttonLayoutParams = FrameLayout.LayoutParams(
             ((screenWidth - ((buttonSideMargin * 2) * storageDirectories.size)) / storageDirectories.size),
             (170)
-        //TODO: Change button height in such way that  it will look nice on different screen sizes
+            //TODO: Change button height in such way that  it will look nice on different screen sizes
         )
         buttonLayoutParams.setMargins(buttonSideMargin, 0, buttonSideMargin, 0)
 
@@ -197,9 +201,36 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_activity_option_menu, menu)
+
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.deviceWideSearch ->
+                Log.e("option", "deviceWideSearch")
+
+            R.id.settings ->
+                startSettingsFragment()
+
+            R.id.about ->
+                Log.e("option", "about")
+        }
+        return super.onOptionsItemSelected(item)
+
+    }
+
     private fun startFragmentActivity(path: String) {
         val intent = Intent(this, FragmentActivity::class.java)
         intent.putExtra("path", path)
         startActivity(intent)
+    }
+
+    private fun startSettingsFragment() {
+        //TODO: Handle main activity with fragments
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.mainActivityLayout, SettingsFragment()).commit()
     }
 }
