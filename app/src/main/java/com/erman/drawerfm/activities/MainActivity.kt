@@ -22,6 +22,7 @@ import android.widget.FrameLayout
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import com.erman.drawerfm.R
+import com.erman.drawerfm.dialogs.AboutDrawerFMDialog
 import com.erman.drawerfm.dialogs.ErrorDialog
 import getStorageDirectories
 import getUsedStoragePercentage
@@ -94,7 +95,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         else if (name == "")
             name = "/"
 
-        button.textView.text = name
+        button.linkText.text = name
     }
 
     private fun createStorageButtons() {
@@ -108,7 +109,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
             storageButtons.add(storageButtonLayout)
             storageButtons[i].tag = storageDirectories[i]
             setStorageButtonName(storageButtons[i])
-            storageButtons[i].textView.isSingleLine = true
+            storageButtons[i].linkText.isSingleLine = true
             storageButtons[i].setBackgroundResource(buttonBorder)
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -215,7 +216,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
                 startSettingsActivity()
 
             R.id.about ->
-                Log.e("option", "about")
+                AboutDrawerFMDialog().show(supportFragmentManager, "")
         }
         return super.onOptionsItemSelected(item)
 
