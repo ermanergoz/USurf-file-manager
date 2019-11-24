@@ -23,7 +23,6 @@ import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import com.erman.drawerfm.R
 import com.erman.drawerfm.dialogs.ErrorDialog
-import com.erman.drawerfm.fragments.SettingsFragment
 import getStorageDirectories
 import getUsedStoragePercentage
 import kotlinx.android.synthetic.main.activity_main.*
@@ -213,7 +212,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
                 Log.e("option", "deviceWideSearch")
 
             R.id.settings ->
-                startSettingsFragment()
+                startSettingsActivity()
 
             R.id.about ->
                 Log.e("option", "about")
@@ -228,9 +227,8 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         startActivity(intent)
     }
 
-    private fun startSettingsFragment() {
-        //TODO: Handle main activity with fragments
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.mainActivityLayout, SettingsFragment()).commit()
+    private fun startSettingsActivity() {
+        val intent = Intent(this, PreferencesActivity::class.java)
+        startActivity(intent)
     }
 }
