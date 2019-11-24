@@ -8,6 +8,8 @@
         app:actionViewClass="android.widget.SearchView" />
     <item android:id="@+id/settings"
         android:title="Settings" />
-    <item android:id="@+id/about"
-        android:title="About" />
+    <item android:title="General Info" />
+    <item
+        android:id="@+id/about"
+        android:title="About DrawerFM" />
 </menu>
