@@ -1,6 +1,6 @@
 import java.util.*
 
-class DirectoryData(
+data class DirectoryData(
     val path: String,
     val isFolder: Boolean, //If its true, it is a folder. Otherwise, it is a file.
     val name: String,
