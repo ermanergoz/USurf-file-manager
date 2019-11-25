@@ -18,4 +18,9 @@
     <string name="credit">Yusuf Erman ERGÖZ</string>
     <string name="about">About</string>
 
+    <!--preferences-->
+    <string name="dark_theme_title">Dark theme</string>
+    <string name="dark_theme_summary">Check this box to enable the dark theme</string>
+    <string name="get_root_access">Get root access</string>
+
 </resources>
