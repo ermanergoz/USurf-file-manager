@@ -9,8 +9,8 @@ import androidx.fragment.app.DialogFragment
 import com.erman.drawerfm.R
 
 class CreateShortcutDialog : DialogFragment() {
-    lateinit var shortcutPath: String
-    lateinit var shortcutName: String
+    private lateinit var shortcutPath: String
+    private lateinit var shortcutName: String
     private lateinit var listener: DialogCreateShortcutListener
 
     private lateinit var pathEditText: EditText
