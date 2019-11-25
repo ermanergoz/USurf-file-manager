@@ -1,9 +1,10 @@
 package com.erman.drawerfm.activities
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import com.erman.drawerfm.R
 import com.erman.drawerfm.fragments.PreferencesFragment
+
 
 class PreferencesActivity : AppCompatActivity() {
 
@@ -13,5 +14,7 @@ class PreferencesActivity : AppCompatActivity() {
 
         supportFragmentManager.beginTransaction()
             .replace(R.id.preferencesContainer, PreferencesFragment()).commit()
+
+
     }
 }

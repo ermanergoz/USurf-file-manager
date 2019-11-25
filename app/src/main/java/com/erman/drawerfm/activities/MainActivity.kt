@@ -2,7 +2,10 @@ package com.erman.drawerfm.activities
 
 import CreateShortcutDialog
 import ShortcutRecyclerViewAdapter
+import android.Manifest
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.BlendMode
@@ -40,6 +43,8 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     lateinit var layoutManager: GridLayoutManager
     lateinit var adapter: ShortcutRecyclerViewAdapter
 
+    //TODO: implement SharedPreferences.OnSharedPreferenceChangeListener
+
     var storageProgressBarHeight = 20f
     var buttonSideMargin = 7
     var storageProgressBarColor: Int = 0
@@ -59,7 +64,12 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     )
 
     private fun setButtonBorderColor() {
-        if (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES) {
+        if (/*resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES*/
+            getSharedPreferences(
+                "com.erman.draverfm",
+                Context.MODE_PRIVATE
+            ).getBoolean("theme switch", false)
+        ) {
             storageProgressBarColor = Color.parseColor("#168DDA")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 this.buttonBorder = R.drawable.button_style_dark
@@ -70,13 +80,20 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
                 this.buttonBorder = R.drawable.button_style_light
             }
         }
+        Log.e(
+            "chosen is",
+            getSharedPreferences(
+                "com.erman.draverfm",
+                Context.MODE_PRIVATE
+            ).getBoolean("theme switch", false).toString()
+        )
     }
 
     private fun requestPermissions() {
         ActivityCompat.requestPermissions(
             this, arrayOf(
-                android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
             ), 1
         )
     }
@@ -143,7 +160,8 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
 
     private fun displayUsedSpace() {
         for (i in 0 until storageDirectories.size) {
-            storageButtons[i].progressBar.progress = getUsedStoragePercentage(storageDirectories[i])
+            storageButtons[i].progressBar.progress =
+                getUsedStoragePercentage(storageDirectories[i])
         }
     }
 
@@ -195,11 +213,18 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         displayUsedSpace()
         setClickListener()
 
+        eben.text = getSharedPreferences(
+            "com.erman.draverfm",
+            Context.MODE_PRIVATE
+        ).getBoolean("theme switch", false).toString()
+
         addShortcut.setOnClickListener {
             val newFragment = CreateShortcutDialog()
             newFragment.show(supportFragmentManager, "")
         }
+
     }
+
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_activity_option_menu, menu)
