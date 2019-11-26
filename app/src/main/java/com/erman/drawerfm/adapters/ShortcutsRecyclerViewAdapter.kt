@@ -1,4 +1,5 @@
-import android.content.Context
+package com.erman.drawerfm.adapters
+
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
@@ -9,8 +10,7 @@ import com.erman.drawerfm.R
 import com.erman.drawerfm.activities.FragmentActivity
 import kotlinx.android.synthetic.main.shortcut_recycler_layout.view.*
 
-
-class ShortcutRecyclerViewAdapter(var buttonBorder: Int) :
+class ShortcutRecyclerViewAdapter :
     RecyclerView.Adapter<ShortcutRecyclerViewAdapter.ShortcutHolder>() {
 
     var shortcuts: Map<String, String> = mutableMapOf()
@@ -20,7 +20,7 @@ class ShortcutRecyclerViewAdapter(var buttonBorder: Int) :
     }
 
     override fun onBindViewHolder(
-        holder: ShortcutRecyclerViewAdapter.ShortcutHolder, position: Int
+        holder: ShortcutHolder, position: Int
     ) {
         holder.bindButtons(shortcuts.keys.elementAt(position), shortcuts.values.elementAt(position))
     }
@@ -45,7 +45,7 @@ class ShortcutRecyclerViewAdapter(var buttonBorder: Int) :
         fun bindButtons(shortcutName: String, path: String) {
             itemView.shortcut.text = shortcutName
             itemView.shortcut.tag = path
-            itemView.shortcut.setBackgroundResource(buttonBorder)
+            itemView.shortcut.setBackgroundResource(R.drawable.storage_button_style)
         }
 
         override fun onClick(p0: View?) {
@@ -56,7 +56,6 @@ class ShortcutRecyclerViewAdapter(var buttonBorder: Int) :
 
         override fun onLongClick(view: View): Boolean {
             //TODO: Implement shortcut recycler view adapter onLonClick listener to remove the shortcut
-
             return true
         }
     }

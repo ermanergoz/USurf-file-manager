@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimaryDefault">#168DDA</color>
+    <!--common colors-->
+    <color name="colorPrimary">#168DDA</color>
     <color name="colorPrimaryDarkDefault">#000000</color>
-    <color name="colorAccentDefault">#99CBFD</color>
+
+    <!--light theme colors -->
+    <color name="lightBlue">#99CBFD</color>
+    <color name="background">#FEF9E7</color>
+    <color name="textColorLight">#2B2B2B</color>
+    <color name="separatorColorLight">#ABB2B9</color>
 
     <!--dark theme colors -->
-    <color name="colorPrimaryDark">#168DDA</color>
-    <color name="colorAccentDark">#168DDA</color>
+    <color name="darkBlue">#168DDA</color>
+    <color name="backgroundDark">#2B2B2B</color>
+    <color name="textColorDark">#A9B7C6</color>
+    <color name="separatorColorDark">#ABB2B9</color>
 </resources>
