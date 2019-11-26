@@ -222,10 +222,6 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
             newFragment.show(supportFragmentManager, "")
         }
         mainActivity = this
-
-        eben.text = getSharedPreferences(
-            "com.erman.draverfm", Context.MODE_PRIVATE
-        ).getString("theme choice", "System default")
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
