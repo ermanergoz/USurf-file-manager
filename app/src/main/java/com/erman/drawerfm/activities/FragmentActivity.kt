@@ -1,10 +1,13 @@
 package com.erman.drawerfm.activities
 
 import DirectoryData
-import ListDirFragment
+import com.erman.drawerfm.fragments.ListDirFragment
+import android.content.Context
+import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.core.content.res.ResourcesCompat
 import com.erman.drawerfm.R
 import java.io.File
 
@@ -12,6 +15,28 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
     lateinit var path: String
     private lateinit var filesListFragment: ListDirFragment
     lateinit var initialPath: String
+
+    private fun setTheme() {
+        when {
+            getSharedPreferences(
+                "com.erman.draverfm", Context.MODE_PRIVATE
+            ).getString("theme choice", "System default") == "Dark theme" -> {
+                setTheme(R.style.DarkTheme)
+            }
+            getSharedPreferences(
+                "com.erman.draverfm", Context.MODE_PRIVATE
+            ).getString("theme choice", "System default") == "Light theme" -> {
+                setTheme(R.style.LightTheme)
+            }
+            else -> {
+                if (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES) {
+                    setTheme(R.style.DarkTheme)
+                } else {
+                    setTheme(R.style.LightTheme)
+                }
+            }
+        }
+    }
 
     private fun launchFragment(path: String) {
         this.supportFragmentManager.popBackStack()
@@ -26,6 +51,9 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        setTheme()
+
         setContentView(R.layout.activity_fragment)
 
         this.path = intent.getStringExtra("path")
