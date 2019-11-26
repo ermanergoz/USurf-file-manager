@@ -79,13 +79,13 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
             "com.erman.draverfm", Context.MODE_PRIVATE
         ).getString("theme choice", "System default")
 
-        when {
-            chosenTheme == "Dark theme" -> {
+        when (chosenTheme) {
+            "Dark theme" -> {
                 setTheme(R.style.DarkTheme)
                 storageProgressBarColor =
                     ResourcesCompat.getColor(resources, R.color.darkBlue, null)
             }
-            chosenTheme == "Light theme" -> {
+            "Light theme" -> {
                 setTheme(R.style.LightTheme)
                 storageProgressBarColor =
                     ResourcesCompat.getColor(resources, R.color.lightBlue, null)
