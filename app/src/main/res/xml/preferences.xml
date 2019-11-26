@@ -3,13 +3,14 @@
 
     <SwitchPreference
         android:defaultValue="false"
-        android:key="theme_switch"
-        android:summary="Check this box to enable the dark theme"
-        android:title="@string/dark_theme_title" />
-    <SwitchPreference
-        android:defaultValue="false"
         android:key="root_access"
         android:summary="Check this box to gain root access"
         android:title="@string/get_root_access" />
+    <ListPreference
+        android:defaultValue="1"
+        android:entries="@array/theme"
+        android:entryValues="@array/theme"
+        android:key="theme_list_preference"
+        android:title="Change theme" />
 
 </PreferenceScreen>
