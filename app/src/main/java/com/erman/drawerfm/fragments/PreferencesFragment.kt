@@ -37,7 +37,7 @@ class PreferencesFragment : PreferenceFragmentCompat() {
             .getLaunchIntentForPackage(context!!.packageName)
         intent!!.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
 
-        MainActivity.firsActivity.finish()
+        MainActivity.mainActivity.finish()
         startActivity(intent)
     }
 }
