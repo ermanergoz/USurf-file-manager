@@ -17,23 +17,19 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
     lateinit var initialPath: String
 
     private fun setTheme() {
-        when {
-            getSharedPreferences(
-                "com.erman.draverfm", Context.MODE_PRIVATE
-            ).getString("theme choice", "System default") == "Dark theme" -> {
+        val chosenTheme = getSharedPreferences(
+            "com.erman.draverfm", Context.MODE_PRIVATE
+        ).getString("theme choice", "System default")
+
+        when (chosenTheme) {
+            "Dark theme" -> {
                 setTheme(R.style.DarkTheme)
             }
-            getSharedPreferences(
-                "com.erman.draverfm", Context.MODE_PRIVATE
-            ).getString("theme choice", "System default") == "Light theme" -> {
+            "Light theme" -> {
                 setTheme(R.style.LightTheme)
             }
             else -> {
-                if (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES) {
-                    setTheme(R.style.DarkTheme)
-                } else {
-                    setTheme(R.style.LightTheme)
-                }
+                setTheme(R.style.AppTheme)
             }
         }
     }
