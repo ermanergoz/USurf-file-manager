@@ -90,7 +90,6 @@
         android:id="@+id/eben"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextView"
         app:layout_constraintBottom_toTopOf="@+id/shortcutRecyclerView"
         app:layout_constraintEnd_toStartOf="@+id/shortcutRecyclerView"
         app:layout_constraintHorizontal_bias="0.5"
