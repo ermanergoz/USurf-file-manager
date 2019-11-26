@@ -13,5 +13,6 @@
         android:layout_marginTop="7dp"
         android:layout_marginBottom="7dp"
         android:gravity="center"
-        android:textSize="22sp" />
+        android:textSize="22sp"
+        android:textColor="?attr/textColor"/>
 </LinearLayout>
