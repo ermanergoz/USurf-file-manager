@@ -15,4 +15,10 @@
     <color name="backgroundDark">#2B2B2B</color>
     <color name="textColorDark">#A9B7C6</color>
     <color name="separatorColorDark">#ABB2B9</color>
+
+    <!--daynnight theme colors -->
+    <color name="daynnightBlue">#99CBFD</color>
+    <color name="daynnightbackground">#FEF9E7</color>
+    <color name="daynnightTextColor">#2B2B2B</color>
+    <color name="daynnightSeparatorColor">#ABB2B9</color>
 </resources>
