@@ -76,28 +76,28 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         )
     }
 
-    private fun setTheme()
-    {
+    private fun setTheme() {
+        val chosenTheme = getSharedPreferences(
+            "com.erman.draverfm", Context.MODE_PRIVATE
+        ).getString("theme choice", "System default")
+
         when {
-            getSharedPreferences(
-                "com.erman.draverfm", Context.MODE_PRIVATE
-            ).getString("theme choice", "System default")=="Dark theme" -> {
+            chosenTheme == "Dark theme" -> {
                 setTheme(R.style.DarkTheme)
-                storageProgressBarColor = ResourcesCompat.getColor(resources, R.color.darkBlue, null)
+                storageProgressBarColor =
+                    ResourcesCompat.getColor(resources, R.color.darkBlue, null)
             }
-            getSharedPreferences(
-                "com.erman.draverfm", Context.MODE_PRIVATE
-            ).getString("theme choice", "System default")=="Light theme" -> {
+            chosenTheme == "Light theme" -> {
                 setTheme(R.style.LightTheme)
-                storageProgressBarColor = ResourcesCompat.getColor(resources, R.color.lightBlue, null)
+                storageProgressBarColor =
+                    ResourcesCompat.getColor(resources, R.color.lightBlue, null)
             }
             else -> {
-                if (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES) {
-                    setTheme(R.style.DarkTheme)
-                    storageProgressBarColor = ResourcesCompat.getColor(resources, R.color.darkBlue, null)
+                setTheme(R.style.AppTheme)
+                storageProgressBarColor = if (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES) {
+                    ResourcesCompat.getColor(resources, R.color.darkBlue, null)
                 } else {
-                    setTheme(R.style.LightTheme)
-                    storageProgressBarColor = ResourcesCompat.getColor(resources, R.color.lightBlue, null)
+                    ResourcesCompat.getColor(resources, R.color.lightBlue, null)
                 }
             }
         }
@@ -225,7 +225,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         }
         firsActivity = this
 
-        eben.text= getSharedPreferences(
+        eben.text = getSharedPreferences(
             "com.erman.draverfm", Context.MODE_PRIVATE
         ).getString("theme choice", "System default")
     }
