@@ -47,8 +47,6 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     private lateinit var layoutManager: GridLayoutManager
     lateinit var adapter: ShortcutRecyclerViewAdapter
 
-    //TODO: implement SharedPreferences.OnSharedPreferenceChangeListener
-
     var storageProgressBarHeight = 20f
     var buttonSideMargin = 7
     private var storageProgressBarColor: Int = 0
