@@ -83,7 +83,6 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
                 path = path.replaceRange(i, i + 1, "")
             } else {
                 path = path.replaceRange(i, i + 1, "")
-                Log.e("path", path)
 
                 if (File(path).canRead()) {
                     launchFragment(path)

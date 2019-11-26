@@ -1,7 +1,6 @@
 <resources>
 
     <style name="AppTheme" parent="Theme.AppCompat.DayNight">
-        <item name="android:windowBackground">@drawable/splash_screen</item>
         <item name="colorAccent">?attr/blueColorAccent</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDarkDefault</item>
@@ -14,7 +13,6 @@
 
     <!-- Light theme. -->
     <style name="LightTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:windowBackground">@drawable/splash_screen</item>
         <item name="colorAccent">?attr/blueColorAccent</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDarkDefault</item>
@@ -26,7 +24,6 @@
 
     <!-- Dark theme. -->
     <style name="DarkTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:windowBackground">@drawable/splash_screen</item>
         <item name="colorAccent">?attr/blueColorAccent</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDarkDefault</item>
