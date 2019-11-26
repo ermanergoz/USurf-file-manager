@@ -1,6 +1,14 @@
 <resources>
 
     <style name="AppTheme" parent="Theme.AppCompat.DayNight">
+        <item name="colorAccent">?attr/blueColorAccent</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDarkDefault</item>
+        <item name="blueColorAccent">@color/daynnightBlue</item>
+        <item name="background">@color/daynnightbackground</item>
+        <item name="textColor">@color/daynnightTextColor</item>
+        <item name="separatorColor">@color/daynnightSeparatorColor</item>
+
     </style>
 
     <!-- Light theme. -->
