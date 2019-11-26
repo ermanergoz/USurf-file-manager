@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     }
 
     companion object {
-        lateinit var firsActivity: Activity
+        lateinit var mainActivity: Activity
     }
 
     private lateinit var layoutManager: GridLayoutManager
@@ -221,7 +221,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
             val newFragment = CreateShortcutDialog()
             newFragment.show(supportFragmentManager, "")
         }
-        firsActivity = this
+        mainActivity = this
 
         eben.text = getSharedPreferences(
             "com.erman.draverfm", Context.MODE_PRIVATE
