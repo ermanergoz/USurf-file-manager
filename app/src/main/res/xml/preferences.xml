@@ -7,7 +7,6 @@
         android:summary="Check this box to gain root access"
         android:title="@string/get_root_access" />
     <ListPreference
-        android:defaultValue="System default"
         android:entries="@array/theme"
         android:entryValues="@array/theme"
         android:key="theme_list_preference"
