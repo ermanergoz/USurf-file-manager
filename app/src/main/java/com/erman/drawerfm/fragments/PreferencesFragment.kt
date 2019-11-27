@@ -2,11 +2,11 @@ package com.erman.drawerfm.fragments
 
 import android.content.Intent
 import android.content.SharedPreferences
-import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.preference.ListPreference
 import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.SwitchPreference
 import com.erman.drawerfm.R
 import com.erman.drawerfm.activities.MainActivity
 
@@ -23,7 +23,7 @@ class PreferencesFragment : PreferenceFragmentCompat() {
         mPreferences =
             context!!.getSharedPreferences(sharedPrefFile, AppCompatActivity.MODE_PRIVATE)
 
-        findPreference("theme_list_preference").setOnPreferenceChangeListener { preference, newValue ->
+        findPreference<ListPreference>("theme_list_preference")?.setOnPreferenceChangeListener { preference, newValue ->
             this.selectedTheme = newValue.toString()
 
             preferencesEditor = mPreferences.edit()
@@ -33,7 +33,7 @@ class PreferencesFragment : PreferenceFragmentCompat() {
             true
         }
 
-        findPreference("marquee_preference").setOnPreferenceChangeListener { preference, newValue ->
+        findPreference<SwitchPreference>("marquee_preference")?.setOnPreferenceChangeListener { preference, newValue ->
             this.isMarqueeEnabled = newValue as Boolean
 
             preferencesEditor = mPreferences.edit()
