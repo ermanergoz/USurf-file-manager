@@ -8,9 +8,15 @@
         android:summary="Check this box to gain root access"
         android:title="@string/get_root_access" />
     <ListPreference
+        android:defaultValue="System default"
         android:entries="@array/theme"
         android:entryValues="@array/theme"
         android:key="theme_list_preference"
         android:title="Change theme" />
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="marquee_preference"
+        android:summary="If enabled, long file/folder names will slide"
+        android:title="Enable sliding texts" />
 
 </PreferenceScreen>

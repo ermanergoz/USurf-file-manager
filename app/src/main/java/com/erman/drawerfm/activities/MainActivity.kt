@@ -45,10 +45,10 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     }
 
     private lateinit var layoutManager: GridLayoutManager
-    lateinit var adapter: ShortcutRecyclerViewAdapter
+    private lateinit var adapter: ShortcutRecyclerViewAdapter
 
-    var storageProgressBarHeight = 20f
-    var buttonSideMargin = 7
+    private var storageProgressBarHeight = 20f
+    private var buttonSideMargin = 7
     private var storageProgressBarColor: Int = 0
 
     private var buttonBorder: Int = 0
@@ -171,7 +171,10 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     private fun createShortcutGrid() {
         layoutManager = GridLayoutManager(this, 2/*number of columns*/)
         shortcutRecyclerView.layoutManager = layoutManager
-        adapter = ShortcutRecyclerViewAdapter()
+        adapter = ShortcutRecyclerViewAdapter(getSharedPreferences(
+            "com.erman.draverfm",
+            Context.MODE_PRIVATE
+        ).getBoolean("marquee choice", true))
         shortcutRecyclerView.adapter = adapter
         adapter.updateData(shortcuts)
     }
@@ -202,7 +205,6 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme()
-
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT

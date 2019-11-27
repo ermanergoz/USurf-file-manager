@@ -13,46 +13,60 @@
         android:id="@+id/nameTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginLeft="4dp"
         android:gravity="center_vertical"
-        android:textSize="20sp"
-        app:layout_constraintLeft_toLeftOf="parent"
+        android:text="Some Name"
+        android:textColor="?attr/textColor"
+        android:textSize="18sp"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:textColor="?attr/textColor"/>
+        app:layout_constraintStart_toEndOf="@+id/imageView"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/totalSizeTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginLeft="4dp"
         android:gravity="start"
+        android:text="some mb"
+        android:textColor="?attr/textColor"
         android:textSize="10sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/nameTextView"
-        android:textColor="?attr/textColor"/>
+        app:layout_constraintBottom_toTopOf="@+id/divider2"
+        app:layout_constraintStart_toEndOf="@+id/imageView"
+        app:layout_constraintTop_toBottomOf="@+id/nameTextView" />
 
     <TextView
         android:id="@+id/lastModifiedTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="end"
+        android:text="09.11.1994"
+        android:textColor="?attr/textColor"
         android:textSize="10sp"
         app:layout_constraintBottom_toTopOf="@+id/divider2"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/totalSizeTextView"
-        app:layout_constraintTop_toBottomOf="@+id/nameTextView"
-        android:textColor="?attr/textColor"/>
+        app:layout_constraintTop_toBottomOf="@+id/nameTextView" />
 
     <View
         android:id="@+id/divider2"
         android:layout_width="wrap_content"
         android:layout_height="2dp"
-        android:layout_marginTop="2dp"
         android:background="?attr/blueColorAccent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.812"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/totalSizeTextView"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="45dp"
+        android:layout_height="50dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
