@@ -2,7 +2,6 @@ package com.erman.drawerfm.adapters
 
 import DirectoryData
 import android.text.TextUtils
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup

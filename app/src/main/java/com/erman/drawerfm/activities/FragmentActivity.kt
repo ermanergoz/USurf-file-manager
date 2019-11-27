@@ -1,15 +1,17 @@
 package com.erman.drawerfm.activities
 
 import DirectoryData
-import com.erman.drawerfm.fragments.ListDirFragment
 import android.content.Context
-import android.content.res.Configuration
-import androidx.appcompat.app.AppCompatActivity
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import androidx.core.content.res.ResourcesCompat
+import android.webkit.MimeTypeMap
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import com.erman.drawerfm.R
+import com.erman.drawerfm.fragments.ListDirFragment
 import java.io.File
+
 
 class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListener {
     lateinit var path: String
@@ -66,12 +68,13 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
 
     override fun onClick(directoryData: DirectoryData) {
         if (directoryData.isFolder) {
-            Log.e("path of clicked item is", directoryData.path)
+            launchFragment(directoryData.path)
         } else {
-            Log.e("path of clicked item is", directoryData.path)
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.data = FileProvider.getUriForFile(this, "com.erman.drawerfm", File(directoryData.path))
+            intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION )
+            startActivity(intent)
         }
-        path = directoryData.path
-        launchFragment(path)
     }
 
     override fun onLongClick(directoryData: DirectoryData) {
