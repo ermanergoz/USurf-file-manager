@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     private var buttonSideMargin = 7
     private var storageProgressBarColor: Int = 0
 
-    private var buttonBorder: Int = 0
+    private var buttonBorder: Int = R.drawable.storage_button_style
 
     private lateinit var storageButtons: MutableList<View>
     private lateinit var storageDirectories: ArrayList<String>
@@ -92,11 +92,12 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
             }
             else -> {
                 setTheme(R.style.AppTheme)
-                storageProgressBarColor = if (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES) {
-                    ResourcesCompat.getColor(resources, R.color.darkBlue, null)
-                } else {
-                    ResourcesCompat.getColor(resources, R.color.lightBlue, null)
-                }
+                storageProgressBarColor =
+                    if (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES) {
+                        ResourcesCompat.getColor(resources, R.color.darkBlue, null)
+                    } else {
+                        ResourcesCompat.getColor(resources, R.color.lightBlue, null)
+                    }
             }
         }
     }
@@ -241,6 +242,8 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
 
             R.id.about ->
                 AboutDrawerFMDialog().show(supportFragmentManager, "")
+            R.id.generalInfo ->
+                startGeneralStorageInfoActivity(storageDirectories)
         }
         return super.onOptionsItemSelected(item)
     }
@@ -248,6 +251,12 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     private fun startFragmentActivity(path: String) {
         val intent = Intent(this, FragmentActivity::class.java)
         intent.putExtra("path", path)
+        startActivity(intent)
+    }
+
+    private fun startGeneralStorageInfoActivity(storageDirectories: ArrayList<String>) {
+        val intent = Intent(this, GeneralStorageInfo::class.java)
+        intent.putExtra("storageDirectories", storageDirectories)
         startActivity(intent)
     }
 
