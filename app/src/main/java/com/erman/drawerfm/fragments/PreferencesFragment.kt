@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceFragmentCompat
 import com.erman.drawerfm.R
@@ -14,6 +15,7 @@ class PreferencesFragment : PreferenceFragmentCompat() {
     private var sharedPrefFile: String = "com.erman.draverfm"
     private var selectedTheme: String = ""
     lateinit var preferencesEditor: SharedPreferences.Editor
+    var isMarqueeEnabled: Boolean = true
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences, rootKey)
@@ -26,6 +28,16 @@ class PreferencesFragment : PreferenceFragmentCompat() {
 
             preferencesEditor = mPreferences.edit()
             preferencesEditor.putString("theme choice", selectedTheme)
+            preferencesEditor.apply()
+
+            true
+        }
+
+        findPreference("marquee_preference").setOnPreferenceChangeListener { preference, newValue ->
+            this.isMarqueeEnabled = newValue as Boolean
+
+            preferencesEditor = mPreferences.edit()
+            preferencesEditor.putBoolean("marquee choice", isMarqueeEnabled)
             preferencesEditor.apply()
 
             true

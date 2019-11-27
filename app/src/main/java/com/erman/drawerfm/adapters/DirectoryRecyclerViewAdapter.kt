@@ -1,6 +1,8 @@
 package com.erman.drawerfm.adapters
 
 import DirectoryData
+import android.text.TextUtils
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,7 +11,7 @@ import com.erman.drawerfm.R
 import kotlinx.android.synthetic.main.directory_recycler_layout.view.*
 import java.text.SimpleDateFormat
 
-class DirectoryRecyclerViewAdapter :
+class DirectoryRecyclerViewAdapter(var isMarqueeEnabled: Boolean) :
     RecyclerView.Adapter<DirectoryRecyclerViewAdapter.ViewHolder>() {
 
     var onClickListener: ((DirectoryData) -> Unit)? = null
@@ -59,9 +61,17 @@ class DirectoryRecyclerViewAdapter :
 
         fun bindDirectory(directoryData: DirectoryData) {
             itemView.nameTextView.text = directoryData.name
+            itemView.nameTextView.isSingleLine = true
 
+            if (isMarqueeEnabled) {
+                itemView.nameTextView.ellipsize =
+                    TextUtils.TruncateAt.MARQUEE  //for sliding names if the length is longer than 1 line
+                itemView.nameTextView.isSelected = true
+                itemView.nameTextView.marqueeRepeatLimit = -1   //-1 is for forever
+            }
 
             if (directoryData.isFolder) {
+                itemView.imageView.setImageResource(R.drawable.folder_icon)
                 if (directoryData.subFileNum == 0) {
                     itemView.totalSizeTextView.text = "Empty Folder"
                 } else {
@@ -70,6 +80,7 @@ class DirectoryRecyclerViewAdapter :
                         dateFormat.format(directoryData.lastModifiedDate)
                 }
             } else {
+                itemView.imageView.setImageResource(R.drawable.file_icon)
                 itemView.totalSizeTextView.visibility = View.VISIBLE
                 itemView.totalSizeTextView.text =
                     "${String.format("%.2f", directoryData.sizeInMB)} mb"
