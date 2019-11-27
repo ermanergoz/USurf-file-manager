@@ -13,7 +13,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activities.PreferencesActivity"></activity>
+        <activity android:name=".activities.GeneralStorageInfo"></activity>
+        <activity android:name=".activities.PreferencesActivity" />
         <activity android:name=".activities.FragmentActivity" />
         <activity android:name=".activities.MainActivity">
             <intent-filter>
