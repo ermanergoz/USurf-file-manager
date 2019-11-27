@@ -37,7 +37,13 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
     private fun launchFragment(path: String) {
         this.supportFragmentManager.popBackStack()
 
-        filesListFragment = ListDirFragment.buildFragment(path)
+        filesListFragment = ListDirFragment.buildFragment(
+            path,
+            getSharedPreferences(
+                "com.erman.draverfm",
+                Context.MODE_PRIVATE
+            ).getBoolean("marquee choice", true)
+        )
 
         supportFragmentManager.beginTransaction()
             .add(R.id.fragmentContainer, filesListFragment)
