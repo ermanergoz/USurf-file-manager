@@ -27,6 +27,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.erman.drawerfm.R
 import com.erman.drawerfm.dialogs.AboutDrawerFMDialog
 import com.erman.drawerfm.dialogs.ErrorDialog
+import com.erman.drawerfm.utilities.getRootAccess
 import getStorageDirectories
 import getUsedStoragePercentage
 import kotlinx.android.synthetic.main.activity_main.*
@@ -225,6 +226,8 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
             newFragment.show(supportFragmentManager, "")
         }
         mainActivity = this
+
+        getRootAccess()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -242,8 +245,8 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
 
             R.id.about ->
                 AboutDrawerFMDialog().show(supportFragmentManager, "")
-            R.id.generalInfo ->
-                startGeneralStorageInfoActivity(storageDirectories)
+            /*R.id.generalInfo ->
+                startGeneralStorageInfoActivity(storageDirectories)*/
         }
         return super.onOptionsItemSelected(item)
     }
@@ -254,11 +257,11 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         startActivity(intent)
     }
 
-    private fun startGeneralStorageInfoActivity(storageDirectories: ArrayList<String>) {
+    /*private fun startGeneralStorageInfoActivity(storageDirectories: ArrayList<String>) {
         val intent = Intent(this, GeneralStorageInfo::class.java)
         intent.putExtra("storageDirectories", storageDirectories)
         startActivity(intent)
-    }
+    }*/
 
     private fun startSettingsActivity() {
         val intent = Intent(this, PreferencesActivity::class.java)
