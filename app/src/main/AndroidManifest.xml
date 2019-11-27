@@ -13,10 +13,19 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activities.GeneralStorageInfo"></activity>
-        <activity android:name=".activities.PreferencesActivity" />
-        <activity android:name=".activities.FragmentActivity" />
-        <activity android:name=".activities.MainActivity">
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.erman.drawerfm"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_provider_paths"/>
+        </provider>
+        <!--<activity android:name=".activities.GeneralStorageInfo"></activity>-->
+        <activity android:name="com.erman.drawerfm.activities.PreferencesActivity" />
+        <activity android:name="com.erman.drawerfm.activities.FragmentActivity" />
+        <activity android:name="com.erman.drawerfm.activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
