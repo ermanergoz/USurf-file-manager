@@ -227,7 +227,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         }
         mainActivity = this
 
-        getRootAccess()
+        //getRootAccess()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
