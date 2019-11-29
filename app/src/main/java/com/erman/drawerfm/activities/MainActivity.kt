@@ -11,8 +11,10 @@ import android.content.res.Configuration
 import android.graphics.BlendMode
 import android.graphics.BlendModeColorFilter
 import android.graphics.PorterDuff
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.storage.StorageManager
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.LayoutInflater
@@ -33,6 +35,7 @@ import getUsedStoragePercentage
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.storage_button.view.*
 import java.io.File
+import java.net.URI
 import java.util.*
 
 class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShortcutListener {
@@ -205,6 +208,39 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         }
     }
 
+    var sdCardUri : Uri? = null
+
+    private fun requestSDCardPermissions(){
+        if(Build.VERSION.SDK_INT < 24){
+            startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT_TREE), 1)
+            return
+        }
+        // find removable device using getStorageVolumes
+        val sm = getSystemService(Context.STORAGE_SERVICE) as StorageManager
+        val sdCard = sm.storageVolumes.find { it.isRemovable }
+        if(sdCard != null){
+            startActivityForResult(sdCard.createAccessIntent(null), 1)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+
+        if(requestCode == 1 || requestCode == 0){
+            if(resultCode == RESULT_OK) {
+                if(data == null){
+                    Log.e("dsfsdfsd", "Error obtaining access")
+                }else{
+                    sdCardUri = data.data
+                    Log.d("StorageAccess", "obtained access to $sdCardUri")
+                    // optionally store uri in preferences as well here { ... }
+                }
+            }else
+                Log.e("access denied", "sdfsdfsdfsdffsdfsdfsd")
+            return
+        }
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme()
         super.onCreate(savedInstanceState)
@@ -212,6 +248,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
         requestPermissions()
+        requestSDCardPermissions()
 
         storageDirectories = getStorageDirectories(this)
 
@@ -226,6 +263,8 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
             newFragment.show(supportFragmentManager, "")
         }
         mainActivity = this
+
+
 
         //getRootAccess()
     }
