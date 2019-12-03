@@ -5,9 +5,9 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.webkit.MimeTypeMap
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import androidx.fragment.app.FragmentManager
 import com.erman.drawerfm.R
 import com.erman.drawerfm.fragments.ListDirFragment
 import java.io.File
@@ -83,7 +83,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
 
     override fun onBackPressed() {
         //TODO: Change this piece of shit and deal with stacks instead!!
-
+/*
         if (initialPath == path)
             finish()
 
@@ -99,6 +99,16 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
                     finish()
                 break
             }
+        }*/
+
+
+        val fm: FragmentManager = supportFragmentManager
+        if (fm.backStackEntryCount > 0) {
+            Log.i("MainActivity", "popping backstack")
+            fm.popBackStack()
+        } else {
+            Log.i("MainActivity", "nothing on backstack, calling super")
+            super.onBackPressed()
         }
     }
 }
