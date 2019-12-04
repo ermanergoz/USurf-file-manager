@@ -48,7 +48,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         )
 
         supportFragmentManager.beginTransaction()
-            .add(R.id.fragmentContainer, filesListFragment)
+            .replace(R.id.fragmentContainer, filesListFragment)
             .addToBackStack(null)
             .commit()
     }
@@ -75,6 +75,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
             intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION )
             startActivity(intent)
         }
+        this.path=directoryData.path
     }
 
     override fun onLongClick(directoryData: DirectoryData) {
@@ -83,7 +84,9 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
 
     override fun onBackPressed() {
         //TODO: Change this piece of shit and deal with stacks instead!!
-/*
+
+        Log.e("initial path", path)
+
         if (initialPath == path)
             finish()
 
@@ -99,9 +102,9 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
                     finish()
                 break
             }
-        }*/
-
-
+        }
+        Log.e("later path", path)
+/*
         val fm: FragmentManager = supportFragmentManager
         if (fm.backStackEntryCount > 0) {
             Log.i("MainActivity", "popping backstack")
@@ -109,6 +112,6 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         } else {
             Log.i("MainActivity", "nothing on backstack, calling super")
             super.onBackPressed()
-        }
+        }*/
     }
 }

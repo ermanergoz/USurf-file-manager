@@ -1,6 +1,7 @@
 package com.erman.drawerfm.adapters
 
 import DirectoryData
+import android.content.Context
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
@@ -10,7 +11,7 @@ import com.erman.drawerfm.R
 import kotlinx.android.synthetic.main.directory_recycler_layout.view.*
 import java.text.SimpleDateFormat
 
-class DirectoryRecyclerViewAdapter(var isMarqueeEnabled: Boolean) :
+class DirectoryRecyclerViewAdapter:
     RecyclerView.Adapter<DirectoryRecyclerViewAdapter.ViewHolder>() {
 
     var onClickListener: ((DirectoryData) -> Unit)? = null
@@ -62,7 +63,11 @@ class DirectoryRecyclerViewAdapter(var isMarqueeEnabled: Boolean) :
             itemView.nameTextView.text = directoryData.name
             itemView.nameTextView.isSingleLine = true
 
-            if (isMarqueeEnabled) {
+            if (itemView.context.getSharedPreferences(
+                    "com.erman.draverfm",
+                    Context.MODE_PRIVATE
+                ).getBoolean("marquee choice", true)
+            ) {
                 itemView.nameTextView.ellipsize =
                     TextUtils.TruncateAt.MARQUEE  //for sliding names if the length is longer than 1 line
                 itemView.nameTextView.isSelected = true
