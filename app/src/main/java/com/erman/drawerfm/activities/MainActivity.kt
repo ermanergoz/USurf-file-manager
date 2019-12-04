@@ -1,11 +1,11 @@
 package com.erman.drawerfm.activities
 
 import CreateShortcutDialog
-import com.erman.drawerfm.adapters.ShortcutRecyclerViewAdapter
 import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.BlendMode
@@ -15,6 +15,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.storage.StorageManager
+import android.preference.PreferenceManager
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.LayoutInflater
@@ -25,17 +26,18 @@ import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.preference.Preference
+import androidx.preference.PreferenceFragmentCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import com.erman.drawerfm.R
+import com.erman.drawerfm.adapters.ShortcutRecyclerViewAdapter
 import com.erman.drawerfm.dialogs.AboutDrawerFMDialog
 import com.erman.drawerfm.dialogs.ErrorDialog
-import com.erman.drawerfm.utilities.getRootAccess
 import getStorageDirectories
 import getUsedStoragePercentage
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.storage_button.view.*
 import java.io.File
-import java.net.URI
 import java.util.*
 
 class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShortcutListener {
@@ -60,6 +62,8 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     private lateinit var storageButtons: MutableList<View>
     private lateinit var storageDirectories: ArrayList<String>
     private var screenWidth = 0
+
+    private lateinit var sharedPref: SharedPreferences
 
     private var shortcuts: MutableMap<String, String> = mutableMapOf(
         "DCIM" to "/storage/emulated/0/DCIM",
@@ -176,10 +180,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     private fun createShortcutGrid() {
         layoutManager = GridLayoutManager(this, 2/*number of columns*/)
         shortcutRecyclerView.layoutManager = layoutManager
-        adapter = ShortcutRecyclerViewAdapter(getSharedPreferences(
-            "com.erman.draverfm",
-            Context.MODE_PRIVATE
-        ).getBoolean("marquee choice", true))
+        adapter = ShortcutRecyclerViewAdapter()
         shortcutRecyclerView.adapter = adapter
         adapter.updateData(shortcuts)
     }
