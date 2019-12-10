@@ -57,7 +57,6 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         super.onCreate(savedInstanceState)
         setTheme()
         setContentView(R.layout.activity_fragment)
-
         this.path = intent.getStringExtra("path")
 
         launchFragment(path)
