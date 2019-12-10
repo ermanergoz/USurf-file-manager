@@ -1,27 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/action_copy"
+        android:id="@+id/action_cancel"
         android:enabled="true"
-        android:title="Copy" />
+        android:icon="@android:drawable/ic_delete"
+        android:title="Cancel" />
     <item
-        android:id="@+id/action_paste"
+        android:id="@+id/action_OK"
         android:enabled="true"
-        android:title="Paste" />
-    <item
-        android:id="@+id/action_move"
-        android:enabled="true"
-        android:title="Move" />
-    <item
-        android:id="@+id/action_cut"
-        android:enabled="true"
-        android:title="Cut" />
-    <item
-        android:id="@+id/action_rename"
-        android:enabled="true"
-        android:title="Rename" />
-    <item
-        android:id="@+id/action_delete"
-        android:enabled="true"
-        android:title="Delete" />
+        android:icon="@android:drawable/ic_menu_save"
+        android:title="Ok" />
 </menu>

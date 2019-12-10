@@ -87,7 +87,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         Log.e("item is", "long clicked")
     }
 
-    override fun bottomNavigationViewClick(navigationItemSelectedId: Int, selectedPath: String) {
+    override fun sideNavigationViewClick(navigationItemSelectedId: Int, selectedPath: String) {
 
         this.selectedPath=selectedPath
 
@@ -97,7 +97,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
 
             R.id.action_paste -> {
                 Log.e("Paste file to", selectedPath)
-                //bottomNavigationView.isVisible = false
+                //sideNavigationView.isVisible = false
             }
 
             R.id.action_move ->
