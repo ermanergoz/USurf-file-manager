@@ -9,14 +9,19 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.fragment.app.FragmentManager
 import com.erman.drawerfm.R
+import com.erman.drawerfm.dialogs.RenameDialog
 import com.erman.drawerfm.fragments.ListDirFragment
 import java.io.File
 
-class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListener {
+class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListener,
+    RenameDialog.DialogRenameFileListener {
     lateinit var path: String
     private lateinit var filesListFragment: ListDirFragment
     private val fragmentManager: FragmentManager = supportFragmentManager
     var openedDirectories = mutableListOf<String>()
+
+    var newFileName = ""
+    var selectedPath=""
 
     private fun setTheme() {
         val chosenTheme = getSharedPreferences(
@@ -55,11 +60,15 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
         setTheme()
         setContentView(R.layout.activity_fragment)
         this.path = intent.getStringExtra("path")
 
         launchFragment(path)
+
+        renameFie()
     }
 
     override fun onClick(directoryData: DirectoryData) {
@@ -81,6 +90,33 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         Log.e("item is", "long clicked")
     }
 
+    override fun bottomNavigationViewClick(navigationItemSelectedId: Int, selectedPath: String) {
+
+        this.selectedPath=selectedPath
+
+        when (navigationItemSelectedId) {
+            R.id.action_copy ->
+                Log.e("Copy file at", selectedPath)
+
+            R.id.action_paste -> {
+                Log.e("Paste file to", selectedPath)
+                //bottomNavigationView.isVisible = false
+            }
+
+            R.id.action_move ->
+                Log.e("Move file", selectedPath)
+
+            R.id.action_cut ->
+                Log.e("Cut", selectedPath)
+
+            R.id.action_rename -> {
+                Log.e("Rename file", selectedPath)
+                val newFragment = RenameDialog()
+                newFragment.show(supportFragmentManager, "")
+            }
+        }
+    }
+
     override fun onBackPressed() {
         if (openedDirectories.size > 1) {
             fragmentManager.popBackStack(
@@ -93,5 +129,32 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
             fragmentManager.popBackStack()
             super.onBackPressed()
         }
+    }
+
+    override fun dialogRenameFileListener(newFileName: String) {
+        this.newFileName = newFileName
+        renameFie()
+    }
+
+    private fun renameFie() {
+        Log.e(newFileName, "")
+        var prev = File("/storage/emulated/0/Download/joker-laugh.jpg")
+/*
+        var name = ""
+
+        for (i in selectedPath.length - 1 downTo 1) {
+            if (selectedPath[i] != '/')
+                name = selectedPath[i] + name
+            else
+                break
+        }
+
+        selectedPath.replaceRange(name.length, selectedPath.length, newFileName)
+*/
+        var new = File("/storage/emulated/0/Download/aaaaaaajoker.jpg")
+
+        var isSuccess = prev.renameTo(new)
+
+        Log.e(isSuccess.toString(), "")
     }
 }
