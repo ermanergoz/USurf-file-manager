@@ -61,14 +61,11 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-
         setTheme()
         setContentView(R.layout.activity_fragment)
         this.path = intent.getStringExtra("path")
 
         launchFragment(path)
-
-        renameFie()
     }
 
     override fun onClick(directoryData: DirectoryData) {
