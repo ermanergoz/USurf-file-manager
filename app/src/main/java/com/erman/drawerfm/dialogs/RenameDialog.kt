@@ -19,7 +19,7 @@ class RenameDialog : DialogFragment() {
         return activity?.let {
             val builder = AlertDialog.Builder(it)
             val inflater = requireActivity().layoutInflater
-            val dialogView: View = inflater.inflate(R.layout.rename_file_dialog, null)
+            val dialogView: View = inflater.inflate(R.layout.dialog_rename_file, null)
 
             this.nameEditText = dialogView.findViewById(R.id.nameEditText)
 
