@@ -12,11 +12,11 @@ import com.erman.drawerfm.R
 import com.erman.drawerfm.fragments.ListDirFragment
 import java.io.File
 
-
 class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListener {
     lateinit var path: String
     private lateinit var filesListFragment: ListDirFragment
-    lateinit var initialPath: String
+    private val fragmentManager: FragmentManager = supportFragmentManager
+    var openedDirectories = mutableListOf<String>()
 
     private fun setTheme() {
         val chosenTheme = getSharedPreferences(
@@ -37,8 +37,6 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
     }
 
     private fun launchFragment(path: String) {
-        this.supportFragmentManager.popBackStack()
-
         filesListFragment = ListDirFragment.buildFragment(
             path,
             getSharedPreferences(
@@ -47,35 +45,37 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
             ).getBoolean("marquee choice", true)
         )
 
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, filesListFragment)
-            .addToBackStack(null)
+        openedDirectories.add(path)
+
+        fragmentManager.beginTransaction()
+            .add(R.id.fragmentContainer, filesListFragment)
+            .addToBackStack(path)
             .commit()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setTheme()
-
         setContentView(R.layout.activity_fragment)
 
         this.path = intent.getStringExtra("path")
-        initialPath = path
 
         launchFragment(path)
     }
 
     override fun onClick(directoryData: DirectoryData) {
+        path = directoryData.path
+
         if (directoryData.isFolder) {
             launchFragment(directoryData.path)
         } else {
             val intent = Intent(Intent.ACTION_VIEW)
-            intent.data = FileProvider.getUriForFile(this, "com.erman.drawerfm", File(directoryData.path))
-            intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION )
+            intent.data =
+                FileProvider.getUriForFile(this, "com.erman.drawerfm", File(directoryData.path))
+            intent.flags =
+                Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
             startActivity(intent)
         }
-        this.path=directoryData.path
     }
 
     override fun onLongClick(directoryData: DirectoryData) {
@@ -83,35 +83,16 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
     }
 
     override fun onBackPressed() {
-        //TODO: Change this piece of shit and deal with stacks instead!!
-
-        Log.e("initial path", path)
-
-        if (initialPath == path)
-            finish()
-
-        for (i in path.length - 1 downTo 1) {
-            if (path[i] != '/') {
-                path = path.replaceRange(i, i + 1, "")
-            } else {
-                path = path.replaceRange(i, i + 1, "")
-
-                if (File(path).canRead()) {
-                    launchFragment(path)
-                } else
-                    finish()
-                break
-            }
-        }
-        Log.e("later path", path)
-/*
-        val fm: FragmentManager = supportFragmentManager
-        if (fm.backStackEntryCount > 0) {
-            Log.i("MainActivity", "popping backstack")
-            fm.popBackStack()
+        if (openedDirectories.size > 1) {
+            fragmentManager.popBackStack(
+                openedDirectories[openedDirectories.size - 1],
+                FragmentManager.POP_BACK_STACK_INCLUSIVE
+            )
+            openedDirectories.removeAt(openedDirectories.size - 1)
+            path = openedDirectories[openedDirectories.size - 1]
         } else {
-            Log.i("MainActivity", "nothing on backstack, calling super")
+            fragmentManager.popBackStack()
             super.onBackPressed()
-        }*/
+        }
     }
 }
