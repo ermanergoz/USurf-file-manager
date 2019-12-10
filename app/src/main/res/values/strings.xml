@@ -18,6 +18,9 @@
     <string name="credit">Yusuf Erman ERGÖZ</string>
     <string name="about">About</string>
 
+    <!--rename file dialog-->
+    <string name="rename_file">Rename</string>
+
     <!--preferences-->
     <string name="dark_theme_title">Dark theme</string>
     <string name="dark_theme_summary">Check this box to enable the dark theme</string>
