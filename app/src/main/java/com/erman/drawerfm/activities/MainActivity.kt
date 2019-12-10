@@ -249,7 +249,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
         requestPermissions()
-        requestSDCardPermissions()
+        //requestSDCardPermissions()
 
         storageDirectories = getStorageDirectories(this)
 
@@ -264,8 +264,6 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
             newFragment.show(supportFragmentManager, "")
         }
         mainActivity = this
-
-
 
         //getRootAccess()
     }
