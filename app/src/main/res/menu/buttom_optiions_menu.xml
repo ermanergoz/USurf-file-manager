@@ -20,4 +20,8 @@
         android:id="@+id/action_rename"
         android:enabled="true"
         android:title="Rename" />
+    <item
+        android:id="@+id/action_delete"
+        android:enabled="true"
+        android:title="Delete" />
 </menu>
