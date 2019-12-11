@@ -27,15 +27,6 @@ tools:context=".main.MainActivity">
             <item
                 android:id="@+id/about"
                 android:title="About DrawerFM" />
-            <item
-                android:id="@+id/ewwaewa"
-                android:title="Settings" />
-            <item
-                android:id="@+id/ewds"
-                android:title="General Info" />
-            <item
-                android:id="@+id/e"
-                android:title="About DrawerFM" />
         </menu>
     </item>
 
