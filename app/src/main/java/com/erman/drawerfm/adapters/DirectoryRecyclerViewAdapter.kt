@@ -11,7 +11,7 @@ import com.erman.drawerfm.R
 import kotlinx.android.synthetic.main.directory_recycler_layout.view.*
 import java.text.SimpleDateFormat
 
-class DirectoryRecyclerViewAdapter:
+class DirectoryRecyclerViewAdapter :
     RecyclerView.Adapter<DirectoryRecyclerViewAdapter.ViewHolder>() {
 
     var onClickListener: ((DirectoryData) -> Unit)? = null
@@ -39,7 +39,6 @@ class DirectoryRecyclerViewAdapter:
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bindDirectory(directoryList[position])
-
     }
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener,

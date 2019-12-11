@@ -5,10 +5,12 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.fragment.app.FragmentManager
 import com.erman.drawerfm.R
+import com.erman.drawerfm.dialogs.AboutDrawerFMDialog
 import com.erman.drawerfm.dialogs.RenameDialog
 import com.erman.drawerfm.fragments.ListDirFragment
 import java.io.File
@@ -21,7 +23,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
     var openedDirectories = mutableListOf<String>()
 
     var newFileName = ""
-    var selectedPath=""
+    lateinit var selectedDirectory: DirectoryData
 
     private fun setTheme() {
         val chosenTheme = getSharedPreferences(
@@ -62,10 +64,19 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         super.onCreate(savedInstanceState)
 
         setTheme()
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         setContentView(R.layout.activity_fragment)
         this.path = intent.getStringExtra("path")
 
         launchFragment(path)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home ->
+                backButtonPressed()
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onClick(directoryData: DirectoryData) {
@@ -87,34 +98,35 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         Log.e("item is", "long clicked")
     }
 
-    override fun sideNavigationViewClick(navigationItemSelectedId: Int, selectedPath: String) {
+    override fun sideNavigationViewClick(navigationItemSelectedId: Int, selectedDirectory: DirectoryData) {
 
-        this.selectedPath=selectedPath
+        this.selectedDirectory=selectedDirectory
 
         when (navigationItemSelectedId) {
             R.id.action_copy ->
-                Log.e("Copy file at", selectedPath)
+                Log.e("Copy file at", selectedDirectory.path)
 
             R.id.action_paste -> {
-                Log.e("Paste file to", selectedPath)
+                Log.e("Paste file to", selectedDirectory.path)
                 //sideNavigationView.isVisible = false
             }
 
             R.id.action_move ->
-                Log.e("Move file", selectedPath)
+                Log.e("Move file", selectedDirectory.path)
 
             R.id.action_cut ->
-                Log.e("Cut", selectedPath)
+                Log.e("Cut", selectedDirectory.path)
 
             R.id.action_rename -> {
-                Log.e("Rename file", selectedPath)
+                Log.e("Rename file", selectedDirectory.path)
                 val newFragment = RenameDialog()
                 newFragment.show(supportFragmentManager, "")
             }
         }
     }
 
-    override fun onBackPressed() {
+    private fun backButtonPressed()
+    {
         if (openedDirectories.size > 1) {
             fragmentManager.popBackStack(
                 openedDirectories[openedDirectories.size - 1],
@@ -126,6 +138,10 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
             fragmentManager.popBackStack()
             super.onBackPressed()
         }
+    }
+
+    override fun onBackPressed() {
+        backButtonPressed()
     }
 
     override fun dialogRenameFileListener(newFileName: String) {
