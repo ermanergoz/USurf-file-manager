@@ -152,18 +152,18 @@ fun checkStoragePermission(context: Context): Boolean {
         Manifest.permission.WRITE_EXTERNAL_STORAGE
     ) == PackageManager.PERMISSION_GRANTED
 }*/
-fun getStorageDirectories(context: Context): ArrayList<String> {
-    val paths = ArrayList<String>()
+fun getStorageDirectories(context: Context): Set<String> {
+    val paths = mutableSetOf<String>()
 
-    var isEmulatedFound = false
+    var isEmulatedOrStorageFound = false
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
         paths.addAll(getExtSdCardPathsForActivity(context))
     }
 
     for (i in 0 until paths.size) {
-        if (paths[i] == "/storage/emulated/0") {
-            isEmulatedFound = true
+        if (paths.elementAt(i) == "/storage/emulated/0" || paths.elementAt(i) == "/storage/sdcard") {
+            isEmulatedOrStorageFound = true
             break
         }
     }
@@ -188,6 +188,32 @@ fun getStorageDirectories(context: Context): ArrayList<String> {
         paths.add("/data/sdext")
     }
 
+    //Storages
+    if (File("/storage/removable/sdcard1").exists() && File("/storage/removable/sdcard1").canRead()) {
+        paths.add("/storage/removable/sdcard1")
+    }
+    if (File("/storage/external_SD").exists() && File("/storage/external_SD").canRead()) {
+        paths.add("/storage/external_SD")
+    }
+    if (File("/storage/ext_sd").exists() && File("/storage/ext_sd").canRead()) {
+        paths.add("/storage/ext_sd")
+    }
+    if (File("/storage/extsd").exists() && File("/storage/extsd").canRead()) {
+        paths.add("/storage/extsd")
+    }
+    if (File("/storage/sdcard1").exists() && File("/storage/sdcard1").canRead() && !isEmulatedOrStorageFound) {
+        paths.add("/storage/sdcard1")
+    }
+    if (File("/storage/sdcard0").exists() && File("/storage/sdcard0").canRead() && !isEmulatedOrStorageFound) {
+        paths.add("/storage/sdcard0")
+    }
+    if (File("/storage/sdcard").exists() && File("/storage/sdcard").canRead() && !isEmulatedOrStorageFound) {
+        paths.add("/storage/sdcard")
+    }
+    if (paths.size == 0) {
+        paths.add(Environment.getExternalStorageDirectory().absolutePath)
+    }
+
     //MNTS
     if (File("mnt/sdcard/external_sd").exists() && File("mnt/sdcard/external_sd").canRead()) {
         paths.add("mnt/sdcard/external_sd")
@@ -204,40 +230,14 @@ fun getStorageDirectories(context: Context): ArrayList<String> {
     if (File("mnt/emmc").exists() && File("mnt/emmc").canRead()) {
         paths.add("mnt/emmc")
     }
-    if (File("mnt/sdcard0").exists() && File("mnt/sdcard0").canRead() && !isEmulatedFound) {
+    if (File("mnt/sdcard0").exists() && File("mnt/sdcard0").canRead() && !isEmulatedOrStorageFound) {
         paths.add("mnt/sdcard0")
     }
-    if (File("mnt/sdcard1").exists() && File("mnt/sdcard1").canRead() && !isEmulatedFound) {
+    if (File("mnt/sdcard1").exists() && File("mnt/sdcard1").canRead() && !isEmulatedOrStorageFound) {
         paths.add("mnt/sdcard1")
     }
-    if (File("mnt/sdcard").exists() && File("mnt/sdcard").canRead() && !isEmulatedFound) {
+    if (File("mnt/sdcard").exists() && File("mnt/sdcard").canRead() && !isEmulatedOrStorageFound) {
         paths.add("mnt/sdcard")
-    }
-
-    //Storages
-    if (File("/storage/removable/sdcard1").exists() && File("/storage/removable/sdcard1").canRead()) {
-        paths.add("/storage/removable/sdcard1")
-    }
-    if (File("/storage/external_SD").exists() && File("/storage/external_SD").canRead()) {
-        paths.add("/storage/external_SD")
-    }
-    if (File("/storage/ext_sd").exists() && File("/storage/ext_sd").canRead()) {
-        paths.add("/storage/ext_sd")
-    }
-    if (File("/storage/extsd").exists() && File("/storage/extsd").canRead()) {
-        paths.add("/storage/extsd")
-    }
-    if (File("/storage/sdcard1").exists() && File("/storage/sdcard1").canRead() && !isEmulatedFound) {
-        paths.add("/storage/sdcard1")
-    }
-    if (File("/storage/sdcard0").exists() && File("/storage/sdcard0").canRead() && !isEmulatedFound) {
-        paths.add("/storage/sdcard0")
-    }
-    if (File("/storage/sdcard").exists() && File("/storage/sdcard").canRead() && !isEmulatedFound) {
-        paths.add("/storage/sdcard")
-    }
-    if (paths.size == 0) {
-        paths.add(Environment.getExternalStorageDirectory().absolutePath)
     }
 
     return paths

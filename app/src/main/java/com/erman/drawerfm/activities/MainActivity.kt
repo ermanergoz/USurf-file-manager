@@ -2,7 +2,6 @@ package com.erman.drawerfm.activities
 
 import CreateShortcutDialog
 import android.Manifest
-import android.app.ActionBar
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -16,7 +15,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.storage.StorageManager
-import android.preference.PreferenceManager
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.LayoutInflater
@@ -27,8 +25,6 @@ import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.res.ResourcesCompat
-import androidx.preference.Preference
-import androidx.preference.PreferenceFragmentCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import com.erman.drawerfm.R
 import com.erman.drawerfm.adapters.ShortcutRecyclerViewAdapter
@@ -61,8 +57,9 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     private var buttonBorder: Int = R.drawable.storage_button_style
 
     private lateinit var storageButtons: MutableList<View>
-    private lateinit var storageDirectories: ArrayList<String>
+    private lateinit var storageDirectories: Set<String>
     private var screenWidth = 0
+    private var screenHeight = 0
 
     private lateinit var sharedPref: SharedPreferences
 
@@ -131,13 +128,13 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     private fun createStorageButtons() {
         storageButtons = mutableListOf()
 
-        for (i in 0 until storageDirectories.size) {
+        for (i in storageDirectories.indices) {
             val layoutInflater: LayoutInflater = LayoutInflater.from(this)
             val storageButtonLayout: View =
                 layoutInflater.inflate(R.layout.storage_button, null, false)
 
             storageButtons.add(storageButtonLayout)
-            storageButtons[i].tag = storageDirectories[i]
+            storageButtons[i].tag = storageDirectories.elementAt(i)
             setStorageButtonName(storageButtons[i])
             storageButtons[i].linkText.isSingleLine = true
             storageButtons[i].setBackgroundResource(buttonBorder)
@@ -157,24 +154,24 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         val displayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)
         screenWidth = displayMetrics.widthPixels
+        screenHeight = displayMetrics.heightPixels
 
         val buttonLayoutParams = FrameLayout.LayoutParams(
             ((screenWidth - ((buttonSideMargin * 2) * storageDirectories.size)) / storageDirectories.size),
-            (170)
-            //TODO: Change button height in such way that  it will look nice on different screen sizes
+            (screenHeight/(8+storageButtons.size))
         )
         buttonLayoutParams.setMargins(buttonSideMargin, 0, buttonSideMargin, 0)
 
-        for (i in 0 until storageDirectories.size) {
+        for (i in storageDirectories.indices) {
             storageButtons[i].progressBar.scaleY = storageProgressBarHeight
             storageUsageBarLayout.addView(storageButtons[i], buttonLayoutParams)
         }
     }
 
     private fun displayUsedSpace() {
-        for (i in 0 until storageDirectories.size) {
+        for (i in storageDirectories.indices) {
             storageButtons[i].progressBar.progress =
-                getUsedStoragePercentage(storageDirectories[i])
+                getUsedStoragePercentage(storageDirectories.elementAt(i))
         }
     }
 
@@ -210,33 +207,33 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         }
     }
 
-    var sdCardUri : Uri? = null
+    var sdCardUri: Uri? = null
 
-    private fun requestSDCardPermissions(){
-        if(Build.VERSION.SDK_INT < 24){
+    private fun requestSDCardPermissions() {
+        if (Build.VERSION.SDK_INT < 24) {
             startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT_TREE), 1)
             return
         }
         // find removable device using getStorageVolumes
         val sm = getSystemService(Context.STORAGE_SERVICE) as StorageManager
         val sdCard = sm.storageVolumes.find { it.isRemovable }
-        if(sdCard != null){
+        if (sdCard != null) {
             startActivityForResult(sdCard.createAccessIntent(null), 1)
         }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
-        if(requestCode == 1 || requestCode == 0){
-            if(resultCode == RESULT_OK) {
-                if(data == null){
+        if (requestCode == 1 || requestCode == 0) {
+            if (resultCode == RESULT_OK) {
+                if (data == null) {
                     Log.e("dsfsdfsd", "Error obtaining access")
-                }else{
+                } else {
                     sdCardUri = data.data
                     Log.d("StorageAccess", "obtained access to $sdCardUri")
                     // optionally store uri in preferences as well here { ... }
                 }
-            }else
+            } else
                 Log.e("access denied", "sdfsdfsdfsdffsdfsdfsd")
             return
         }
@@ -267,8 +264,6 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
             newFragment.show(supportFragmentManager, "")
         }
         mainActivity = this
-
-        //getRootAccess()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -278,18 +273,16 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.deviceWideSearch ->
+           R.id.deviceWideSearch ->
                 Log.e("option", "deviceWideSearch")
-
             R.id.settings ->
                 startSettingsActivity()
-
             R.id.about ->
                 AboutDrawerFMDialog().show(supportFragmentManager, "")
-            /*R.id.generalInfo ->
-                startGeneralStorageInfoActivity(storageDirectories)*/
             android.R.id.home ->
                 finish()
+            /*R.id.generalInfo ->
+                startGeneralStorageInfoActivity(storageDirectories)*/
         }
         return super.onOptionsItemSelected(item)
     }
