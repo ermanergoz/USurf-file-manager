@@ -2,6 +2,7 @@ package com.erman.drawerfm.activities
 
 import CreateShortcutDialog
 import android.Manifest
+import android.app.ActionBar
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -248,6 +249,8 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         setContentView(R.layout.activity_main)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
         requestPermissions()
         //requestSDCardPermissions()
 
@@ -285,6 +288,8 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
                 AboutDrawerFMDialog().show(supportFragmentManager, "")
             /*R.id.generalInfo ->
                 startGeneralStorageInfoActivity(storageDirectories)*/
+            android.R.id.home ->
+                finish()
         }
         return super.onOptionsItemSelected(item)
     }
