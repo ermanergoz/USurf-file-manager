@@ -158,7 +158,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
 
         val buttonLayoutParams = FrameLayout.LayoutParams(
             ((screenWidth - ((buttonSideMargin * 2) * storageDirectories.size)) / storageDirectories.size),
-            (screenHeight/(8+storageButtons.size))
+            (screenHeight / (8 + storageButtons.size))
         )
         buttonLayoutParams.setMargins(buttonSideMargin, 0, buttonSideMargin, 0)
 
@@ -273,7 +273,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-           R.id.deviceWideSearch ->
+            R.id.deviceWideSearch ->
                 Log.e("option", "deviceWideSearch")
             R.id.settings ->
                 startSettingsActivity()
