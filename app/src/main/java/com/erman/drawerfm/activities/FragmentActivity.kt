@@ -6,13 +6,16 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentManager
 import com.erman.drawerfm.R
 import com.erman.drawerfm.dialogs.AboutDrawerFMDialog
 import com.erman.drawerfm.dialogs.RenameDialog
 import com.erman.drawerfm.fragments.ListDirFragment
+import kotlinx.android.synthetic.main.activity_fragment.*
 import java.io.File
 
 class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListener,
@@ -67,8 +70,33 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         setContentView(R.layout.activity_fragment)
         this.path = intent.getStringExtra("path")
-
+        sideNavigationView.isVisible = false
         launchFragment(path)
+
+        sideNavigationView.setNavigationItemSelectedListener {
+            when (it.itemId) {
+                R.id.action_copy ->
+                    Log.e("Copy file at", selectedDirectory.path)
+
+                R.id.action_paste -> {
+                    Log.e("Paste file to", selectedDirectory.path)
+                    //sideNavigationView.isVisible = false
+                }
+
+                R.id.action_move ->
+                    Log.e("Move file", selectedDirectory.path)
+
+                R.id.action_cut ->
+                    Log.e("Cut", selectedDirectory.path)
+
+                R.id.action_rename -> {
+                    Log.e("Rename file", selectedDirectory.path)
+                    val newFragment = RenameDialog()
+                    newFragment.show(supportFragmentManager, "")
+                }
+            }
+            true
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -95,48 +123,26 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
     }
 
     override fun onLongClick(directoryData: DirectoryData) {
+        sideNavigationView.isVisible = true
+        selectedDirectory = directoryData
         Log.e("item is", "long clicked")
     }
 
-    override fun sideNavigationViewClick(navigationItemSelectedId: Int, selectedDirectory: DirectoryData) {
-
-        this.selectedDirectory=selectedDirectory
-
-        when (navigationItemSelectedId) {
-            R.id.action_copy ->
-                Log.e("Copy file at", selectedDirectory.path)
-
-            R.id.action_paste -> {
-                Log.e("Paste file to", selectedDirectory.path)
-                //sideNavigationView.isVisible = false
+    private fun backButtonPressed() {
+        when {
+            sideNavigationView.isVisible -> sideNavigationView.isVisible = false
+            openedDirectories.size > 1 -> {
+                fragmentManager.popBackStack(
+                    openedDirectories[openedDirectories.size - 1],
+                    FragmentManager.POP_BACK_STACK_INCLUSIVE
+                )
+                openedDirectories.removeAt(openedDirectories.size - 1)
+                path = openedDirectories[openedDirectories.size - 1]
             }
-
-            R.id.action_move ->
-                Log.e("Move file", selectedDirectory.path)
-
-            R.id.action_cut ->
-                Log.e("Cut", selectedDirectory.path)
-
-            R.id.action_rename -> {
-                Log.e("Rename file", selectedDirectory.path)
-                val newFragment = RenameDialog()
-                newFragment.show(supportFragmentManager, "")
+            else -> {
+                fragmentManager.popBackStack()
+                super.onBackPressed()
             }
-        }
-    }
-
-    private fun backButtonPressed()
-    {
-        if (openedDirectories.size > 1) {
-            fragmentManager.popBackStack(
-                openedDirectories[openedDirectories.size - 1],
-                FragmentManager.POP_BACK_STACK_INCLUSIVE
-            )
-            openedDirectories.removeAt(openedDirectories.size - 1)
-            path = openedDirectories[openedDirectories.size - 1]
-        } else {
-            fragmentManager.popBackStack()
-            super.onBackPressed()
         }
     }
 
