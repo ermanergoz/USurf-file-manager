@@ -72,16 +72,6 @@
         app:layout_constraintTop_toBottomOf="@+id/fileListRecyclerView"
         app:menu="@menu/buttom_optiions_menu"></com.google.android.material.bottomnavigation.BottomNavigationView>
 
-    <com.google.android.material.navigation.NavigationView
-        android:id="@+id/sideNavigationView"
-        android:layout_width="95dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/bottomNavigationView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/divider"
-        app:layout_constraintVertical_bias="0.46"
-        app:menu="@menu/side_options_menu" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
