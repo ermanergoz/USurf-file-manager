@@ -7,7 +7,8 @@ data class DirectoryData(
     val name: String,
     val sizeInMB: Double,
     val subFileNum: Int = 0,
-    val lastModifiedDate: Date
+    val lastModifiedDate: Date,
+    val extension: String = ""
 )
 
 
