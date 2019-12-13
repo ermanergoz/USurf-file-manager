@@ -6,16 +6,16 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentManager
 import com.erman.drawerfm.R
-import com.erman.drawerfm.dialogs.AboutDrawerFMDialog
 import com.erman.drawerfm.dialogs.RenameDialog
 import com.erman.drawerfm.fragments.ListDirFragment
+import delete
 import kotlinx.android.synthetic.main.activity_fragment.*
+import rename
 import java.io.File
 
 class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListener,
@@ -24,8 +24,6 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
     private lateinit var filesListFragment: ListDirFragment
     private val fragmentManager: FragmentManager = supportFragmentManager
     var openedDirectories = mutableListOf<String>()
-
-    var newFileName = ""
     lateinit var selectedDirectory: DirectoryData
 
     private fun setTheme() {
@@ -47,6 +45,9 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
     }
 
     private fun launchFragment(path: String) {
+        if (sideNavigationView.isVisible)
+            sideNavigationView.isVisible = false
+
         filesListFragment = ListDirFragment.buildFragment(
             path,
             getSharedPreferences(
@@ -57,6 +58,8 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
 
         openedDirectories.add(path)
 
+        supportActionBar?.title = path
+
         fragmentManager.beginTransaction()
             .add(R.id.fragmentContainer, filesListFragment)
             .addToBackStack(path)
@@ -65,7 +68,6 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setTheme()
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         setContentView(R.layout.activity_fragment)
@@ -76,25 +78,28 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         sideNavigationView.setNavigationItemSelectedListener {
             when (it.itemId) {
                 R.id.action_copy ->
-                    Log.e("Copy file at", selectedDirectory.path)
-
+                    Log.e(
+                        "Copy file at",
+                        selectedDirectory.path.removeSuffix(selectedDirectory.name)
+                    )
                 R.id.action_paste -> {
                     Log.e("Paste file to", selectedDirectory.path)
                     //sideNavigationView.isVisible = false
                 }
-
                 R.id.action_move ->
                     Log.e("Move file", selectedDirectory.path)
 
                 R.id.action_cut ->
                     Log.e("Cut", selectedDirectory.path)
-
                 R.id.action_rename -> {
-                    Log.e("Rename file", selectedDirectory.path)
                     val newFragment = RenameDialog()
                     newFragment.show(supportFragmentManager, "")
                 }
+                R.id.action_delete -> {
+                    delete(selectedDirectory)
+                }
             }
+            sideNavigationView.isVisible = false
             true
         }
     }
@@ -150,30 +155,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         backButtonPressed()
     }
 
-    override fun dialogRenameFileListener(newFileName: String) {
-        this.newFileName = newFileName
-        renameFie()
-    }
-
-    private fun renameFie() {
-        Log.e(newFileName, "")
-        var prev = File("/storage/emulated/0/Download/joker-laugh.jpg")
-/*
-        var name = ""
-
-        for (i in selectedPath.length - 1 downTo 1) {
-            if (selectedPath[i] != '/')
-                name = selectedPath[i] + name
-            else
-                break
-        }
-
-        selectedPath.replaceRange(name.length, selectedPath.length, newFileName)
-*/
-        var new = File("/storage/emulated/0/Download/aaaaaaajoker.jpg")
-
-        var isSuccess = prev.renameTo(new)
-
-        Log.e(isSuccess.toString(), "")
+    override fun dialogRenameFileListener(newNameToBe: String) {
+        rename(selectedDirectory, newNameToBe)
     }
 }
