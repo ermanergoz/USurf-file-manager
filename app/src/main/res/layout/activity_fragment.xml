@@ -14,7 +14,7 @@
 
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/sideNavigationView"
-        android:layout_width="90dp"
+        android:layout_width="86dp"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
