@@ -13,10 +13,6 @@
         android:enabled="true"
         android:title="Move" />
     <item
-        android:id="@+id/action_cut"
-        android:enabled="true"
-        android:title="Cut" />
-    <item
         android:id="@+id/action_rename"
         android:enabled="true"
         android:title="Rename" />
