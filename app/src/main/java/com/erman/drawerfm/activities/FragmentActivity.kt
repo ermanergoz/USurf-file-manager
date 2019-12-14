@@ -88,9 +88,6 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
                 }
                 R.id.action_move ->
                     Log.e("Move file", selectedDirectory.path)
-
-                R.id.action_cut ->
-                    Log.e("Cut", selectedDirectory.path)
                 R.id.action_rename -> {
                     val newFragment = RenameDialog()
                     newFragment.show(supportFragmentManager, "")
