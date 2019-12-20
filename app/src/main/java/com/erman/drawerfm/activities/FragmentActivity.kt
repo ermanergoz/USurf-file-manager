@@ -175,20 +175,23 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
     }
 
     private fun backButtonPressed() {
-        when {
-            sideNavigationView.isVisible -> sideNavigationView.isVisible = false
-            openedDirectories.size > 1 -> {
-                fragmentManager.popBackStack(
-                    openedDirectories[openedDirectories.size - 1],
-                    FragmentManager.POP_BACK_STACK_INCLUSIVE
-                )
-                openedDirectories.removeAt(openedDirectories.size - 1)
-                path = openedDirectories[openedDirectories.size - 1]
-            }
-            else -> {
-                fragmentManager.popBackStack()
-                super.onBackPressed()
-            }
+        if (sideNavigationView.isVisible) sideNavigationView.isVisible = false
+        if(newFileFloatingButton.isVisible && newFolderFloatingButton.isVisible)
+        {
+            newFileFloatingButton.isVisible = false
+            newFolderFloatingButton.isVisible = false
+        }
+        else if (openedDirectories.size > 1) {
+            fragmentManager.popBackStack(
+                openedDirectories[openedDirectories.size - 1],
+                FragmentManager.POP_BACK_STACK_INCLUSIVE
+            )
+            openedDirectories.removeAt(openedDirectories.size - 1)
+            path = openedDirectories[openedDirectories.size - 1]
+        }
+        else {
+            fragmentManager.popBackStack()
+            super.onBackPressed()
         }
     }
 
