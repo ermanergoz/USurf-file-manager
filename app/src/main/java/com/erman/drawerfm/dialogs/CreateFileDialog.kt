@@ -10,16 +10,16 @@ import android.widget.EditText
 import androidx.fragment.app.DialogFragment
 import com.erman.drawerfm.R
 
-class RenameDialog(var title: String) : DialogFragment() {
+class CreateFileDialog(var title: String) : DialogFragment() {
     private lateinit var newFileName: String
-    private lateinit var listener: DialogRenameFileListener
+    private lateinit var listener: DialogCreateFileListener
     private lateinit var nameEditText: EditText
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
             val builder = AlertDialog.Builder(it)
             val inflater = requireActivity().layoutInflater
-            val dialogView: View = inflater.inflate(R.layout.dialog_rename_file, null)
+            val dialogView: View = inflater.inflate(R.layout.dialog_create_file, null)
 
             this.nameEditText = dialogView.findViewById(R.id.nameEditText)
 
@@ -30,7 +30,7 @@ class RenameDialog(var title: String) : DialogFragment() {
                     DialogInterface.OnClickListener { dialog, id ->
                         // Send the positive button event back to the host activity
                         newFileName = this.nameEditText.text.toString()
-                        listener.dialogRenameFileListener(newFileName)
+                        listener.dialogCreateFileListener(newFileName)
                     })
                 .setNegativeButton(R.string.cancel,
                     DialogInterface.OnClickListener { dialog, id ->
@@ -46,7 +46,7 @@ class RenameDialog(var title: String) : DialogFragment() {
         super.onAttach(context)
 
         try {
-            listener = context as DialogRenameFileListener
+            listener = context as DialogCreateFileListener
         } catch (err: ClassCastException) {
             throw ClassCastException(
                 (context.toString() + " must implement DialogRenameFileListener")
@@ -54,7 +54,7 @@ class RenameDialog(var title: String) : DialogFragment() {
         }
     }
 
-    interface DialogRenameFileListener {
-        fun dialogRenameFileListener(newFileName: String)
+    interface DialogCreateFileListener {
+        fun dialogCreateFileListener(newFileName: String)
     }
 }

@@ -11,12 +11,10 @@ import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.FrameLayout
 import androidx.core.content.res.ResourcesCompat
 import com.erman.drawerfm.R
-import getUsedStoragePercentage
+import com.erman.drawerfm.utilities.getUsedStoragePercentage
 import kotlinx.android.synthetic.main.activity_general_storage_info.*
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.storage_button.view.*
 import java.util.ArrayList
 
