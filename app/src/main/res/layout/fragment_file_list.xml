@@ -7,34 +7,6 @@
     android:background="?attr/background"
     android:orientation="vertical">
 
-
-    <!--    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/floatingModeButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        app:backgroundTint="?attr/blueColorAccent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.936"
-        app:srcCompat="@android:drawable/checkbox_on_background" />     -->
-
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottomNavigationView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:labelVisibilityMode="unlabeled"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/fileListRecyclerView"
-        app:menu="@menu/buttom_optiions_menu"></com.google.android.material.bottomnavigation.BottomNavigationView>
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/fileListRecyclerView"
         android:layout_width="0dp"
@@ -64,7 +36,7 @@
         android:layout_marginBottom="16dp"
         android:text="Aren't we all empty inside?"
         android:textSize="18sp"
-        app:layout_constraintBottom_toTopOf="@+id/bottomNavigationView"
+        app:layout_constraintBottom_toTopOf="@+id/bottomConfNavView"
         app:layout_constraintEnd_toStartOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="parent"

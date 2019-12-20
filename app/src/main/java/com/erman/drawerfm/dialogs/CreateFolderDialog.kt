@@ -10,9 +10,9 @@ import android.widget.EditText
 import androidx.fragment.app.DialogFragment
 import com.erman.drawerfm.R
 
-class RenameDialog(var title: String) : DialogFragment() {
+class CreateFolderDialog(var title: String) : DialogFragment() {
     private lateinit var newFileName: String
-    private lateinit var listener: DialogRenameFileListener
+    private lateinit var listener: DialogCreateFolderListener
     private lateinit var nameEditText: EditText
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -30,7 +30,7 @@ class RenameDialog(var title: String) : DialogFragment() {
                     DialogInterface.OnClickListener { dialog, id ->
                         // Send the positive button event back to the host activity
                         newFileName = this.nameEditText.text.toString()
-                        listener.dialogRenameFileListener(newFileName)
+                        listener.dialogCreateFolderListener(newFileName)
                     })
                 .setNegativeButton(R.string.cancel,
                     DialogInterface.OnClickListener { dialog, id ->
@@ -46,7 +46,7 @@ class RenameDialog(var title: String) : DialogFragment() {
         super.onAttach(context)
 
         try {
-            listener = context as DialogRenameFileListener
+            listener = context as DialogCreateFolderListener
         } catch (err: ClassCastException) {
             throw ClassCastException(
                 (context.toString() + " must implement DialogRenameFileListener")
@@ -54,7 +54,7 @@ class RenameDialog(var title: String) : DialogFragment() {
         }
     }
 
-    interface DialogRenameFileListener {
-        fun dialogRenameFileListener(newFileName: String)
+    interface DialogCreateFolderListener {
+        fun dialogCreateFolderListener(newFileName: String)
     }
 }

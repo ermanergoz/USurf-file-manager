@@ -31,11 +31,10 @@ import com.erman.drawerfm.adapters.ShortcutRecyclerViewAdapter
 import com.erman.drawerfm.dialogs.AboutDrawerFMDialog
 import com.erman.drawerfm.dialogs.ErrorDialog
 import getStorageDirectories
-import getUsedStoragePercentage
+import com.erman.drawerfm.utilities.getUsedStoragePercentage
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.storage_button.view.*
 import java.io.File
-import java.util.*
 
 class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShortcutListener {
 

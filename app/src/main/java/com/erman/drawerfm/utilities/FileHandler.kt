@@ -1,3 +1,6 @@
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentTransaction
+import com.erman.drawerfm.fragments.ListDirFragment
 import java.io.File
 import java.util.*
 
@@ -31,7 +34,11 @@ fun convertFileSizeToMB(sizeInBytes: Long): Double {
     //TODO: Use the nice function in StorageUsageData class instead and delete this
 }
 
-fun rename(selectedDirectory: DirectoryData, newNameToBe: String) {
+fun rename(
+    selectedDirectory: DirectoryData,
+    newNameToBe: String,
+    filesListFragment: ListDirFragment
+) {
     var dirName = selectedDirectory.path.removeSuffix(selectedDirectory.name)
     var newFileName = newNameToBe
 
@@ -42,12 +49,25 @@ fun rename(selectedDirectory: DirectoryData, newNameToBe: String) {
     var new = File(dirName, newFileName)
 
     prev.renameTo(new)
+
+    filesListFragment.updateData()
 }
 
-fun delete(selectedDirectory: DirectoryData) {
+fun delete(selectedDirectory: DirectoryData, filesListFragment: ListDirFragment) {
     if (!selectedDirectory.isFolder) {
         File(selectedDirectory.path).deleteRecursively()
     } else {
         File(selectedDirectory.path).delete()
     }
+    filesListFragment.updateData()
+}
+
+fun createFolder(path: String, folderName: String, filesListFragment: ListDirFragment) {
+    File(path +"/"+ folderName).mkdir()
+    filesListFragment.updateData()
+}
+
+fun createFile(path: String, folderName: String, filesListFragment: ListDirFragment) {
+    File(path +"/"+ folderName).createNewFile()
+    filesListFragment.updateData()
 }
