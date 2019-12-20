@@ -10,7 +10,7 @@ import android.widget.EditText
 import androidx.fragment.app.DialogFragment
 import com.erman.drawerfm.R
 
-class RenameDialog : DialogFragment() {
+class RenameDialog(var title: String) : DialogFragment() {
     private lateinit var newFileName: String
     private lateinit var listener: DialogRenameFileListener
     private lateinit var nameEditText: EditText
@@ -24,7 +24,7 @@ class RenameDialog : DialogFragment() {
             this.nameEditText = dialogView.findViewById(R.id.nameEditText)
 
             // Create the AlertDialog object and return it
-            builder.setMessage(R.string.rename_file)
+            builder.setMessage(title)
 
                 .setPositiveButton(R.string.ok,
                     DialogInterface.OnClickListener { dialog, id ->

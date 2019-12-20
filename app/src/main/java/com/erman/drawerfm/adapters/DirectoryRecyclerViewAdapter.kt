@@ -19,7 +19,6 @@ class DirectoryRecyclerViewAdapter :
     var directoryList = listOf<DirectoryData>()
     private var dateFormat = SimpleDateFormat("dd MMMM | HH:mm:ss")
 
-
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
