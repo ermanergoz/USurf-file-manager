@@ -20,6 +20,9 @@
 
     <!--rename file dialog-->
     <string name="rename_file">Rename</string>
+    <string name="new_directory_name">New directory name</string>
+    <string name="new_file_name">New file name</string>
+
 
     <!--preferences-->
     <string name="dark_theme_title">Dark theme</string>
