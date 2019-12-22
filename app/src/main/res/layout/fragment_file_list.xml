@@ -18,27 +18,4 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0" />
 
-    <ImageView
-        android:id="@+id/emptyFolderImage"
-        android:layout_width="193dp"
-        android:layout_height="156dp"
-        app:layout_constraintBottom_toTopOf="@+id/fileListRecyclerView"
-        app:layout_constraintEnd_toStartOf="@+id/fileListRecyclerView"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/fileListRecyclerView"
-        app:layout_constraintTop_toBottomOf="@+id/fileListRecyclerView"
-        app:srcCompat="@drawable/sad_pepe" />
-
-    <TextView
-        android:id="@+id/emptyFolderTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:text="Aren't we all empty inside?"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toTopOf="@+id/bottomConfNavView"
-        app:layout_constraintEnd_toStartOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/emptyFolderImage" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,14 +1,19 @@
+import android.content.Intent
+import android.util.Log
+import com.erman.drawerfm.R
 import com.erman.drawerfm.fragments.ListDirFragment
 import java.io.File
+import java.io.IOException
 import java.util.*
 
 fun getFiles(path: String): List<File> {
+    Log.e("current path", path)
     return File(path).listFiles().sorted().toList()
 }
 
 fun getDirectoryData(files: List<File>): List<DirectoryData> {
 
-    var fileModelList: MutableList<DirectoryData> = mutableListOf()
+    val fileModelList: MutableList<DirectoryData> = mutableListOf()
 
     for (i in files.indices) {
         fileModelList.add(
@@ -23,6 +28,7 @@ fun getDirectoryData(files: List<File>): List<DirectoryData> {
             )
         )
     }
+    Log.e("dir size", fileModelList.size.toString())
     return fileModelList
 }
 
@@ -51,7 +57,7 @@ fun rename(
 }
 
 fun delete(selectedDirectory: DirectoryData, filesListFragment: ListDirFragment) {
-    if (!selectedDirectory.isFolder) {
+    if (selectedDirectory.isFolder) {
         File(selectedDirectory.path).deleteRecursively()
     } else {
         File(selectedDirectory.path).delete()
@@ -67,4 +73,25 @@ fun createFolder(path: String, folderName: String, filesListFragment: ListDirFra
 fun createFile(path: String, folderName: String, filesListFragment: ListDirFragment) {
     File(path + "/" + folderName).createNewFile()
     filesListFragment.updateData()
+}
+
+fun copyFile(copyOrMoveSource: DirectoryData, copyOrMoveDestination: String, filesListFragment: ListDirFragment) {
+    if (copyOrMoveSource.isFolder) {
+        File(copyOrMoveSource.path).copyRecursively(File(copyOrMoveDestination+copyOrMoveSource.name))
+    } else {
+        File(copyOrMoveSource.path).copyTo(File(copyOrMoveDestination+"/"+copyOrMoveSource.name))
+    }
+
+    filesListFragment.updateData()
+}
+
+fun moveFile(copyOrMoveSource: DirectoryData, copyOrMoveDestination: String, filesListFragment: ListDirFragment) {
+    if (copyOrMoveSource.isFolder) {
+        File(copyOrMoveSource.path).copyRecursively(File(copyOrMoveDestination+copyOrMoveSource.name))
+    } else {
+        File(copyOrMoveSource.path).copyTo(File(copyOrMoveDestination+"/"+copyOrMoveSource.name))
+    }
+    filesListFragment.updateData()
+
+    delete(copyOrMoveSource, filesListFragment)
 }
