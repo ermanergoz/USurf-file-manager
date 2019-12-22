@@ -15,11 +15,13 @@ import com.erman.drawerfm.dialogs.CreateFileDialog
 import com.erman.drawerfm.dialogs.CreateFolderDialog
 import com.erman.drawerfm.dialogs.RenameDialog
 import com.erman.drawerfm.fragments.ListDirFragment
+import copyFile
 import createFile
 import createFolder
 import delete
 import kotlinx.android.synthetic.main.activity_fragment.*
 import kotlinx.android.synthetic.main.fragment_file_list.*
+import moveFile
 import rename
 import java.io.File
 
@@ -32,6 +34,9 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
     private val fragmentManager: FragmentManager = supportFragmentManager
     var openedDirectories = mutableListOf<String>()
     lateinit var selectedDirectory: DirectoryData
+    lateinit var copyOrMoveSource: DirectoryData
+    var isMoveOperation = false
+    var isCopyOperation = false
 
     private fun setTheme() {
         val chosenTheme = getSharedPreferences(
@@ -88,18 +93,19 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         sideNavigationView.setNavigationItemSelectedListener {
             when (it.itemId) {
                 R.id.action_copy -> {
-                    Log.e(
-                        "Copy file at",
-                        selectedDirectory.path.removeSuffix(selectedDirectory.name)
-                    )
+                    copyOrMoveSource = selectedDirectory
+                    isCopyOperation = true
                     bottomConfNavView.isVisible = true
                 }
                 R.id.action_paste -> {
                     Log.e("Paste file to", selectedDirectory.path)
                     //sideNavigationView.isVisible = false
                 }
-                R.id.action_move ->
-                    Log.e("Move file", selectedDirectory.path)
+                R.id.action_move -> {
+                    copyOrMoveSource = selectedDirectory
+                    isMoveOperation = true
+                    bottomConfNavView.isVisible = true
+                }
                 R.id.action_rename -> {
                     val newFragment = RenameDialog(getString(R.string.rename_file))
                     newFragment.show(fragmentManager, "")
@@ -114,11 +120,20 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
 
         bottomConfNavView.setOnNavigationItemSelectedListener {
             when (it.itemId) {
-                R.id.action_OK ->
-                    Log.e("OK is pressed", "OK is pressed")
+                R.id.action_OK -> {
+                    if (isCopyOperation)
+                        copyFile(copyOrMoveSource, path, filesListFragment)
+                    if (isMoveOperation) {
+                        moveFile(copyOrMoveSource, path, filesListFragment)
+                        isMoveOperation = false
+                    }
+                }
 
-                R.id.action_cancel ->
-                    Log.e("Cancel is pressed", "Cancel is pressed")
+                R.id.action_cancel -> {
+                    isMoveOperation = false
+                    isCopyOperation = false
+                    bottomConfNavView.isVisible = false
+                }
             }
             true
         }
@@ -141,6 +156,10 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         newFileFloatingButton.setOnClickListener {
             val newFragment = CreateFileDialog(getString(R.string.new_file_name))
             newFragment.show(fragmentManager, "")
+        }
+
+        tempRefreshButton.setOnClickListener {
+            filesListFragment.updateData()
         }
     }
 
@@ -176,20 +195,17 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
 
     private fun backButtonPressed() {
         if (sideNavigationView.isVisible) sideNavigationView.isVisible = false
-        if(newFileFloatingButton.isVisible && newFolderFloatingButton.isVisible)
-        {
+        if (newFileFloatingButton.isVisible && newFolderFloatingButton.isVisible) {
             newFileFloatingButton.isVisible = false
             newFolderFloatingButton.isVisible = false
-        }
-        else if (openedDirectories.size > 1) {
+        } else if (openedDirectories.size > 1) {
             fragmentManager.popBackStack(
                 openedDirectories[openedDirectories.size - 1],
                 FragmentManager.POP_BACK_STACK_INCLUSIVE
             )
             openedDirectories.removeAt(openedDirectories.size - 1)
             path = openedDirectories[openedDirectories.size - 1]
-        }
-        else {
+        } else {
             fragmentManager.popBackStack()
             super.onBackPressed()
         }
