@@ -3,6 +3,7 @@
     <!--common colors-->
     <color name="colorPrimary">#168DDA</color>
     <color name="colorPrimaryDarkDefault">#000000</color>
+    <color name="multipleSelectionColor">#808B96</color>
 
     <!--light theme colors -->
     <color name="lightBlue">#99CBFD</color>
