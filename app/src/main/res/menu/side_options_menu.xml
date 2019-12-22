@@ -5,10 +5,6 @@
         android:enabled="true"
         android:title="Copy" />
     <item
-        android:id="@+id/action_paste"
-        android:enabled="true"
-        android:title="Paste" />
-    <item
         android:id="@+id/action_move"
         android:enabled="true"
         android:title="Move" />
