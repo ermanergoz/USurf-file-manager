@@ -1,9 +1,6 @@
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
 import com.erman.drawerfm.fragments.ListDirFragment
 import java.io.File
 import java.util.*
-
 
 fun getFiles(path: String): List<File> {
     return File(path).listFiles().sorted().toList()
@@ -63,11 +60,11 @@ fun delete(selectedDirectory: DirectoryData, filesListFragment: ListDirFragment)
 }
 
 fun createFolder(path: String, folderName: String, filesListFragment: ListDirFragment) {
-    File(path +"/"+ folderName).mkdir()
+    File(path + "/" + folderName).mkdir()
     filesListFragment.updateData()
 }
 
 fun createFile(path: String, folderName: String, filesListFragment: ListDirFragment) {
-    File(path +"/"+ folderName).createNewFile()
+    File(path + "/" + folderName).createNewFile()
     filesListFragment.updateData()
 }
