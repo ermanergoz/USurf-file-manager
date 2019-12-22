@@ -16,6 +16,7 @@ class PreferencesFragment : PreferenceFragmentCompat() {
     private var selectedTheme: String = ""
     lateinit var preferencesEditor: SharedPreferences.Editor
     var isMarqueeEnabled: Boolean = true
+    var isRootAccessEnabled: Boolean = false
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences, rootKey)
@@ -38,6 +39,16 @@ class PreferencesFragment : PreferenceFragmentCompat() {
 
             preferencesEditor = mPreferences.edit()
             preferencesEditor.putBoolean("marquee choice", isMarqueeEnabled)
+            preferencesEditor.apply()
+
+            true
+        }
+
+        findPreference<SwitchPreference>("root_access")?.setOnPreferenceChangeListener { preference, newValue ->
+            this.isRootAccessEnabled = newValue as Boolean
+
+            preferencesEditor = mPreferences.edit()
+            preferencesEditor.putBoolean("root access", isRootAccessEnabled)
             preferencesEditor.apply()
 
             true

@@ -167,7 +167,10 @@ fun getStorageDirectories(context: Context): Set<String> {
             break
         }
     }
-    if (File("/").exists() && File("/").canRead()) {
+    if (File("/").exists() && File("/").canRead() && context.getSharedPreferences(
+            "com.erman.draverfm", Context.MODE_PRIVATE
+        ).getBoolean("root access", false)
+    ) {
         paths.add("/")
     }
 
