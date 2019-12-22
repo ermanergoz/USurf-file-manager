@@ -20,11 +20,9 @@ import createFile
 import createFolder
 import delete
 import kotlinx.android.synthetic.main.activity_fragment.*
-import kotlinx.android.synthetic.main.fragment_file_list.*
 import moveFile
 import rename
 import java.io.File
-
 
 class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListener,
     RenameDialog.DialogRenameFileListener, CreateFileDialog.DialogCreateFileListener,
@@ -32,11 +30,11 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
     lateinit var path: String
     private lateinit var filesListFragment: ListDirFragment
     private val fragmentManager: FragmentManager = supportFragmentManager
-    var openedDirectories = mutableListOf<String>()
-    lateinit var selectedDirectory: DirectoryData
-    lateinit var copyOrMoveSource: DirectoryData
+    private var openedDirectories = mutableListOf<String>()
     var isMoveOperation = false
     var isCopyOperation = false
+    var isMultipleSelection = false
+    var multipleSelectionList = mutableListOf<DirectoryData>()
 
     private fun setTheme() {
         val chosenTheme = getSharedPreferences(
@@ -67,9 +65,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
                 Context.MODE_PRIVATE
             ).getBoolean("marquee choice", true)
         )
-
         openedDirectories.add(path)
-
         supportActionBar?.title = path
 
         fragmentManager.beginTransaction()
@@ -93,16 +89,10 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         sideNavigationView.setNavigationItemSelectedListener {
             when (it.itemId) {
                 R.id.action_copy -> {
-                    copyOrMoveSource = selectedDirectory
                     isCopyOperation = true
                     bottomConfNavView.isVisible = true
                 }
-                R.id.action_paste -> {
-                    Log.e("Paste file to", selectedDirectory.path)
-                    //sideNavigationView.isVisible = false
-                }
                 R.id.action_move -> {
-                    copyOrMoveSource = selectedDirectory
                     isMoveOperation = true
                     bottomConfNavView.isVisible = true
                 }
@@ -111,10 +101,11 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
                     newFragment.show(fragmentManager, "")
                 }
                 R.id.action_delete -> {
-                    delete(selectedDirectory, filesListFragment)
+                    delete(multipleSelectionList, filesListFragment)
                 }
             }
             sideNavigationView.isVisible = false
+            isMultipleSelection = false
             true
         }
 
@@ -122,9 +113,9 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
             when (it.itemId) {
                 R.id.action_OK -> {
                     if (isCopyOperation)
-                        copyFile(copyOrMoveSource, path, filesListFragment)
+                        copyFile(multipleSelectionList, path, filesListFragment)
                     if (isMoveOperation) {
-                        moveFile(copyOrMoveSource, path, filesListFragment)
+                        moveFile(multipleSelectionList, path, filesListFragment)
                         isMoveOperation = false
                     }
                 }
@@ -137,7 +128,6 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
             }
             true
         }
-
         createNewFloatingButton.setOnClickListener {
             if (newFileFloatingButton.isVisible && newFolderFloatingButton.isVisible) {
                 newFileFloatingButton.isVisible = false
@@ -147,17 +137,14 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
                 newFolderFloatingButton.isVisible = true
             }
         }
-
         newFolderFloatingButton.setOnClickListener {
             val newFragment = CreateFolderDialog(getString(R.string.new_directory_name))
             newFragment.show(fragmentManager, "")
         }
-
         newFileFloatingButton.setOnClickListener {
             val newFragment = CreateFileDialog(getString(R.string.new_file_name))
             newFragment.show(fragmentManager, "")
         }
-
         tempRefreshButton.setOnClickListener {
             filesListFragment.updateData()
         }
@@ -171,25 +158,30 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         return super.onOptionsItemSelected(item)
     }
 
-
     override fun onClick(directoryData: DirectoryData) {
-        path = directoryData.path
-
-        if (directoryData.isFolder) {
-            launchFragment(directoryData.path)
+        if (isMultipleSelection) {
+            multipleSelectionList.add(directoryData)
         } else {
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.data =
-                FileProvider.getUriForFile(this, "com.erman.drawerfm", File(directoryData.path))
-            intent.flags =
-                Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-            startActivity(intent)
+            path = directoryData.path
+
+            if (directoryData.isFolder) {
+                launchFragment(directoryData.path)
+            } else {
+                val intent = Intent(Intent.ACTION_VIEW)
+                intent.data =
+                    FileProvider.getUriForFile(this, "com.erman.drawerfm", File(directoryData.path))
+                intent.flags =
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                startActivity(intent)
+            }
         }
     }
 
     override fun onLongClick(directoryData: DirectoryData) {
+        isMultipleSelection = true
+        multipleSelectionList.add(directoryData)
         sideNavigationView.isVisible = true
-        selectedDirectory = directoryData
+        //selectedDirectory = directoryData
         Log.e("item is", "long clicked")
     }
 
@@ -216,7 +208,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
     }
 
     override fun dialogRenameFileListener(newFileName: String) {
-        rename(selectedDirectory, newFileName, filesListFragment)
+        rename(multipleSelectionList, newFileName, filesListFragment)
     }
 
     override fun dialogCreateFileListener(newFileName: String) {

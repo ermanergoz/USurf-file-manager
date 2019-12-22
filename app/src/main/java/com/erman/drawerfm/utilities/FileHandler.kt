@@ -1,9 +1,6 @@
-import android.content.Intent
 import android.util.Log
-import com.erman.drawerfm.R
 import com.erman.drawerfm.fragments.ListDirFragment
 import java.io.File
-import java.io.IOException
 import java.util.*
 
 fun getFiles(path: String): List<File> {
@@ -38,29 +35,35 @@ fun convertFileSizeToMB(sizeInBytes: Long): Double {
 }
 
 fun rename(
-    selectedDirectory: DirectoryData,
+    selectedDirectories: List<DirectoryData>,
     newNameToBe: String,
     filesListFragment: ListDirFragment
 ) {
-    var dirName = selectedDirectory.path.removeSuffix(selectedDirectory.name)
-    var newFileName = newNameToBe
+    for (i in selectedDirectories.indices) {
+        val dirName = selectedDirectories[i].path.removeSuffix(selectedDirectories[i].name)
+        var newFileName = newNameToBe
 
-    if (!selectedDirectory.isFolder) {
-        newFileName = newNameToBe + "." + selectedDirectory.extension
+        if (i > 0)
+            newFileName = newFileName + "(" + i + ")"
+
+        if (!selectedDirectories[i].isFolder) {
+            newFileName = newFileName + "." + selectedDirectories[i].extension
+        }
+        val prev = File(dirName, selectedDirectories[i].name)
+        val new = File(dirName, newFileName)
+
+        prev.renameTo(new)
     }
-    var prev = File(dirName, selectedDirectory.name)
-    var new = File(dirName, newFileName)
-
-    prev.renameTo(new)
-
     filesListFragment.updateData()
 }
 
-fun delete(selectedDirectory: DirectoryData, filesListFragment: ListDirFragment) {
-    if (selectedDirectory.isFolder) {
-        File(selectedDirectory.path).deleteRecursively()
-    } else {
-        File(selectedDirectory.path).delete()
+fun delete(selectedDirectories: List<DirectoryData>, filesListFragment: ListDirFragment) {
+    for (i in selectedDirectories.indices) {
+        if (selectedDirectories[i].isFolder) {
+            File(selectedDirectories[i].path).deleteRecursively()
+        } else {
+            File(selectedDirectories[i].path).delete()
+        }
     }
     filesListFragment.updateData()
 }
@@ -75,23 +78,33 @@ fun createFile(path: String, folderName: String, filesListFragment: ListDirFragm
     filesListFragment.updateData()
 }
 
-fun copyFile(copyOrMoveSource: DirectoryData, copyOrMoveDestination: String, filesListFragment: ListDirFragment) {
-    if (copyOrMoveSource.isFolder) {
-        File(copyOrMoveSource.path).copyRecursively(File(copyOrMoveDestination+copyOrMoveSource.name))
-    } else {
-        File(copyOrMoveSource.path).copyTo(File(copyOrMoveDestination+"/"+copyOrMoveSource.name))
+fun copyFile(
+    copyOrMoveSources: List<DirectoryData>,
+    copyOrMoveDestination: String,
+    filesListFragment: ListDirFragment
+) {
+    for (i in copyOrMoveSources.indices) {
+        if (copyOrMoveSources[i].isFolder) {
+            File(copyOrMoveSources[i].path).copyRecursively(File(copyOrMoveDestination + copyOrMoveSources[i].name))
+        } else {
+            File(copyOrMoveSources[i].path).copyTo(File(copyOrMoveDestination + "/" + copyOrMoveSources[i].name))
+        }
     }
-
     filesListFragment.updateData()
 }
 
-fun moveFile(copyOrMoveSource: DirectoryData, copyOrMoveDestination: String, filesListFragment: ListDirFragment) {
-    if (copyOrMoveSource.isFolder) {
-        File(copyOrMoveSource.path).copyRecursively(File(copyOrMoveDestination+copyOrMoveSource.name))
-    } else {
-        File(copyOrMoveSource.path).copyTo(File(copyOrMoveDestination+"/"+copyOrMoveSource.name))
+fun moveFile(
+    copyOrMoveSources: List<DirectoryData>,
+    copyOrMoveDestination: String,
+    filesListFragment: ListDirFragment
+) {
+    for (i in copyOrMoveSources.indices) {
+        if (copyOrMoveSources[i].isFolder) {
+            File(copyOrMoveSources[i].path).copyRecursively(File(copyOrMoveDestination + copyOrMoveSources[i].name))
+        } else {
+            File(copyOrMoveSources[i].path).copyTo(File(copyOrMoveDestination + "/" + copyOrMoveSources[i].name))
+        }
     }
+    delete(copyOrMoveSources, filesListFragment)
     filesListFragment.updateData()
-
-    delete(copyOrMoveSource, filesListFragment)
 }
