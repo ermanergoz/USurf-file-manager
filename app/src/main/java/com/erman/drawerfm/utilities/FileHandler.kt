@@ -1,7 +1,7 @@
-import android.util.Log
+package com.erman.drawerfm.utilities
+
 import com.erman.drawerfm.fragments.ListDirFragment
 import java.io.File
-import java.util.*
 
 fun getFiles(path: String): List<File> {
     return File(path).listFiles().sorted().toList()
