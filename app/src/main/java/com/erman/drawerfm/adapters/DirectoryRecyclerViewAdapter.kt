@@ -79,7 +79,8 @@ class DirectoryRecyclerViewAdapter :
                 if (directoryData.listFiles().isEmpty()) {
                     itemView.totalSizeTextView.text = "Empty Folder"
                 } else {
-                    itemView.totalSizeTextView.text = directoryData.listFiles().size.toString() + " Files"
+                    itemView.totalSizeTextView.text =
+                        directoryData.listFiles().size.toString() + " Files"
                     itemView.lastModifiedTextView.text =
                         dateFormat.format(directoryData.lastModified())
                 }
@@ -87,12 +88,10 @@ class DirectoryRecyclerViewAdapter :
                 itemView.imageView.setImageResource(R.drawable.file_icon)
                 itemView.totalSizeTextView.visibility = View.VISIBLE
                 itemView.totalSizeTextView.text = getConvertedFileSize(directoryData.length())
-
                 itemView.lastModifiedTextView.text =
                     dateFormat.format(directoryData.lastModified())
             }
         }
-
     }
 
     fun updateData(filesList: List<File>) {
