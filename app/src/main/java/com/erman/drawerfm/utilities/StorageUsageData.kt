@@ -46,7 +46,7 @@ fun getConvertedFileSize(size: Long): String {
         kilobyte > 1 ->
             "%.2f".format(kilobyte) + " KB"
         else ->
-            "%.2f".format(size) + " Bytes"
+            size.toDouble().toString() + " Bytes"
     }
     return sizeStr
 }
