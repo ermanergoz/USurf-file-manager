@@ -1,6 +1,5 @@
 package com.erman.drawerfm.adapters
 
-import DirectoryData
 import android.content.Context
 import android.text.TextUtils
 import android.view.LayoutInflater
@@ -8,15 +7,18 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.erman.drawerfm.R
+import com.erman.drawerfm.utilities.getConvertedFileSize
+import com.erman.drawerfm.utilities.getUsedStorage
 import kotlinx.android.synthetic.main.directory_recycler_layout.view.*
+import java.io.File
 import java.text.SimpleDateFormat
 
 class DirectoryRecyclerViewAdapter :
     RecyclerView.Adapter<DirectoryRecyclerViewAdapter.ViewHolder>() {
 
-    var onClickListener: ((DirectoryData) -> Unit)? = null
-    var onLongClickListener: ((DirectoryData) -> Unit)? = null
-    var directoryList = listOf<DirectoryData>()
+    var onClickListener: ((File) -> Unit)? = null
+    var onLongClickListener: ((File) -> Unit)? = null
+    var directoryList = listOf<File>()
     private var dateFormat = SimpleDateFormat("dd MMMM | HH:mm:ss")
 
     override fun onCreateViewHolder(
@@ -57,7 +59,7 @@ class DirectoryRecyclerViewAdapter :
             return true
         }
 
-        fun bindDirectory(directoryData: DirectoryData) {
+        fun bindDirectory(directoryData: File) {
             itemView.nameTextView.text = directoryData.name
             itemView.nameTextView.isSingleLine = true
 
@@ -72,28 +74,28 @@ class DirectoryRecyclerViewAdapter :
                 itemView.nameTextView.marqueeRepeatLimit = -1   //-1 is for forever
             }
 
-            if (directoryData.isFolder) {
+            if (directoryData.isDirectory) {
                 itemView.imageView.setImageResource(R.drawable.folder_icon)
-                if (directoryData.subFileNum == 0) {
+                if (directoryData.listFiles().isEmpty()) {
                     itemView.totalSizeTextView.text = "Empty Folder"
                 } else {
-                    itemView.totalSizeTextView.text = directoryData.subFileNum.toString() + " Files"
+                    itemView.totalSizeTextView.text = directoryData.listFiles().size.toString() + " Files"
                     itemView.lastModifiedTextView.text =
-                        dateFormat.format(directoryData.lastModifiedDate)
+                        dateFormat.format(directoryData.lastModified())
                 }
             } else {
                 itemView.imageView.setImageResource(R.drawable.file_icon)
                 itemView.totalSizeTextView.visibility = View.VISIBLE
-                itemView.totalSizeTextView.text =
-                    "${String.format("%.2f", directoryData.sizeInMB)} mb"
+                itemView.totalSizeTextView.text = getConvertedFileSize(directoryData.length())
+
                 itemView.lastModifiedTextView.text =
-                    dateFormat.format(directoryData.lastModifiedDate)
+                    dateFormat.format(directoryData.lastModified())
             }
         }
 
     }
 
-    fun updateData(filesList: List<DirectoryData>) {
+    fun updateData(filesList: List<File>) {
         this.directoryList = filesList
         notifyDataSetChanged()
     }
