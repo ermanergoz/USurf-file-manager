@@ -2,7 +2,6 @@ package com.erman.drawerfm.utilities
 
 import android.os.Build
 import android.os.StatFs
-import kotlin.math.round
 
 fun getTotalStorage(path: String): Long {
     val stat = StatFs(path)
