@@ -1,6 +1,5 @@
 package com.erman.drawerfm.activities
 
-import DirectoryData
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -34,7 +33,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
     var isMoveOperation = false
     var isCopyOperation = false
     var isMultipleSelection = false
-    var multipleSelectionList = mutableListOf<DirectoryData>()
+    var multipleSelectionList = mutableListOf<File>()
 
     private fun setTheme() {
         val chosenTheme = getSharedPreferences(
@@ -158,13 +157,13 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onClick(directoryData: DirectoryData) {
+    override fun onClick(directoryData: File) {
         if (isMultipleSelection) {
             multipleSelectionList.add(directoryData)
         } else {
             path = directoryData.path
 
-            if (directoryData.isFolder) {
+            if (directoryData.isDirectory) {
                 launchFragment(directoryData.path)
             } else {
                 val intent = Intent(Intent.ACTION_VIEW)
@@ -177,12 +176,11 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         }
     }
 
-    override fun onLongClick(directoryData: DirectoryData) {
+    override fun onLongClick(directoryData: File) {
         isMultipleSelection = true
         multipleSelectionList.add(directoryData)
         sideNavigationView.isVisible = true
         //selectedDirectory = directoryData
-        Log.e("item is", "long clicked")
     }
 
     private fun backButtonPressed() {
