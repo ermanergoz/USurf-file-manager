@@ -48,26 +48,18 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
 
     private lateinit var layoutManager: GridLayoutManager
     private lateinit var adapter: ShortcutRecyclerViewAdapter
-
     private var storageProgressBarHeight = 20f
     private var buttonSideMargin = 7
     private var storageProgressBarColor: Int = 0
-
     private var buttonBorder: Int = R.drawable.storage_button_style
-
     private lateinit var storageButtons: MutableList<View>
     private lateinit var storageDirectories: Set<String>
     private var screenWidth = 0
     private var screenHeight = 0
 
-    private lateinit var sharedPref: SharedPreferences
-
     private var shortcuts: MutableMap<String, String> = mutableMapOf(
         "DCIM" to "/storage/emulated/0/DCIM",
-        "Download" to "/storage/emulated/0/Download",
-        "Pictures" to "/storage/emulated/0/Pictures",
-        "Movies" to "/storage/emulated/0/Movies",
-        "Music" to "/storage/emulated/0/Music"
+        "Download" to "/storage/emulated/0/Download"
     )
 
     private fun requestPermissions() {
@@ -222,7 +214,6 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-
         if (requestCode == 1 || requestCode == 0) {
             if (resultCode == RESULT_OK) {
                 if (data == null) {

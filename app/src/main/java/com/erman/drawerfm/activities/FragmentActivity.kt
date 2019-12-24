@@ -3,7 +3,6 @@ package com.erman.drawerfm.activities
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
@@ -14,13 +13,13 @@ import com.erman.drawerfm.dialogs.CreateFileDialog
 import com.erman.drawerfm.dialogs.CreateFolderDialog
 import com.erman.drawerfm.dialogs.RenameDialog
 import com.erman.drawerfm.fragments.ListDirFragment
-import copyFile
-import createFile
-import createFolder
-import delete
+import com.erman.drawerfm.utilities.copyFile
+import com.erman.drawerfm.utilities.createFile
+import com.erman.drawerfm.utilities.createFolder
+import com.erman.drawerfm.utilities.delete
 import kotlinx.android.synthetic.main.activity_fragment.*
-import moveFile
-import rename
+import com.erman.drawerfm.utilities.moveFile
+import com.erman.drawerfm.utilities.rename
 import java.io.File
 
 class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListener,
