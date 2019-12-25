@@ -23,7 +23,7 @@ fun getUsedStorage(path: String): Long {
 }
 
 fun getUsedStoragePercentage(path: String): Int {
-    if (path != "/")
+    if (path != "/" && (getTotalStorage(path)).toInt() != 0)
         return ((getUsedStorage(path) * 100 / getTotalStorage(path))).toInt()
     return 0
 }
