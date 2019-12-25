@@ -6,8 +6,8 @@
 
     <gradient
 
-        android:startColor="?attr/separatorColor"
-        android:endColor="?attr/separatorColor"
+        android:startColor="#ABB2B9"
+        android:endColor="#ABB2B9"
         android:angle="90"
         android:dither="true"
         />
