@@ -13,13 +13,8 @@ import com.erman.drawerfm.dialogs.CreateFileDialog
 import com.erman.drawerfm.dialogs.CreateFolderDialog
 import com.erman.drawerfm.dialogs.RenameDialog
 import com.erman.drawerfm.fragments.ListDirFragment
-import com.erman.drawerfm.utilities.copyFile
-import com.erman.drawerfm.utilities.createFile
-import com.erman.drawerfm.utilities.createFolder
-import com.erman.drawerfm.utilities.delete
+import com.erman.drawerfm.utilities.*
 import kotlinx.android.synthetic.main.activity_fragment.*
-import com.erman.drawerfm.utilities.moveFile
-import com.erman.drawerfm.utilities.rename
 import java.io.File
 
 class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListener,
@@ -99,7 +94,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
                     newFragment.show(fragmentManager, "")
                 }
                 R.id.action_delete -> {
-                    delete(multipleSelectionList, filesListFragment)
+                    delete(multipleSelectionList) { updateFragment() }
                 }
             }
             sideNavigationView.isVisible = false
@@ -111,11 +106,12 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
             when (it.itemId) {
                 R.id.action_OK -> {
                     if (isCopyOperation)
-                        copyFile(multipleSelectionList, path, filesListFragment)
+                        copyFile(multipleSelectionList, path) { updateFragment() }
                     if (isMoveOperation) {
-                        moveFile(multipleSelectionList, path, filesListFragment)
+                        moveFile(multipleSelectionList, path) { updateFragment() }
                         isMoveOperation = false
                     }
+                    updateFragment()
                 }
 
                 R.id.action_cancel -> {
@@ -144,7 +140,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
             newFragment.show(fragmentManager, "")
         }
         tempRefreshButton.setOnClickListener {
-            filesListFragment.updateData()
+            updateFragment()
         }
     }
 
@@ -205,15 +201,13 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
     }
 
     override fun dialogRenameFileListener(newFileName: String) {
-        rename(multipleSelectionList, newFileName, filesListFragment)
+        rename(multipleSelectionList, newFileName) { updateFragment() }
     }
 
     override fun dialogCreateFileListener(newFileName: String) {
         createFile(
-            openedDirectories[openedDirectories.size - 1],
-            newFileName,
-            filesListFragment
-        )
+            openedDirectories[openedDirectories.size - 1], newFileName
+        ) { updateFragment() }
         newFileFloatingButton.isVisible = false
         newFolderFloatingButton.isVisible = false
     }
@@ -221,10 +215,19 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
     override fun dialogCreateFolderListener(newFileName: String) {
         createFolder(
             openedDirectories[openedDirectories.size - 1],
-            newFileName,
-            filesListFragment
-        )
+            newFileName
+        ) { updateFragment() }
         newFileFloatingButton.isVisible = false
         newFolderFloatingButton.isVisible = false
+    }
+
+    private fun updateFragment() {
+        val broadcastIntent = Intent()
+        broadcastIntent.action = applicationContext.getString(R.string.file_broadcast_receiver)
+        broadcastIntent.putExtra(
+            "path for broadcast",
+            openedDirectories[openedDirectories.size - 1]
+        )
+        sendBroadcast(broadcastIntent)
     }
 }

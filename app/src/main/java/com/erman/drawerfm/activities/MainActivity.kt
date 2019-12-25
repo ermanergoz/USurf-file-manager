@@ -5,7 +5,6 @@ import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.BlendMode
@@ -90,11 +89,10 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
             else -> {
                 setTheme(R.style.AppTheme)
                 storageProgressBarColor =
-                    if (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES) {
+                    if (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES)
                         ResourcesCompat.getColor(resources, R.color.darkBlue, null)
-                    } else {
+                    else
                         ResourcesCompat.getColor(resources, R.color.lightBlue, null)
-                    }
             }
         }
     }

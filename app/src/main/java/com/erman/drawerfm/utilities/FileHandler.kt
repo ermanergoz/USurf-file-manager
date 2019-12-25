@@ -1,5 +1,6 @@
 package com.erman.drawerfm.utilities
 
+import android.content.Context
 import com.erman.drawerfm.fragments.ListDirFragment
 import java.io.File
 
@@ -7,11 +8,7 @@ fun getFiles(path: String): List<File> {
     return File(path).listFiles().sorted().toList()
 }
 
-fun rename(
-    selectedDirectories: List<File>,
-    newNameToBe: String,
-    filesListFragment: ListDirFragment
-) {
+fun rename(selectedDirectories: List<File>, newNameToBe: String, updateFragment: () -> Unit) {
     for (i in selectedDirectories.indices) {
         val dirName = selectedDirectories[i].path.removeSuffix(selectedDirectories[i].name)
         var newFileName = newNameToBe
@@ -27,10 +24,10 @@ fun rename(
 
         prev.renameTo(new)
     }
-    filesListFragment.updateData()
+    updateFragment.invoke()
 }
 
-fun delete(selectedDirectories: List<File>, filesListFragment: ListDirFragment) {
+fun delete(selectedDirectories: List<File>, updateFragment: () -> Unit) {
     for (i in selectedDirectories.indices) {
         if (selectedDirectories[i].isDirectory) {
             File(selectedDirectories[i].path).deleteRecursively()
@@ -38,23 +35,23 @@ fun delete(selectedDirectories: List<File>, filesListFragment: ListDirFragment) 
             File(selectedDirectories[i].path).delete()
         }
     }
-    filesListFragment.updateData()
+    updateFragment.invoke()
 }
 
-fun createFolder(path: String, folderName: String, filesListFragment: ListDirFragment) {
+fun createFolder(path: String, folderName: String, updateFragment: () -> Unit) {
     File(path + "/" + folderName).mkdir()
-    filesListFragment.updateData()
+    updateFragment.invoke()
 }
 
-fun createFile(path: String, folderName: String, filesListFragment: ListDirFragment) {
+fun createFile(path: String, folderName: String, updateFragment: () -> Unit) {
     File(path + "/" + folderName).createNewFile()
-    filesListFragment.updateData()
+    updateFragment.invoke()
 }
 
 fun copyFile(
     copyOrMoveSources: List<File>,
     copyOrMoveDestination: String,
-    filesListFragment: ListDirFragment
+    updateFragment: () -> Unit
 ) {
     for (i in copyOrMoveSources.indices) {
         if (copyOrMoveSources[i].isDirectory) {
@@ -63,13 +60,13 @@ fun copyFile(
             File(copyOrMoveSources[i].path).copyTo(File(copyOrMoveDestination + "/" + copyOrMoveSources[i].name))
         }
     }
-    filesListFragment.updateData()
+    updateFragment.invoke()
 }
 
 fun moveFile(
     copyOrMoveSources: List<File>,
     copyOrMoveDestination: String,
-    filesListFragment: ListDirFragment
+    updateFragment: () -> Unit
 ) {
     for (i in copyOrMoveSources.indices) {
         if (copyOrMoveSources[i].isDirectory) {
@@ -77,7 +74,12 @@ fun moveFile(
         } else {
             File(copyOrMoveSources[i].path).copyTo(File(copyOrMoveDestination + "/" + copyOrMoveSources[i].name))
         }
+
+        if (copyOrMoveSources[i].isDirectory) {
+            File(copyOrMoveSources[i].path).deleteRecursively()
+        } else {
+            File(copyOrMoveSources[i].path).delete()
+        }
     }
-    delete(copyOrMoveSources, filesListFragment)
-    filesListFragment.updateData()
+    updateFragment.invoke()
 }
