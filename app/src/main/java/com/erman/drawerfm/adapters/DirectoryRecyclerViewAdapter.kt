@@ -78,10 +78,11 @@ class DirectoryRecyclerViewAdapter :
                 itemView.imageView.setImageResource(R.drawable.folder_icon)
                 if (directoryData.listFiles() != null) {
                     if (directoryData.listFiles().isEmpty()) {
-                        itemView.totalSizeTextView.text = "Empty Folder"
+                        itemView.totalSizeTextView.text =
+                            itemView.context.getString(R.string.empty_folder)
                     } else {
                         itemView.totalSizeTextView.text =
-                            directoryData.listFiles().size.toString() + " Files"
+                            directoryData.listFiles().size.toString() +" "+ itemView.context.getString(R.string.files_num)
                         itemView.lastModifiedTextView.text =
                             dateFormat.format(directoryData.lastModified())
                     }
