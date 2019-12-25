@@ -29,4 +29,7 @@
     <string name="dark_theme_summary">Check this box to enable the dark theme</string>
     <string name="get_root_access">Get root access</string>
 
+    <!--broadcast receiver-->
+    <string name="file_broadcast_receiver">com.erman.drawerfm.fileBroadcastReceiver</string>
+
 </resources>
