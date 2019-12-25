@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentManager
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.erman.drawerfm.R
 import com.erman.drawerfm.dialogs.CreateFileDialog
 import com.erman.drawerfm.dialogs.CreateFolderDialog
@@ -228,6 +229,6 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
             "path for broadcast",
             openedDirectories[openedDirectories.size - 1]
         )
-        sendBroadcast(broadcastIntent)
+        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent)
     }
 }
