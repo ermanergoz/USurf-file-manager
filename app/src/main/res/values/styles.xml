@@ -19,7 +19,6 @@
         <item name="blueColorAccent">@color/lightBlue</item>
         <item name="background">@color/background</item>
         <item name="textColor">@color/textColorLight</item>
-        <item name="separatorColor">@color/separatorColorLight</item>
     </style>
 
     <!-- Dark theme. -->
@@ -30,7 +29,6 @@
         <item name="blueColorAccent">@color/darkBlue</item>
         <item name="background">@color/backgroundDark</item>
         <item name="textColor">@color/textColorDark</item>
-        <item name="separatorColor">@color/separatorColorDark</item>
     </style>
 
 </resources>
