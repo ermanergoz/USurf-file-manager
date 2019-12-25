@@ -32,4 +32,8 @@
     <!--broadcast receiver-->
     <string name="file_broadcast_receiver">com.erman.drawerfm.fileBroadcastReceiver</string>
 
+    <!--fragment stuff-->
+    <string name="empty_folder">Empty Folder</string>
+    <string name="files_num">Files</string>
+
 </resources>
