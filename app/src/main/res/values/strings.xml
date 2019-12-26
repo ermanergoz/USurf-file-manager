@@ -35,5 +35,11 @@
     <!--fragment stuff-->
     <string name="empty_folder">Empty Folder</string>
     <string name="files_num">Files</string>
+    <string name="copy">Copy</string>
+    <string name="move">Move</string>
+    <string name="rename">Rename</string>
+    <string name="delete">Delete</string>
+    <string name="zip">Zip</string>
+    <string name="unzip">Unzip</string>
 
 </resources>
