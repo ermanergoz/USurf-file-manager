@@ -49,8 +49,8 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
     }
 
     private fun launchFragment(path: String) {
-        if (sideNavigationView.isVisible)
-            sideNavigationView.isVisible = false
+        if (optionButtonBar.isVisible)
+            optionButtonBar.isVisible = false
 
         filesListFragment = ListDirFragment.buildFragment(
             path,
@@ -74,55 +74,46 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         setContentView(R.layout.activity_fragment)
         this.path = intent.getStringExtra("path")
-        sideNavigationView.isVisible = false
-        bottomConfNavView.isVisible = false
+        optionButtonBar.isVisible = false
         newFileFloatingButton.isVisible = false
         newFolderFloatingButton.isVisible = false
 
         launchFragment(path)
-        sideNavigationView.setNavigationItemSelectedListener {
-            when (it.itemId) {
-                R.id.action_copy -> {
-                    isCopyOperation = true
-                    bottomConfNavView.isVisible = true
-                }
-                R.id.action_move -> {
-                    isMoveOperation = true
-                    bottomConfNavView.isVisible = true
-                }
-                R.id.action_rename -> {
-                    val newFragment = RenameDialog(getString(R.string.rename_file))
-                    newFragment.show(fragmentManager, "")
-                }
-                R.id.action_delete -> {
-                    delete(multipleSelectionList) { updateFragment() }
-                }
-            }
-            sideNavigationView.isVisible = false
-            isMultipleSelection = false
-            true
+
+        copyButton.setOnClickListener {
+            isCopyOperation = true
+            showConfirmationButtons()
         }
 
-        bottomConfNavView.setOnNavigationItemSelectedListener {
-            when (it.itemId) {
-                R.id.action_OK -> {
-                    if (isCopyOperation)
-                        copyFile(multipleSelectionList, path) { updateFragment() }
-                    if (isMoveOperation) {
-                        moveFile(multipleSelectionList, path) { updateFragment() }
-                        isMoveOperation = false
-                    }
-                    updateFragment()
-                }
-
-                R.id.action_cancel -> {
-                    isMoveOperation = false
-                    isCopyOperation = false
-                    bottomConfNavView.isVisible = false
-                }
-            }
-            true
+        moveButton.setOnClickListener {
+            isMoveOperation = true
+            showConfirmationButtons()
         }
+
+        renameButton.setOnClickListener {
+            val newFragment = RenameDialog(getString(R.string.rename_file))
+            newFragment.show(fragmentManager, "")
+        }
+
+        deleteButton.setOnClickListener {
+            delete(multipleSelectionList) { updateFragment() }
+        }
+
+        OKButton.setOnClickListener {
+            if (isCopyOperation)
+                copyFile(multipleSelectionList, path) { updateFragment() }
+            if (isMoveOperation) {
+                moveFile(multipleSelectionList, path) { updateFragment() }
+                isMoveOperation = false
+            }
+            updateFragment()
+            optionButtonBar.isVisible = false
+        }
+
+        cancelButton.setOnClickListener {
+            cancelOperation()
+        }
+
         createNewFloatingButton.setOnClickListener {
             if (newFileFloatingButton.isVisible && newFolderFloatingButton.isVisible) {
                 newFileFloatingButton.isVisible = false
@@ -143,6 +134,25 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         tempRefreshButton.setOnClickListener {
             updateFragment()
         }
+    }
+
+    private fun cancelOperation() {
+        isMoveOperation = false
+        isCopyOperation = false
+        multipleSelectionList.clear()
+        isMultipleSelection = false
+        optionButtonBar.isVisible = false
+    }
+
+    private fun showConfirmationButtons() {
+        OKButton.isVisible = true
+        cancelButton.isVisible = true
+        copyButton.isVisible = false
+        moveButton.isVisible = false
+        renameButton.isVisible = false
+        deleteButton.isVisible = false
+        zipButton.isVisible = false
+        unzipButton.isVisible = false
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -172,16 +182,26 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         }
     }
 
+    private fun showOptionButtons(isExtensionZip: Boolean) {
+        optionButtonBar.isVisible = true
+        OKButton.isVisible = false
+        cancelButton.isVisible = false
+        if (isExtensionZip)
+            zipButton.isVisible = false
+        else
+            unzipButton.isVisible = false
+    }
+
     override fun onLongClick(directoryData: File) {
         isMultipleSelection = true
         multipleSelectionList.add(directoryData)
-        sideNavigationView.isVisible = true
-        //selectedDirectory = directoryData
+        showOptionButtons(directoryData.extension == "zip")
     }
 
     private fun backButtonPressed() {
-        if (sideNavigationView.isVisible) sideNavigationView.isVisible = false
-        if (newFileFloatingButton.isVisible && newFolderFloatingButton.isVisible) {
+        if (optionButtonBar.isVisible && !isMoveOperation && !isCopyOperation)
+            cancelOperation()
+        else if (newFileFloatingButton.isVisible && newFolderFloatingButton.isVisible) {
             newFileFloatingButton.isVisible = false
             newFolderFloatingButton.isVisible = false
         } else if (openedDirectories.size > 1) {
