@@ -92,6 +92,7 @@ class DirectoryRecyclerViewAdapter :
                 itemView.totalSizeTextView.visibility = View.VISIBLE
                 itemView.totalSizeTextView.text = getConvertedFileSize(directoryData.length())
                 itemView.lastModifiedTextView.text = dateFormat.format(directoryData.lastModified())
+                itemView.extensionTextView.text = directoryData.extension
             }
         }
     }
