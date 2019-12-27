@@ -1,14 +1,16 @@
 package com.erman.drawerfm.adapters
 
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.erman.drawerfm.R
 import com.erman.drawerfm.utilities.getConvertedFileSize
-import com.erman.drawerfm.utilities.getUsedStorage
 import kotlinx.android.synthetic.main.directory_recycler_layout.view.*
 import java.io.File
 import java.text.SimpleDateFormat
@@ -20,6 +22,8 @@ class DirectoryRecyclerViewAdapter :
     var onLongClickListener: ((File) -> Unit)? = null
     var directoryList = listOf<File>()
     private var dateFormat = SimpleDateFormat("dd MMMM | HH:mm:ss")
+    var multipleSelectionList = mutableListOf<ConstraintLayout>()
+    var isMultipleSelection = false
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -42,6 +46,7 @@ class DirectoryRecyclerViewAdapter :
         holder.bindDirectory(directoryList[position])
     }
 
+
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener,
         View.OnLongClickListener {
 
@@ -50,11 +55,30 @@ class DirectoryRecyclerViewAdapter :
             itemView.setOnLongClickListener(this)
         }
 
+        val backgroundColorDrawable = itemView.background as ColorDrawable
+        val defaultBackgroundColor = backgroundColorDrawable.color
+
         override fun onClick(p0: View?) {
+            if (isMultipleSelection) {
+                if(!multipleSelectionList.contains(itemView.directoryLayout)) {
+                    itemView.directoryLayout.setBackgroundColor(Color.parseColor("#6C7782"))
+                    multipleSelectionList.add(itemView.directoryLayout)
+                }
+                else {
+                    multipleSelectionList.removeAt(multipleSelectionList.indexOf(itemView.directoryLayout))
+                    itemView.directoryLayout.setBackgroundColor(defaultBackgroundColor)
+                }
+            }
+            if(multipleSelectionList.isEmpty())
+                isMultipleSelection=false
+
             onClickListener?.invoke(directoryList[adapterPosition])
         }
 
         override fun onLongClick(p0: View?): Boolean {
+            isMultipleSelection=true
+            itemView.directoryLayout.setBackgroundColor(Color.parseColor("#6C7782"))
+            multipleSelectionList.add(itemView.directoryLayout)
             onLongClickListener?.invoke(directoryList[adapterPosition])
             return true
         }
@@ -98,6 +122,7 @@ class DirectoryRecyclerViewAdapter :
     }
 
     fun updateData(filesList: List<File>) {
+        isMultipleSelection=false
         this.directoryList = filesList
         notifyDataSetChanged()
     }
