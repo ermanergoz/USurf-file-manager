@@ -10,6 +10,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentManager
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.erman.drawerfm.R
+import com.erman.drawerfm.adapters.DirectoryRecyclerViewAdapter
 import com.erman.drawerfm.dialogs.CreateFileDialog
 import com.erman.drawerfm.dialogs.CreateFolderDialog
 import com.erman.drawerfm.dialogs.RenameDialog
@@ -96,14 +97,14 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         }
 
         deleteButton.setOnClickListener {
-            delete(multipleSelectionList) { updateFragment() }
+            delete(multipleSelectionList) { finishAndUpdate() }
         }
 
         OKButton.setOnClickListener {
             if (isCopyOperation)
-                copyFile(multipleSelectionList, path) { updateFragment() }
+                copyFile(multipleSelectionList, path) { finishAndUpdate() }
             if (isMoveOperation) {
-                moveFile(multipleSelectionList, path) { updateFragment() }
+                moveFile(multipleSelectionList, path) { finishAndUpdate() }
                 isMoveOperation = false
             }
             updateFragment()
@@ -111,7 +112,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         }
 
         cancelButton.setOnClickListener {
-            cancelOperation()
+            finishAndUpdate()
         }
 
         createNewFloatingButton.setOnClickListener {
@@ -136,12 +137,15 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         }
     }
 
-    private fun cancelOperation() {
+    private fun finishAndUpdate() {
         isMoveOperation = false
         isCopyOperation = false
         multipleSelectionList.clear()
         isMultipleSelection = false
         optionButtonBar.isVisible = false
+
+        multipleSelectionList.clear()
+        updateFragment()
     }
 
     private fun showConfirmationButtons() {
@@ -165,7 +169,15 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
 
     override fun onClick(directoryData: File) {
         if (isMultipleSelection) {
-            multipleSelectionList.add(directoryData)
+            if (multipleSelectionList.contains(directoryData)) {
+                multipleSelectionList.removeAt(multipleSelectionList.indexOf(directoryData))
+            } else {
+                multipleSelectionList.add(directoryData)
+            }
+
+            if (multipleSelectionList.isEmpty()) {
+                finishAndUpdate()
+            }
         } else {
             path = directoryData.path
 
@@ -194,13 +206,19 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
 
     override fun onLongClick(directoryData: File) {
         isMultipleSelection = true
-        multipleSelectionList.add(directoryData)
+
+        if (multipleSelectionList.contains(directoryData)) {
+            multipleSelectionList.removeAt(multipleSelectionList.indexOf(directoryData))
+        } else {
+            multipleSelectionList.add(directoryData)
+        }
         showOptionButtons(directoryData.extension == "zip")
     }
 
     private fun backButtonPressed() {
-        if (optionButtonBar.isVisible && !isMoveOperation && !isCopyOperation)
-            cancelOperation()
+        if (optionButtonBar.isVisible && !isMoveOperation && !isCopyOperation) {
+            finishAndUpdate()
+        }
         else if (newFileFloatingButton.isVisible && newFolderFloatingButton.isVisible) {
             newFileFloatingButton.isVisible = false
             newFolderFloatingButton.isVisible = false
@@ -222,7 +240,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
     }
 
     override fun dialogRenameFileListener(newFileName: String) {
-        rename(multipleSelectionList, newFileName) { updateFragment() }
+        rename(multipleSelectionList, newFileName) { finishAndUpdate() }
     }
 
     override fun dialogCreateFileListener(newFileName: String) {
