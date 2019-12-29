@@ -18,7 +18,6 @@ import com.erman.drawerfm.utilities.*
 import kotlinx.android.synthetic.main.activity_fragment.*
 import java.io.File
 
-
 class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListener,
     RenameDialog.DialogRenameFileListener, CreateFileDialog.DialogCreateFileListener,
     CreateFolderDialog.DialogCreateFolderListener {
@@ -174,7 +173,6 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
             } else {
                 multipleSelectionList.add(directoryData)
             }
-
             if (multipleSelectionList.isEmpty()) {
                 finishAndUpdate()
             }
@@ -207,8 +205,6 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
     override fun onLongClick(directoryData: File) {
         isMultipleSelection = true
 
-
-
         if (multipleSelectionList.contains(directoryData)) {
             multipleSelectionList.removeAt(multipleSelectionList.indexOf(directoryData))
         } else {
@@ -230,6 +226,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
             )
             openedDirectories.removeAt(openedDirectories.size - 1)
             path = openedDirectories[openedDirectories.size - 1]
+            pathTextView.text = path
         } else {
             fragmentManager.popBackStack()
             super.onBackPressed()
@@ -238,7 +235,6 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
 
     override fun onBackPressed() {
         backButtonPressed()
-        pathTextView.text = path
     }
 
     override fun dialogRenameFileListener(newFileName: String) {
