@@ -10,7 +10,6 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentManager
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.erman.drawerfm.R
-import com.erman.drawerfm.adapters.DirectoryRecyclerViewAdapter
 import com.erman.drawerfm.dialogs.CreateFileDialog
 import com.erman.drawerfm.dialogs.CreateFolderDialog
 import com.erman.drawerfm.dialogs.RenameDialog
@@ -18,6 +17,7 @@ import com.erman.drawerfm.fragments.ListDirFragment
 import com.erman.drawerfm.utilities.*
 import kotlinx.android.synthetic.main.activity_fragment.*
 import java.io.File
+
 
 class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListener,
     RenameDialog.DialogRenameFileListener, CreateFileDialog.DialogCreateFileListener,
@@ -61,7 +61,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
             ).getBoolean("marquee choice", true)
         )
         openedDirectories.add(path)
-        supportActionBar?.title = path
+        pathTextView.text = path
 
         fragmentManager.beginTransaction()
             .add(R.id.fragmentContainer, filesListFragment)
@@ -207,6 +207,8 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
     override fun onLongClick(directoryData: File) {
         isMultipleSelection = true
 
+
+
         if (multipleSelectionList.contains(directoryData)) {
             multipleSelectionList.removeAt(multipleSelectionList.indexOf(directoryData))
         } else {
@@ -218,8 +220,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
     private fun backButtonPressed() {
         if (optionButtonBar.isVisible && !isMoveOperation && !isCopyOperation) {
             finishAndUpdate()
-        }
-        else if (newFileFloatingButton.isVisible && newFolderFloatingButton.isVisible) {
+        } else if (newFileFloatingButton.isVisible && newFolderFloatingButton.isVisible) {
             newFileFloatingButton.isVisible = false
             newFolderFloatingButton.isVisible = false
         } else if (openedDirectories.size > 1) {
@@ -237,6 +238,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
 
     override fun onBackPressed() {
         backButtonPressed()
+        pathTextView.text = path
     }
 
     override fun dialogRenameFileListener(newFileName: String) {
