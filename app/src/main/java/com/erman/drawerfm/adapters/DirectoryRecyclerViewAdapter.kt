@@ -2,12 +2,10 @@ package com.erman.drawerfm.adapters
 
 import android.content.Context
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.erman.drawerfm.R
 import com.erman.drawerfm.utilities.getConvertedFileSize
@@ -59,11 +57,11 @@ class DirectoryRecyclerViewAdapter :
         override fun onClick(p0: View?) {
             if (isMultipleSelection) {
                 if (!p0?.isSelected!!) {
-                    itemView.directoryLayout.setBackgroundColor(Color.parseColor("#6C7782"))
+                    p0.setBackgroundColor(Color.parseColor("#6C7782"))
                     p0.isSelected = true
                 } else {
                     p0.isSelected = false
-                    itemView.directoryLayout.setBackgroundColor(Color.TRANSPARENT)
+                    p0.setBackgroundColor(Color.TRANSPARENT)
                 }
             }
             /*if(multipleSelectionList.isEmpty())
@@ -74,7 +72,7 @@ class DirectoryRecyclerViewAdapter :
 
         override fun onLongClick(p0: View?): Boolean {
             isMultipleSelection = true
-            itemView.directoryLayout.setBackgroundColor(Color.parseColor("#6C7782"))
+            p0?.setBackgroundColor(Color.parseColor("#6C7782"))
             p0?.isSelected = true
             onLongClickListener?.invoke(directoryList[adapterPosition])
             return true
