@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/background"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintHorizontal_bias="0.5"
@@ -102,7 +103,7 @@
             android:layout_weight="1"
             android:background="?android:attr/selectableItemBackground"
             android:text="@string/move"
-            android:textSize="12sp"/>
+            android:textSize="12sp" />
 
         <Button
             android:id="@+id/renameButton"
@@ -111,7 +112,7 @@
             android:layout_weight="1"
             android:background="?android:attr/selectableItemBackground"
             android:text="@string/rename"
-            android:textSize="12sp"/>
+            android:textSize="12sp" />
 
         <Button
             android:id="@+id/deleteButton"
@@ -120,7 +121,7 @@
             android:layout_weight="1"
             android:background="?android:attr/selectableItemBackground"
             android:text="@string/delete"
-            android:textSize="12sp"/>
+            android:textSize="12sp" />
 
         <Button
             android:id="@+id/zipButton"
@@ -129,7 +130,7 @@
             android:layout_weight="1"
             android:background="?android:attr/selectableItemBackground"
             android:text="@string/zip"
-            android:textSize="12sp"/>
+            android:textSize="12sp" />
 
         <Button
             android:id="@+id/unzipButton"
@@ -138,7 +139,7 @@
             android:layout_weight="1"
             android:background="?android:attr/selectableItemBackground"
             android:text="@string/unzip"
-            android:textSize="12sp"/>
+            android:textSize="12sp" />
 
         <Button
             android:id="@+id/OKButton"
@@ -147,7 +148,7 @@
             android:layout_weight="1"
             android:background="?android:attr/selectableItemBackground"
             android:text="@string/ok"
-            android:textSize="12sp"/>
+            android:textSize="12sp" />
 
         <Button
             android:id="@+id/cancelButton"
@@ -156,7 +157,7 @@
             android:layout_weight="1"
             android:background="?android:attr/selectableItemBackground"
             android:text="@string/cancel"
-            android:textSize="12sp"/>
+            android:textSize="12sp" />
     </LinearLayout>
 
     <FrameLayout
@@ -167,8 +168,39 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/divider">
 
     </FrameLayout>
+
+    <TextView
+        android:id="@+id/pathTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="12dp"
+        android:ellipsize="start"
+        android:singleLine="true"
+        android:textColor="?attr/textColor"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/fragmentContainer"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="0dp"
+        android:layout_height="2dp"
+        android:background="?attr/blueColorAccent"
+        app:layout_constraintBottom_toTopOf="@+id/fragmentContainer"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/pathTextView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
