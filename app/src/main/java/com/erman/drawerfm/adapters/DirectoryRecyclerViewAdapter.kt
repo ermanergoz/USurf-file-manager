@@ -79,7 +79,11 @@ class DirectoryRecyclerViewAdapter :
         }
 
         fun bindDirectory(directoryData: File) {
-            itemView.nameTextView.text = directoryData.name
+            if(directoryData.nameWithoutExtension!="")
+                itemView.nameTextView.text = directoryData.nameWithoutExtension
+            //some files/folders start with .something and in this case their name will be empty
+            else
+                itemView.nameTextView.text = directoryData.name
             itemView.nameTextView.isSingleLine = true
 
             if (itemView.context.getSharedPreferences(

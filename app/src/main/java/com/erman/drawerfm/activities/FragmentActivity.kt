@@ -94,8 +94,8 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         newFileFloatingButton.isVisible = false
         newFolderFloatingButton.isVisible = false
 
-        //launchFragment(path)
-        launchSearchFragment(path, "ovie")
+        launchFragment(path)
+        //launchSearchFragment(path, "ovie")
 
         copyButton.setOnClickListener {
             isCopyOperation = true
