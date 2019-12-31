@@ -195,7 +195,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
             else -> displayErrorDialog(getString(R.string.invalid_path))
         }
     }
-
+/*
     var sdCardUri: Uri? = null
 
     private fun requestSDCardPermissions() {
@@ -227,7 +227,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         }
         super.onActivityResult(requestCode, resultCode, data)
     }
-
+*/
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme()
         super.onCreate(savedInstanceState)
@@ -255,7 +255,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.main_activity_option_menu, menu)
+        menuInflater.inflate(R.menu.menu_main_activity, menu)
         return super.onCreateOptionsMenu(menu)
     }
 

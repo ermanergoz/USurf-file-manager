@@ -1,11 +1,15 @@
 package com.erman.drawerfm.utilities
 
-import android.content.Context
-import com.erman.drawerfm.fragments.ListDirFragment
+import android.os.FileUtils
 import java.io.File
+
 
 fun getFiles(path: String): List<File> {
     return File(path).listFiles().sorted().toList()
+}
+
+fun searchFile(path: String, searchQuery: String): List<File> {
+    return File(path).listFiles(FileSearchFilter(searchQuery)).toList()
 }
 
 fun rename(selectedDirectories: List<File>, newNameToBe: String, updateFragment: () -> Unit) {
