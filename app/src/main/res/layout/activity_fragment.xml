@@ -32,6 +32,7 @@
             android:layout_weight="1"
             android:background="?android:attr/selectableItemBackground"
             android:text="@string/copy"
+            android:textColor="?attr/textColor"
             android:textSize="12sp" />
 
         <Button
@@ -41,6 +42,7 @@
             android:layout_weight="1"
             android:background="?android:attr/selectableItemBackground"
             android:text="@string/move"
+            android:textColor="?attr/textColor"
             android:textSize="12sp" />
 
         <Button
@@ -50,6 +52,7 @@
             android:layout_weight="1"
             android:background="?android:attr/selectableItemBackground"
             android:text="@string/rename"
+            android:textColor="?attr/textColor"
             android:textSize="12sp" />
 
         <Button
@@ -59,6 +62,7 @@
             android:layout_weight="1"
             android:background="?android:attr/selectableItemBackground"
             android:text="@string/delete"
+            android:textColor="?attr/textColor"
             android:textSize="12sp" />
 
         <Button
@@ -68,6 +72,7 @@
             android:layout_weight="1"
             android:background="?android:attr/selectableItemBackground"
             android:text="@string/zip"
+            android:textColor="?attr/textColor"
             android:textSize="12sp" />
 
         <Button
@@ -77,6 +82,7 @@
             android:layout_weight="1"
             android:background="?android:attr/selectableItemBackground"
             android:text="@string/unzip"
+            android:textColor="?attr/textColor"
             android:textSize="12sp" />
 
         <Button
@@ -86,6 +92,7 @@
             android:layout_weight="1"
             android:background="?android:attr/selectableItemBackground"
             android:text="@string/ok"
+            android:textColor="?attr/textColor"
             android:textSize="12sp" />
 
         <Button
@@ -95,6 +102,7 @@
             android:layout_weight="1"
             android:background="?android:attr/selectableItemBackground"
             android:text="@string/cancel"
+            android:textColor="?attr/textColor"
             android:textSize="12sp" />
     </LinearLayout>
 
