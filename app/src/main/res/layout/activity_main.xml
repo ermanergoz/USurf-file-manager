@@ -5,8 +5,8 @@
     android:id="@+id/mainActivityLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.MainActivity"
-    android:background="?attr/background">
+    android:background="?attr/background"
+    tools:context=".activities.MainActivity">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/shortcutRecyclerView"
