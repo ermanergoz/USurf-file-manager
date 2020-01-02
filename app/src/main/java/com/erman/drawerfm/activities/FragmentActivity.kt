@@ -70,7 +70,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         pathTextView.text = "Results for: "+fileSearchQuery
 
         filesListFragment = ListDirFragment.buildSearchFragment(
-            searchedFiles(path, fileSearchQuery)
+            getSearchedFiles(path, fileSearchQuery)
         )
         openedDirectories.add(path)
         pathTextView.text = path
@@ -169,25 +169,25 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         unzipButton.isVisible = false
     }
 
-    override fun onClick(directoryData: File) {
+    override fun onClick(directory: File) {
         if (isMultipleSelection) {
-            if (multipleSelectionList.contains(directoryData)) {
-                multipleSelectionList.removeAt(multipleSelectionList.indexOf(directoryData))
+            if (multipleSelectionList.contains(directory)) {
+                multipleSelectionList.removeAt(multipleSelectionList.indexOf(directory))
             } else {
-                multipleSelectionList.add(directoryData)
+                multipleSelectionList.add(directory)
             }
             if (multipleSelectionList.isEmpty()) {
                 finishAndUpdate()
             }
         } else {
-            path = directoryData.path
+            path = directory.path
 
-            if (directoryData.isDirectory) {
-                launchFragment(directoryData.path)
+            if (directory.isDirectory) {
+                launchFragment(directory.path)
             } else {
                 val intent = Intent(Intent.ACTION_VIEW)
                 intent.data =
-                    FileProvider.getUriForFile(this, "com.erman.drawerfm", File(directoryData.path))
+                    FileProvider.getUriForFile(this, "com.erman.drawerfm", File(directory.path))
                 intent.flags =
                     Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
                 startActivity(intent)
@@ -221,15 +221,15 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
             unzipButton.isVisible = false
     }
 
-    override fun onLongClick(directoryData: File) {
+    override fun onLongClick(directory: File) {
         isMultipleSelection = true
 
-        if (multipleSelectionList.contains(directoryData)) {
-            multipleSelectionList.removeAt(multipleSelectionList.indexOf(directoryData))
+        if (multipleSelectionList.contains(directory)) {
+            multipleSelectionList.removeAt(multipleSelectionList.indexOf(directory))
         } else {
-            multipleSelectionList.add(directoryData)
+            multipleSelectionList.add(directory)
         }
-        showOptionButtons(directoryData.extension == "zip")
+        showOptionButtons(directory.extension == "zip")
     }
 
     private fun backButtonPressed() {
