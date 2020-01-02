@@ -14,16 +14,18 @@ import com.erman.drawerfm.R
 import com.erman.drawerfm.dialogs.CreateFileDialog
 import com.erman.drawerfm.dialogs.CreateFolderDialog
 import com.erman.drawerfm.dialogs.RenameDialog
+import com.erman.drawerfm.fragments.FileSearchFragment
 import com.erman.drawerfm.fragments.ListDirFragment
 import com.erman.drawerfm.utilities.*
 import kotlinx.android.synthetic.main.activity_fragment.*
 import java.io.File
 
-class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListener,
+class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListener, FileSearchFragment.OnItemClickListener,
     RenameDialog.DialogRenameFileListener, CreateFileDialog.DialogCreateFileListener,
     CreateFolderDialog.DialogCreateFolderListener {
     lateinit var path: String
     private lateinit var filesListFragment: ListDirFragment
+    private lateinit var filesSearchFragment: FileSearchFragment
     private val fragmentManager: FragmentManager = supportFragmentManager
     private var openedDirectories = mutableListOf<String>()
     var isMoveOperation = false
@@ -69,14 +71,13 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
 
         pathTextView.text = "Results for: "+fileSearchQuery
 
-        filesListFragment = ListDirFragment.buildSearchFragment(
+        filesSearchFragment = FileSearchFragment.buildSearchFragment(
             getSearchedFiles(path, fileSearchQuery)
         )
         openedDirectories.add(path)
-        pathTextView.text = path
 
         fragmentManager.beginTransaction()
-            .add(R.id.fragmentContainer, filesListFragment)
+            .add(R.id.fragmentContainer, filesSearchFragment)
             .addToBackStack(path)
             .commit()
     }
