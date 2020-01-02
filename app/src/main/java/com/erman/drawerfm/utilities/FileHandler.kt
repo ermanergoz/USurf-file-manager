@@ -12,7 +12,7 @@ fun getFiles(path: String): List<File> {
     return emptyList()
 }
 
-fun searchedFiles(path: String, searchQuery: String): List<File> {
+fun getSearchedFiles(path: String, searchQuery: String): List<File> {
     try {
         return File(path).listFiles(FileSearchFilter(searchQuery)).toList()
     } catch (err: IllegalStateException) {
