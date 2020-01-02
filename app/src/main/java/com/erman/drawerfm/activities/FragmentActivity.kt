@@ -1,10 +1,8 @@
 package com.erman.drawerfm.activities
 
-import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
@@ -19,7 +17,6 @@ import com.erman.drawerfm.dialogs.RenameDialog
 import com.erman.drawerfm.fragments.ListDirFragment
 import com.erman.drawerfm.utilities.*
 import kotlinx.android.synthetic.main.activity_fragment.*
-import kotlinx.android.synthetic.main.dialog_create_shortcut.*
 import java.io.File
 
 class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListener,
@@ -73,7 +70,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         pathTextView.text = "Results for: "+fileSearchQuery
 
         filesListFragment = ListDirFragment.buildSearchFragment(
-            searchFile(path, fileSearchQuery)
+            searchedFiles(path, fileSearchQuery)
         )
         openedDirectories.add(path)
         pathTextView.text = path
@@ -94,8 +91,8 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         newFileFloatingButton.isVisible = false
         newFolderFloatingButton.isVisible = false
 
-        launchFragment(path)
-        //launchSearchFragment(path, "ovie")
+        //launchFragment(path)
+        launchSearchFragment(path, "ovie")
 
         copyButton.setOnClickListener {
             isCopyOperation = true

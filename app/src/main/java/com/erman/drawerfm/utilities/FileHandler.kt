@@ -1,14 +1,12 @@
 package com.erman.drawerfm.utilities
 
-import android.os.FileUtils
 import java.io.File
-
 
 fun getFiles(path: String): List<File> {
     return File(path).listFiles().sorted().toList()
 }
 
-fun searchFile(path: String, searchQuery: String): List<File> {
+fun searchedFiles(path: String, searchQuery: String): List<File> {
     return File(path).listFiles(FileSearchFilter(searchQuery)).toList()
 }
 
