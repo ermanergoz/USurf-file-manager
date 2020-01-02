@@ -78,12 +78,12 @@ class DirectoryRecyclerViewAdapter :
             return true
         }
 
-        fun bindDirectory(directoryData: File) {
-            if(directoryData.nameWithoutExtension!="")
-                itemView.nameTextView.text = directoryData.nameWithoutExtension
+        fun bindDirectory(directory: File) {
+            if(directory.nameWithoutExtension!="")
+                itemView.nameTextView.text = directory.nameWithoutExtension
             //some files/folders start with .something and in this case their name will be empty
             else
-                itemView.nameTextView.text = directoryData.name
+                itemView.nameTextView.text = directory.name
             itemView.nameTextView.isSingleLine = true
 
             if (itemView.context.getSharedPreferences(
@@ -97,28 +97,28 @@ class DirectoryRecyclerViewAdapter :
                 itemView.nameTextView.marqueeRepeatLimit = -1   //-1 is for forever
             }
 
-            if (directoryData.isDirectory) {
+            if (directory.isDirectory) {
                 itemView.imageView.setImageResource(R.drawable.folder_icon)
                 itemView.extensionTextView.text = ""
-                if (directoryData.listFiles() != null) {
-                    if (directoryData.listFiles().isEmpty()) {
+                if (directory.listFiles() != null) {
+                    if (directory.listFiles().isEmpty()) {
                         itemView.totalSizeTextView.text =
                             itemView.context.getString(R.string.empty_folder)
                     } else {
                         itemView.totalSizeTextView.text =
-                            directoryData.listFiles().size.toString() + " " + itemView.context.getString(
+                            directory.listFiles().size.toString() + " " + itemView.context.getString(
                                 R.string.files_num
                             )
                         itemView.lastModifiedTextView.text =
-                            dateFormat.format(directoryData.lastModified())
+                            dateFormat.format(directory.lastModified())
                     }
                 }
             } else {
                 itemView.imageView.setImageResource(R.drawable.file_icon)
                 itemView.totalSizeTextView.visibility = View.VISIBLE
-                itemView.totalSizeTextView.text = getConvertedFileSize(directoryData.length())
-                itemView.lastModifiedTextView.text = dateFormat.format(directoryData.lastModified())
-                itemView.extensionTextView.text = directoryData.extension
+                itemView.totalSizeTextView.text = getConvertedFileSize(directory.length())
+                itemView.lastModifiedTextView.text = dateFormat.format(directory.lastModified())
+                itemView.extensionTextView.text = directory.extension
             }
         }
     }
