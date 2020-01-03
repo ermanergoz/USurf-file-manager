@@ -103,7 +103,7 @@ class DirectoryRecyclerViewAdapter :
                 if (directory.listFiles() != null) {
                     if (directory.listFiles().isEmpty()) {
                         itemView.totalSizeTextView.text =
-                            itemView.context.getString(R.string.empty_folder)
+                            itemView.context.getString(R.string.empty_folder_size_text)
                     } else {
                         itemView.totalSizeTextView.text =
                             directory.listFiles().size.toString() + " " + itemView.context.getString(

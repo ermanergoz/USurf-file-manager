@@ -11,7 +11,7 @@ import com.erman.drawerfm.R
 import com.erman.drawerfm.activities.MainActivity
 
 class PreferencesFragment : PreferenceFragmentCompat() {
-    private lateinit var mPreferences: SharedPreferences
+    private lateinit var preferences: SharedPreferences
     private var sharedPrefFile: String = "com.erman.draverfm"
     private var selectedTheme: String = ""
     lateinit var preferencesEditor: SharedPreferences.Editor
@@ -21,13 +21,13 @@ class PreferencesFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences, rootKey)
 
-        mPreferences =
+        preferences =
             context!!.getSharedPreferences(sharedPrefFile, AppCompatActivity.MODE_PRIVATE)
 
         findPreference<ListPreference>("theme_list_preference")?.setOnPreferenceChangeListener { preference, newValue ->
             this.selectedTheme = newValue.toString()
 
-            preferencesEditor = mPreferences.edit()
+            preferencesEditor = preferences.edit()
             preferencesEditor.putString("theme choice", selectedTheme)
             preferencesEditor.apply()
 
@@ -37,7 +37,7 @@ class PreferencesFragment : PreferenceFragmentCompat() {
         findPreference<SwitchPreference>("marquee_preference")?.setOnPreferenceChangeListener { preference, newValue ->
             this.isMarqueeEnabled = newValue as Boolean
 
-            preferencesEditor = mPreferences.edit()
+            preferencesEditor = preferences.edit()
             preferencesEditor.putBoolean("marquee choice", isMarqueeEnabled)
             preferencesEditor.apply()
 
@@ -47,7 +47,7 @@ class PreferencesFragment : PreferenceFragmentCompat() {
         findPreference<SwitchPreference>("root_access")?.setOnPreferenceChangeListener { preference, newValue ->
             this.isRootAccessEnabled = newValue as Boolean
 
-            preferencesEditor = mPreferences.edit()
+            preferencesEditor = preferences.edit()
             preferencesEditor.putBoolean("root access", isRootAccessEnabled)
             preferencesEditor.apply()
 
