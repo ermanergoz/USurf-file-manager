@@ -4,7 +4,6 @@ import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.SearchView
@@ -73,7 +72,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         if (optionButtonBar.isVisible)
             optionButtonBar.isVisible = false
 
-        pathTextView.text = "Results for: " + fileSearchQuery
+        pathTextView.text = getString(R.string.results_for)+ " " + fileSearchQuery
 
         filesSearchFragment = FileSearchFragment.buildSearchFragment(
             getSearchedFiles(path, fileSearchQuery)
