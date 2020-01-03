@@ -5,6 +5,6 @@ import java.io.FileFilter
 
 class FileSearchFilter(var searchQuery: String) : FileFilter {
     override fun accept(file: File?): Boolean {
-        return searchQuery.toRegex().containsMatchIn(file!!.nameWithoutExtension)
+        return searchQuery.decapitalize().toRegex().containsMatchIn(file!!.nameWithoutExtension.decapitalize())
     }
 }
