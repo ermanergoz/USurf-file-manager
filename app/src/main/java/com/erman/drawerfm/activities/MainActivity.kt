@@ -195,7 +195,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
             else -> displayErrorDialog(getString(R.string.invalid_path))
         }
     }
-
+/*
     var sdCardUri: Uri? = null
 
     private fun requestSDCardPermissions() {
@@ -227,7 +227,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         }
         super.onActivityResult(requestCode, resultCode, data)
     }
-
+*/
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme()
         super.onCreate(savedInstanceState)
@@ -244,7 +244,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         createShortcutGrid()
         createStorageButtons()
         addItemsToActivity()
-        //displayUsedSpace()
+        displayUsedSpace()
         setClickListener()
 
         addShortcut.setOnClickListener {

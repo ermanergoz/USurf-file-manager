@@ -1,10 +1,13 @@
 package com.erman.drawerfm.activities
 
+import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.SearchView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.core.view.isVisible
@@ -20,9 +23,11 @@ import com.erman.drawerfm.utilities.*
 import kotlinx.android.synthetic.main.activity_fragment.*
 import java.io.File
 
-class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListener, FileSearchFragment.OnItemClickListener,
+
+class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListener,
+    FileSearchFragment.OnItemClickListener,
     RenameDialog.DialogRenameFileListener, CreateFileDialog.DialogCreateFileListener,
-    CreateFolderDialog.DialogCreateFolderListener {
+    CreateFolderDialog.DialogCreateFolderListener, SearchView.OnQueryTextListener {
     lateinit var path: String
     private lateinit var filesListFragment: ListDirFragment
     private lateinit var filesSearchFragment: FileSearchFragment
@@ -69,12 +74,11 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         if (optionButtonBar.isVisible)
             optionButtonBar.isVisible = false
 
-        pathTextView.text = "Results for: "+fileSearchQuery
+        pathTextView.text = "Results for: " + fileSearchQuery
 
         filesSearchFragment = FileSearchFragment.buildSearchFragment(
             getSearchedFiles(path, fileSearchQuery)
         )
-        openedDirectories.add(path)
 
         fragmentManager.beginTransaction()
             .add(R.id.fragmentContainer, filesSearchFragment)
@@ -92,8 +96,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         newFileFloatingButton.isVisible = false
         newFolderFloatingButton.isVisible = false
 
-        //launchFragment(path)
-        launchSearchFragment(path, "ovie")
+        launchFragment(path)
 
         copyButton.setOnClickListener {
             isCopyOperation = true
@@ -198,14 +201,20 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_fragment_activity, menu)
+
+        val searchManager =
+            getSystemService(Context.SEARCH_SERVICE) as SearchManager
+        val search =
+            menu!!.findItem(R.id.fileSearch).actionView as SearchView
+        search.setSearchableInfo(searchManager.getSearchableInfo(componentName))
+        search.setOnQueryTextListener(this)
+
         return super.onCreateOptionsMenu(menu)
     }
 
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.fileSearch -> {
-                //TODO: Make this functional
-            }
             android.R.id.home ->
                 backButtonPressed()
         }
@@ -286,5 +295,16 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
             openedDirectories[openedDirectories.size - 1]
         )
         LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent)
+    }
+
+    override fun onQueryTextSubmit(query: String?): Boolean {
+        if (query != null) {
+            launchSearchFragment(path, query)
+        }
+        return true
+    }
+
+    override fun onQueryTextChange(newText: String?): Boolean {
+        return true
     }
 }
