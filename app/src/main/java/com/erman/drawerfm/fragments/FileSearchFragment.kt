@@ -6,6 +6,7 @@ import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.erman.drawerfm.R
@@ -17,8 +18,6 @@ class FileSearchFragment : Fragment() {
     private lateinit var directoryRecyclerViewAdapter: DirectoryRecyclerViewAdapter
     private lateinit var onClickCallback: OnItemClickListener
     private var fileList: List<Parcelable>? = null
-    private lateinit var path: String
-
 
     interface OnItemClickListener {
         fun onClick(directory: File)
@@ -79,6 +78,14 @@ class FileSearchFragment : Fragment() {
     }
 
     private fun updateData() {
+
+        if(fileList!!.isEmpty()) {
+            emptyFolderTextView.isVisible = true
+            emptyFolderTextView.text = getString(R.string.unsuccessful_search)
+        }
+        else
+            emptyFolderTextView.isVisible = false
+
         directoryRecyclerViewAdapter.updateData(fileList as List<File>)
     }
 }
