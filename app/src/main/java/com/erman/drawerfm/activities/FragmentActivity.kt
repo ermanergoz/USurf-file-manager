@@ -23,7 +23,6 @@ import com.erman.drawerfm.utilities.*
 import kotlinx.android.synthetic.main.activity_fragment.*
 import java.io.File
 
-
 class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListener,
     FileSearchFragment.OnItemClickListener,
     RenameDialog.DialogRenameFileListener, CreateFileDialog.DialogCreateFileListener,
