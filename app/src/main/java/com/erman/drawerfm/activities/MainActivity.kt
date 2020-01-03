@@ -5,6 +5,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.BlendMode
@@ -55,11 +56,31 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     private lateinit var storageDirectories: Set<String>
     private var screenWidth = 0
     private var screenHeight = 0
+    //-----------------------------------------------------------------
+    private lateinit var preferences: SharedPreferences
+    private var sharedPrefFile: String = "com.erman.draverfm"
+    lateinit var preferencesEditor: SharedPreferences.Editor
+    //-----------------------------------------------------------------
 
-    private var shortcuts: MutableMap<String, String> = mutableMapOf(
-        "DCIM" to "/storage/emulated/0/DCIM",
-        "Download" to "/storage/emulated/0/Download"
+    private var shortcutNames: MutableSet<String> = mutableSetOf(
+        "DCIM",
+        "Download"
     )
+
+    private var shortcutPaths: MutableSet<String> = mutableSetOf(
+        "/storage/emulated/0/DCIM",
+        "/storage/emulated/0/Download"
+    )
+
+    private fun saveShortcuts() {
+        preferences =
+            this.getSharedPreferences(sharedPrefFile, AppCompatActivity.MODE_PRIVATE)
+
+        preferencesEditor = preferences.edit()
+        preferencesEditor.putStringSet("shortcut names", shortcutNames)
+        preferencesEditor.putStringSet("shortcut paths", shortcutPaths)
+        preferencesEditor.apply()
+    }
 
     private fun requestPermissions() {
         ActivityCompat.requestPermissions(
@@ -169,7 +190,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         shortcutRecyclerView.layoutManager = layoutManager
         adapter = ShortcutRecyclerViewAdapter()
         shortcutRecyclerView.adapter = adapter
-        adapter.updateData(shortcuts)
+        adapter.updateData(shortcutNames, shortcutPaths)
     }
 
     private fun setClickListener() {
@@ -186,49 +207,28 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     }
 
     private fun addShortcut(shortcutPath: String, shortcutName: String) {
-        when {
-            shortcutPath in shortcuts.values -> displayErrorDialog(getString(R.string.duplicate_shortcut))
-            File(shortcutPath).exists() -> {
-                shortcuts[shortcutName] = shortcutPath
-                adapter.updateData(shortcuts)
-            }
-            else -> displayErrorDialog(getString(R.string.invalid_path))
-        }
-    }
-/*
-    var sdCardUri: Uri? = null
+        if (shortcutPath in shortcutPaths)
+            displayErrorDialog(getString(R.string.duplicate_shortcut))
+        else if (File(shortcutPath).exists()) {
+            shortcutNames.add(shortcutName)
+            shortcutPaths.add(shortcutPath)
 
-    private fun requestSDCardPermissions() {
-        if (Build.VERSION.SDK_INT < 24) {
-            startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT_TREE), 1)
-            return
-        }
-        // find removable device using getStorageVolumes
-        val sm = getSystemService(Context.STORAGE_SERVICE) as StorageManager
-        val sdCard = sm.storageVolumes.find { it.isRemovable }
-        if (sdCard != null) {
-            startActivityForResult(sdCard.createAccessIntent(null), 1)
-        }
+            adapter.updateData(shortcutNames, shortcutPaths)
+            saveShortcuts()
+
+        } else
+            displayErrorDialog(getString(R.string.invalid_path))
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == 1 || requestCode == 0) {
-            if (resultCode == RESULT_OK) {
-                if (data == null) {
-                    Log.e("dsfsdfsd", "Error obtaining access")
-                } else {
-                    sdCardUri = data.data
-                    Log.d("StorageAccess", "obtained access to $sdCardUri")
-                    // optionally store uri in preferences as well here { ... }
-                }
-            } else
-                Log.e("access denied", "sdfsdfsdfsdffsdfsdfsd")
-            return
-        }
-        super.onActivityResult(requestCode, resultCode, data)
-    }
-*/
     override fun onCreate(savedInstanceState: Bundle?) {
+        shortcutNames.addAll(getSharedPreferences(
+            "com.erman.draverfm", Context.MODE_PRIVATE
+        ).getStringSet("shortcut names", emptySet())!!)
+
+        shortcutPaths.addAll(getSharedPreferences(
+            "com.erman.draverfm", Context.MODE_PRIVATE
+        ).getStringSet("shortcut paths", emptySet())!!)
+
         setTheme()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -237,7 +237,6 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         requestPermissions()
-        //requestSDCardPermissions()
 
         storageDirectories = getStorageDirectories(this)
 
@@ -281,12 +280,6 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         intent.putExtra("path", path)
         startActivity(intent)
     }
-
-    /*private fun startGeneralStorageInfoActivity(storageDirectories: ArrayList<String>) {
-        val intent = Intent(this, GeneralStorageInfo::class.java)
-        intent.putExtra("storageDirectories", storageDirectories)
-        startActivity(intent)
-    }*/
 
     private fun startSettingsActivity() {
         val intent = Intent(this, PreferencesActivity::class.java)

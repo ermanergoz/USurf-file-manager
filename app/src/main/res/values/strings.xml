@@ -33,7 +33,8 @@
     <string name="file_broadcast_receiver">com.erman.drawerfm.fileBroadcastReceiver</string>
 
     <!--fragment stuff-->
-    <string name="empty_folder">Empty Folder</string>
+    <string name="empty_folder_size_text">Empty Folder</string>
+    <string name="empty_folder">There is nothing here.</string>
     <string name="files_num">Files</string>
     <string name="copy">Copy</string>
     <string name="move">Move</string>
@@ -41,5 +42,9 @@
     <string name="delete">Delete</string>
     <string name="zip">Zip</string>
     <string name="unzip">Unzip</string>
+
+    <!--search stuff-->
+    <string name="unsuccessful_search">Nothing found.</string>
+    <string name="results_for">Results for: </string>
 
 </resources>

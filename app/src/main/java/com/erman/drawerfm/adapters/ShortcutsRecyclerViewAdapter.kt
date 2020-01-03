@@ -12,19 +12,20 @@ import com.erman.drawerfm.R
 import com.erman.drawerfm.activities.FragmentActivity
 import kotlinx.android.synthetic.main.shortcut_recycler_layout.view.*
 
-class ShortcutRecyclerViewAdapter:
+class ShortcutRecyclerViewAdapter :
     RecyclerView.Adapter<ShortcutRecyclerViewAdapter.ShortcutHolder>() {
 
-    var shortcuts: Map<String, String> = mutableMapOf()
+    var shortcutNames: Set<String> = mutableSetOf()
+    var shortcutPaths: Set<String> = mutableSetOf()
 
     override fun getItemCount(): Int {
-        return shortcuts.count()
+        return shortcutPaths.count()
     }
 
     override fun onBindViewHolder(
         holder: ShortcutHolder, position: Int
     ) {
-        holder.bindButtons(shortcuts.keys.elementAt(position), shortcuts.values.elementAt(position))
+        holder.bindButtons(shortcutNames.elementAt(position), shortcutPaths.elementAt(position))
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShortcutHolder {
@@ -53,7 +54,8 @@ class ShortcutRecyclerViewAdapter:
             if (itemView.context.getSharedPreferences(
                     "com.erman.draverfm",
                     Context.MODE_PRIVATE
-                ).getBoolean("marquee choice", true)) {
+                ).getBoolean("marquee choice", true)
+            ) {
                 itemView.shortcut.ellipsize =
                     TextUtils.TruncateAt.MARQUEE  //for sliding names if the length is longer than 1 line
                 itemView.shortcut.isSelected = true
@@ -73,8 +75,10 @@ class ShortcutRecyclerViewAdapter:
         }
     }
 
-    fun updateData(shortcuts: Map<String, String>) {
-        this.shortcuts = shortcuts
+    fun updateData(shortcutNames: Set<String>, shortcutPaths: Set<String>) {
+        this.shortcutNames = shortcutNames
+        this.shortcutPaths = shortcutPaths
         notifyDataSetChanged()
     }
+
 }
