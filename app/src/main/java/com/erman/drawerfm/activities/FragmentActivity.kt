@@ -4,14 +4,17 @@ import android.app.SearchManager
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.SearchView
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.core.view.isVisible
+import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.FragmentManager
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.erman.drawerfm.R
@@ -23,6 +26,7 @@ import com.erman.drawerfm.fragments.ListDirFragment
 import com.erman.drawerfm.utilities.*
 import kotlinx.android.synthetic.main.activity_fragment.*
 import java.io.File
+import java.nio.file.Files.isWritable
 
 class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListener,
     FileSearchFragment.OnItemClickListener,
@@ -74,7 +78,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         if (optionButtonBar.isVisible)
             optionButtonBar.isVisible = false
 
-        pathTextView.text = getString(R.string.results_for)+ " " + fileSearchQuery
+        pathTextView.text = getString(R.string.results_for) + " " + fileSearchQuery
 
         filesSearchFragment = FileSearchFragment.buildSearchFragment(
             getSearchedFiles(path, fileSearchQuery)
@@ -192,12 +196,11 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
                 val intent = Intent(Intent.ACTION_VIEW)
                 intent.data =
                     FileProvider.getUriForFile(this, "com.erman.drawerfm", File(directory.path))
-                try{
-                intent.flags =
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-                startActivity(intent)}
-                catch (err: ActivityNotFoundException)
-                {
+                try {
+                    intent.flags =
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                    startActivity(intent)
+                } catch (err: ActivityNotFoundException) {
                     Log.e("ActivityNotFoundException", "No Activity found to handle Intent")
                     //TODO: Add not supported extension kind of thing in alert dialog
                 }
@@ -235,6 +238,11 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
             zipButton.isVisible = false
         else
             unzipButton.isVisible = false
+    }
+
+    fun triggerStorageAccessFramework() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        this.startActivityForResult(intent, 3);
     }
 
     override fun onLongClick(directory: File) {
@@ -301,6 +309,24 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
             openedDirectories[openedDirectories.size - 1]
         )
         LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent)
+
+        // On Android 5, trigger storage access framework.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            //TODO:this function should be moved to proper location before calling this function which launches the files app
+            //TODO:we need to saved the data we need to do that operatiın we want by assigning them to the variables
+            triggerStorageAccessFramework()
+        }
+
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        //TODO:this lifecycle func is called afteer launching the files app for ext storage
+        //TODO: and we need to do the operations on those files here
+        //TODO:and also check if we have values for the variables
+
+        super.onActivityResult(requestCode, resultCode, data)
+
+        //TODO:WE NEED TO make the variables we assigned in line 315 we need to reset them after we are done with the operation
     }
 
     override fun onQueryTextSubmit(query: String?): Boolean {

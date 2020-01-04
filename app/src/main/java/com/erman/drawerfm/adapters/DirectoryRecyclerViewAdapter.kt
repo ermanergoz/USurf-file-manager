@@ -42,7 +42,7 @@ class DirectoryRecyclerViewAdapter :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bindDirectory(directoryList[position])
-        holder.itemView.directoryLayout.setBackgroundColor(Color.TRANSPARENT)
+        //holder.itemView.directoryLayout.setBackgroundColor(Color.TRANSPARENT)
     }
 
 
