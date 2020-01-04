@@ -1,9 +1,11 @@
 package com.erman.drawerfm.activities
 
 import android.app.SearchManager
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.SearchView
@@ -190,9 +192,15 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
                 val intent = Intent(Intent.ACTION_VIEW)
                 intent.data =
                     FileProvider.getUriForFile(this, "com.erman.drawerfm", File(directory.path))
+                try{
                 intent.flags =
                     Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-                startActivity(intent)
+                startActivity(intent)}
+                catch (err: ActivityNotFoundException)
+                {
+                    Log.e("ActivityNotFoundException", "No Activity found to handle Intent")
+                    //TODO: Add not supported extension kind of thing in alert dialog
+                }
             }
         }
     }
