@@ -40,8 +40,8 @@
     <string name="move">Move</string>
     <string name="rename">Rename</string>
     <string name="delete">Delete</string>
-    <string name="zip">Zip</string>
-    <string name="unzip">Unzip</string>
+    <string name="compress">Compress</string>
+    <string name="extract">Extract</string>
     <string name="properties">Properties</string>
     <string name="share">Share</string>
     <string name="more">More</string>
