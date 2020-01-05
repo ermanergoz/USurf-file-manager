@@ -56,22 +56,22 @@
         tools:visibility="visible">
 
         <Button
-            android:id="@+id/zipButton"
+            android:id="@+id/compressButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="?android:attr/selectableItemBackground"
-            android:text="@string/zip"
+            android:text="@string/compress"
             android:textColor="?attr/textColor"
             android:textSize="12sp" />
 
         <Button
-            android:id="@+id/unzipButton"
+            android:id="@+id/extractButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="?android:attr/selectableItemBackground"
-            android:text="@string/unzip"
+            android:text="@string/extract"
             android:textColor="?attr/textColor"
             android:textSize="12sp" />
 
