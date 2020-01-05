@@ -6,15 +6,12 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.SearchView
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.core.view.isVisible
-import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.FragmentManager
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.erman.drawerfm.R
@@ -27,7 +24,6 @@ import com.erman.drawerfm.fragments.ListDirFragment
 import com.erman.drawerfm.utilities.*
 import kotlinx.android.synthetic.main.activity_fragment.*
 import java.io.File
-import java.nio.file.Files.isWritable
 import android.view.inputmethod.InputMethodManager
 
 class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListener,
@@ -113,7 +109,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
 
         moveButton.setOnClickListener {
             isMoveOperation = true
-            isMultipleSelection = false
+            deactivateMultipleSelectionMode()
             showConfirmationButtons()
         }
 
@@ -170,11 +166,16 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         }
     }
 
+    private fun deactivateMultipleSelectionMode() {
+        isMultipleSelection = false
+        moreButton.text = getString(R.string.more)
+    }
+
     private fun finishAndUpdate() {
         isMoveOperation = false
         isCopyOperation = false
         multipleSelectionList.clear()
-        isMultipleSelection = false
+        deactivateMultipleSelectionMode()
         optionButtonBar.isVisible = false
         moreOptionButtonBar.isVisible = false
         confirmationButtonBar.isVisible = false
@@ -250,9 +251,9 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         optionButtonBar.isVisible = true
         confirmationButtonBar.isVisible = false
         if (isExtensionZip)
-            zipButton.isVisible = false
+            compressButton.isVisible = false
         else
-            unzipButton.isVisible = false
+            extractButton.isVisible = false
     }
 
     fun triggerStorageAccessFramework() {
@@ -335,7 +336,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        //TODO:this lifecycle func is called afteer launching the files app for ext storage
+        //TODO:this lifecycle func is called after launching the files app for ext storage
         //TODO: and we need to do the operations on those files here
         //TODO:and also check if we have values for the variables
 
