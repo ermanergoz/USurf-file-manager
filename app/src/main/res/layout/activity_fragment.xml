@@ -76,12 +76,12 @@
             android:textSize="12sp" />
 
         <Button
-            android:id="@+id/PropertiesButton"
+            android:id="@+id/informationButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="?android:attr/selectableItemBackground"
-            android:text="@string/properties"
+            android:text="@string/information"
             android:textColor="?attr/textColor"
             android:textSize="12sp" />
 
