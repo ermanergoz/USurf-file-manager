@@ -97,6 +97,8 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         setContentView(R.layout.activity_fragment)
         this.path = intent.getStringExtra("path")
         optionButtonBar.isVisible = false
+        moreOptionButtonBar.isVisible = false
+        confirmationButtonBar.isVisible = false
         newFileFloatingButton.isVisible = false
         newFolderFloatingButton.isVisible = false
 
@@ -109,6 +111,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
 
         moveButton.setOnClickListener {
             isMoveOperation = true
+            isMultipleSelection=false
             showConfirmationButtons()
         }
 
@@ -136,6 +139,17 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
             finishAndUpdate()
         }
 
+        moreButton.setOnClickListener {
+            if(moreOptionButtonBar.isVisible) {
+                moreOptionButtonBar.isVisible = false
+                moreButton.text = getString(R.string.more)
+            }
+            else {
+                moreOptionButtonBar.isVisible = true
+                moreButton.text = getString(R.string.collapse)
+            }
+        }
+
         createNewFloatingButton.setOnClickListener {
             if (newFileFloatingButton.isVisible && newFolderFloatingButton.isVisible) {
                 newFileFloatingButton.isVisible = false
@@ -161,20 +175,17 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         multipleSelectionList.clear()
         isMultipleSelection = false
         optionButtonBar.isVisible = false
+        moreOptionButtonBar.isVisible = false
+        confirmationButtonBar.isVisible = false
 
         multipleSelectionList.clear()
         updateFragment()
     }
 
     private fun showConfirmationButtons() {
-        OKButton.isVisible = true
-        cancelButton.isVisible = true
-        copyButton.isVisible = false
-        moveButton.isVisible = false
-        renameButton.isVisible = false
-        deleteButton.isVisible = false
-        zipButton.isVisible = false
-        unzipButton.isVisible = false
+        optionButtonBar.isVisible=false
+        moreOptionButtonBar.isVisible=false
+        confirmationButtonBar.isVisible=true
     }
 
     override fun onClick(directory: File) {
@@ -232,8 +243,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
 
     private fun showOptionButtons(isExtensionZip: Boolean) {
         optionButtonBar.isVisible = true
-        OKButton.isVisible = false
-        cancelButton.isVisible = false
+        confirmationButtonBar.isVisible = false
         if (isExtensionZip)
             zipButton.isVisible = false
         else
@@ -314,7 +324,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             //TODO:this function should be moved to proper location before calling this function which launches the files app
             //TODO:we need to saved the data we need to do that operatiın we want by assigning them to the variables
-            triggerStorageAccessFramework()
+            //triggerStorageAccessFramework()
         }
 
     }
