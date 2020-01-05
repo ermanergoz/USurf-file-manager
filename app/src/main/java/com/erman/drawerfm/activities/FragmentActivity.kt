@@ -15,22 +15,20 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentManager
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.erman.drawerfm.R
-import com.erman.drawerfm.dialogs.CreateFileDialog
-import com.erman.drawerfm.dialogs.CreateFolderDialog
-import com.erman.drawerfm.dialogs.ErrorDialog
-import com.erman.drawerfm.dialogs.RenameDialog
 import com.erman.drawerfm.fragments.FileSearchFragment
 import com.erman.drawerfm.fragments.ListDirFragment
 import com.erman.drawerfm.utilities.*
 import kotlinx.android.synthetic.main.activity_fragment.*
 import java.io.File
 import android.view.inputmethod.InputMethodManager
+import com.erman.drawerfm.dialogs.*
 
 class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListener,
     FileSearchFragment.OnItemClickListener,
     RenameDialog.DialogRenameFileListener, CreateFileDialog.DialogCreateFileListener,
     CreateFolderDialog.DialogCreateFolderListener, SearchView.OnQueryTextListener {
     lateinit var path: String
+    lateinit var longClickedFile: File
     private lateinit var filesListFragment: ListDirFragment
     private lateinit var filesSearchFragment: FileSearchFragment
     private val fragmentManager: FragmentManager = supportFragmentManager
@@ -145,6 +143,11 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
                 moreOptionButtonBar.isVisible = true
                 moreButton.text = getString(R.string.collapse)
             }
+        }
+
+        informationButton.setOnClickListener {
+            val newFragment = PropertiesDialog(longClickedFile)
+            newFragment.show(supportFragmentManager, "")
         }
 
         createNewFloatingButton.setOnClickListener {
@@ -263,6 +266,8 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
 
     override fun onLongClick(directory: File) {
         isMultipleSelection = true
+
+        longClickedFile=directory
 
         if (multipleSelectionList.contains(directory)) {
             multipleSelectionList.removeAt(multipleSelectionList.indexOf(directory))
