@@ -20,6 +20,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.erman.drawerfm.R
 import com.erman.drawerfm.dialogs.CreateFileDialog
 import com.erman.drawerfm.dialogs.CreateFolderDialog
+import com.erman.drawerfm.dialogs.ErrorDialog
 import com.erman.drawerfm.dialogs.RenameDialog
 import com.erman.drawerfm.fragments.FileSearchFragment
 import com.erman.drawerfm.fragments.ListDirFragment
@@ -27,6 +28,7 @@ import com.erman.drawerfm.utilities.*
 import kotlinx.android.synthetic.main.activity_fragment.*
 import java.io.File
 import java.nio.file.Files.isWritable
+import android.view.inputmethod.InputMethodManager
 
 class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListener,
     FileSearchFragment.OnItemClickListener,
@@ -111,7 +113,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
 
         moveButton.setOnClickListener {
             isMoveOperation = true
-            isMultipleSelection=false
+            isMultipleSelection = false
             showConfirmationButtons()
         }
 
@@ -140,11 +142,10 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         }
 
         moreButton.setOnClickListener {
-            if(moreOptionButtonBar.isVisible) {
+            if (moreOptionButtonBar.isVisible) {
                 moreOptionButtonBar.isVisible = false
                 moreButton.text = getString(R.string.more)
-            }
-            else {
+            } else {
                 moreOptionButtonBar.isVisible = true
                 moreButton.text = getString(R.string.collapse)
             }
@@ -183,9 +184,14 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
     }
 
     private fun showConfirmationButtons() {
-        optionButtonBar.isVisible=false
-        moreOptionButtonBar.isVisible=false
-        confirmationButtonBar.isVisible=true
+        optionButtonBar.isVisible = false
+        moreOptionButtonBar.isVisible = false
+        confirmationButtonBar.isVisible = true
+    }
+
+    private fun displayErrorDialog(errorMessage: String) {
+        val newFragment = ErrorDialog(errorMessage)
+        newFragment.show(supportFragmentManager, "")
     }
 
     override fun onClick(directory: File) {
@@ -212,8 +218,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
                         Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
                     startActivity(intent)
                 } catch (err: ActivityNotFoundException) {
-                    Log.e("ActivityNotFoundException", "No Activity found to handle Intent")
-                    //TODO: Add not supported extension kind of thing in alert dialog
+                    displayErrorDialog("This extension is not supported.")
                 }
             }
         }
@@ -339,9 +344,19 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         //TODO:WE NEED TO make the variables we assigned in line 315 we need to reset them after we are done with the operation
     }
 
+    private fun hideKeyboard() {
+        val inputManager: InputMethodManager =
+            getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputManager.hideSoftInputFromWindow(
+            currentFocus?.windowToken,
+            InputMethodManager.SHOW_FORCED
+        )
+    }
+
     override fun onQueryTextSubmit(query: String?): Boolean {
         if (query != null) {
             launchSearchFragment(path, query)
+            hideKeyboard()
         }
         return true
     }
