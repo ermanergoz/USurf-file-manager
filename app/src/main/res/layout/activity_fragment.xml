@@ -13,6 +13,90 @@
     app:layout_constraintTop_toTopOf="parent">
 
     <LinearLayout
+        android:id="@+id/confirmationButtonBar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/moreOptionButtonBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:visibility="visible">
+
+        <Button
+            android:id="@+id/OKButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="?android:attr/selectableItemBackground"
+            android:text="@string/ok"
+            android:textColor="?attr/textColor"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/cancelButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="?android:attr/selectableItemBackground"
+            android:text="@string/cancel"
+            android:textColor="?attr/textColor"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/moreOptionButtonBar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/optionButtonBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:visibility="visible">
+
+        <Button
+            android:id="@+id/zipButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="?android:attr/selectableItemBackground"
+            android:text="@string/zip"
+            android:textColor="?attr/textColor"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/unzipButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="?android:attr/selectableItemBackground"
+            android:text="@string/unzip"
+            android:textColor="?attr/textColor"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/PropertiesButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="?android:attr/selectableItemBackground"
+            android:text="@string/properties"
+            android:textColor="?attr/textColor"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/shareButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="?android:attr/selectableItemBackground"
+            android:text="@string/share"
+            android:textColor="?attr/textColor"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/optionButtonBar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -66,42 +150,12 @@
             android:textSize="12sp" />
 
         <Button
-            android:id="@+id/zipButton"
+            android:id="@+id/moreButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="?android:attr/selectableItemBackground"
-            android:text="@string/zip"
-            android:textColor="?attr/textColor"
-            android:textSize="12sp" />
-
-        <Button
-            android:id="@+id/unzipButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="?android:attr/selectableItemBackground"
-            android:text="@string/unzip"
-            android:textColor="?attr/textColor"
-            android:textSize="12sp" />
-
-        <Button
-            android:id="@+id/OKButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="?android:attr/selectableItemBackground"
-            android:text="@string/ok"
-            android:textColor="?attr/textColor"
-            android:textSize="12sp" />
-
-        <Button
-            android:id="@+id/cancelButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="?android:attr/selectableItemBackground"
-            android:text="@string/cancel"
+            android:text="@string/more"
             android:textColor="?attr/textColor"
             android:textSize="12sp" />
     </LinearLayout>
@@ -110,7 +164,7 @@
         android:id="@+id/fragmentContainer"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/optionButtonBar"
+        app:layout_constraintBottom_toTopOf="@+id/confirmationButtonBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -159,7 +213,7 @@
         android:layout_marginRight="11dp"
         android:clickable="true"
         app:backgroundTint="?attr/blueColorAccent"
-        app:layout_constraintBottom_toTopOf="@+id/optionButtonBar"
+        app:layout_constraintBottom_toTopOf="@+id/confirmationButtonBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
