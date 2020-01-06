@@ -28,8 +28,8 @@
     <string name="permission">Permissions:</string>
     <string name="last_modification_date">Last modification date:</string>
     <string name="folder">Folder</string>
-    <string name="size_in_storage">File size in storage:</string>
-    <string name="storage">Used storage:</string>
+    <string name="size_in_storage">File size percentage in storage:</string>
+    <string name="storage">Used storage percentage:</string>
     <string name="extension">Extension:</string>
     <string name="this_file_is_hidden">This file is hidden.</string>
 
