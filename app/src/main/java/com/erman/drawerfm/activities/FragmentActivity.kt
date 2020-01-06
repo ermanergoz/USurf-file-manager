@@ -146,7 +146,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         }
 
         informationButton.setOnClickListener {
-            val newFragment = PropertiesDialog(longClickedFile)
+            val newFragment = FileInformationDialog(longClickedFile)
             newFragment.show(supportFragmentManager, "")
         }
 
