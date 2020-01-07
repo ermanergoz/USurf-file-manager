@@ -3,6 +3,7 @@ package com.erman.drawerfm.utilities
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
+import com.erman.drawerfm.R
 import java.io.File
 
 fun getFiles(path: String): List<File> {
@@ -18,7 +19,14 @@ fun getSearchedFiles(path: String, searchQuery: String): List<File> {
     return emptyList()
 }
 
-fun rename(selectedDirectories: List<File>, newNameToBe: String, updateFragment: () -> Unit) {
+fun rename(
+    context: Context,
+    selectedDirectories: List<File>,
+    newNameToBe: String,
+    updateFragment: () -> Unit
+) {
+    var isSuccess = false
+
     for (i in selectedDirectories.indices) {
         val dirName = selectedDirectories[i].path.removeSuffix(selectedDirectories[i].name)
         var newFileName = newNameToBe
@@ -32,30 +40,96 @@ fun rename(selectedDirectories: List<File>, newNameToBe: String, updateFragment:
         val prev = File(dirName, selectedDirectories[i].name)
         val new = File(dirName, newFileName)
 
-        prev.renameTo(new)
-    }
-    updateFragment.invoke()
-}
+        isSuccess = prev.renameTo(new)
 
-fun delete(selectedDirectories: List<File>, updateFragment: () -> Unit) {
-    for (i in selectedDirectories.indices) {
-        if (selectedDirectories[i].isDirectory) {
-            File(selectedDirectories[i].path).deleteRecursively()
-        } else {
-            File(selectedDirectories[i].path).delete()
+        if (!isSuccess) {
+            Toast.makeText(
+                context,
+                context.getString(R.string.error_while_renaming) + prev.name,
+                Toast.LENGTH_LONG
+            ).show()
+            break
         }
     }
-    updateFragment.invoke()
+    if (isSuccess) {
+        Toast.makeText(
+            context,
+            context.getString(R.string.renaming_successful),
+            Toast.LENGTH_LONG
+        ).show()
+
+        updateFragment.invoke()
+    }
 }
 
-fun createFolder(path: String, folderName: String, updateFragment: () -> Unit) {
-    File(path + "/" + folderName).mkdir()
-    updateFragment.invoke()
+fun delete(context: Context, selectedDirectories: List<File>, updateFragment: () -> Unit) {
+    var isSuccess = false
+
+    for (i in selectedDirectories.indices) {
+        if (selectedDirectories[i].isDirectory) {
+            isSuccess = File(selectedDirectories[i].path).deleteRecursively()
+        } else {
+            isSuccess = File(selectedDirectories[i].path).delete()
+        }
+
+        if (!isSuccess) {
+            Toast.makeText(
+                context,
+                context.getString(R.string.error_while_renaming) + selectedDirectories[i].name,
+                Toast.LENGTH_LONG
+            ).show()
+            break
+        }
+    }
+    if (isSuccess) {
+        Toast.makeText(
+            context,
+            context.getString(R.string.deleting_successful),
+            Toast.LENGTH_LONG
+        ).show()
+
+        updateFragment.invoke()
+    }
 }
 
-fun createFile(path: String, folderName: String, updateFragment: () -> Unit) {
-    File(path + "/" + folderName).createNewFile()
-    updateFragment.invoke()
+fun createFolder(context: Context, path: String, folderName: String, updateFragment: () -> Unit) {
+    var isSuccess = File(path + "/" + folderName).mkdir()
+
+    if (isSuccess) {
+        Toast.makeText(
+            context,
+            context.getString(R.string.folder_creation_successful)+folderName,
+            Toast.LENGTH_LONG
+        ).show()
+
+        updateFragment.invoke()
+    }
+    else
+        Toast.makeText(
+            context,
+            context.getString(R.string.error_when_creating_folder)+folderName,
+            Toast.LENGTH_LONG
+        ).show()
+}
+
+fun createFile(context: Context, path: String, folderName: String, updateFragment: () -> Unit) {
+    var isSuccess = File(path + "/" + folderName).createNewFile()
+
+    if (isSuccess) {
+        Toast.makeText(
+            context,
+            context.getString(R.string.file_creation_successful)+folderName,
+            Toast.LENGTH_LONG
+        ).show()
+
+        updateFragment.invoke()
+    }
+    else
+        Toast.makeText(
+            context,
+            context.getString(R.string.error_when_creating_file)+folderName,
+            Toast.LENGTH_LONG
+        ).show()
 }
 
 fun copyFile(
