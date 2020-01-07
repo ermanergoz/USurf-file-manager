@@ -5,6 +5,8 @@
     <string name="cancel">Cancel</string>
     <string name="invalid_path">Path is invalid!</string>
     <string name="duplicate_shortcut">This shortcut already exists!</string>
+    <string name="unable_to_execute_search_query">Unable to execute search query</string>
+    <string name="file_unsupported_or_no_application">Cannot open file. Either we cannot open the file, or there is no application supports it.</string>
 
     <!--create shortcut dialog-->
     <string name="name">Name:</string>
@@ -59,5 +61,4 @@
     <!--search stuff-->
     <string name="unsuccessful_search">Nothing found.</string>
     <string name="results_for">Results for: </string>
-
 </resources>
