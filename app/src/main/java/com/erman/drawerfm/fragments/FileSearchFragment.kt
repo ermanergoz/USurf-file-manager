@@ -6,6 +6,7 @@ import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -78,14 +79,20 @@ class FileSearchFragment : Fragment() {
     }
 
     private fun updateData() {
+        try {
+            if (fileList!!.isEmpty()) {
+                emptyFolderTextView.isVisible = true
+                emptyFolderTextView.text = getString(R.string.unsuccessful_search)
+            } else
+                emptyFolderTextView.isVisible = false
 
-        if(fileList!!.isEmpty()) {
-            emptyFolderTextView.isVisible = true
-            emptyFolderTextView.text = getString(R.string.unsuccessful_search)
+            directoryRecyclerViewAdapter.updateData(fileList as List<File>)
+        } catch (err: IllegalStateException) {
+            Toast.makeText(
+                context,
+                getString(R.string.unable_to_execute_search_query),
+                Toast.LENGTH_LONG
+            ).show()
         }
-        else
-            emptyFolderTextView.isVisible = false
-
-        directoryRecyclerViewAdapter.updateData(fileList as List<File>)
     }
 }

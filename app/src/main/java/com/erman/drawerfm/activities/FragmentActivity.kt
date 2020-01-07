@@ -21,6 +21,7 @@ import com.erman.drawerfm.utilities.*
 import kotlinx.android.synthetic.main.activity_fragment.*
 import java.io.File
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import com.erman.drawerfm.dialogs.*
 
 class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListener,
@@ -222,7 +223,11 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
                         Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
                     startActivity(intent)
                 } catch (err: ActivityNotFoundException) {
-                    displayErrorDialog("This extension is not supported.")
+                    Toast.makeText(
+                        this,
+                        getString(R.string.file_unsupported_or_no_application),
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             }
         }
@@ -267,7 +272,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
     override fun onLongClick(directory: File) {
         isMultipleSelection = true
 
-        longClickedFile=directory
+        longClickedFile = directory
 
         if (multipleSelectionList.contains(directory)) {
             multipleSelectionList.removeAt(multipleSelectionList.indexOf(directory))
