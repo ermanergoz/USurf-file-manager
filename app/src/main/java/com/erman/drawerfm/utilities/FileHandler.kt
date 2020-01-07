@@ -1,15 +1,12 @@
 package com.erman.drawerfm.utilities
 
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import java.io.File
 
 fun getFiles(path: String): List<File> {
-    try {
-        return File(path).listFiles().sorted().toList()
-    } catch (err: IllegalStateException) {
-        Log.e("IllegalStateException", "File(path).listFiles must not be null")
-    }
-    return emptyList()
+    return File(path).listFiles().sorted().toList()
 }
 
 fun getSearchedFiles(path: String, searchQuery: String): List<File> {
