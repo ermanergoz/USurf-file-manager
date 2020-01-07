@@ -118,7 +118,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         }
 
         deleteButton.setOnClickListener {
-            delete(multipleSelectionList) { finishAndUpdate() }
+            delete(this, multipleSelectionList) { finishAndUpdate() }
         }
 
         OKButton.setOnClickListener {
@@ -307,7 +307,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
     }
 
     override fun dialogRenameFileListener(newFileName: String) {
-        rename(multipleSelectionList, newFileName) { finishAndUpdate() }
+        rename(this, multipleSelectionList, newFileName) { finishAndUpdate() }
     }
 
     override fun dialogCreateFileListener(newFileName: String) {
@@ -320,6 +320,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
 
     override fun dialogCreateFolderListener(newFileName: String) {
         createFolder(
+            this,
             openedDirectories[openedDirectories.size - 1],
             newFileName
         ) { updateFragment() }
