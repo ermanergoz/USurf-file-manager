@@ -5,18 +5,22 @@
     <SwitchPreference
         android:defaultValue="false"
         android:key="root_access"
-        android:summary="Check this box to gain root access"
-        android:title="@string/get_root_access" />
+        android:summary="@string/root_explorer_summary"
+        android:title="@string/root_explorer" />
     <ListPreference
         android:defaultValue="System default"
         android:entries="@array/theme"
         android:entryValues="@array/theme"
         android:key="theme_list_preference"
-        android:title="Change theme" />
+        android:title="@string/change_theme" />
     <SwitchPreference
         android:defaultValue="true"
         android:key="marquee_preference"
-        android:summary="If enabled, long file/folder names will slide"
-        android:title="Enable sliding texts" />
+        android:summary="@string/sliding_texts_summary"
+        android:title="@string/enable_sliding_texts" />
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="grid_view"
+        android:title="@string/grid_view" />
 
 </PreferenceScreen>
