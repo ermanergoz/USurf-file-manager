@@ -12,8 +12,7 @@ import com.erman.drawerfm.R
 import com.erman.drawerfm.activities.FragmentActivity
 import kotlinx.android.synthetic.main.shortcut_recycler_layout.view.*
 
-class ShortcutRecyclerViewAdapter :
-    RecyclerView.Adapter<ShortcutRecyclerViewAdapter.ShortcutHolder>() {
+class ShortcutRecyclerViewAdapter : RecyclerView.Adapter<ShortcutRecyclerViewAdapter.ShortcutHolder>() {
 
     var shortcutNames: Set<String> = mutableSetOf()
     var shortcutPaths: Set<String> = mutableSetOf()
@@ -22,24 +21,18 @@ class ShortcutRecyclerViewAdapter :
         return shortcutPaths.count()
     }
 
-    override fun onBindViewHolder(
-        holder: ShortcutHolder, position: Int
-    ) {
+    override fun onBindViewHolder(holder: ShortcutHolder, position: Int) {
         holder.bindButtons(shortcutNames.elementAt(position), shortcutPaths.elementAt(position))
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShortcutHolder {
-        return ShortcutHolder(
-            LayoutInflater.from(parent.context).inflate(
-                R.layout.shortcut_recycler_layout,
-                parent,
-                false
-            )
-        )
+        return ShortcutHolder(LayoutInflater.from(parent.context).inflate(R.layout.shortcut_recycler_layout,
+                                                                          parent,
+                                                                          false))
     }
 
-    inner class ShortcutHolder(var view: View) : RecyclerView.ViewHolder(view),
-        View.OnClickListener, View.OnLongClickListener {
+    inner class ShortcutHolder(var view: View) : RecyclerView.ViewHolder(view), View.OnClickListener,
+        View.OnLongClickListener {
         init {
             view.setOnClickListener(this)
             view.setOnLongClickListener(this)
@@ -51,11 +44,8 @@ class ShortcutRecyclerViewAdapter :
             itemView.shortcut.setBackgroundResource(R.drawable.storage_button_style)
             itemView.shortcut.isSingleLine = true
 
-            if (itemView.context.getSharedPreferences(
-                    "com.erman.draverfm",
-                    Context.MODE_PRIVATE
-                ).getBoolean("marquee choice", true)
-            ) {
+            if (itemView.context.getSharedPreferences("com.erman.draverfm",
+                                                      Context.MODE_PRIVATE).getBoolean("marquee choice", true)) {
                 itemView.shortcut.ellipsize =
                     TextUtils.TruncateAt.MARQUEE  //for sliding names if the length is longer than 1 line
                 itemView.shortcut.isSelected = true

@@ -14,10 +14,9 @@ class ErrorDialog(var errorMessage: String) : DialogFragment() {
 
             val builder = AlertDialog.Builder(it)
             builder.setMessage(errorMessage)
-                .setPositiveButton(R.string.ok,
-                    DialogInterface.OnClickListener { dialog, id ->
+                .setPositiveButton(R.string.ok, DialogInterface.OnClickListener { dialog, id ->
 
-                    })
+                })
             // Create the AlertDialog object and return it
             builder.create()
         } ?: throw IllegalStateException("Activity cannot be null")
