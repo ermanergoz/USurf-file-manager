@@ -51,9 +51,12 @@
     <string name="this_file_is_hidden">This file is hidden.</string>
 
     <!--preferences-->
-    <string name="dark_theme_title">Dark theme</string>
-    <string name="dark_theme_summary">Check this box to enable the dark theme</string>
-    <string name="get_root_access">Get root access</string>
+    <string name="change_theme">Change theme</string>
+    <string name="enable_sliding_texts">Enable sliding texts</string>
+    <string name="sliding_texts_summary">If enabled, long file/folder names will slide</string>
+    <string name="root_explorer">Root explorer</string>
+    <string name="root_explorer_summary">Check this box to gain access to root directory</string>
+    <string name="grid_view">Grid view</string>
 
     <!--broadcast receiver-->
     <string name="file_broadcast_receiver">com.erman.drawerfm.fileBroadcastReceiver</string>

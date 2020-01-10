@@ -248,7 +248,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
 
     fun triggerStorageAccessFramework() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-        this.startActivityForResult(intent, 3);
+        this.startActivityForResult(intent, 3)
     }
 
     override fun onLongClick(directory: File) {
