@@ -9,7 +9,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.erman.drawerfm.R
 import com.erman.drawerfm.utilities.getConvertedFileSize
-import kotlinx.android.synthetic.main.directory_recycler_layout.view.*
+import kotlinx.android.synthetic.main.directory_recycler_list_layout.view.*
 import java.io.File
 import java.text.SimpleDateFormat
 
@@ -23,9 +23,16 @@ class DirectoryRecyclerViewAdapter : RecyclerView.Adapter<DirectoryRecyclerViewA
     var isMultipleSelection = false
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.directory_recycler_layout,
-                                                                      parent,
-                                                                      false))
+        return if (parent.context.getSharedPreferences("com.erman.draverfm", Context.MODE_PRIVATE).getBoolean("grid view",
+                                                                                                              false)) {
+            ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.directory_recycler_grid_layout,
+                                                                   parent,
+                                                                   false))
+        } else {
+            ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.directory_recycler_list_layout,
+                                                                   parent,
+                                                                   false))
+        }
     }
 
     override fun getItemCount(): Int {
