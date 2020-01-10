@@ -17,15 +17,11 @@ class ConfirmationDialog(var message: String) : DialogFragment() {
         return activity?.let {
 
             val builder = AlertDialog.Builder(it)
-            builder.setMessage(message)
-                .setPositiveButton(R.string.yes,
-                    DialogInterface.OnClickListener { dialog, id ->
-                        listener.dialogConfirmationInfo(isPositiveButtonClicked)
-                    })
-                .setNegativeButton(R.string.no,
-                    DialogInterface.OnClickListener { dialog, id ->
-                        getDialog()?.cancel()
-                    })
+            builder.setMessage(message).setPositiveButton(R.string.yes, DialogInterface.OnClickListener { dialog, id ->
+                listener.dialogConfirmationInfo(isPositiveButtonClicked)
+            }).setNegativeButton(R.string.no, DialogInterface.OnClickListener { dialog, id ->
+                    getDialog()?.cancel()
+                })
             // Create the AlertDialog object and return it
             builder.create()
         } ?: throw IllegalStateException("Activity cannot be null")
@@ -37,9 +33,7 @@ class ConfirmationDialog(var message: String) : DialogFragment() {
         try {
             listener = context as DialogConfirmationListener
         } catch (err: ClassCastException) {
-            throw ClassCastException(
-                (context.toString() + " must implement ConfirmationDialogListener")
-            )
+            throw ClassCastException((context.toString() + " must implement ConfirmationDialogListener"))
         }
     }
 

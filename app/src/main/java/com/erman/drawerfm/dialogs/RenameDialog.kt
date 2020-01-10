@@ -26,16 +26,13 @@ class RenameDialog(var title: String) : DialogFragment() {
             // Create the AlertDialog object and return it
             builder.setMessage(title)
 
-                .setPositiveButton(R.string.ok,
-                    DialogInterface.OnClickListener { dialog, id ->
-                        // Send the positive button event back to the host activity
-                        newFileName = this.nameEditText.text.toString()
-                        listener.dialogRenameFileListener(newFileName)
-                    })
-                .setNegativeButton(R.string.cancel,
-                    DialogInterface.OnClickListener { dialog, id ->
-                        getDialog()?.cancel()
-                    })
+                .setPositiveButton(R.string.ok, DialogInterface.OnClickListener { dialog, id ->
+                    // Send the positive button event back to the host activity
+                    newFileName = this.nameEditText.text.toString()
+                    listener.dialogRenameFileListener(newFileName)
+                }).setNegativeButton(R.string.cancel, DialogInterface.OnClickListener { dialog, id ->
+                    getDialog()?.cancel()
+                })
 
             builder.setView(dialogView)
             builder.create()
@@ -48,9 +45,7 @@ class RenameDialog(var title: String) : DialogFragment() {
         try {
             listener = context as DialogRenameFileListener
         } catch (err: ClassCastException) {
-            throw ClassCastException(
-                (context.toString() + " must implement DialogRenameFileListener")
-            )
+            throw ClassCastException((context.toString() + " must implement DialogRenameFileListener"))
         }
     }
 

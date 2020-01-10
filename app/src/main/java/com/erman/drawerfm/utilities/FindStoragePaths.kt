@@ -60,15 +60,11 @@ fun getStorageDirectories(context: Context): Set<String> {
             paths.add("/storage/extsd")
         }
         if (!(paths.contains("/storage/emulated/0") || paths.contains("/storage/sdcard")) && File("/storage/sdcard1").exists() && File(
-                "/storage/sdcard1"
-            ).canRead()
-        ) {
+                "/storage/sdcard1").canRead()) {
             paths.add("/storage/sdcard1")
         }
         if (!(paths.contains("/storage/emulated/0") || paths.contains("/storage/sdcard")) && File("/storage/sdcard0").exists() && File(
-                "/storage/sdcard0"
-            ).canRead()
-        ) {
+                "/storage/sdcard0").canRead()) {
             paths.add("/storage/sdcard0")
         }
         if (File("/storage/sdcard").exists() && File("/storage/sdcard").canRead()) {
@@ -101,17 +97,14 @@ fun getStorageDirectories(context: Context): Set<String> {
             paths.add("/mnt/sdcard1")
         }
         if (!(paths.contains("/storage/emulated/0") || paths.contains("/storage/sdcard")) && File("/mnt/sdcard").exists() && File(
-                "/mnt/sdcard"
-            ).canRead()
-        ) {
+                "/mnt/sdcard").canRead()) {
             paths.add("/mnt/sdcard")
         }
     }
 
-    if (File("/").exists() && File("/").canRead() && context.getSharedPreferences(
-            "com.erman.draverfm", Context.MODE_PRIVATE
-        ).getBoolean("root access", false)
-    ) {
+    if (File("/").exists() && File("/").canRead() && context.getSharedPreferences("com.erman.draverfm",
+                                                                                  Context.MODE_PRIVATE).getBoolean("root access",
+                                                                                                                   false)) {
         paths.add("/")
     }
 
