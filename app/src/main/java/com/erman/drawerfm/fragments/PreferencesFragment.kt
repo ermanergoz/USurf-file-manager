@@ -17,6 +17,7 @@ class PreferencesFragment : PreferenceFragmentCompat() {
     lateinit var preferencesEditor: SharedPreferences.Editor
     var isMarqueeEnabled: Boolean = true
     var isRootAccessEnabled: Boolean = false
+    var isGridViewEnabled: Boolean = false
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences, rootKey)
@@ -48,6 +49,16 @@ class PreferencesFragment : PreferenceFragmentCompat() {
 
             preferencesEditor = preferences.edit()
             preferencesEditor.putBoolean("root access", isRootAccessEnabled)
+            preferencesEditor.apply()
+
+            true
+        }
+
+        findPreference<SwitchPreference>("grid_view")?.setOnPreferenceChangeListener { preference, newValue ->
+            this.isGridViewEnabled = newValue as Boolean
+
+            preferencesEditor = preferences.edit()
+            preferencesEditor.putBoolean("grid view", isGridViewEnabled)
             preferencesEditor.apply()
 
             true
