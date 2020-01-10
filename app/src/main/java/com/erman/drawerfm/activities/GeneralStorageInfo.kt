@@ -27,20 +27,17 @@ class GeneralStorageInfo : AppCompatActivity() {
     private var storageProgressBarHeight = 20f
 
     private fun setTheme() {
-        val chosenTheme = getSharedPreferences(
-            "com.erman.draverfm", Context.MODE_PRIVATE
-        ).getString("theme choice", "System default")
+        val chosenTheme =
+            getSharedPreferences("com.erman.draverfm", Context.MODE_PRIVATE).getString("theme choice", "System default")
 
         when (chosenTheme) {
             "Dark theme" -> {
                 setTheme(R.style.DarkTheme)
-                storageProgressBarColor =
-                    ResourcesCompat.getColor(resources, R.color.darkBlue, null)
+                storageProgressBarColor = ResourcesCompat.getColor(resources, R.color.darkBlue, null)
             }
             "Light theme" -> {
                 setTheme(R.style.LightTheme)
-                storageProgressBarColor =
-                    ResourcesCompat.getColor(resources, R.color.lightBlue, null)
+                storageProgressBarColor = ResourcesCompat.getColor(resources, R.color.lightBlue, null)
             }
             else -> {
                 setTheme(R.style.AppTheme)
@@ -60,8 +57,7 @@ class GeneralStorageInfo : AppCompatActivity() {
 
         for (i in 0 until storageDirectories.size) {
             val layoutInflater: LayoutInflater = LayoutInflater.from(this)
-            val storageButtonLayout: View =
-                layoutInflater.inflate(R.layout.storage_button, null, false)
+            val storageButtonLayout: View = layoutInflater.inflate(R.layout.storage_button, null, false)
 
             storageProgressBars.add(storageButtonLayout)
             storageProgressBars[i].tag = storageDirectories[i]
@@ -73,17 +69,15 @@ class GeneralStorageInfo : AppCompatActivity() {
                 storageProgressBars[i].progressBar.progressDrawable.colorFilter =
                     BlendModeColorFilter(storageProgressBarColor, BlendMode.SRC_ATOP)
             } else {
-                storageProgressBars[i].progressBar.progressDrawable.setColorFilter(
-                    storageProgressBarColor, PorterDuff.Mode.SRC_ATOP
-                )
+                storageProgressBars[i].progressBar.progressDrawable.setColorFilter(storageProgressBarColor,
+                                                                                   PorterDuff.Mode.SRC_ATOP)
             }
         }
     }
 
     private fun displayUsedSpace() {
         for (i in 0 until storageDirectories.size) {
-            storageProgressBars[i].progressBar.progress =
-                getUsedStoragePercentage(storageDirectories[i])
+            storageProgressBars[i].progressBar.progress = getUsedStoragePercentage(storageDirectories[i])
         }
     }
 

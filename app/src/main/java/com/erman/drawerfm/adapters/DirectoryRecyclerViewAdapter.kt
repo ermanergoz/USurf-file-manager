@@ -13,8 +13,7 @@ import kotlinx.android.synthetic.main.directory_recycler_layout.view.*
 import java.io.File
 import java.text.SimpleDateFormat
 
-class DirectoryRecyclerViewAdapter :
-    RecyclerView.Adapter<DirectoryRecyclerViewAdapter.ViewHolder>() {
+class DirectoryRecyclerViewAdapter : RecyclerView.Adapter<DirectoryRecyclerViewAdapter.ViewHolder>() {
 
     var onClickListener: ((File) -> Unit)? = null
     var onLongClickListener: ((File) -> Unit)? = null
@@ -23,17 +22,10 @@ class DirectoryRecyclerViewAdapter :
     //var multipleSelectionList = mutableListOf<ConstraintLayout>()
     var isMultipleSelection = false
 
-    override fun onCreateViewHolder(
-        parent: ViewGroup,
-        viewType: Int
-    ): ViewHolder {
-        return ViewHolder(
-            LayoutInflater.from(parent.context).inflate(
-                R.layout.directory_recycler_layout,
-                parent,
-                false
-            )
-        )
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        return ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.directory_recycler_layout,
+                                                                      parent,
+                                                                      false))
     }
 
     override fun getItemCount(): Int {
@@ -46,8 +38,7 @@ class DirectoryRecyclerViewAdapter :
     }
 
 
-    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener,
-        View.OnLongClickListener {
+    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener, View.OnLongClickListener {
 
         init {
             itemView.setOnClickListener(this)
@@ -79,18 +70,13 @@ class DirectoryRecyclerViewAdapter :
         }
 
         fun bindDirectory(directory: File) {
-            if(directory.nameWithoutExtension!="")
-                itemView.nameTextView.text = directory.nameWithoutExtension
+            if (directory.nameWithoutExtension != "") itemView.nameTextView.text = directory.nameWithoutExtension
             //some files/folders start with .something and in this case their name will be empty
-            else
-                itemView.nameTextView.text = directory.name
+            else itemView.nameTextView.text = directory.name
             itemView.nameTextView.isSingleLine = true
 
-            if (itemView.context.getSharedPreferences(
-                    "com.erman.draverfm",
-                    Context.MODE_PRIVATE
-                ).getBoolean("marquee choice", true)
-            ) {
+            if (itemView.context.getSharedPreferences("com.erman.draverfm",
+                                                      Context.MODE_PRIVATE).getBoolean("marquee choice", true)) {
                 itemView.nameTextView.ellipsize =
                     TextUtils.TruncateAt.MARQUEE  //for sliding names if the length is longer than 1 line
                 itemView.nameTextView.isSelected = true
@@ -102,15 +88,11 @@ class DirectoryRecyclerViewAdapter :
                 itemView.extensionTextView.text = ""
                 if (directory.listFiles() != null) {
                     if (directory.listFiles().isEmpty()) {
-                        itemView.totalSizeTextView.text =
-                            itemView.context.getString(R.string.empty_folder_size_text)
+                        itemView.totalSizeTextView.text = itemView.context.getString(R.string.empty_folder_size_text)
                     } else {
                         itemView.totalSizeTextView.text =
-                            directory.listFiles().size.toString() + " " + itemView.context.getString(
-                                R.string.files_num
-                            )
-                        itemView.lastModifiedTextView.text =
-                            dateFormat.format(directory.lastModified())
+                            directory.listFiles().size.toString() + " " + itemView.context.getString(R.string.files_num)
+                        itemView.lastModifiedTextView.text = dateFormat.format(directory.lastModified())
                     }
                 }
             } else {

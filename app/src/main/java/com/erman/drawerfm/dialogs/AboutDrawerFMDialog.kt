@@ -29,10 +29,9 @@ class AboutDrawerFMDialog : DialogFragment() {
 
             builder.setMessage(R.string.about)
 
-                .setPositiveButton(R.string.ok,
-                    DialogInterface.OnClickListener { dialog, id ->
-                        getDialog()?.cancel()
-                    })
+                .setPositiveButton(R.string.ok, DialogInterface.OnClickListener { dialog, id ->
+                    getDialog()?.cancel()
+                })
 
             builder.setView(dialogView)
             builder.create()

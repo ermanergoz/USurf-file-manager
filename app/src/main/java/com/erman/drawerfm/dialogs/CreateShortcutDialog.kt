@@ -28,18 +28,15 @@ class CreateShortcutDialog : DialogFragment() {
             // Create the AlertDialog object and return it
             builder.setMessage(R.string.create_shortcut)
 
-                .setPositiveButton(R.string.ok,
-                    DialogInterface.OnClickListener { dialog, id ->
-                        // Send the positive button event back to the host activity
-                        shortcutPath = this.pathEditText.text.toString()
-                        shortcutName = this.nameEditText.text.toString()
+                .setPositiveButton(R.string.ok, DialogInterface.OnClickListener { dialog, id ->
+                    // Send the positive button event back to the host activity
+                    shortcutPath = this.pathEditText.text.toString()
+                    shortcutName = this.nameEditText.text.toString()
 
-                        listener.dialogCreateShortcutListener(shortcutPath, shortcutName)
-                    })
-                .setNegativeButton(R.string.cancel,
-                    DialogInterface.OnClickListener { dialog, id ->
-                        getDialog()?.cancel()
-                    })
+                    listener.dialogCreateShortcutListener(shortcutPath, shortcutName)
+                }).setNegativeButton(R.string.cancel, DialogInterface.OnClickListener { dialog, id ->
+                    getDialog()?.cancel()
+                })
 
             builder.setView(dialogView)
             builder.create()
@@ -52,9 +49,7 @@ class CreateShortcutDialog : DialogFragment() {
         try {
             listener = context as DialogCreateShortcutListener
         } catch (err: ClassCastException) {
-            throw ClassCastException(
-                (context.toString() + " must implement CreateShortcutDialogListener")
-            )
+            throw ClassCastException((context.toString() + " must implement CreateShortcutDialogListener"))
         }
     }
 
