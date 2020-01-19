@@ -33,7 +33,6 @@ class CreateShortcutDialog : DialogFragment() {
                     listener.dialogCreateShortcutListener(shortcutName, false)
                 }).setNegativeButton(R.string.cancel, DialogInterface.OnClickListener { dialog, id ->
                     listener.dialogCreateShortcutListener("", true)
-                    getDialog()?.cancel()
                 })
 
             builder.setView(dialogView)
