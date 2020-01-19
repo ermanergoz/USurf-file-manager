@@ -14,7 +14,6 @@ import java.io.File
 import java.text.SimpleDateFormat
 
 class DirectoryRecyclerViewAdapter : RecyclerView.Adapter<DirectoryRecyclerViewAdapter.ViewHolder>() {
-
     var onClickListener: ((File) -> Unit)? = null
     var onLongClickListener: ((File) -> Unit)? = null
     var directoryList = listOf<File>()
