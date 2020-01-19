@@ -23,12 +23,13 @@ import java.io.File
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import com.erman.drawerfm.dialogs.*
-import com.erman.drawerfm.interfaces.OnItemClickListener
+import com.erman.drawerfm.interfaces.OnFileClickListener
 
-class FragmentActivity : AppCompatActivity(), OnItemClickListener,
-    FileSearchFragment.OnItemClickListener, RenameDialog.DialogRenameFileListener,
-    CreateFileDialog.DialogCreateFileListener, CreateFolderDialog.DialogCreateFolderListener,
-    SearchView.OnQueryTextListener {
+class FragmentActivity() : AppCompatActivity(), OnFileClickListener, FileSearchFragment.OnItemClickListener,
+    RenameDialog.DialogRenameFileListener, CreateFileDialog.DialogCreateFileListener,
+    CreateFolderDialog.DialogCreateFolderListener, SearchView.OnQueryTextListener {
+    private var newShortcutPath = ""
+    private var isCreateShortcutMode = false
     lateinit var path: String
     lateinit var longClickedFile: File
     private lateinit var filesListFragment: ListDirFragment
@@ -84,6 +85,11 @@ class FragmentActivity : AppCompatActivity(), OnItemClickListener,
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         setContentView(R.layout.activity_fragment)
         this.path = intent.getStringExtra("path")
+        if (!File(path).isDirectory) {  //if user adds a file to shorcuts instead of a folder and tries to open it from there
+            openFile(File(path))
+            finish()
+        }
+        this.isCreateShortcutMode = intent.getBooleanExtra("isCreateShortcutMode", false)
         optionButtonBar.isVisible = false
         moreOptionButtonBar.isVisible = false
         confirmationButtonBar.isVisible = false
@@ -192,6 +198,17 @@ class FragmentActivity : AppCompatActivity(), OnItemClickListener,
         newFragment.show(supportFragmentManager, "")
     }
 
+    private fun openFile(directory: File) {
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.data = FileProvider.getUriForFile(this, "com.erman.drawerfm", File(directory.path))
+        try {
+            intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            startActivity(intent)
+        } catch (err: ActivityNotFoundException) {
+            Toast.makeText(this, getString(R.string.file_unsupported_or_no_application), Toast.LENGTH_LONG).show()
+        }
+    }
+
     override fun onClick(directory: File) {
         if (isMultipleSelection) {
             if (multipleSelectionList.contains(directory)) {
@@ -208,15 +225,7 @@ class FragmentActivity : AppCompatActivity(), OnItemClickListener,
             if (directory.isDirectory) {
                 launchFragment(directory.path)
             } else {
-                val intent = Intent(Intent.ACTION_VIEW)
-                intent.data = FileProvider.getUriForFile(this, "com.erman.drawerfm", File(directory.path))
-                try {
-                    intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-                    startActivity(intent)
-                } catch (err: ActivityNotFoundException) {
-                    Toast.makeText(this, getString(R.string.file_unsupported_or_no_application), Toast.LENGTH_LONG)
-                        .show()
-                }
+                openFile(directory)
             }
         }
     }
@@ -253,16 +262,25 @@ class FragmentActivity : AppCompatActivity(), OnItemClickListener,
     }
 
     override fun onLongClick(directory: File) {
-        isMultipleSelection = true
+        if (isCreateShortcutMode) {
+            newShortcutPath = directory.path
 
-        longClickedFile = directory
-
-        if (multipleSelectionList.contains(directory)) {
-            multipleSelectionList.removeAt(multipleSelectionList.indexOf(directory))
+            val intent = Intent()
+            intent.putExtra("newShortcutPath", newShortcutPath)
+            setResult(RESULT_OK, intent)
+            finish()
         } else {
-            multipleSelectionList.add(directory)
+            isMultipleSelection = true
+
+            longClickedFile = directory
+
+            if (multipleSelectionList.contains(directory)) {
+                multipleSelectionList.removeAt(multipleSelectionList.indexOf(directory))
+            } else {
+                multipleSelectionList.add(directory)
+            }
+            showOptionButtons(directory.extension == "zip")
         }
-        showOptionButtons(directory.extension == "zip")
     }
 
     private fun backButtonPressed() {

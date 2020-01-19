@@ -21,6 +21,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.res.ResourcesCompat
@@ -30,6 +31,7 @@ import com.erman.drawerfm.adapters.ShortcutRecyclerViewAdapter
 import com.erman.drawerfm.dialogs.AboutDrawerFMDialog
 import com.erman.drawerfm.dialogs.ErrorDialog
 import com.erman.drawerfm.dialogs.ShortcutOptions
+import com.erman.drawerfm.interfaces.OnShortcutClickListener
 import getStorageDirectories
 import com.erman.drawerfm.utilities.getUsedStoragePercentage
 import kotlinx.android.synthetic.main.activity_main.*
@@ -37,16 +39,19 @@ import kotlinx.android.synthetic.main.storage_button.view.*
 import java.io.File
 
 class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShortcutListener,
-    ShortcutOptions.ShortcutOptionListener {
+    ShortcutOptions.ShortcutOptionListener, OnShortcutClickListener {
 
-    override fun dialogCreateShortcutListener(shortcutPath: String, shortcutName: String) {
-        addShortcut(shortcutPath, shortcutName)
+    override fun dialogCreateShortcutListener(shortcutName: String) {
+        Log.e("path shortcut", newShortcutPath)
+        if (File(newShortcutPath).exists()) addShortcut(newShortcutPath, shortcutName)
     }
 
     companion object {
         lateinit var mainActivity: Activity
     }
 
+    private var newShortcutPath = ""
+    private var isCreateShortcutMode = false
     private lateinit var layoutManager: GridLayoutManager
     private lateinit var adapter: ShortcutRecyclerViewAdapter
     private var storageProgressBarHeight = 20f
@@ -181,7 +186,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     private fun setClickListener() {
         for (i in 0 until storageButtons.size) {
             storageButtons[i].setOnClickListener {
-                startFragmentActivity(storageButtons[i].tag.toString())
+                startFragmentActivity(storageButtons[i].tag.toString(), isCreateShortcutMode)
             }
         }
     }
@@ -234,7 +239,6 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
 
         shortcutPaths.addAll(getSharedPreferences("com.erman.draverfm",
                                                   Context.MODE_PRIVATE).getStringSet("shortcut paths", emptySet())!!)
-
         setTheme()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -253,8 +257,10 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         setClickListener()
 
         addShortcut.setOnClickListener {
-            val newFragment = CreateShortcutDialog()
-            newFragment.show(supportFragmentManager, "")
+            /*val newFragment = CreateShortcutDialog()
+            newFragment.show(supportFragmentManager, "")*/
+            isCreateShortcutMode = true
+            Toast.makeText(this, getString(R.string.new_shortcut_instruction), Toast.LENGTH_LONG).show()
         }
         mainActivity = this
 
@@ -277,10 +283,26 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         return super.onOptionsItemSelected(item)
     }
 
-    private fun startFragmentActivity(path: String) {
+    private fun startFragmentActivity(path: String, isCreateShortcutMode: Boolean) {
         val intent = Intent(this, FragmentActivity::class.java)
         intent.putExtra("path", path)
-        startActivity(intent)
+        if (isCreateShortcutMode) {
+            intent.putExtra("isCreateShortcutMode", isCreateShortcutMode)
+            startActivityForResult(intent, 1)
+        } else startActivity(intent)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        //in case of new shortcut creation
+        if (requestCode == 1) {
+            if (resultCode == RESULT_OK) {
+                newShortcutPath = data!!.getStringExtra("newShortcutPath")
+
+                val newFragment = CreateShortcutDialog()
+                newFragment.show(supportFragmentManager, "")
+            }
+        }
     }
 
     private fun startSettingsActivity() {
@@ -291,5 +313,14 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     override fun shortcutOptionListener(isDelete: Boolean, isRename: Boolean, shortcut: TextView, newName: String) {
         if (isDelete) removeShortcut(shortcut)
         if (isRename) renameShortcut(shortcut, newName)
+    }
+
+    override fun onClick(shortcut: TextView) {
+        startFragmentActivity(shortcut.tag.toString(), isCreateShortcutMode)
+    }
+
+    override fun onLongClick(shortcut: TextView) {
+        val newFragment = ShortcutOptions(shortcut)
+        newFragment.show(supportFragmentManager, "")
     }
 }

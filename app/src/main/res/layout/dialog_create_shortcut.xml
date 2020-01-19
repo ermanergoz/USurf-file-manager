@@ -4,14 +4,6 @@
     android:layout_height="match_parent">
 
     <EditText
-        android:id="@+id/pathEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="@string/path"
-        android:inputType="textPersonName" />
-
-    <EditText
         android:id="@+id/nameEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
