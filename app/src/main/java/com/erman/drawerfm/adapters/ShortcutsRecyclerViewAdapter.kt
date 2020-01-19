@@ -6,13 +6,16 @@ import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.erman.drawerfm.R
 import com.erman.drawerfm.activities.FragmentActivity
+import com.erman.drawerfm.dialogs.ShortcutOptions
 import kotlinx.android.synthetic.main.shortcut_recycler_layout.view.*
 
-class ShortcutRecyclerViewAdapter : RecyclerView.Adapter<ShortcutRecyclerViewAdapter.ShortcutHolder>() {
+
+class ShortcutRecyclerViewAdapter(var context: Context) : RecyclerView.Adapter<ShortcutRecyclerViewAdapter.ShortcutHolder>() {
 
     var shortcutNames: Set<String> = mutableSetOf()
     var shortcutPaths: Set<String> = mutableSetOf()
@@ -60,7 +63,8 @@ class ShortcutRecyclerViewAdapter : RecyclerView.Adapter<ShortcutRecyclerViewAda
         }
 
         override fun onLongClick(view: View): Boolean {
-            //TODO: Implement shortcut recycler view adapter onLonClick listener to remove the shortcut
+            val newFragment = ShortcutOptions(itemView.shortcut)
+            newFragment.show((context as AppCompatActivity).supportFragmentManager, "")
             return true
         }
     }
