@@ -9,11 +9,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
         android:layout_marginRight="16dp"
         android:layout_marginBottom="8dp"
-        android:layout_marginTop="16dp"
         android:background="@drawable/storage_button_style"
-        android:text="@string/rename" />
+        android:text="@string/rename"
+        android:textColor="?attr/textColor" />
 
     <Button
         android:id="@+id/deleteButton"
@@ -21,10 +22,11 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="4dp"
-        android:layout_marginBottom="16dp"
         android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp"
         android:background="@drawable/storage_button_style"
-        android:text="@string/delete" />
+        android:text="@string/delete"
+        android:textColor="?attr/textColor" />
 
     <EditText
         android:id="@+id/renameEditText"
@@ -43,10 +45,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="16dp"
-        android:layout_marginBottom="16dp"
         android:layout_marginTop="4dp"
         android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp"
         android:background="@drawable/storage_button_style"
-        android:text="@string/ok" />
+        android:text="@string/ok"
+        android:textColor="?attr/textColor" />
 
 </LinearLayout>
