@@ -14,9 +14,8 @@ import com.erman.drawerfm.activities.FragmentActivity
 import com.erman.drawerfm.dialogs.ShortcutOptions
 import kotlinx.android.synthetic.main.shortcut_recycler_layout.view.*
 
-
-class ShortcutRecyclerViewAdapter(var context: Context) : RecyclerView.Adapter<ShortcutRecyclerViewAdapter.ShortcutHolder>() {
-
+class ShortcutRecyclerViewAdapter(var context: Context) :
+    RecyclerView.Adapter<ShortcutRecyclerViewAdapter.ShortcutHolder>() {
     var shortcutNames: Set<String> = mutableSetOf()
     var shortcutPaths: Set<String> = mutableSetOf()
 
@@ -74,5 +73,4 @@ class ShortcutRecyclerViewAdapter(var context: Context) : RecyclerView.Adapter<S
         this.shortcutPaths = shortcutPaths
         notifyDataSetChanged()
     }
-
 }

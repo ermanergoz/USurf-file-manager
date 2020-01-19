@@ -12,7 +12,6 @@ import android.widget.TextView
 import androidx.core.view.isGone
 import androidx.fragment.app.DialogFragment
 import com.erman.drawerfm.R
-import kotlinx.android.synthetic.main.dialog_shortcut_options.*
 
 class ShortcutOptions(var shortcut: TextView) : DialogFragment() {
     private lateinit var listener: ShortcutOptionListener
