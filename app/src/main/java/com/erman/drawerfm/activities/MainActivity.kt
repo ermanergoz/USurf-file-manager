@@ -11,10 +11,8 @@ import android.content.res.Configuration
 import android.graphics.BlendMode
 import android.graphics.BlendModeColorFilter
 import android.graphics.PorterDuff
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.storage.StorageManager
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.LayoutInflater
@@ -22,6 +20,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.res.ResourcesCompat
@@ -30,13 +29,15 @@ import com.erman.drawerfm.R
 import com.erman.drawerfm.adapters.ShortcutRecyclerViewAdapter
 import com.erman.drawerfm.dialogs.AboutDrawerFMDialog
 import com.erman.drawerfm.dialogs.ErrorDialog
+import com.erman.drawerfm.dialogs.ShortcutOptions
 import getStorageDirectories
 import com.erman.drawerfm.utilities.getUsedStoragePercentage
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.storage_button.view.*
 import java.io.File
 
-class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShortcutListener {
+class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShortcutListener,
+    ShortcutOptions.ShortcutOptionListener {
 
     override fun dialogCreateShortcutListener(shortcutPath: String, shortcutName: String) {
         addShortcut(shortcutPath, shortcutName)
@@ -66,6 +67,8 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
 
     private var shortcutPaths: MutableSet<String> =
         mutableSetOf("/storage/emulated/0/DCIM", "/storage/emulated/0/Download")
+
+    //TODO: Empty those sets before submitting
 
     private fun saveShortcuts() {
         preferences = this.getSharedPreferences(sharedPrefFile, AppCompatActivity.MODE_PRIVATE)
@@ -170,7 +173,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     private fun createShortcutGrid() {
         layoutManager = GridLayoutManager(this, 2/*number of columns*/)
         shortcutRecyclerView.layoutManager = layoutManager
-        adapter = ShortcutRecyclerViewAdapter()
+        adapter = ShortcutRecyclerViewAdapter(this)
         shortcutRecyclerView.adapter = adapter
         adapter.updateData(shortcutNames, shortcutPaths)
     }
@@ -189,15 +192,40 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     }
 
     private fun addShortcut(shortcutPath: String, shortcutName: String) {
-        if (shortcutPath in shortcutPaths) displayErrorDialog(getString(R.string.duplicate_shortcut))
-        else if (File(shortcutPath).exists()) {
-            shortcutNames.add(shortcutName)
-            shortcutPaths.add(shortcutPath)
+        when {
+            shortcutPath in shortcutPaths -> displayErrorDialog(getString(R.string.duplicate_shortcut))
 
-            adapter.updateData(shortcutNames, shortcutPaths)
-            saveShortcuts()
+            File(shortcutPath).exists() -> {
+                shortcutNames.add(shortcutName)
+                shortcutPaths.add(shortcutPath)
 
-        } else displayErrorDialog(getString(R.string.invalid_path))
+                adapter.updateData(shortcutNames, shortcutPaths)
+                saveShortcuts()
+            }
+            else -> displayErrorDialog(getString(R.string.invalid_path))
+        }
+    }
+
+    private fun removeShortcut(shortcut: TextView) {
+        shortcutNames.remove(shortcut.text)
+        shortcutPaths.remove(shortcut.tag)
+        adapter.updateData(shortcutNames, shortcutPaths)
+        saveShortcuts()
+    }
+
+    private fun renameShortcut(shortcut: TextView, newName: String) {
+        val pathTemp = shortcut.tag.toString()
+
+        shortcutNames.remove(shortcut.text)
+        shortcutPaths.remove(pathTemp)
+
+        shortcutNames.add(newName)
+        shortcutPaths.add(pathTemp)
+
+        shortcut.text = newName
+
+        adapter.updateData(shortcutNames, shortcutPaths)
+        saveShortcuts()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -258,5 +286,10 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     private fun startSettingsActivity() {
         val intent = Intent(this, PreferencesActivity::class.java)
         startActivity(intent)
+    }
+
+    override fun shortcutOptionListener(isDelete: Boolean, isRename: Boolean, shortcut: TextView, newName: String) {
+        if (isDelete) removeShortcut(shortcut)
+        if (isRename) renameShortcut(shortcut, newName)
     }
 }
