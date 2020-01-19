@@ -3,7 +3,6 @@ package com.erman.drawerfm.dialogs
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -36,9 +35,6 @@ class ShortcutOptions(var shortcut: TextView) : DialogFragment() {
             renameEditText.isGone = true
             OkButton.isGone = true
 
-            builder.setMessage("").setNegativeButton(R.string.cancel, DialogInterface.OnClickListener { dialog, id ->
-                getDialog()?.cancel()
-            })
             deleteButton.setOnClickListener {
                 listener.shortcutOptionListener(isDelete = true,
                                                 isRename = false,

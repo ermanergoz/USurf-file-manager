@@ -12,12 +12,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.erman.drawerfm.R
 import com.erman.drawerfm.activities.FragmentActivity
 import com.erman.drawerfm.dialogs.ShortcutOptions
+import com.erman.drawerfm.interfaces.OnFileClickListener
+import com.erman.drawerfm.interfaces.OnShortcutClickListener
 import kotlinx.android.synthetic.main.shortcut_recycler_layout.view.*
 
 class ShortcutRecyclerViewAdapter(var context: Context) :
     RecyclerView.Adapter<ShortcutRecyclerViewAdapter.ShortcutHolder>() {
     var shortcutNames: Set<String> = mutableSetOf()
     var shortcutPaths: Set<String> = mutableSetOf()
+    private lateinit var onClickCallback: OnShortcutClickListener
+
 
     override fun getItemCount(): Int {
         return shortcutPaths.count()
@@ -25,6 +29,12 @@ class ShortcutRecyclerViewAdapter(var context: Context) :
 
     override fun onBindViewHolder(holder: ShortcutHolder, position: Int) {
         holder.bindButtons(shortcutNames.elementAt(position), shortcutPaths.elementAt(position))
+
+        try {
+            onClickCallback = context as OnShortcutClickListener
+        } catch (e: Exception) {
+            throw Exception("${context} OnShortcutClickListener is not implemented")
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShortcutHolder {
@@ -56,14 +66,11 @@ class ShortcutRecyclerViewAdapter(var context: Context) :
         }
 
         override fun onClick(p0: View?) {
-            val intent = Intent(view.context, FragmentActivity::class.java)
-            intent.putExtra("path", itemView.shortcut.tag.toString())
-            startActivity(view.context, intent, null)
+            onClickCallback.onClick(itemView.shortcut)
         }
 
         override fun onLongClick(view: View): Boolean {
-            val newFragment = ShortcutOptions(itemView.shortcut)
-            newFragment.show((context as AppCompatActivity).supportFragmentManager, "")
+            onClickCallback.onLongClick(itemView.shortcut)
             return true
         }
     }
