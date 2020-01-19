@@ -23,8 +23,9 @@ import java.io.File
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import com.erman.drawerfm.dialogs.*
+import com.erman.drawerfm.interfaces.OnItemClickListener
 
-class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListener,
+class FragmentActivity : AppCompatActivity(), OnItemClickListener,
     FileSearchFragment.OnItemClickListener, RenameDialog.DialogRenameFileListener,
     CreateFileDialog.DialogCreateFileListener, CreateFolderDialog.DialogCreateFolderListener,
     SearchView.OnQueryTextListener {
