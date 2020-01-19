@@ -41,9 +41,10 @@ import java.io.File
 class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShortcutListener,
     ShortcutOptions.ShortcutOptionListener, OnShortcutClickListener {
 
-    override fun dialogCreateShortcutListener(shortcutName: String) {
-        Log.e("path shortcut", newShortcutPath)
-        if (File(newShortcutPath).exists()) addShortcut(newShortcutPath, shortcutName)
+    override fun dialogCreateShortcutListener(shortcutName: String, isCanceled: Boolean) {
+        if (isCanceled) {
+            isCreateShortcutMode = false
+        } else if (File(newShortcutPath).exists()) addShortcut(newShortcutPath, shortcutName)
     }
 
     companion object {
@@ -51,7 +52,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     }
 
     private var newShortcutPath = ""
-    private var isCreateShortcutMode = false
+    var isCreateShortcutMode = false
     private lateinit var layoutManager: GridLayoutManager
     private lateinit var adapter: ShortcutRecyclerViewAdapter
     private var storageProgressBarHeight = 20f
