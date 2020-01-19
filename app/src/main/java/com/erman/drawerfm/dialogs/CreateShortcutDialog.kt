@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.EditText
 import androidx.fragment.app.DialogFragment
 import com.erman.drawerfm.R
+import com.erman.drawerfm.activities.MainActivity
 
 class CreateShortcutDialog : DialogFragment() {
     private lateinit var shortcutName: String
@@ -29,8 +30,9 @@ class CreateShortcutDialog : DialogFragment() {
                     // Send the positive button event back to the host activity
                     shortcutName = this.nameEditText.text.toString()
 
-                    listener.dialogCreateShortcutListener(shortcutName)
+                    listener.dialogCreateShortcutListener(shortcutName, false)
                 }).setNegativeButton(R.string.cancel, DialogInterface.OnClickListener { dialog, id ->
+                    listener.dialogCreateShortcutListener("", true)
                     getDialog()?.cancel()
                 })
 
@@ -50,6 +52,6 @@ class CreateShortcutDialog : DialogFragment() {
     }
 
     interface DialogCreateShortcutListener {
-        fun dialogCreateShortcutListener(shortcutName: String)
+        fun dialogCreateShortcutListener(shortcutName: String, isCanceled: Boolean)
     }
 }
