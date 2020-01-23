@@ -23,11 +23,9 @@ class CreateFolderDialog(var title: String) : DialogFragment() {
 
             this.nameEditText = dialogView.findViewById(R.id.nameEditText)
 
-            // Create the AlertDialog object and return it
             builder.setMessage(title)
 
                 .setPositiveButton(R.string.ok, DialogInterface.OnClickListener { dialog, id ->
-                    // Send the positive button event back to the host activity
                     newFileName = this.nameEditText.text.toString()
                     listener.dialogCreateFolderListener(newFileName)
                 }).setNegativeButton(R.string.cancel, DialogInterface.OnClickListener { dialog, id ->
@@ -45,7 +43,7 @@ class CreateFolderDialog(var title: String) : DialogFragment() {
         try {
             listener = context as DialogCreateFolderListener
         } catch (err: ClassCastException) {
-            throw ClassCastException((context.toString() + " must implement DialogRenameFileListener"))
+            throw ClassCastException((context.toString() + " must implement DialogCreateFolderListener"))
         }
     }
 

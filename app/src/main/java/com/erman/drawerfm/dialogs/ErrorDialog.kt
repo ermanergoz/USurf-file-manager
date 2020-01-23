@@ -17,7 +17,6 @@ class ErrorDialog(var errorMessage: String) : DialogFragment() {
                 .setPositiveButton(R.string.ok, DialogInterface.OnClickListener { dialog, id ->
 
                 })
-            // Create the AlertDialog object and return it
             builder.create()
         } ?: throw IllegalStateException("Activity cannot be null")
     }
