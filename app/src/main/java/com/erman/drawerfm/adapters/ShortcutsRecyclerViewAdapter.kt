@@ -1,18 +1,12 @@
 package com.erman.drawerfm.adapters
 
 import android.content.Context
-import android.content.Intent
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.erman.drawerfm.R
-import com.erman.drawerfm.activities.FragmentActivity
-import com.erman.drawerfm.dialogs.ShortcutOptions
-import com.erman.drawerfm.interfaces.OnFileClickListener
 import com.erman.drawerfm.interfaces.OnShortcutClickListener
 import kotlinx.android.synthetic.main.shortcut_recycler_layout.view.*
 
@@ -21,7 +15,6 @@ class ShortcutRecyclerViewAdapter(var context: Context) :
     var shortcutNames: Set<String> = mutableSetOf()
     var shortcutPaths: Set<String> = mutableSetOf()
     private lateinit var onClickCallback: OnShortcutClickListener
-
 
     override fun getItemCount(): Int {
         return shortcutPaths.count()

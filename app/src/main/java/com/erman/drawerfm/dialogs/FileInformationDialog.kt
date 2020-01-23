@@ -79,7 +79,6 @@ class FileInformationDialog(var file: File) : DialogFragment() {
             fileSizerogressBar.progress = fileSizePercentage.toInt()
             fileSizePercentTextView.text = "% " + String.format("%.9f", fileSizePercentage)
 
-            // Create the AlertDialog object and return it
             builder.setMessage(R.string.information)
 
                 .setPositiveButton(R.string.ok, DialogInterface.OnClickListener { dialog, id ->
