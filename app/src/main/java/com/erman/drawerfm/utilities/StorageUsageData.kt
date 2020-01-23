@@ -29,13 +29,6 @@ fun getUsedStoragePercentage(path: String): Int {
     return 0
 }
 
-/*
-fun getFileUsedStoragePercentage(path: String): Int {
-    if (path != "/" && (getTotalStorage(path)).toInt() != 0)
-        return ((getFolderSize(path) * 100 / getTotalStorage(path))).toInt()
-    return 0
-}
-*/
 fun getFolderUsedStoragePercentage(path: String): Double {
     if (path != "/" && (getTotalStorage(path)).toInt() != 0) return ((getFolderSize(path) * 100.0 / getTotalStorage(path)))
     return 0.0

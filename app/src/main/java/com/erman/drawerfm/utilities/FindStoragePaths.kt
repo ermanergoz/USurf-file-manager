@@ -1,3 +1,5 @@
+package com.erman.drawerfm.utilities
+
 import android.content.Context
 import android.os.Build
 import android.os.Environment
@@ -12,18 +14,14 @@ fun getStorageDirectories(context: Context): Set<String> {
         for (file in context.getExternalFilesDirs("external")) {
             if (file != null) {
                 val index = file.absolutePath.lastIndexOf("/Android/data")
-                if (index < 0) {
-                    Log.w("Log, ", "Unexpected external file dir: " + file.absolutePath)
-                } else {
-                    var path = file.absolutePath.substring(0, index)
-                    try {
-                        path = File(path).canonicalPath
+                var path = file.absolutePath.substring(0, index)
+                try {
+                    path = File(path).canonicalPath
 
-                    } catch (e: IOException) {
-                        Log.e("", "")
-                    }
-                    paths.add(path)
+                } catch (e: IOException) {
+                    Log.e("IOException", "getStorageDirectories")
                 }
+                paths.add(path)
             }
         }
     }
@@ -107,6 +105,5 @@ fun getStorageDirectories(context: Context): Set<String> {
                                                                                                                    false)) {
         paths.add("/")
     }
-
     return paths
 }
