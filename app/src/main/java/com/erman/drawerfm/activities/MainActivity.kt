@@ -42,9 +42,10 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     ShortcutOptions.ShortcutOptionListener, OnShortcutClickListener {
 
     override fun dialogCreateShortcutListener(shortcutName: String, isCanceled: Boolean) {
-        if (isCanceled) {
-            isCreateShortcutMode = false
-        } else if (File(newShortcutPath).exists()) addShortcut(newShortcutPath, shortcutName)
+        if (File(newShortcutPath).exists() && !isCanceled) {
+            addShortcut(newShortcutPath, shortcutName)
+        }
+        isCreateShortcutMode = false
     }
 
     companion object {
@@ -323,5 +324,12 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     override fun onLongClick(shortcut: TextView) {
         val newFragment = ShortcutOptions(shortcut)
         newFragment.show(supportFragmentManager, "")
+    }
+
+    override fun onBackPressed() {
+        if (isCreateShortcutMode) {
+            isCreateShortcutMode = false
+            Toast.makeText(this, getString(R.string.canceled), Toast.LENGTH_SHORT).show()
+        } else finish()
     }
 }
