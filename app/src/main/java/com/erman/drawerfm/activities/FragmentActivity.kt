@@ -4,7 +4,6 @@ import android.app.SearchManager
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -193,11 +192,6 @@ class FragmentActivity() : AppCompatActivity(), OnFileClickListener, FileSearchF
         confirmationButtonBar.isVisible = true
     }
 
-    private fun displayErrorDialog(errorMessage: String) {
-        val newFragment = ErrorDialog(errorMessage)
-        newFragment.show(supportFragmentManager, "")
-    }
-
     private fun openFile(directory: File) {
         val intent = Intent(Intent.ACTION_VIEW)
         intent.data = FileProvider.getUriForFile(this, "com.erman.drawerfm", File(directory.path))
@@ -241,7 +235,6 @@ class FragmentActivity() : AppCompatActivity(), OnFileClickListener, FileSearchF
         return super.onCreateOptionsMenu(menu)
     }
 
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> backButtonPressed()
@@ -254,11 +247,6 @@ class FragmentActivity() : AppCompatActivity(), OnFileClickListener, FileSearchF
         confirmationButtonBar.isVisible = false
         if (isExtensionZip) compressButton.isVisible = false
         else extractButton.isVisible = false
-    }
-
-    fun triggerStorageAccessFramework() {
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-        this.startActivityForResult(intent, 3)
     }
 
     override fun onLongClick(directory: File) {
@@ -326,24 +314,6 @@ class FragmentActivity() : AppCompatActivity(), OnFileClickListener, FileSearchF
         broadcastIntent.action = applicationContext.getString(R.string.file_broadcast_receiver)
         broadcastIntent.putExtra("path for broadcast", openedDirectories[openedDirectories.size - 1])
         LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent)
-
-        // On Android 5, trigger storage access framework.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            //TODO:this function should be moved to proper location before calling this function which launches the files app
-            //TODO:we need to saved the data we need to do that operatiın we want by assigning them to the variables
-            //triggerStorageAccessFramework()
-        }
-
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        //TODO:this lifecycle func is called after launching the files app for ext storage
-        //TODO: and we need to do the operations on those files here
-        //TODO:and also check if we have values for the variables
-
-        super.onActivityResult(requestCode, resultCode, data)
-
-        //TODO:WE NEED TO make the variables we assigned in line 315 we need to reset them after we are done with the operation
     }
 
     private fun hideKeyboard() {

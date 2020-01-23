@@ -11,7 +11,6 @@ import com.erman.drawerfm.R
 
 
 class AboutDrawerFMDialog : DialogFragment() {
-
     private lateinit var linkText: TextView
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
