@@ -21,7 +21,8 @@
     <string name="error_while_copying">Error while copying</string>
     <string name="moving_successful">Moved</string>
     <string name="error_while_moving">Error while moving</string>
-    <string name="new_shortcut_instruction">To create a shortcut, navigate to the file/folder and long press it to choose.</string>
+    <string name="new_shortcut_instruction">To create a shortcut, navigate to the file/folder and long press it to choose. Press back button to cancel.</string>
+    <string name="canceled">Canceled</string>
 
     <!--create shortcut dialog-->
     <string name="name">Name:</string>
