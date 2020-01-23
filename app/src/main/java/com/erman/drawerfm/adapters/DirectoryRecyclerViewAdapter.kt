@@ -2,6 +2,7 @@ package com.erman.drawerfm.adapters
 
 import android.content.Context
 import android.graphics.Color
+import android.net.Uri
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
@@ -22,8 +23,8 @@ class DirectoryRecyclerViewAdapter : RecyclerView.Adapter<DirectoryRecyclerViewA
     var isMultipleSelection = false
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return if (parent.context.getSharedPreferences("com.erman.draverfm", Context.MODE_PRIVATE).getBoolean("grid view",
-                                                                                                              false)) {
+        return if (parent.context.getSharedPreferences("com.erman.draverfm",
+                                                       Context.MODE_PRIVATE).getBoolean("grid view", false)) {
             ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.directory_recycler_grid_layout,
                                                                    parent,
                                                                    false))
@@ -102,11 +103,16 @@ class DirectoryRecyclerViewAdapter : RecyclerView.Adapter<DirectoryRecyclerViewA
                     }
                 }
             } else {
-                itemView.imageView.setImageResource(R.drawable.file_icon)
+                if (directory.extension == "jpg" || directory.extension == "png") {
+                    itemView.imageView.setImageURI(Uri.fromFile(directory)) //thumbnail
+                    itemView.extensionTextView.text = ""
+                } else {
+                    itemView.imageView.setImageResource(R.drawable.file_icon)
+                    itemView.extensionTextView.text = directory.extension
+                }
                 itemView.totalSizeTextView.visibility = View.VISIBLE
                 itemView.totalSizeTextView.text = getConvertedFileSize(directory.length())
                 itemView.lastModifiedTextView.text = dateFormat.format(directory.lastModified())
-                itemView.extensionTextView.text = directory.extension
             }
         }
     }
