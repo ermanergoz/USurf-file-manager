@@ -244,14 +244,13 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
     private fun startSettingsActivity() {
         val intent = Intent(this, PreferencesActivity::class.java)
         intent.putExtra("isMainActivity", false)
+        intent.putExtra("currentPath", path)
         startActivity(intent)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) backButtonPressed()
-        if (item.itemId == R.id.subMenu) {
-            startSettingsActivity()
-        }
+        if (item.itemId == R.id.subMenu) startSettingsActivity()
         return super.onOptionsItemSelected(item)
     }
 

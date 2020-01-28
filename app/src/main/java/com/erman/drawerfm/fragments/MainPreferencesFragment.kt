@@ -13,11 +13,7 @@ import com.erman.drawerfm.activities.MainActivity
 class MainPreferencesFragment : PreferenceFragmentCompat() {
     private lateinit var preferences: SharedPreferences
     private var sharedPrefFile: String = "com.erman.draverfm"
-    private var selectedTheme: String = ""
     lateinit var preferencesEditor: SharedPreferences.Editor
-    var isMarqueeEnabled: Boolean = true
-    var isRootAccessEnabled: Boolean = false
-    var isGridViewEnabled: Boolean = false
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences_main, rootKey)
@@ -25,40 +21,32 @@ class MainPreferencesFragment : PreferenceFragmentCompat() {
         preferences = context!!.getSharedPreferences(sharedPrefFile, AppCompatActivity.MODE_PRIVATE)
 
         findPreference<ListPreference>("theme_list_preference")?.setOnPreferenceChangeListener { preference, newValue ->
-            this.selectedTheme = newValue.toString()
-
             preferencesEditor = preferences.edit()
-            preferencesEditor.putString("theme choice", selectedTheme)
+            preferencesEditor.putString("theme choice", newValue.toString())
             preferencesEditor.apply()
 
             true
         }
 
         findPreference<SwitchPreference>("marquee_preference")?.setOnPreferenceChangeListener { preference, newValue ->
-            this.isMarqueeEnabled = newValue as Boolean
-
             preferencesEditor = preferences.edit()
-            preferencesEditor.putBoolean("marquee choice", isMarqueeEnabled)
+            preferencesEditor.putBoolean("marquee choice", newValue as Boolean)
             preferencesEditor.apply()
 
             true
         }
 
         findPreference<SwitchPreference>("root_access")?.setOnPreferenceChangeListener { preference, newValue ->
-            this.isRootAccessEnabled = newValue as Boolean
-
             preferencesEditor = preferences.edit()
-            preferencesEditor.putBoolean("root access", isRootAccessEnabled)
+            preferencesEditor.putBoolean("root access", newValue as Boolean)
             preferencesEditor.apply()
 
             true
         }
 
         findPreference<SwitchPreference>("grid_view")?.setOnPreferenceChangeListener { preference, newValue ->
-            this.isGridViewEnabled = newValue as Boolean
-
             preferencesEditor = preferences.edit()
-            preferencesEditor.putBoolean("grid view", isGridViewEnabled)
+            preferencesEditor.putBoolean("grid view", newValue as Boolean)
             preferencesEditor.apply()
 
             true
