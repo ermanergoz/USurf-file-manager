@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-
+    <ListPreference
+        android:defaultValue="Sort by name"
+        android:entries="@array/sort_files"
+        android:entryValues="@array/theme"
+        android:key="sort_list_preference"
+        android:title="@string/sort_by" />
     <SwitchPreference
         android:defaultValue="false"
         android:key="showHiddenFileSwitch"
