@@ -95,7 +95,7 @@ class DirectoryRecyclerViewAdapter : RecyclerView.Adapter<DirectoryRecyclerViewA
                 if (directory.listFiles() != null) {
 
                     when {
-                        directory.listFiles().isEmpty() -> {
+                        directory.listFiles().isEmpty() && !directory.isHidden -> {
                             itemView.imageView.setImageResource(R.drawable.empty_folder_icon)
                             itemView.totalSizeTextView.text = itemView.context.getString(R.string.empty_folder_size_text)
                         }
