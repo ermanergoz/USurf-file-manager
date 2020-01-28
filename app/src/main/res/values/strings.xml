@@ -61,6 +61,7 @@
     <string name="show_hidden_files">Show hidden files</string>
     <string name="show_folders_only">Show folders only</string>
     <string name="show_files_only">Show files only</string>
+    <string name="sort_by">Sort by</string>
 
     <!--broadcast receiver-->
     <string name="file_broadcast_receiver">com.erman.drawerfm.fileBroadcastReceiver</string>

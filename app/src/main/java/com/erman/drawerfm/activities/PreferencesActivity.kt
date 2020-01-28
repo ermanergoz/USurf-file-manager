@@ -14,10 +14,14 @@ class PreferencesActivity : AppCompatActivity() {
         setContentView(R.layout.activity_preferences)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        if(intent.getBooleanExtra("isMainActivity", true))
-            supportFragmentManager.beginTransaction().replace(R.id.preferencesContainer, MainPreferencesFragment()).commit()
-        else
-            supportFragmentManager.beginTransaction().replace(R.id.preferencesContainer, FileListPreferencesFragment()).commit()
+        if (intent.getBooleanExtra("isMainActivity",
+                                   true)) supportFragmentManager.beginTransaction().replace(R.id.preferencesContainer,
+                                                                                            MainPreferencesFragment()).commit()
+        else {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.preferencesContainer, FileListPreferencesFragment(intent.getStringExtra("currentPath")))
+                .commit()
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
