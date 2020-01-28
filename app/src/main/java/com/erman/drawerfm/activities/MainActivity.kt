@@ -73,9 +73,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     private var shortcutNames: MutableSet<String> = mutableSetOf("DCIM", "Download")
 
     private var shortcutPaths: MutableSet<String> =
-        mutableSetOf("/storage/emulated/0/DCIM", "/storage/emulated/0/Download")
-
-    //TODO: Empty those sets before submitting
+        mutableSetOf("/storage/emulated/0/Download")
 
     private fun saveShortcuts() {
         preferences = this.getSharedPreferences(sharedPrefFile, AppCompatActivity.MODE_PRIVATE)
