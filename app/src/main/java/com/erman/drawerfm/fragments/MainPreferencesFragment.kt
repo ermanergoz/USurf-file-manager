@@ -10,7 +10,7 @@ import androidx.preference.SwitchPreference
 import com.erman.drawerfm.R
 import com.erman.drawerfm.activities.MainActivity
 
-class PreferencesFragment : PreferenceFragmentCompat() {
+class MainPreferencesFragment : PreferenceFragmentCompat() {
     private lateinit var preferences: SharedPreferences
     private var sharedPrefFile: String = "com.erman.draverfm"
     private var selectedTheme: String = ""
@@ -20,7 +20,7 @@ class PreferencesFragment : PreferenceFragmentCompat() {
     var isGridViewEnabled: Boolean = false
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        setPreferencesFromResource(R.xml.preferences, rootKey)
+        setPreferencesFromResource(R.xml.preferences_main, rootKey)
 
         preferences = context!!.getSharedPreferences(sharedPrefFile, AppCompatActivity.MODE_PRIVATE)
 
