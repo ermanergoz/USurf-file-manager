@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.SearchView
@@ -35,7 +36,6 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
     private lateinit var filesListFragment: ListDirFragment
     private lateinit var filesSearchFragment: FileSearchFragment
     private val fragmentManager: FragmentManager = supportFragmentManager
-    private var openedDirectories = mutableListOf<String>()
     var isMoveOperation = false
     var isCopyOperation = false
     var isMultipleSelection = false
@@ -59,10 +59,10 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
     }
 
     private fun launchFragment(path: String) {
+        Log.e("stack size launch frag", fragmentManager.backStackEntryCount.toString())
         if (optionButtonBar.isVisible) optionButtonBar.isVisible = false
 
         filesListFragment = ListDirFragment.buildFragment(path)
-        openedDirectories.add(path)
         pathTextView.text = path
 
         fragmentManager.beginTransaction().add(R.id.fragmentContainer, filesListFragment).addToBackStack(path).commit()
@@ -250,7 +250,10 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) backButtonPressed()
-        if (item.itemId == R.id.subMenu) startSettingsActivity()
+        if (item.itemId == R.id.subMenu) {
+            startSettingsActivity()
+            finish()
+        }
         return super.onOptionsItemSelected(item)
     }
 
@@ -294,14 +297,21 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
         } else if (newFileFloatingButton.isVisible && newFolderFloatingButton.isVisible) {
             newFileFloatingButton.isVisible = false
             newFolderFloatingButton.isVisible = false
-        } else if (openedDirectories.size > 1) {
-            fragmentManager.popBackStack(openedDirectories[openedDirectories.size - 1],
-                                         FragmentManager.POP_BACK_STACK_INCLUSIVE)
-            openedDirectories.removeAt(openedDirectories.size - 1)
-            path = openedDirectories[openedDirectories.size - 1]
+
+        } else if (fragmentManager.backStackEntryCount > 1) {
+            fragmentManager.popBackStack(path, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+
+           path = File(path).parent //move up in the directory
+
             pathTextView.text = path
+            Log.e("stack back", fragmentManager.backStackEntryCount.toString())
+        } else if (fragmentManager.backStackEntryCount == 1 && File(File(path).parent).canWrite()) {
+            path = File(path).parent
+            pathTextView.text = path
+            launchFragment(path)
         } else {
-            fragmentManager.popBackStack()
+            fragmentManager.popBackStackImmediate()
+            Log.e("stack size last", fragmentManager.backStackEntryCount.toString())
             super.onBackPressed()
         }
     }
@@ -315,13 +325,13 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
     }
 
     override fun dialogCreateFileListener(newFileName: String) {
-        createFile(this, openedDirectories[openedDirectories.size - 1], newFileName) { updateFragment() }
+        createFile(this, path, newFileName) { updateFragment() }
         newFileFloatingButton.isVisible = false
         newFolderFloatingButton.isVisible = false
     }
 
     override fun dialogCreateFolderListener(newFileName: String) {
-        createFolder(this, openedDirectories[openedDirectories.size - 1], newFileName) { updateFragment() }
+        createFolder(this, path, newFileName) { updateFragment() }
         newFileFloatingButton.isVisible = false
         newFolderFloatingButton.isVisible = false
     }
@@ -329,7 +339,7 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
     private fun updateFragment() {
         val broadcastIntent = Intent()
         broadcastIntent.action = applicationContext.getString(R.string.file_broadcast_receiver)
-        broadcastIntent.putExtra("path for broadcast", openedDirectories[openedDirectories.size - 1])
+        broadcastIntent.putExtra("path for broadcast", path)
         LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent)
 
         // On Android 5, trigger storage access framework.
