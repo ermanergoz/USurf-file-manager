@@ -58,10 +58,7 @@ class FileListPreferencesFragment(var currentPath: String) : PreferenceFragmentC
     override fun onPause() {
         super.onPause()
 
-        Log.e("current path", currentPath)
-
         var intent = Intent(context, FragmentActivity::class.java)
-        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP)
         intent.putExtra("path", currentPath)
         startActivity(intent)
     }
