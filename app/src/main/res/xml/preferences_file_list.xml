@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="showHiddenFileSwitch"
+        android:title="@string/show_hidden_files" />
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="showFilesOnlySwitch"
+        android:title="@string/show_files_only" />
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="showFoldersOnlySwitch"
+        android:title="@string/show_folders_only" />
+</PreferenceScreen>
