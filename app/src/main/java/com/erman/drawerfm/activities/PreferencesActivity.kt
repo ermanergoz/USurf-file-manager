@@ -4,7 +4,8 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import com.erman.drawerfm.R
-import com.erman.drawerfm.fragments.PreferencesFragment
+import com.erman.drawerfm.fragments.FileListPreferencesFragment
+import com.erman.drawerfm.fragments.MainPreferencesFragment
 
 class PreferencesActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -12,7 +13,11 @@ class PreferencesActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_preferences)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportFragmentManager.beginTransaction().replace(R.id.preferencesContainer, PreferencesFragment()).commit()
+
+        if(intent.getBooleanExtra("isMainActivity", true))
+            supportFragmentManager.beginTransaction().replace(R.id.preferencesContainer, MainPreferencesFragment()).commit()
+        else
+            supportFragmentManager.beginTransaction().replace(R.id.preferencesContainer, FileListPreferencesFragment()).commit()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
