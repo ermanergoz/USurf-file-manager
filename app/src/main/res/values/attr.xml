@@ -4,6 +4,6 @@
     <attr name="blueColorAccent" format="color" />
     <attr name="separatorColor" format="color" />
 
-    <!-- for preferences -->
+    <!-- for preferences_main -->
     <attr name="isMarqueeEnabled" format="boolean" />
 </resources>

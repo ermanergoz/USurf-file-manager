@@ -303,6 +303,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
 
     private fun startSettingsActivity() {
         val intent = Intent(this, PreferencesActivity::class.java)
+        intent.putExtra("isMainActivity", true)
         startActivity(intent)
     }
 
