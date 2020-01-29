@@ -7,8 +7,9 @@ import com.erman.drawerfm.R
 import java.io.File
 import java.io.IOException
 
-fun getFiles(path: String, showHidden: Boolean/*, showFilesOnly: Boolean, showFoldersOnly: Boolean*/): List<File> {
-    return File(path).listFiles().sorted().filter { !it.isHidden || showHidden }.toList()
+fun getFiles(path: String, showHidden: Boolean, showFilesOnly: Boolean, showFoldersOnly: Boolean): List<File> {
+    return File(path).listFiles().sorted().filter { !it.isHidden || showHidden }.filter { it.isFile || !showFilesOnly }
+        .filter { it.isDirectory || !showFoldersOnly }.toList()
 }
 
 fun getSearchedFiles(path: String, searchQuery: String): List<File> {
