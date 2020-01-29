@@ -6,10 +6,36 @@ import android.widget.Toast
 import com.erman.drawerfm.R
 import java.io.File
 import java.io.IOException
+import java.util.*
 
-fun getFiles(path: String, showHidden: Boolean, showFilesOnly: Boolean, showFoldersOnly: Boolean): List<File> {
-    return File(path).listFiles().sorted().filter { !it.isHidden || showHidden }.filter { it.isFile || !showFilesOnly }
-        .filter { it.isDirectory || !showFoldersOnly }.toList()
+fun getFiles(path: String,
+             showHidden: Boolean,
+             showFilesOnly: Boolean,
+             showFoldersOnly: Boolean,
+             fileSortMode: String?,
+             isAscending: Boolean,
+             isDescending: Boolean): List<File> {
+
+    var files = File(path).listFiles().filter { !it.isHidden || showHidden }.filter { it.isFile || !showFilesOnly }
+        .filter { it.isDirectory || !showFoldersOnly }.toMutableList()
+
+    if (fileSortMode == "Sort by name") {
+        if (isAscending) files.sort()
+        else if (isDescending) Collections.sort(files, Collections.reverseOrder())
+    }
+    if (fileSortMode == "Sort by size") {
+        if (isAscending) files.sortBy { it.length() }
+        else if (isDescending) {
+            files.sortByDescending { it.length() }
+        }
+    }
+    if (fileSortMode == "Sort by last modified") {
+        if (isAscending) files.sortBy { it.lastModified() }
+        else if (isDescending) {
+            files.sortByDescending { it.lastModified() }
+        }
+    }
+    return files
 }
 
 fun getSearchedFiles(path: String, searchQuery: String): List<File> {
