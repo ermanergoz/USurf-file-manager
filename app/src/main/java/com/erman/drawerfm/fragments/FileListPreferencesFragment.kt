@@ -38,16 +38,30 @@ class FileListPreferencesFragment(var currentPath: String) : PreferenceFragmentC
             true
         }
 
-        findPreference<SwitchPreference>("showFilesOnlySwitch")?.setOnPreferenceChangeListener { preference, newValue ->
+        var showFilesOnlySwitch= findPreference<SwitchPreference>("showFilesOnlySwitch")
+        var showFoldersOnlySwitch = findPreference<SwitchPreference>("showFoldersOnlySwitch")
+
+        showFilesOnlySwitch?.setOnPreferenceChangeListener { preference, newValue ->
             preferencesEditor = preferences.edit()
+            if(showFoldersOnlySwitch!!.isChecked)
+            {
+                showFoldersOnlySwitch.isChecked = false
+                preferencesEditor.putBoolean("showFoldersOnly", false)
+            }
+
             preferencesEditor.putBoolean("showFilesOnly", newValue as Boolean)
             preferencesEditor.apply()
 
             true
         }
 
-        findPreference<SwitchPreference>("showFoldersOnlySwitch")?.setOnPreferenceChangeListener { preference, newValue ->
+        showFoldersOnlySwitch?.setOnPreferenceChangeListener { preference, newValue ->
             preferencesEditor = preferences.edit()
+            if(showFilesOnlySwitch!!.isChecked) {
+                showFilesOnlySwitch.isChecked = false
+                preferencesEditor.putBoolean("showFilesOnly", false)
+            }
+
             preferencesEditor.putBoolean("showFoldersOnly", newValue as Boolean)
             preferencesEditor.apply()
 
