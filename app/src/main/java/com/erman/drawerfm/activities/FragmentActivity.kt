@@ -4,6 +4,7 @@ import android.app.SearchManager
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -26,9 +27,8 @@ import android.widget.Toast
 import com.erman.drawerfm.dialogs.*
 import com.erman.drawerfm.interfaces.OnFileClickListener
 
-class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFragment.OnItemClickListener,
-    RenameDialog.DialogRenameFileListener, CreateFileDialog.DialogCreateFileListener,
-    CreateFolderDialog.DialogCreateFolderListener, SearchView.OnQueryTextListener {
+class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFragment.OnItemClickListener, RenameDialog.DialogRenameFileListener,
+    CreateFileDialog.DialogCreateFileListener, CreateFolderDialog.DialogCreateFolderListener, SearchView.OnQueryTextListener {
     private var newShortcutPath = ""
     private var isCreateShortcutMode = false
     lateinit var path: String
@@ -42,8 +42,7 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
     var multipleSelectionList = mutableListOf<File>()
 
     private fun setTheme() {
-        val chosenTheme =
-            getSharedPreferences("com.erman.draverfm", Context.MODE_PRIVATE).getString("theme choice", "System default")
+        val chosenTheme = getSharedPreferences("com.erman.draverfm", Context.MODE_PRIVATE).getString("theme choice", "System default")
 
         when (chosenTheme) {
             "Dark theme" -> {
@@ -75,8 +74,7 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
 
         filesSearchFragment = FileSearchFragment.buildSearchFragment(getSearchedFiles(path, fileSearchQuery))
 
-        fragmentManager.beginTransaction().add(R.id.fragmentContainer, filesSearchFragment).addToBackStack(path)
-            .commit()
+        fragmentManager.beginTransaction().add(R.id.fragmentContainer, filesSearchFragment).addToBackStack(path).commit()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -166,6 +164,24 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
         newFileFloatingButton.setOnClickListener {
             val newFragment = CreateFileDialog(getString(R.string.new_file_name))
             newFragment.show(fragmentManager, "")
+        }
+
+        shareButton.setOnClickListener {
+            val fileUris: ArrayList<Uri> = arrayListOf()
+
+            for (i in 0 until multipleSelectionList.size) {
+                fileUris.add(FileProvider.getUriForFile(
+                    this,
+                    "com.erman.drawerfm", //(use your app signature + ".provider" )
+                    multipleSelectionList[i]))  //used this instead of File().toUri to avoid FileUriExposedException
+            }
+
+            val shareIntent = Intent().apply {
+                action = Intent.ACTION_SEND_MULTIPLE
+                putParcelableArrayListExtra(Intent.EXTRA_STREAM, fileUris)
+                type = "*/*"
+            }
+            startActivity(Intent.createChooser(shareIntent, getString(R.string.share)))
         }
     }
 
@@ -265,7 +281,7 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
     }
 
     fun triggerStorageAccessFramework() {
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
         this.startActivityForResult(intent, 3)
     }
 
@@ -301,7 +317,7 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
         } else if (fragmentManager.backStackEntryCount > 1) {
             fragmentManager.popBackStack(path, FragmentManager.POP_BACK_STACK_INCLUSIVE)
 
-           path = File(path).parent //move up in the directory
+            path = File(path).parent //move up in the directory
 
             pathTextView.text = path
             Log.e("stack back", fragmentManager.backStackEntryCount.toString())
