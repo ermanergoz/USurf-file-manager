@@ -49,7 +49,7 @@
     <string name="size_in_storage">File size percentage in storage:</string>
     <string name="storage">Used storage percentage:</string>
     <string name="extension">Extension:</string>
-    <string name="this_file_is_hidden">This file is hidden.</string>
+    <string name="this_file_is_hidden">Hidden file.</string>
 
     <!--preferences_main-->
     <string name="change_theme">Change theme</string>
