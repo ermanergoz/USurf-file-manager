@@ -64,6 +64,8 @@
     <string name="sort_by">Sort by</string>
     <string name="ascending_order">Ascending order</string>
     <string name="descending_order">Descending order</string>
+    <string name="show_files_on_top">Show files on top</string>
+    <string name="show_folders_on_top">Show folders on top</string>
 
     <!--broadcast receiver-->
     <string name="file_broadcast_receiver">com.erman.drawerfm.fileBroadcastReceiver</string>
