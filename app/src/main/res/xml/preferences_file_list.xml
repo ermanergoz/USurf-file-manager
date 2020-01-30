@@ -17,6 +17,14 @@
         android:defaultValue="false"
         android:key="descendingOrderPreference"
         android:title="@string/descending_order" />
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="showFilesOnTopPreference"
+        android:title="@string/show_files_on_top" />
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="showFoldersOnTopPreference"
+        android:title="@string/show_folders_on_top" />
     <SwitchPreference
         android:defaultValue="false"
         android:key="showHiddenFileSwitch"
