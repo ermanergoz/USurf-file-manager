@@ -21,7 +21,7 @@ class FileListPreferencesFragment(var currentPath: String) : PreferenceFragmentC
         setPreferencesFromResource(R.xml.preferences_file_list, rootKey)
         preferences = context!!.getSharedPreferences(sharedPrefFile, AppCompatActivity.MODE_PRIVATE)
 
-        var sortListPreference = findPreference<ListPreference>("sortListPreference")
+        val sortListPreference = findPreference<ListPreference>("sortListPreference")
 
         sortListPreference?.setOnPreferenceChangeListener { preference, newValue ->
 
@@ -42,8 +42,8 @@ class FileListPreferencesFragment(var currentPath: String) : PreferenceFragmentC
             true
         }
 
-        var showFilesOnlySwitch = findPreference<SwitchPreference>("showFilesOnlySwitch")
-        var showFoldersOnlySwitch = findPreference<SwitchPreference>("showFoldersOnlySwitch")
+        val showFilesOnlySwitch = findPreference<SwitchPreference>("showFilesOnlySwitch")
+        val showFoldersOnlySwitch = findPreference<SwitchPreference>("showFoldersOnlySwitch")
 
         showFilesOnlySwitch?.setOnPreferenceChangeListener { preference, newValue ->
             preferencesEditor = preferences.edit()
@@ -69,8 +69,8 @@ class FileListPreferencesFragment(var currentPath: String) : PreferenceFragmentC
             true
         }
 
-        var ascendingOrderPreference = findPreference<CheckBoxPreference>("ascendingOrderPreference")
-        var descendingOrderPreference = findPreference<CheckBoxPreference>("descendingOrderPreference")
+        val ascendingOrderPreference = findPreference<CheckBoxPreference>("ascendingOrderPreference")
+        val descendingOrderPreference = findPreference<CheckBoxPreference>("descendingOrderPreference")
 
         ascendingOrderPreference?.setOnPreferenceChangeListener { preference, newValue ->
             preferencesEditor = preferences.edit()
@@ -92,6 +92,35 @@ class FileListPreferencesFragment(var currentPath: String) : PreferenceFragmentC
                 ascendingOrderPreference.isChecked = false
                 preferencesEditor.putBoolean("ascendingOrder", false)
                 preferencesEditor.putBoolean("descendingOrder", newValue as Boolean)
+                preferencesEditor.apply()
+
+                true
+            } else false
+        }
+
+        val showFilesOnTop = findPreference<CheckBoxPreference>("showFilesOnTopPreference")
+        val showFoldersOnTop = findPreference<CheckBoxPreference>("showFoldersOnTopPreference")
+
+        showFilesOnTop?.setOnPreferenceChangeListener { preference, newValue ->
+            preferencesEditor = preferences.edit()
+
+            if (showFoldersOnTop!!.isChecked) {
+                showFoldersOnTop.isChecked = false
+                preferencesEditor.putBoolean("showFoldersOnTop", false)
+                preferencesEditor.putBoolean("showFilesOnTop", newValue as Boolean)
+                preferencesEditor.apply()
+
+                true
+            } else false
+        }
+
+        showFoldersOnTop?.setOnPreferenceChangeListener { preference, newValue ->
+            preferencesEditor = preferences.edit()
+
+            if (showFilesOnTop!!.isChecked) {
+                showFilesOnTop.isChecked = false
+                preferencesEditor.putBoolean("showFilesOnTop", false)
+                preferencesEditor.putBoolean("showFoldersOnTop", newValue as Boolean)
                 preferencesEditor.apply()
 
                 true
