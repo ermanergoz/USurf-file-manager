@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     lateinit var preferencesEditor: SharedPreferences.Editor
     //-----------------------------------------------------------------
 
-    private var shortcutNames: MutableSet<String> = mutableSetOf("DCIM", "Download")
+    private var shortcutNames: MutableSet<String> = mutableSetOf("Download")
 
     private var shortcutPaths: MutableSet<String> =
         mutableSetOf("/storage/emulated/0/Download")
