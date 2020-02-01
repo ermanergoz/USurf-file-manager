@@ -98,6 +98,7 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
 
         copyButton.setOnClickListener {
             isCopyOperation = true
+            deactivateMultipleSelectionMode()
             showConfirmationButtons()
         }
 
