@@ -38,8 +38,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.storage_button.view.*
 import java.io.File
 
-class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShortcutListener,
-    ShortcutOptionsDialog.ShortcutOptionListener, OnShortcutClickListener {
+class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShortcutListener, ShortcutOptionsDialog.ShortcutOptionListener,
+    OnShortcutClickListener {
 
     override fun dialogCreateShortcutListener(shortcutName: String, isCanceled: Boolean) {
         if (File(newShortcutPath).exists() && !isCanceled) {
@@ -72,8 +72,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
 
     private var shortcutNames: MutableSet<String> = mutableSetOf("Download")
 
-    private var shortcutPaths: MutableSet<String> =
-        mutableSetOf("/storage/emulated/0/Download")
+    private var shortcutPaths: MutableSet<String> = mutableSetOf("/storage/emulated/0/Download")
 
     private fun saveShortcuts() {
         preferences = this.getSharedPreferences(sharedPrefFile, AppCompatActivity.MODE_PRIVATE)
@@ -85,15 +84,11 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     }
 
     private fun requestPermissions() {
-        ActivityCompat.requestPermissions(this,
-                                          arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,
-                                                  Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                                          1)
+        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
     }
 
     private fun setTheme() {
-        val chosenTheme =
-            getSharedPreferences("com.erman.draverfm", Context.MODE_PRIVATE).getString("theme choice", "System default")
+        val chosenTheme = getSharedPreferences("com.erman.draverfm", Context.MODE_PRIVATE).getString("theme choice", "System default")
 
         when (chosenTheme) {
             "Dark theme" -> {
@@ -143,11 +138,9 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
             storageButtons[i].setBackgroundResource(buttonBorder)
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                storageButtons[i].progressBar.progressDrawable.colorFilter =
-                    BlendModeColorFilter(storageProgressBarColor, BlendMode.SRC_ATOP)
+                storageButtons[i].progressBar.progressDrawable.colorFilter = BlendModeColorFilter(storageProgressBarColor, BlendMode.SRC_ATOP)
             } else {
-                storageButtons[i].progressBar.progressDrawable.setColorFilter(storageProgressBarColor,
-                                                                              PorterDuff.Mode.SRC_ATOP)
+                storageButtons[i].progressBar.progressDrawable.setColorFilter(storageProgressBarColor, PorterDuff.Mode.SRC_ATOP)
             }
         }
     }
@@ -234,11 +227,9 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        shortcutNames.addAll(getSharedPreferences("com.erman.draverfm",
-                                                  Context.MODE_PRIVATE).getStringSet("shortcut names", emptySet())!!)
+        shortcutNames.addAll(getSharedPreferences("com.erman.draverfm", Context.MODE_PRIVATE).getStringSet("shortcut names", emptySet())!!)
 
-        shortcutPaths.addAll(getSharedPreferences("com.erman.draverfm",
-                                                  Context.MODE_PRIVATE).getStringSet("shortcut paths", emptySet())!!)
+        shortcutPaths.addAll(getSharedPreferences("com.erman.draverfm", Context.MODE_PRIVATE).getStringSet("shortcut paths", emptySet())!!)
         setTheme()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -281,7 +272,12 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
 
     private fun startFragmentActivity(path: String, isCreateShortcutMode: Boolean) {
         val intent = Intent(this, FragmentActivity::class.java)
+        var isExtSdCard = false
         intent.putExtra("path", path)
+        if (path == storageDirectories.elementAt(1) && !isCreateShortcutMode) {
+            isExtSdCard = true
+        }
+        intent.putExtra("isExtSdCard", isExtSdCard)
         if (isCreateShortcutMode) {
             intent.putExtra("isCreateShortcutMode", isCreateShortcutMode)
             startActivityForResult(intent, 1)
