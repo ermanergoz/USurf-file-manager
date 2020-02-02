@@ -16,7 +16,6 @@ import androidx.core.content.FileProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentManager
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.erman.drawerfm.R
 import com.erman.drawerfm.fragments.FileSearchFragment
 import com.erman.drawerfm.fragments.ListDirFragment
 import com.erman.drawerfm.utilities.*
@@ -26,6 +25,9 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import com.erman.drawerfm.dialogs.*
 import com.erman.drawerfm.interfaces.OnFileClickListener
+import android.app.Activity
+import android.content.SharedPreferences
+import com.erman.drawerfm.R
 
 class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFragment.OnItemClickListener, RenameDialog.DialogRenameFileListener,
     CreateFileDialog.DialogCreateFileListener, CreateFolderDialog.DialogCreateFolderListener, SearchView.OnQueryTextListener {
@@ -40,6 +42,10 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
     var isCopyOperation = false
     var isMultipleSelection = false
     var multipleSelectionList = mutableListOf<File>()
+    var isExtSdCard = false
+    private lateinit var preferences: SharedPreferences
+    lateinit var preferencesEditor: SharedPreferences.Editor
+    private var sharedPrefFile: String = "com.erman.draverfm"
 
     private fun setTheme() {
         val chosenTheme = getSharedPreferences("com.erman.draverfm", Context.MODE_PRIVATE).getString("theme choice", "System default")
@@ -58,7 +64,6 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
     }
 
     private fun launchFragment(path: String) {
-        Log.e("stack size launch frag", fragmentManager.backStackEntryCount.toString())
         if (optionButtonBar.isVisible) optionButtonBar.isVisible = false
 
         filesListFragment = ListDirFragment.buildFragment(path)
@@ -88,6 +93,7 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
             finish()
         }
         this.isCreateShortcutMode = intent.getBooleanExtra("isCreateShortcutMode", false)
+        this.isExtSdCard = intent.getBooleanExtra("isExtSdCard", false)
         optionButtonBar.isVisible = false
         moreOptionButtonBar.isVisible = false
         confirmationButtonBar.isVisible = false
@@ -95,6 +101,10 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
         newFolderFloatingButton.isVisible = false
 
         launchFragment(path)
+
+        if (isExtSdCard) {  //hafıza kartı
+            triggerStorageAccessFramework()
+        }
 
         copyButton.setOnClickListener {
             isCopyOperation = true
@@ -114,16 +124,16 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
         }
 
         deleteButton.setOnClickListener {
-            delete(this, multipleSelectionList) { finishAndUpdate() }
+            delete(this, multipleSelectionList, isExtSdCard) { finishAndUpdate() }
         }
 
         OKButton.setOnClickListener {
             if (isCopyOperation) {
-                copyFile(this, multipleSelectionList, path) { finishAndUpdate() }
+                copyFile(this, multipleSelectionList, path, isExtSdCard) { finishAndUpdate() }
                 isMoveOperation = false
             }
             if (isMoveOperation) {
-                moveFile(this, multipleSelectionList, path) { finishAndUpdate() }
+                moveFile(this, multipleSelectionList, path, isExtSdCard) { finishAndUpdate() }
                 isMoveOperation = false
             }
             updateFragment()
@@ -171,10 +181,8 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
             val fileUris: ArrayList<Uri> = arrayListOf()
 
             for (i in 0 until multipleSelectionList.size) {
-                fileUris.add(FileProvider.getUriForFile(
-                    this,
-                    "com.erman.drawerfm", //(use your app signature + ".provider" )
-                    multipleSelectionList[i]))  //used this instead of File().toUri to avoid FileUriExposedException
+                fileUris.add(FileProvider.getUriForFile(this, "com.erman.drawerfm", //(use your app signature + ".provider" )
+                                                        multipleSelectionList[i]))  //used this instead of File().toUri to avoid FileUriExposedException
             }
 
             val shareIntent = Intent().apply {
@@ -281,11 +289,6 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
         else extractButton.isVisible = false
     }
 
-    fun triggerStorageAccessFramework() {
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-        this.startActivityForResult(intent, 3)
-    }
-
     override fun onLongClick(directory: File) {
         if (isCreateShortcutMode) {
             newShortcutPath = directory.path
@@ -321,14 +324,12 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
             path = File(path).parent //move up in the directory
 
             pathTextView.text = path
-            Log.e("stack back", fragmentManager.backStackEntryCount.toString())
         } else if (fragmentManager.backStackEntryCount == 1 && File(File(path).parent).canWrite()) {
             path = File(path).parent
             pathTextView.text = path
             launchFragment(path)
         } else {
             fragmentManager.popBackStackImmediate()
-            Log.e("stack size last", fragmentManager.backStackEntryCount.toString())
             super.onBackPressed()
         }
     }
@@ -338,17 +339,17 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
     }
 
     override fun dialogRenameFileListener(newFileName: String) {
-        rename(this, multipleSelectionList, newFileName) { finishAndUpdate() }
+        rename(this, multipleSelectionList, newFileName, isExtSdCard) { finishAndUpdate() }
     }
 
     override fun dialogCreateFileListener(newFileName: String) {
-        createFile(this, path, newFileName) { updateFragment() }
+        createFile(this, path, newFileName, isExtSdCard) { updateFragment() }
         newFileFloatingButton.isVisible = false
         newFolderFloatingButton.isVisible = false
     }
 
     override fun dialogCreateFolderListener(newFileName: String) {
-        createFolder(this, path, newFileName) { updateFragment() }
+        createFolder(this, path, newFileName, isExtSdCard) { updateFragment() }
         newFileFloatingButton.isVisible = false
         newFolderFloatingButton.isVisible = false
     }
@@ -358,24 +359,34 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
         broadcastIntent.action = applicationContext.getString(R.string.file_broadcast_receiver)
         broadcastIntent.putExtra("path for broadcast", path)
         LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent)
+    }
 
+
+    fun triggerStorageAccessFramework() {   //https://developer.android.com/reference/android/support/v4/provider/DocumentFile
         // On Android 5, trigger storage access framework.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            //TODO:this function should be moved to proper location before calling this function which launches the files app
-            //TODO:we need to saved the data we need to do that operatiın we want by assigning them to the variables
-            //triggerStorageAccessFramework()
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)   //If you really do need full access to an entire subtree of documents,
+            this.startActivityForResult(intent, 3)
         }
-
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        //TODO:this lifecycle func is called after launching the files app for ext storage
-        //TODO: and we need to do the operations on those files here
-        //TODO:and also check if we have values for the variables
+        if (resultCode === Activity.RESULT_OK) {    //TODO: Change this. It is deprecated!
+            val treeUri = data!!.data
+            //val pickedDir = DocumentFile.fromTreeUri(this, treeUri!!)
 
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                contentResolver.takePersistableUriPermission(treeUri!!,
+                                                             Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            }
+            preferences = this.getSharedPreferences(sharedPrefFile, AppCompatActivity.MODE_PRIVATE)
+            preferencesEditor = preferences.edit()
+            preferencesEditor.putString("extSdCardChosenUri", treeUri.toString())
+            preferencesEditor.apply()
+        } else {
+            return
+        }
         super.onActivityResult(requestCode, resultCode, data)
-
-        //TODO:WE NEED TO make the variables we assigned in line 315 we need to reset them after we are done with the operation
     }
 
     private fun hideKeyboard() {
