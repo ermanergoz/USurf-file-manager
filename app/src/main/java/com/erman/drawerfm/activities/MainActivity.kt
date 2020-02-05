@@ -274,7 +274,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         val intent = Intent(this, FragmentActivity::class.java)
         var isExtSdCard = false
         intent.putExtra("path", path)
-        if (path == storageDirectories.elementAt(1) && !isCreateShortcutMode) {
+        if (storageDirectories.size>1 && path == storageDirectories.elementAt(1) && !isCreateShortcutMode) {
             isExtSdCard = true
         }
         intent.putExtra("isExtSdCard", isExtSdCard)

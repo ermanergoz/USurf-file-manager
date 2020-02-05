@@ -7,8 +7,10 @@ import android.util.Log
 import android.widget.Toast
 import androidx.documentfile.provider.DocumentFile
 import com.erman.drawerfm.R
-import java.io.File
-import java.io.IOException
+import java.io.*
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
+
 
 fun getFiles(path: String,
              showHidden: Boolean,
@@ -221,20 +223,25 @@ fun createFile(context: Context, path: String, folderName: String, isExtSdCard: 
 fun copyFile(context: Context, copyOrMoveSources: List<File>, copyOrMoveDestination: String, isExtSdCard: Boolean, updateFragment: () -> Unit) {
     var isSuccess = false
 
-    for (i in copyOrMoveSources.indices) {
-        if (copyOrMoveSources[i].isDirectory) {
-            isSuccess = File(copyOrMoveSources[i].path).copyRecursively(File(copyOrMoveDestination + copyOrMoveSources[i].name))
-        } else {
-            try {
-                File(copyOrMoveSources[i].path).copyTo(File(copyOrMoveDestination + "/" + copyOrMoveSources[i].name))
-            } catch (err: IOException) {
-                isSuccess = false
-                break
+    if (isExtSdCard) {
+
+        //TODO: Implement this and moveFile.
+
+    } else {
+        for (i in copyOrMoveSources.indices) {
+            if (copyOrMoveSources[i].isDirectory) {
+                isSuccess = File(copyOrMoveSources[i].path).copyRecursively(File(copyOrMoveDestination + copyOrMoveSources[i].name))
+            } else {
+                try {
+                    File(copyOrMoveSources[i].path).copyTo(File(copyOrMoveDestination + "/" + copyOrMoveSources[i].name))
+                } catch (err: IOException) {
+                    isSuccess = false
+                    break
+                }
+                isSuccess = true
             }
-            isSuccess = true
         }
     }
-
     if (isSuccess) {
         Toast.makeText(context, context.getString(R.string.copy_successful), Toast.LENGTH_LONG).show()
         updateFragment.invoke()
@@ -259,18 +266,49 @@ fun moveFile(context: Context, copyOrMoveSources: List<File>, copyOrMoveDestinat
             }
             isSuccess = true
         }
-
         if (copyOrMoveSources[i].isDirectory && isSuccess) {
             isSuccess = File(copyOrMoveSources[i].path).deleteRecursively()
         } else if (!copyOrMoveSources[i].isDirectory && isSuccess) {
             isSuccess = File(copyOrMoveSources[i].path).delete()
         }
     }
-
     if (isSuccess) {
         Toast.makeText(context, context.getString(R.string.moving_successful), Toast.LENGTH_LONG).show()
         updateFragment.invoke()
     } else {
         Toast.makeText(context, context.getString(R.string.error_while_moving), Toast.LENGTH_LONG).show()
     }
+}
+
+fun zipFile(selectedDirectories: MutableList<File>, zipName: String) {
+    val buffer = 6144
+    val destination = FileOutputStream(selectedDirectories[0].parent!! + "/" + zipName + ".zip")
+    val output = ZipOutputStream(BufferedOutputStream(destination))
+    val data = ByteArray(buffer)
+    val filesToZip = mutableListOf<File>()
+
+    filesToZip.addAll(getSubDirs(selectedDirectories))
+
+    for (i in filesToZip.indices) {
+        val fileOrigin = BufferedInputStream(FileInputStream(filesToZip[i]))
+
+        output.putNextEntry(ZipEntry("[" + filesToZip[i].parentFile.nameWithoutExtension + "] " + filesToZip[i].name))
+
+        var counter = (fileOrigin.read(data, 0, buffer))
+
+        while (counter != -1) {
+            output.write(data, 0, counter)
+            counter = (fileOrigin.read(data, 0, buffer))
+        }
+        fileOrigin.close()
+    }
+    output.close()
+}
+
+fun getSubDirs(selectedDirectories: List<File>, dirList: MutableList<File> = mutableListOf()): MutableList<File> {
+    selectedDirectories.forEach {
+        if (it.isFile && !it.isHidden) dirList.add(it)
+        else if (it.isDirectory && !it.isHidden) getSubDirs(it.listFiles().toList(), dirList)
+    }
+    return dirList
 }
