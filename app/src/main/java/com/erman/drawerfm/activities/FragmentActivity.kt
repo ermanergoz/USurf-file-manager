@@ -7,7 +7,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.SearchView
@@ -28,9 +27,12 @@ import com.erman.drawerfm.interfaces.OnFileClickListener
 import android.app.Activity
 import android.content.SharedPreferences
 import com.erman.drawerfm.R
+import java.io.BufferedOutputStream
+import java.io.FileOutputStream
+import java.util.zip.ZipOutputStream
 
 class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFragment.OnItemClickListener, RenameDialog.DialogRenameFileListener,
-    CreateFileDialog.DialogCreateFileListener, CreateFolderDialog.DialogCreateFolderListener, SearchView.OnQueryTextListener {
+    CreateNew.DialogCreateFolderListener, SearchView.OnQueryTextListener {
     private var newShortcutPath = ""
     private var isCreateShortcutMode = false
     lateinit var path: String
@@ -169,11 +171,11 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
             }
         }
         newFolderFloatingButton.setOnClickListener {
-            val newFragment = CreateFolderDialog(getString(R.string.new_directory_name))
+            val newFragment = CreateNew(getString(R.string.new_directory_name), "folder")
             newFragment.show(fragmentManager, "")
         }
         newFileFloatingButton.setOnClickListener {
-            val newFragment = CreateFileDialog(getString(R.string.new_file_name))
+            val newFragment = CreateNew(getString(R.string.new_file_name), "file")
             newFragment.show(fragmentManager, "")
         }
 
@@ -191,6 +193,11 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
                 type = "*/*"
             }
             startActivity(Intent.createChooser(shareIntent, getString(R.string.share)))
+        }
+
+        compressButton.setOnClickListener {
+            val newFragment = CreateNew(getString(R.string.name), "zip")
+            newFragment.show(fragmentManager, "")
         }
     }
 
@@ -342,14 +349,17 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
         rename(this, multipleSelectionList, newFileName, isExtSdCard) { finishAndUpdate() }
     }
 
-    override fun dialogCreateFileListener(newFileName: String) {
-        createFile(this, path, newFileName, isExtSdCard) { updateFragment() }
-        newFileFloatingButton.isVisible = false
-        newFolderFloatingButton.isVisible = false
-    }
+    override fun dialogCreateNewListener(newFileName: String, whatToCreate: String) {
+        if (whatToCreate == "folder") createFolder(this, path, newFileName, isExtSdCard) { updateFragment() }
 
-    override fun dialogCreateFolderListener(newFileName: String) {
-        createFolder(this, path, newFileName, isExtSdCard) { updateFragment() }
+        if (whatToCreate == "file") createFile(this, path, newFileName, isExtSdCard) { updateFragment() }
+
+        if (whatToCreate == "zip") {
+            zipFile(multipleSelectionList, newFileName)
+            finishAndUpdate()
+        }
+           // ZipFolder(multipleSelectionList[0].path, multipleSelectionList[0].parent+"/"+"tipsizocfako.zip")
+
         newFileFloatingButton.isVisible = false
         newFolderFloatingButton.isVisible = false
     }
