@@ -23,6 +23,10 @@
     <string name="error_while_moving">Error while moving</string>
     <string name="new_shortcut_instruction">To create a shortcut, navigate to the file/folder and long press it to choose. Press back button to cancel.</string>
     <string name="canceled">Canceled</string>
+    <string name="compressing_successful">Compressed</string>
+    <string name="error_while_compressing">Error while compressing</string>
+    <string name="extracting_successful">Extracted</string>
+    <string name="error_while_extracting">Error while extracting</string>
 
     <!--create shortcut dialog-->
     <string name="name">Name:</string>
