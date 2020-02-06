@@ -8,9 +8,9 @@ import android.widget.Toast
 import androidx.documentfile.provider.DocumentFile
 import com.erman.drawerfm.R
 import java.io.*
+import java.io.File.separator
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
-
 
 fun getFiles(path: String,
              showHidden: Boolean,
@@ -282,33 +282,49 @@ fun moveFile(context: Context, copyOrMoveSources: List<File>, copyOrMoveDestinat
 
 fun zipFile(selectedDirectories: MutableList<File>, zipName: String) {
     val buffer = 6144
-    val destination = FileOutputStream(selectedDirectories[0].parent!! + "/" + zipName + ".zip")
+    val destination = FileOutputStream(selectedDirectories[0].parent!! + separator + zipName + ".zip")
     val output = ZipOutputStream(BufferedOutputStream(destination))
     val data = ByteArray(buffer)
-    val filesToZip = mutableListOf<File>()
 
-    filesToZip.addAll(getSubDirs(selectedDirectories))
+    for (i in selectedDirectories.indices) {
 
-    for (i in filesToZip.indices) {
-        val fileOrigin = BufferedInputStream(FileInputStream(filesToZip[i]))
+        if (selectedDirectories[i].isDirectory) {
+            zipFolder(selectedDirectories[i].listFiles()!!.toMutableList(), output, selectedDirectories[i].name)
+        } else {
+            val fileOrigin = BufferedInputStream(FileInputStream(selectedDirectories[i]))
 
-        output.putNextEntry(ZipEntry("[" + filesToZip[i].parentFile.nameWithoutExtension + "] " + filesToZip[i].name))
+            output.putNextEntry(ZipEntry(selectedDirectories[i].name))
 
-        var counter = (fileOrigin.read(data, 0, buffer))
+            var counter = (fileOrigin.read(data, 0, buffer))
 
-        while (counter != -1) {
-            output.write(data, 0, counter)
-            counter = (fileOrigin.read(data, 0, buffer))
+            while (counter != -1) {
+                output.write(data, 0, counter)
+                counter = (fileOrigin.read(data, 0, buffer))
+            }
+            fileOrigin.close()
         }
-        fileOrigin.close()
     }
     output.close()
 }
 
-fun getSubDirs(selectedDirectories: List<File>, dirList: MutableList<File> = mutableListOf()): MutableList<File> {
-    selectedDirectories.forEach {
-        if (it.isFile && !it.isHidden) dirList.add(it)
-        else if (it.isDirectory && !it.isHidden) getSubDirs(it.listFiles().toList(), dirList)
+fun zipFolder(selectedDirectories: MutableList<File>, output: ZipOutputStream, folderName: String) {
+    val buffer = 6144
+    val data = ByteArray(buffer)
+
+    for (i in selectedDirectories.indices) {
+        if (selectedDirectories[i].isDirectory) {
+            zipFolder(selectedDirectories[i].listFiles()!!.toMutableList(), output, folderName+ separator+selectedDirectories[i].name)
+        } else {
+            output.putNextEntry(ZipEntry(folderName + separator + selectedDirectories[i].name))
+
+            val fileOrigin = BufferedInputStream(FileInputStream(selectedDirectories[i]))
+            var counter = (fileOrigin.read(data, 0, buffer))
+
+            while (counter != -1) {
+                output.write(data, 0, counter)
+                counter = (fileOrigin.read(data, 0, buffer))
+            }
+            fileOrigin.close()
+        }
     }
-    return dirList
 }
