@@ -26,6 +26,7 @@ import com.erman.drawerfm.dialogs.*
 import com.erman.drawerfm.interfaces.OnFileClickListener
 import android.app.Activity
 import android.content.SharedPreferences
+import androidx.core.view.isGone
 import com.erman.drawerfm.R
 import java.io.BufferedOutputStream
 import java.io.FileOutputStream
@@ -199,6 +200,10 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
             val newFragment = CreateNew(getString(R.string.name), "zip")
             newFragment.show(fragmentManager, "")
         }
+
+        extractButton.setOnClickListener {
+            unzip(this, multipleSelectionList) {finishAndUpdate()}
+        }
     }
 
     private fun deactivateMultipleSelectionMode() {
@@ -290,10 +295,15 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
     }
 
     private fun showOptionButtons(isExtensionZip: Boolean) {
-        optionButtonBar.isVisible = true
-        confirmationButtonBar.isVisible = false
-        if (isExtensionZip) compressButton.isVisible = false
-        else extractButton.isVisible = false
+        optionButtonBar.isGone = false
+        confirmationButtonBar.isGone = true
+        if (isExtensionZip) {
+            compressButton.isGone = true
+            extractButton.isGone = false
+        } else {
+            extractButton.isGone = true
+            compressButton.isGone = false
+        }
     }
 
     override fun onLongClick(directory: File) {
@@ -350,15 +360,11 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
     }
 
     override fun dialogCreateNewListener(newFileName: String, whatToCreate: String) {
-        if (whatToCreate == "folder") createFolder(this, path, newFileName, isExtSdCard) { updateFragment() }
+        if (whatToCreate == "folder") createFolder(this, path, newFileName, isExtSdCard) { finishAndUpdate() }
 
-        if (whatToCreate == "file") createFile(this, path, newFileName, isExtSdCard) { updateFragment() }
+        if (whatToCreate == "file") createFile(this, path, newFileName, isExtSdCard) { finishAndUpdate() }
 
-        if (whatToCreate == "zip") {
-            zipFile(multipleSelectionList, newFileName)
-            finishAndUpdate()
-        }
-           // ZipFolder(multipleSelectionList[0].path, multipleSelectionList[0].parent+"/"+"tipsizocfako.zip")
+        if (whatToCreate == "zip") zipFile(this, multipleSelectionList, newFileName) { finishAndUpdate() }
 
         newFileFloatingButton.isVisible = false
         newFolderFloatingButton.isVisible = false
