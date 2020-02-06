@@ -1,92 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
-    <resources>
-        <string name="app_name">DrawerFM</string>
-        <string name="create_shortcut">Kısayol ekle</string>
-        <string name="ok">Tamam</string>
-        <string name="cancel">İptal</string>
-        <string name="invalid_path">Geçersiz dosya yolu!</string>
-        <string name="duplicate_shortcut">Kısayol zaten mevcut!</string>
+<resources>
+    <string name="app_name">DrawerFM</string>
+    <string name="create_shortcut">Kısayol ekle</string>
+    <string name="ok">Tamam</string>
+    <string name="cancel">İptal</string>
+    <string name="invalid_path">Geçersiz dosya yolu!</string>
+    <string name="duplicate_shortcut">Kısayol zaten mevcut!</string>
 
-        <!--toast notifications-->
-        <string name="unable_to_execute_search_query">Arama yapılırken bir hata oluştu</string>
-        <string name="file_unsupported_or_no_application">Dosya açılamıyor. Bu dosyayı açabilecek bir uygulama bulunamadı.</string>
-        <string name="error_while_renaming">"Yeniden adlandırırken hata: "</string>
-        <string name="renaming_successful">Yeniden adlandırıldı</string>
-        <string name="error_while_deleting">"Silerken hata: "</string>
-        <string name="deleting_successful">Silindi</string>
-        <string name="folder_creation_successful">"Yeni klasör oluşturuldu: "</string>
-        <string name="error_when_creating_folder">"Yeni klasör oluştururken hata: "</string>
-        <string name="file_creation_successful">"Yeni dosya oluşturuldu: "</string>
-        <string name="error_when_creating_file">"Yeni dosya oluştururken hata: "</string>
-        <string name="copy_successful">Kopyalandı</string>
-        <string name="error_while_copying">Kopyalarken hata</string>
-        <string name="moving_successful">Taşındı</string>
-        <string name="error_while_moving">Taşırken bir hata oluştu</string>
-        <string name="new_shortcut_instruction">Kısayol oluşturmak için, istediğiniz dosya/klasöre gidin ve üzerine basılı tutun. İptal etmek için, geri tuşuna basın.</string>
-        <string name="canceled">İptal edildi</string>
+    <!--toast notifications-->
+    <string name="unable_to_execute_search_query">Arama yapılırken bir hata oluştu</string>
+    <string name="file_unsupported_or_no_application">Dosya açılamıyor. Bu dosyayı açabilecek bir uygulama bulunamadı.</string>
+    <string name="error_while_renaming">"Yeniden adlandırırken hata: "</string>
+    <string name="renaming_successful">Yeniden adlandırıldı</string>
+    <string name="error_while_deleting">"Silerken hata: "</string>
+    <string name="deleting_successful">Silindi</string>
+    <string name="folder_creation_successful">"Yeni klasör oluşturuldu: "</string>
+    <string name="error_when_creating_folder">"Yeni klasör oluştururken hata: "</string>
+    <string name="file_creation_successful">"Yeni dosya oluşturuldu: "</string>
+    <string name="error_when_creating_file">"Yeni dosya oluştururken hata: "</string>
+    <string name="copy_successful">Kopyalandı</string>
+    <string name="error_while_copying">Kopyalarken hata</string>
+    <string name="moving_successful">Taşındı</string>
+    <string name="error_while_moving">Taşırken hata</string>
+    <string name="new_shortcut_instruction">Kısayol oluşturmak için, istediğiniz dosya/klasöre gidin ve üzerine basılı tutun. İptal etmek için, geri tuşuna basın.</string>
+    <string name="canceled">İptal edildi</string>
+    <string name="compressing_successful">Sıkıştırıldı</string>
+    <string name="error_while_compressing">Sıkıştırırken hata</string>
+    <string name="extracting_successful">Çıkarıldı</string>
+    <string name="error_while_extracting">Çıkarırken hata</string>
 
-        <!--create shortcut dialog-->
-        <string name="name">Ad:</string>
-        <string name="path">Dosya yolu:</string>
-        <string name="yes">Evet</string>
-        <string name="no">Hayır</string>
-        <string name="remove_shortcut_message">Bu kısayolu silmek istediğinizden emin misiniz??</string>
+    <!--create shortcut dialog-->
+    <string name="name">Ad:</string>
+    <string name="path">Dosya yolu:</string>
+    <string name="yes">Evet</string>
+    <string name="no">Hayır</string>
+    <string name="remove_shortcut_message">Bu kısayolu silmek istediğinizden emin misiniz??</string>
 
-        <!--about drawerFM dialog-->
-        <string name="app_version">Version: 1.0.0</string>
-        <string name="credit">Yusuf Erman ERGÖZ</string>
-        <string name="about">Hakkında</string>
+    <!--about drawerFM dialog-->
+    <string name="app_version">Version: 1.0.0</string>
+    <string name="credit">Yusuf Erman ERGÖZ</string>
+    <string name="about">Hakkında</string>
 
-        <!--com.erman.drawerfm.utilities.rename file dialog-->
-        <string name="rename_file">Yeniden adlandır</string>
-        <string name="new_directory_name">Yeni klasör adı</string>
-        <string name="new_file_name">Yeni dosya adı</string>
+    <!--com.erman.drawerfm.utilities.rename file dialog-->
+    <string name="rename_file">Yeniden adlandır</string>
+    <string name="new_directory_name">Yeni klasör adı</string>
+    <string name="new_file_name">Yeni dosya adı</string>
 
-        <!--file information dialog-->
-        <string name="size">Boyut:</string>
-        <string name="permission">İzinler:</string>
-        <string name="last_modification_date">Son değiştirilme tarihi:</string>
-        <string name="folder">Klasör</string>
-        <string name="size_in_storage">Depolama alanına göre yüzde:</string>
-        <string name="storage">Depolama alanı kullanım yüzdesi:</string>
-        <string name="extension">Uzantı:</string>
-        <string name="this_file_is_hidden">Gizli dosya.</string>
+    <!--file information dialog-->
+    <string name="size">Boyut:</string>
+    <string name="permission">İzinler:</string>
+    <string name="last_modification_date">Son değiştirilme tarihi:</string>
+    <string name="folder">Klasör</string>
+    <string name="size_in_storage">Depolama alanına göre yüzde:</string>
+    <string name="storage">Depolama alanı kullanım yüzdesi:</string>
+    <string name="extension">Uzantı:</string>
+    <string name="this_file_is_hidden">Gizli dosya.</string>
 
-        <!--preferences_main-->
-        <string name="change_theme">Temayı değiştir</string>
-        <string name="enable_sliding_texts">Kayan yazıları etkinleştir</string>
-        <string name="sliding_texts_summary">If enabled, long file/folder names will slide</string>
-        <string name="root_explorer">Root explorer</string>
-        <string name="root_explorer_summary">Check this box to gain access to root directory</string>
-        <string name="grid_view">Tablo görünümü</string>
-        <string name="show_hidden_files">Gizli dosyaları göster</string>
-        <string name="show_folders_only">Sadece klasörleri göster</string>
-        <string name="show_files_only">Sadece dosyaları göster</string>
-        <string name="sort_by">Sırala</string>
-        <string name="ascending_order">Artan</string>
-        <string name="descending_order">Azalan</string>
-        <string name="show_files_on_top">Dosyaları en üstte göster</string>
-        <string name="show_folders_on_top">Klasörleri en üstte göster</string>
+    <!--preferences_main-->
+    <string name="change_theme">Temayı değiştir</string>
+    <string name="enable_sliding_texts">Kayan yazıları etkinleştir</string>
+    <string name="sliding_texts_summary">If enabled, long file/folder names will slide</string>
+    <string name="root_explorer">Root explorer</string>
+    <string name="root_explorer_summary">Check this box to gain access to root directory</string>
+    <string name="grid_view">Tablo görünümü</string>
+    <string name="show_hidden_files">Gizli dosyaları göster</string>
+    <string name="show_folders_only">Sadece klasörleri göster</string>
+    <string name="show_files_only">Sadece dosyaları göster</string>
+    <string name="sort_by">Sırala</string>
+    <string name="ascending_order">Artan</string>
+    <string name="descending_order">Azalan</string>
+    <string name="show_files_on_top">Dosyaları en üstte göster</string>
+    <string name="show_folders_on_top">Klasörleri en üstte göster</string>
 
-        <!--broadcast receiver-->
-        <string name="file_broadcast_receiver">com.erman.drawerfm.fileBroadcastReceiver</string>
+    <!--broadcast receiver-->
+    <string name="file_broadcast_receiver">com.erman.drawerfm.fileBroadcastReceiver</string>
 
-        <!--fragment stuff-->
-        <string name="empty_folder_size_text">Boş Klasör</string>
-        <string name="empty_folder">Burada hiçbir şey yok.</string>
-        <string name="files_num">Dosyalar</string>
-        <string name="copy">Kopyala</string>
-        <string name="move">Taşı</string>
-        <string name="rename">Yeniden adlandır</string>
-        <string name="delete">Sil</string>
-        <string name="compress">Sıkıştır</string>
-        <string name="extract">Çıkart</string>
-        <string name="information">Bilgi</string>
-        <string name="share">Paylaş</string>
-        <string name="more">Daha fazla</string>
-        <string name="collapse">Daha az</string>
+    <!--fragment stuff-->
+    <string name="empty_folder_size_text">Boş Klasör</string>
+    <string name="empty_folder">Burada hiçbir şey yok.</string>
+    <string name="files_num">Dosyalar</string>
+    <string name="copy">Kopyala</string>
+    <string name="move">Taşı</string>
+    <string name="rename">Yeniden adlandır</string>
+    <string name="delete">Sil</string>
+    <string name="compress">Sıkıştır</string>
+    <string name="extract">Çıkart</string>
+    <string name="information">Bilgi</string>
+    <string name="share">Paylaş</string>
+    <string name="more">Daha fazla</string>
+    <string name="collapse">Daha az</string>
 
-        <!--search stuff-->
-        <string name="unsuccessful_search">Hiçbir şey bulunmadı.</string>
-        <string name="results_for">Sonuçlar: </string>
-    </resources>
+    <!--search stuff-->
+    <string name="unsuccessful_search">Hiçbir şey bulunmadı.</string>
+    <string name="results_for">Sonuçlar: </string>
+</resources>

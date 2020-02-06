@@ -10,7 +10,9 @@ import com.erman.drawerfm.R
 import java.io.*
 import java.io.File.separator
 import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
+
 
 fun getFiles(path: String,
              showHidden: Boolean,
@@ -228,12 +230,13 @@ fun copyFile(context: Context, copyOrMoveSources: List<File>, copyOrMoveDestinat
         //TODO: Implement this and moveFile.
 
     } else {
+
         for (i in copyOrMoveSources.indices) {
             if (copyOrMoveSources[i].isDirectory) {
-                isSuccess = File(copyOrMoveSources[i].path).copyRecursively(File(copyOrMoveDestination + copyOrMoveSources[i].name))
+                isSuccess = File(copyOrMoveSources[i].path).copyRecursively(File(copyOrMoveDestination + separator + copyOrMoveSources[i].name))
             } else {
                 try {
-                    File(copyOrMoveSources[i].path).copyTo(File(copyOrMoveDestination + "/" + copyOrMoveSources[i].name))
+                    File(copyOrMoveSources[i].path).copyTo(File(copyOrMoveDestination + separator + copyOrMoveSources[i].name))
                 } catch (err: IOException) {
                     isSuccess = false
                     break
@@ -251,15 +254,14 @@ fun copyFile(context: Context, copyOrMoveSources: List<File>, copyOrMoveDestinat
 }
 
 fun moveFile(context: Context, copyOrMoveSources: List<File>, copyOrMoveDestination: String, isExtSdCard: Boolean, updateFragment: () -> Unit) {
-
     var isSuccess = false
 
     for (i in copyOrMoveSources.indices) {
         if (copyOrMoveSources[i].isDirectory) {
-            isSuccess = File(copyOrMoveSources[i].path).copyRecursively(File(copyOrMoveDestination + copyOrMoveSources[i].name))
+            isSuccess = File(copyOrMoveSources[i].path).copyRecursively(File(copyOrMoveDestination + separator + copyOrMoveSources[i].name))
         } else {
             try {
-                File(copyOrMoveSources[i].path).copyTo(File(copyOrMoveDestination + "/" + copyOrMoveSources[i].name))
+                File(copyOrMoveSources[i].path).copyTo(File(copyOrMoveDestination + separator + copyOrMoveSources[i].name))
             } catch (err: IOException) {
                 isSuccess = false
                 break
@@ -280,51 +282,111 @@ fun moveFile(context: Context, copyOrMoveSources: List<File>, copyOrMoveDestinat
     }
 }
 
-fun zipFile(selectedDirectories: MutableList<File>, zipName: String) {
+fun zipFile(context: Context, selectedDirectories: List<File>, zipName: String, updateFragment: () -> Unit) {
     val buffer = 6144
     val destination = FileOutputStream(selectedDirectories[0].parent!! + separator + zipName + ".zip")
     val output = ZipOutputStream(BufferedOutputStream(destination))
     val data = ByteArray(buffer)
+    try {
+        for (i in selectedDirectories.indices) {
+            if (selectedDirectories[i].isDirectory) {
+                if (!zipFolder(selectedDirectories[i].listFiles()!!.toList(), output, selectedDirectories[i].name)) {
+                    Toast.makeText(context, context.getString(R.string.error_while_compressing), Toast.LENGTH_LONG).show()
+                    return  //in case of an error in zipFolder function
+                }
+            } else {
+                val fileOrigin = BufferedInputStream(FileInputStream(selectedDirectories[i]))
+                output.putNextEntry(ZipEntry(selectedDirectories[i].name))
+                var counter = (fileOrigin.read(data, 0, buffer))
 
-    for (i in selectedDirectories.indices) {
-
-        if (selectedDirectories[i].isDirectory) {
-            zipFolder(selectedDirectories[i].listFiles()!!.toMutableList(), output, selectedDirectories[i].name)
-        } else {
-            val fileOrigin = BufferedInputStream(FileInputStream(selectedDirectories[i]))
-
-            output.putNextEntry(ZipEntry(selectedDirectories[i].name))
-
-            var counter = (fileOrigin.read(data, 0, buffer))
-
-            while (counter != -1) {
-                output.write(data, 0, counter)
-                counter = (fileOrigin.read(data, 0, buffer))
+                while (counter != -1) {
+                    output.write(data, 0, counter)
+                    counter = (fileOrigin.read(data, 0, buffer))
+                }
+                fileOrigin.close()
             }
-            fileOrigin.close()
         }
+        output.close()
+    } catch (err: Exception) {
+        Toast.makeText(context, context.getString(R.string.error_while_compressing), Toast.LENGTH_LONG).show()
+        Log.e("Error while compressing", err.toString())
     }
-    output.close()
+    updateFragment.invoke()
+    Toast.makeText(context, context.getString(R.string.compressing_successful), Toast.LENGTH_LONG).show()
 }
 
-fun zipFolder(selectedDirectories: MutableList<File>, output: ZipOutputStream, folderName: String) {
+fun zipFolder(selectedDirectories: List<File>, output: ZipOutputStream, folderName: String): Boolean {
     val buffer = 6144
     val data = ByteArray(buffer)
 
-    for (i in selectedDirectories.indices) {
-        if (selectedDirectories[i].isDirectory) {
-            zipFolder(selectedDirectories[i].listFiles()!!.toMutableList(), output, folderName+ separator+selectedDirectories[i].name)
-        } else {
-            output.putNextEntry(ZipEntry(folderName + separator + selectedDirectories[i].name))
+    try {
+        for (i in selectedDirectories.indices) {
+            if (selectedDirectories[i].isDirectory) {
+                zipFolder(selectedDirectories[i].listFiles()!!.toList(), output, folderName + separator + selectedDirectories[i].name)
+            } else {
+                output.putNextEntry(ZipEntry(folderName + separator + selectedDirectories[i].name))
+                val fileOrigin = BufferedInputStream(FileInputStream(selectedDirectories[i]))
 
-            val fileOrigin = BufferedInputStream(FileInputStream(selectedDirectories[i]))
-            var counter = (fileOrigin.read(data, 0, buffer))
-
-            while (counter != -1) {
-                output.write(data, 0, counter)
-                counter = (fileOrigin.read(data, 0, buffer))
+                var counter = (fileOrigin.read(data, 0, buffer))
+                while (counter != -1) {
+                    output.write(data, 0, counter)
+                    counter = (fileOrigin.read(data, 0, buffer))
+                }
+                fileOrigin.close()
             }
-            fileOrigin.close()
+        }
+        return true
+    } catch (err: Exception) {
+        Log.e("Error while compressing", err.toString())
+        return false
+    }
+}
+
+fun unzip(context: Context, selectedDirectories: List<File>, updateFragment: () -> Unit) {
+    val buffer = 6144
+    val data = ByteArray(buffer)
+
+    try {
+        for (i in selectedDirectories.indices) {
+            var baseFolderPath = selectedDirectories[i].parent + separator + selectedDirectories[i].nameWithoutExtension
+            File(baseFolderPath).mkdir()
+
+            val zipInput = ZipInputStream(FileInputStream(selectedDirectories[i].path))
+            var zipContent: ZipEntry?
+
+            while (zipInput.nextEntry.also { zipContent = it } != null) {
+                if (zipContent!!.name.contains(separator)) {    //if it contains directory
+                    //zipContent!!.name -> "someSubFolder/zipContentName.extension"
+                    createSubDirectories(zipContent!!.name, baseFolderPath) //create all the subdirectories
+                }
+                val fileOutput = FileOutputStream(baseFolderPath + separator + zipContent!!.name)
+
+                var counter: Int = zipInput.read(data, 0, buffer)
+                while (counter != -1) {
+                    fileOutput.write(data, 0, counter)
+                    counter = zipInput.read(data, 0, buffer)
+                }
+                zipInput.closeEntry()
+                fileOutput.close()
+            }
+            zipInput.close()
+        }
+        updateFragment.invoke()
+    } catch (e: Exception) {
+        Toast.makeText(context, context.getString(R.string.error_while_extracting), Toast.LENGTH_LONG).show()
+        Log.e("Error while extracting", e.toString())
+    }
+    Toast.makeText(context, context.getString(R.string.extracting_successful), Toast.LENGTH_LONG).show()
+}
+
+fun createSubDirectories(zipEntryName: String, baseFolderPath: String) {
+    var subPath = ""
+
+    for (i in zipEntryName.indices) {
+        if (zipEntryName[i] != '/') subPath += zipEntryName[i]
+        else {
+            File(baseFolderPath + separator + subPath).mkdir()
+            subPath += '/'
         }
     }
 }
