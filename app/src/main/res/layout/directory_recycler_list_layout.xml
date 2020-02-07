@@ -54,7 +54,7 @@
     <View
         android:id="@+id/divider2"
         android:layout_width="wrap_content"
-        android:layout_height="2dp"
+        android:layout_height="1dp"
         android:layout_marginTop="4dp"
         android:background="?attr/blueColorAccent"
         app:layout_constraintBottom_toBottomOf="parent"
