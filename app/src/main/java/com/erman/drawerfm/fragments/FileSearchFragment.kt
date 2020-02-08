@@ -6,23 +6,21 @@ import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.erman.drawerfm.R
 import com.erman.drawerfm.adapters.DirectoryRecyclerViewAdapter
+import com.erman.drawerfm.interfaces.OnFileClickListener
 import kotlinx.android.synthetic.main.fragment_file_list.*
 import java.io.File
 
 class FileSearchFragment : Fragment() {
     private lateinit var directoryRecyclerViewAdapter: DirectoryRecyclerViewAdapter
-    private lateinit var onClickCallback: OnItemClickListener
+    private lateinit var onClickCallback: OnFileClickListener
     private var fileList: List<Parcelable>? = null
-
-    interface OnItemClickListener {
-        fun onClick(directory: File)
-    }
 
     companion object {
         fun buildSearchFragment(fileList: List<File>): FileSearchFragment {
@@ -45,9 +43,9 @@ class FileSearchFragment : Fragment() {
         super.onAttach(context)
 
         try {
-            onClickCallback = context as FileSearchFragment.OnItemClickListener
+            onClickCallback = context as OnFileClickListener
         } catch (e: Exception) {
-            throw Exception("${context} fragments.FileSearchFragment.OnItemCLickListener is not implemented")
+            throw Exception("${context} OnFileCLickListener is not implemented")
         }
     }
 
@@ -67,6 +65,9 @@ class FileSearchFragment : Fragment() {
 
         directoryRecyclerViewAdapter.onClickListener = {
             onClickCallback.onClick(it)
+        }
+        directoryRecyclerViewAdapter.onLongClickListener = {
+            onClickCallback.onLongClick(it)
         }
         updateData()
     }
