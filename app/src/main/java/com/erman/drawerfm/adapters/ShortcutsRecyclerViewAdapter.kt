@@ -7,21 +7,23 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.erman.drawerfm.R
+import com.erman.drawerfm.database.Shortcut
 import com.erman.drawerfm.interfaces.OnShortcutClickListener
 import kotlinx.android.synthetic.main.shortcut_recycler_layout.view.*
 
 class ShortcutRecyclerViewAdapter(var context: Context) :
     RecyclerView.Adapter<ShortcutRecyclerViewAdapter.ShortcutHolder>() {
-    var shortcutNames: Set<String> = mutableSetOf()
-    var shortcutPaths: Set<String> = mutableSetOf()
+    //var shortcutNames: Set<String> = mutableSetOf()
+    //var shortcutPaths: Set<String> = mutableSetOf()
+    var shortcuts = listOf<Shortcut>()
     private lateinit var onClickCallback: OnShortcutClickListener
 
     override fun getItemCount(): Int {
-        return shortcutPaths.count()
+        return shortcuts.count()
     }
 
     override fun onBindViewHolder(holder: ShortcutHolder, position: Int) {
-        holder.bindButtons(shortcutNames.elementAt(position), shortcutPaths.elementAt(position))
+        holder.bindButtons(shortcuts.elementAt(position))
 
         try {
             onClickCallback = context as OnShortcutClickListener
@@ -43,9 +45,9 @@ class ShortcutRecyclerViewAdapter(var context: Context) :
             view.setOnLongClickListener(this)
         }
 
-        fun bindButtons(shortcutName: String, path: String) {
-            itemView.shortcut.text = shortcutName
-            itemView.shortcut.tag = path
+        fun bindButtons(shortcut: Shortcut) {
+            itemView.shortcut.text = shortcut.name
+            itemView.shortcut.tag = shortcut.path
             itemView.shortcut.setBackgroundResource(R.drawable.storage_button_style)
             itemView.shortcut.isSingleLine = true
 
@@ -68,9 +70,8 @@ class ShortcutRecyclerViewAdapter(var context: Context) :
         }
     }
 
-    fun updateData(shortcutNames: Set<String>, shortcutPaths: Set<String>) {
-        this.shortcutNames = shortcutNames
-        this.shortcutPaths = shortcutPaths
+    fun updateData(shortcuts: List<Shortcut>) {
+        this.shortcuts = shortcuts
         notifyDataSetChanged()
     }
 }
