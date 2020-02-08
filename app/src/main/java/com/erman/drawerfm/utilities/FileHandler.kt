@@ -185,8 +185,8 @@ fun delete(context: Context, selectedDirectories: List<File>, isExtSdCard: Boole
         }
     }
     if (isSuccess) {
-        Toast.makeText(context, context.getString(R.string.deleting_successful), Toast.LENGTH_LONG).show()
         updateFragment.invoke()
+        Toast.makeText(context, context.getString(R.string.deleting_successful), Toast.LENGTH_LONG).show()
     }
 }
 
@@ -282,12 +282,14 @@ fun moveFile(context: Context, copyOrMoveSources: List<File>, copyOrMoveDestinat
     }
 }
 
-fun zipFile(context: Context, selectedDirectories: List<File>, zipName: String, updateFragment: () -> Unit) {
+fun zipFile(context: Context, selectedDirectories: List<File>, zipName: String, isExtSdCard: Boolean, updateFragment: () -> Unit) {
     val buffer = 6144
-    val destination = FileOutputStream(selectedDirectories[0].parent!! + separator + zipName + ".zip")
-    val output = ZipOutputStream(BufferedOutputStream(destination))
-    val data = ByteArray(buffer)
+
     try {
+        val destination = FileOutputStream(selectedDirectories[0].parent!! + separator + zipName + ".zip") //burası
+        val output = ZipOutputStream(BufferedOutputStream(destination))
+        val data = ByteArray(buffer)
+
         for (i in selectedDirectories.indices) {
             if (selectedDirectories[i].isDirectory) {
                 if (!zipFolder(selectedDirectories[i].listFiles()!!.toList(), output, selectedDirectories[i].name)) {
@@ -375,6 +377,7 @@ fun unzip(context: Context, selectedDirectories: List<File>, updateFragment: () 
     } catch (e: Exception) {
         Toast.makeText(context, context.getString(R.string.error_while_extracting), Toast.LENGTH_LONG).show()
         Log.e("Error while extracting", e.toString())
+        return
     }
     Toast.makeText(context, context.getString(R.string.extracting_successful), Toast.LENGTH_LONG).show()
 }
