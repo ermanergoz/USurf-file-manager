@@ -109,13 +109,48 @@ fun getDocumentFile(file: File, isDirectory: Boolean, context: Context): Documen
     return document
 }
 
-fun getSearchedFiles(path: String, searchQuery: String): List<File> {
+fun getSearchedDirectoryFiles(path: String, searchQuery: String): List<File> {
     try {
-        return File(path).listFiles(FileSearchFilter(searchQuery))!!.toList()
-    } catch (err: IllegalStateException) {
-        Log.e("IllegalStateException", "File(path).listFiles must not be null")
+        return File(path).listFiles()!!.filter { file ->
+            searchQuery.decapitalize().toRegex().containsMatchIn(file.nameWithoutExtension.decapitalize())
+        }.toList()
+    } catch (err: Exception) {
+        Log.e("getSearchedDirFiles", err.toString())
     }
     return emptyList()
+}
+
+fun getSearchedDeviceFiles(storagePaths: ArrayList<String>, searchQuery: String): List<File> {
+    val fileList = mutableListOf<File>()
+    try {
+        for (i in storagePaths.indices) {
+            Log.e("strg", storagePaths[i])
+            fileList.addAll(getSubSearchedFiles(File(storagePaths[i]), searchQuery))
+        }
+
+        return fileList.filter { file ->
+            searchQuery.decapitalize().toRegex().containsMatchIn(file.nameWithoutExtension.decapitalize())
+        }
+    } catch (err: Exception) {
+        Log.e("getSearchedDeviceFiles", err.toString())
+    }
+    return emptyList()
+}
+
+fun getSubSearchedFiles(directory: File, searchQuery: String, res: MutableSet<File> = mutableSetOf<File>()): MutableSet<File> {
+    //Depth first search algorithm
+
+    val listOfFilesAndDirectory = directory.listFiles()!!.toMutableSet()
+
+    for (file in listOfFilesAndDirectory) {
+        if (file.isDirectory) {
+            getSubSearchedFiles(file, searchQuery, res)
+        } else {
+            res.add(file)
+        }
+        res.addAll(listOfFilesAndDirectory)
+    }
+    return res
 }
 
 fun rename(context: Context, selectedDirectories: List<File>, newNameToBe: String, isExtSdCard: Boolean, updateFragment: () -> Unit) {

@@ -3,6 +3,7 @@ package com.erman.drawerfm.activities
 import CreateShortcutDialog
 import android.Manifest
 import android.app.Activity
+import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
@@ -18,7 +19,9 @@ import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.FrameLayout
+import android.widget.SearchView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -43,7 +46,7 @@ import kotlinx.android.synthetic.main.storage_button.view.*
 import java.io.File
 
 class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShortcutListener, ShortcutOptionsDialog.ShortcutOptionListener,
-    OnShortcutClickListener {
+    OnShortcutClickListener, SearchView.OnQueryTextListener {
 
     override fun dialogCreateShortcutListener(shortcutName: String, isCanceled: Boolean) {
         if (File(newShortcutPath).exists() && !isCanceled) {
@@ -65,7 +68,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     private var storageProgressBarColor: Int = 0
     private var buttonBorder: Int = R.drawable.storage_button_style
     private lateinit var storageButtons: MutableList<View>
-    private lateinit var storageDirectories: Set<String>
+    private lateinit var storageDirectories: ArrayList<String>
     private var screenWidth = 0
     private var screenHeight = 0
     private  lateinit var realm: Realm
@@ -250,6 +253,12 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_main_activity, menu)
+
+        val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
+        val search = menu!!.findItem(R.id.deviceWideSearch).actionView as SearchView
+        search.setSearchableInfo(searchManager.getSearchableInfo(componentName))
+        search.setOnQueryTextListener(this)
+
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -275,6 +284,16 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
             intent.putExtra("isCreateShortcutMode", isCreateShortcutMode)
             startActivityForResult(intent, 1)
         } else startActivity(intent)
+    }
+
+    private fun startFragmentActivityForSearch(searchQuery: String) {
+        val intent = Intent(this, FragmentActivity::class.java)
+
+        intent.putExtra("searchQuery", searchQuery)
+        intent.putExtra("isDeviceWideSearchMode", true)
+        intent.putStringArrayListExtra("storageDirectories", storageDirectories)
+
+        startActivity(intent)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -318,5 +337,22 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
             realm.close()
             finish()
         }
+    }
+
+    private fun hideKeyboard() {
+        val inputManager: InputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputManager.hideSoftInputFromWindow(currentFocus?.windowToken, InputMethodManager.SHOW_FORCED)
+    }
+
+    override fun onQueryTextSubmit(query: String?): Boolean {
+        if (query != null) {
+            startFragmentActivityForSearch(query)
+            hideKeyboard()
+        }
+        return true
+    }
+
+    override fun onQueryTextChange(newText: String?): Boolean {
+        return true
     }
 }
