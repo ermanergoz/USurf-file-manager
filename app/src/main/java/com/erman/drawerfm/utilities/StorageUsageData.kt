@@ -2,7 +2,6 @@ package com.erman.drawerfm.utilities
 
 import android.os.Build
 import android.os.StatFs
-import android.util.Log
 import java.io.File
 
 fun getTotalStorage(path: String): Long {
