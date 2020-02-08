@@ -29,7 +29,7 @@ import android.content.SharedPreferences
 import androidx.core.view.isGone
 import com.erman.drawerfm.R
 
-class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFragment.OnItemClickListener, RenameDialog.DialogRenameFileListener,
+class FragmentActivity : AppCompatActivity(), OnFileClickListener, RenameDialog.DialogRenameFileListener,
     CreateNew.DialogCreateFolderListener, SearchView.OnQueryTextListener {
     private var newShortcutPath = ""
     private var isCreateShortcutMode = false
@@ -43,6 +43,7 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
     var isMultipleSelection = false
     var multipleSelectionList = mutableListOf<File>()
     var isExtSdCard = false
+    var isSearchMode = false
     private lateinit var preferences: SharedPreferences
     lateinit var preferencesEditor: SharedPreferences.Editor
     private var sharedPrefFile: String = "com.erman.draverfm"
@@ -72,12 +73,16 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
         fragmentManager.beginTransaction().add(R.id.fragmentContainer, filesListFragment).addToBackStack(path).commit()
     }
 
-    private fun launchSearchFragment(path: String, fileSearchQuery: String) {
+    private fun launchSearchFragment(path: String = "",
+                                     fileSearchQuery: String,
+                                     isDeviceWideSearchMode: Boolean = false,
+                                     storagePaths: ArrayList<String> = arrayListOf()) {
         if (optionButtonBar.isVisible) optionButtonBar.isVisible = false
 
         pathTextView.text = getString(R.string.results_for) + " " + fileSearchQuery
-
-        filesSearchFragment = FileSearchFragment.buildSearchFragment(getSearchedFiles(path, fileSearchQuery))
+        if (isDeviceWideSearchMode) {
+            filesSearchFragment = FileSearchFragment.buildSearchFragment(getSearchedDeviceFiles(storagePaths, fileSearchQuery))
+        } else filesSearchFragment = FileSearchFragment.buildSearchFragment(getSearchedDirectoryFiles(path, fileSearchQuery))
 
         fragmentManager.beginTransaction().add(R.id.fragmentContainer, filesSearchFragment).addToBackStack(path).commit()
     }
@@ -87,24 +92,29 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
         setTheme()
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         setContentView(R.layout.activity_fragment)
-        this.path = intent.getStringExtra("path")
-        if (!File(path).isDirectory) {  //if user adds a file to shorcuts instead of a folder and tries to open it from there
-            openFile(File(path))
-            finish()
+        this.isSearchMode = intent.getBooleanExtra("isDeviceWideSearchMode", false)
+
+        if (isSearchMode) {
+            launchSearchFragment("", intent.getStringExtra("searchQuery")!!, true, intent.getStringArrayListExtra("storageDirectories")!!)
+        } else {
+            this.path = intent.getStringExtra("path")
+            if (!File(path).isDirectory) {  //if user adds a file to shorcuts instead of a folder and tries to open it from there
+                openFile(File(path))
+                finish()
+            }
+            this.isCreateShortcutMode = intent.getBooleanExtra("isCreateShortcutMode", false)
+            this.isExtSdCard = intent.getBooleanExtra("isExtSdCard", false)
+            if (isExtSdCard) {  //hafıza kartı
+                launchSAF()
+            }
+            launchFragment(path)
         }
-        this.isCreateShortcutMode = intent.getBooleanExtra("isCreateShortcutMode", false)
-        this.isExtSdCard = intent.getBooleanExtra("isExtSdCard", false)
+
         optionButtonBar.isVisible = false
         moreOptionButtonBar.isVisible = false
         confirmationButtonBar.isVisible = false
         newFileFloatingButton.isVisible = false
         newFolderFloatingButton.isVisible = false
-
-        launchFragment(path)
-
-        if (isExtSdCard) {  //hafıza kartı
-            triggerStorageAccessFramework()
-        }
 
         copyButton.setOnClickListener {
             isCopyOperation = true
@@ -199,7 +209,7 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
         }
 
         extractButton.setOnClickListener {
-            unzip(this, multipleSelectionList) {finishAndUpdate()}
+            unzip(this, multipleSelectionList) { finishAndUpdate() }
         }
     }
 
@@ -326,25 +336,29 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
     }
 
     private fun backButtonPressed() {
-        if (optionButtonBar.isVisible && !isMoveOperation && !isCopyOperation) {
-            finishAndUpdate()
-        } else if (newFileFloatingButton.isVisible && newFolderFloatingButton.isVisible) {
-            newFileFloatingButton.isVisible = false
-            newFolderFloatingButton.isVisible = false
-
-        } else if (fragmentManager.backStackEntryCount > 1) {
-            fragmentManager.popBackStack(path, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-
-            path = File(path).parent //move up in the directory
-
-            pathTextView.text = path
-        } else if (fragmentManager.backStackEntryCount == 1 && File(File(path).parent).canWrite()) {
-            path = File(path).parent
-            pathTextView.text = path
-            launchFragment(path)
+        if (isSearchMode) {
+            finish()
         } else {
-            fragmentManager.popBackStackImmediate()
-            super.onBackPressed()
+            if (optionButtonBar.isVisible && !isMoveOperation && !isCopyOperation) {
+                finishAndUpdate()
+            } else if (newFileFloatingButton.isVisible && newFolderFloatingButton.isVisible) {
+                newFileFloatingButton.isVisible = false
+                newFolderFloatingButton.isVisible = false
+
+            } else if (fragmentManager.backStackEntryCount > 1) {
+                fragmentManager.popBackStack(path, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+
+                path = File(path).parent //move up in the directory
+
+                pathTextView.text = path
+            } else if (fragmentManager.backStackEntryCount == 1 && File(File(path).parent).canWrite()) {
+                path = File(path).parent
+                pathTextView.text = path
+                launchFragment(path)
+            } else {
+                fragmentManager.popBackStackImmediate()
+                super.onBackPressed()
+            }
         }
     }
 
@@ -368,14 +382,18 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
     }
 
     private fun updateFragment() {
-        val broadcastIntent = Intent()
-        broadcastIntent.action = applicationContext.getString(R.string.file_broadcast_receiver)
-        broadcastIntent.putExtra("path for broadcast", path)
-        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent)
+        if(!isSearchMode) { //
+            // in search mode app crashes because the path is not initialized. Updating is not necessary when searching.
+            // Changes will be saved.
+            val broadcastIntent = Intent()
+            broadcastIntent.action = applicationContext.getString(R.string.file_broadcast_receiver)
+            broadcastIntent.putExtra("path for broadcast", path)
+            LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent)
+        }
     }
 
 
-    fun triggerStorageAccessFramework() {   //https://developer.android.com/reference/android/support/v4/provider/DocumentFile
+    private fun launchSAF() {   //https://developer.android.com/reference/android/support/v4/provider/DocumentFile
         // On Android 5, trigger storage access framework.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)   //If you really do need full access to an entire subtree of documents,
