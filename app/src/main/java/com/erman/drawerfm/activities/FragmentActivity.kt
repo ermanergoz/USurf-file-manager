@@ -28,9 +28,6 @@ import android.app.Activity
 import android.content.SharedPreferences
 import androidx.core.view.isGone
 import com.erman.drawerfm.R
-import java.io.BufferedOutputStream
-import java.io.FileOutputStream
-import java.util.zip.ZipOutputStream
 
 class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFragment.OnItemClickListener, RenameDialog.DialogRenameFileListener,
     CreateNew.DialogCreateFolderListener, SearchView.OnQueryTextListener {
@@ -364,7 +361,7 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
 
         if (whatToCreate == "file") createFile(this, path, newFileName, isExtSdCard) { finishAndUpdate() }
 
-        if (whatToCreate == "zip") zipFile(this, multipleSelectionList, newFileName) { finishAndUpdate() }
+        if (whatToCreate == "zip") zipFile(this, multipleSelectionList, newFileName, isExtSdCard) { finishAndUpdate() }
 
         newFileFloatingButton.isVisible = false
         newFolderFloatingButton.isVisible = false
