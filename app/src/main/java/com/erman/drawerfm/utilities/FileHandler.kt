@@ -24,7 +24,7 @@ fun getFiles(path: String,
              showFilesOnTop: Boolean,
              showFoldersOnTop: Boolean): List<File> {
 
-    var files = File(path).listFiles().filter { !it.isHidden || showHidden }.filter { it.isFile || !showFilesOnly }
+    var files = File(path).listFiles()!!.filter { !it.isHidden || showHidden }.filter { it.isFile || !showFilesOnly }
         .filter { it.isDirectory || !showFoldersOnly }.toMutableList()
 
     if (fileSortMode == "Sort by name") {
@@ -71,7 +71,7 @@ fun getDocumentFile(file: File, isDirectory: Boolean, context: Context): Documen
     var relativePathOfFile: String? = null
     try {
         val fullPath = file.canonicalPath
-        if (getExtSdCardBaseFolder != fullPath) relativePathOfFile = fullPath.substring(getExtSdCardBaseFolder!!.length + 1)
+        if (getExtSdCardBaseFolder != fullPath) relativePathOfFile = fullPath.substring(getExtSdCardBaseFolder.length + 1)
         else originalDirectory = true
         Log.e("relativePath", getExtSdCardBaseFolder)
     } catch (e: IOException) {
@@ -111,7 +111,7 @@ fun getDocumentFile(file: File, isDirectory: Boolean, context: Context): Documen
 
 fun getSearchedFiles(path: String, searchQuery: String): List<File> {
     try {
-        return File(path).listFiles(FileSearchFilter(searchQuery)).toList()
+        return File(path).listFiles(FileSearchFilter(searchQuery))!!.toList()
     } catch (err: IllegalStateException) {
         Log.e("IllegalStateException", "File(path).listFiles must not be null")
     }
@@ -350,7 +350,7 @@ fun unzip(context: Context, selectedDirectories: List<File>, updateFragment: () 
 
     try {
         for (i in selectedDirectories.indices) {
-            var baseFolderPath = selectedDirectories[i].parent + separator + selectedDirectories[i].nameWithoutExtension
+            val baseFolderPath = selectedDirectories[i].parent!! + separator + selectedDirectories[i].nameWithoutExtension
             File(baseFolderPath).mkdir()
 
             val zipInput = ZipInputStream(FileInputStream(selectedDirectories[i].path))
