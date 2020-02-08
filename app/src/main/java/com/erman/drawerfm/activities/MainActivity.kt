@@ -235,8 +235,6 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         // Get a Realm instance for this thread
         realm = Realm.getDefaultInstance()
 
-        Log.e("realm path",realm.path)
-
         createShortcutGrid()
         createStorageButtons()
         addItemsToActivity()
