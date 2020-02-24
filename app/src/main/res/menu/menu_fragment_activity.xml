@@ -12,11 +12,16 @@
         app:showAsAction="always" />
 
     <item
-        android:id="@+id/subMenu"
-        android:icon="@android:drawable/ic_menu_sort_by_size"
+        android:id="@+id/refresh"
+        android:icon="@android:drawable/ic_popup_sync"
         android:title="Options"
         app:showAsAction="always"
-        tools:ignore="AlwaysShowAction">
+        tools:ignore="AlwaysShowAction" />
 
-    </item>
+    <item
+        android:id="@+id/options"
+        android:icon="@android:drawable/ic_menu_sort_by_size"
+        android:title="@string/sort_by"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction" />
 </menu>

@@ -71,7 +71,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     private lateinit var storageDirectories: ArrayList<String>
     private var screenWidth = 0
     private var screenHeight = 0
-    private  lateinit var realm: Realm
+    private lateinit var realm: Realm
 
     private fun requestPermissions() {
         ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
@@ -180,21 +180,20 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     }
 
     private fun addShortcut(shortcutPath: String, shortcutName: String) {
-        if (realm.where<Shortcut>().equalTo("path", shortcutPath).findAll().size>0) //if path exists in database
+        if (realm.where<Shortcut>().equalTo("path", shortcutPath).findAll().size > 0) //if path exists in database
             displayErrorDialog(getString(R.string.duplicate_shortcut))
         else if (File(shortcutPath).exists()) {
             adapter.updateData(realm.where<Shortcut>().findAll().toList())
             realm.beginTransaction()
 
-            val shortcut: Shortcut = realm.createObject<Shortcut>((realm.where<Shortcut>().findAll().size)+1)
-            shortcut.name=shortcutName
-            shortcut.path=shortcutPath
+            val shortcut: Shortcut = realm.createObject<Shortcut>((realm.where<Shortcut>().findAll().size) + 1)
+            shortcut.name = shortcutName
+            shortcut.path = shortcutPath
 
             realm.commitTransaction()
 
             adapter.updateData(realm.where<Shortcut>().findAll().toList())
-        }
-        else displayErrorDialog(getString(R.string.invalid_path))
+        } else displayErrorDialog(getString(R.string.invalid_path))
     }
 
     private fun removeShortcut(shortcut: TextView) {
@@ -227,9 +226,6 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
 
         storageDirectories = getStorageDirectories(this)
 
-
-        //File("/data/data/com.erman.drawerfm/files/drawerfm.realm").deleteRecursively()    //to delete database files
-
         //Documentation: https://realm.io/docs/kotlin/latest/#realms
         // Initialize Realm
         Realm.init(this)
@@ -249,6 +245,8 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
             Toast.makeText(this, getString(R.string.new_shortcut_instruction), Toast.LENGTH_LONG).show()
         }
         mainActivity = this
+
+        //File(this.filesDir.path).deleteRecursively()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -268,15 +266,22 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
             R.id.settings -> startSettingsActivity()
             R.id.about -> AboutDrawerFMDialog().show(supportFragmentManager, "")
             android.R.id.home -> finish()
+            R.id.ftpServer -> startFTPServerActivity()
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun startFTPServerActivity()
+    {
+        val intent = Intent(this, FTPServerActivity::class.java)
+        startActivity(intent)
     }
 
     private fun startFragmentActivity(path: String, isCreateShortcutMode: Boolean) {
         val intent = Intent(this, FragmentActivity::class.java)
         var isExtSdCard = false
         intent.putExtra("path", path)
-        if (storageDirectories.size>1 && path == storageDirectories.elementAt(1) && !isCreateShortcutMode) {
+        if (storageDirectories.size > 1 && path == storageDirectories.elementAt(1) && !isCreateShortcutMode) {
             isExtSdCard = true
         }
         intent.putExtra("isExtSdCard", isExtSdCard)

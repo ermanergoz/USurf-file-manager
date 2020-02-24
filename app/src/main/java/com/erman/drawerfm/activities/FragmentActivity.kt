@@ -294,9 +294,12 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, RenameDialog.
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) backButtonPressed()
-        if (item.itemId == R.id.subMenu) {
+        if (item.itemId == R.id.options) {
             startSettingsActivity()
             finish()
+        }
+        if (item.itemId == R.id.refresh) {
+            finishAndUpdate()
         }
         return super.onOptionsItemSelected(item)
     }
