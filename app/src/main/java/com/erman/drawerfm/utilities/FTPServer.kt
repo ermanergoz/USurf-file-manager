@@ -6,7 +6,7 @@ import org.apache.ftpserver.FtpServerFactory
 import org.apache.ftpserver.listener.ListenerFactory
 import org.apache.ftpserver.usermanager.impl.BaseUser
 
-class fuckinshit(var chosenPath: String) : AsyncTask<Void, Void, String>() {
+class FTPServer(var chosenPath: String) : AsyncTask<Void, Void, String>() {
     override fun doInBackground(vararg params: Void?): String {
         val serverFactory = FtpServerFactory()
         val listenerFactory = ListenerFactory()
