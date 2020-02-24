@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.widget.RadioButton
 import androidx.appcompat.app.AppCompatActivity
 import com.erman.drawerfm.R
-import com.erman.drawerfm.utilities.fuckinshit
+import com.erman.drawerfm.utilities.FTPServer
 import com.erman.drawerfm.utilities.getStorageDirectories
 import kotlinx.android.synthetic.main.activity_ftpserver.*
 
@@ -46,7 +46,7 @@ class FTPServerActivity : AppCompatActivity() {
         urlTextView.text = "ftps://" + ipAddress
 
         connectButton.setOnClickListener {
-            fuckinshit(chosenPath).execute()
+            FTPServer(chosenPath).execute()
         }
     }
 }
