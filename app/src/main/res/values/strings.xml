@@ -55,6 +55,14 @@
     <string name="extension">Extension:</string>
     <string name="this_file_is_hidden">Hidden file.</string>
 
+    <!--FTP dialog-->
+    <string name="status">Status:</string>
+    <string name="URL">URL:</string>
+    <string name="port">Port:</string>
+    <string name="shared_path">Shared Path:</string>
+    <string name="connect">Connect</string>
+    <string name="disconnect">Disconnect</string>
+
     <!--preferences_main-->
     <string name="change_theme">Change theme</string>
     <string name="enable_sliding_texts">Enable sliding texts</string>

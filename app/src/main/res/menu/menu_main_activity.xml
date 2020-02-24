@@ -12,7 +12,13 @@ tools:context=".main.MainActivity">
     app:showAsAction="always" />
 
     <item
-        android:id="@+id/subMenu"
+        android:id="@+id/ftpServer"
+        android:title="FTP"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction" />
+
+    <item
+        android:id="@+id/options"
         android:icon="@drawable/menu_icon"
         android:title="Options"
         app:showAsAction="always"
