@@ -56,6 +56,14 @@
     <string name="extension">Uzantı:</string>
     <string name="this_file_is_hidden">Gizli dosya.</string>
 
+    <!--FTP dialog-->
+    <string name="status">Durum:</string>
+    <string name="URL">URL:</string>
+    <string name="port">Port:</string>
+    <string name="shared_path">Paylaşılan:</string>
+    <string name="connect">Bağlan</string>
+    <string name="disconnect">Durdur</string>
+
     <!--preferences_main-->
     <string name="change_theme">Temayı değiştir</string>
     <string name="enable_sliding_texts">Kayan yazıları etkinleştir</string>

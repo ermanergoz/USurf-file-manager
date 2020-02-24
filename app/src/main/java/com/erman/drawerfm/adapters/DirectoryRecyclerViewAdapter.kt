@@ -43,7 +43,6 @@ class DirectoryRecyclerViewAdapter : RecyclerView.Adapter<DirectoryRecyclerViewA
         holder.itemView.directoryLayout.setBackgroundColor(Color.TRANSPARENT)
     }
 
-
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener, View.OnLongClickListener {
 
         init {
@@ -123,6 +122,6 @@ class DirectoryRecyclerViewAdapter : RecyclerView.Adapter<DirectoryRecyclerViewA
     fun updateData(filesList: List<File>) {
         isMultipleSelection = false
         this.directoryList = filesList
-        notifyDataSetChanged()
+        notifyDataSetChanged()  //TODO: Replace this with something else. This is inefficient and doesn't work correctly on large directories.
     }
 }
