@@ -28,11 +28,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.GridLayoutManager
-import com.erman.drawerfm.R
+import com.erman.drawerfm.*
+import com.erman.drawerfm.common.*
 import com.erman.drawerfm.adapters.ShortcutRecyclerViewAdapter
 import com.erman.drawerfm.database.Shortcut
 import com.erman.drawerfm.dialogs.AboutDrawerFMDialog
 import com.erman.drawerfm.dialogs.ErrorDialog
+import com.erman.drawerfm.dialogs.ProgressDialog
 import com.erman.drawerfm.dialogs.ShortcutOptionsDialog
 import com.erman.drawerfm.interfaces.OnShortcutClickListener
 import com.erman.drawerfm.utilities.getStorageDirectories
@@ -63,7 +65,6 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     var isCreateShortcutMode = false
     private lateinit var layoutManager: GridLayoutManager
     private lateinit var adapter: ShortcutRecyclerViewAdapter
-    private var storageProgressBarHeight = 20f
     private var buttonSideMargin = 7
     private var storageProgressBarColor: Int = 0
     private var buttonBorder: Int = R.drawable.storage_button_style
@@ -72,20 +73,20 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     private var screenWidth = 0
     private var screenHeight = 0
     private lateinit var realm: Realm
+    private var progressDialog: ProgressDialog? = null
 
     private fun requestPermissions() {
         ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
     }
 
     private fun setTheme() {
-        val chosenTheme = getSharedPreferences("com.erman.draverfm", Context.MODE_PRIVATE).getString("theme choice", "System default")
-
+        val chosenTheme = getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE).getString(THEME_CHOICE_KEY, THEME_DEF_VAL)
         when (chosenTheme) {
-            "Dark theme" -> {
+            DARK_THEME -> {
                 setTheme(R.style.DarkTheme)
                 storageProgressBarColor = ResourcesCompat.getColor(resources, R.color.darkBlue, null)
             }
-            "Light theme" -> {
+            LIGHT_THEME -> {
                 setTheme(R.style.LightTheme)
                 storageProgressBarColor = ResourcesCompat.getColor(resources, R.color.lightBlue, null)
             }
@@ -147,7 +148,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         buttonLayoutParams.setMargins(buttonSideMargin, 0, buttonSideMargin, 0)
 
         for (i in storageDirectories.indices) {
-            storageButtons[i].progressBar.scaleY = storageProgressBarHeight
+            storageButtons[i].progressBar.scaleY = STORAGE_PROGRESSBAR_HEIGHT
             storageUsageBarLayout.addView(storageButtons[i], buttonLayoutParams)
         }
     }
@@ -159,7 +160,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     }
 
     private fun createShortcutGrid() {
-        layoutManager = GridLayoutManager(this, 2/*number of columns*/)
+        layoutManager = GridLayoutManager(this, GRID_LAYOUT_COLUMN_NUMBER)
         shortcutRecyclerView.layoutManager = layoutManager
         adapter = ShortcutRecyclerViewAdapter(this)
         shortcutRecyclerView.adapter = adapter
@@ -180,7 +181,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     }
 
     private fun addShortcut(shortcutPath: String, shortcutName: String) {
-        if (realm.where<Shortcut>().equalTo("path", shortcutPath).findAll().size > 0) //if path exists in database
+        if (realm.where<Shortcut>().equalTo(REALM_FIELD_NAME_PATH, shortcutPath).findAll().size > 0) //if path exists in database
             displayErrorDialog(getString(R.string.duplicate_shortcut))
         else if (File(shortcutPath).exists()) {
             adapter.updateData(realm.where<Shortcut>().findAll().toList())
@@ -197,7 +198,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     }
 
     private fun removeShortcut(shortcut: TextView) {
-        val results = realm.where<Shortcut>().equalTo("path", shortcut.tag.toString()).findAll()
+        val results = realm.where<Shortcut>().equalTo(REALM_FIELD_NAME_PATH, shortcut.tag.toString()).findAll()
 
         realm.executeTransaction {
             results.deleteFirstFromRealm()
@@ -214,6 +215,11 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         adapter.updateData(realm.where<Shortcut>().findAll().toList())
     }
 
+    override fun onResume() {
+        super.onResume()
+        hideLoadingDialog()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme()
         super.onCreate(savedInstanceState)
@@ -223,13 +229,12 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         requestPermissions()
-
         storageDirectories = getStorageDirectories(this)
 
         //Documentation: https://realm.io/docs/kotlin/latest/#realms
         // Initialize Realm
         Realm.init(this)
-        val config = RealmConfiguration.Builder().name("drawerfm.realm").build()
+        val config = RealmConfiguration.Builder().name(REALM_CONFIG_FILE_NAME).build()
         Realm.setDefaultConfiguration(config)
         // Get a Realm instance for this thread
         realm = Realm.getDefaultInstance()
@@ -271,8 +276,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         return super.onOptionsItemSelected(item)
     }
 
-    private fun startFTPServerActivity()
-    {
+    private fun startFTPServerActivity() {
         val intent = Intent(this, FTPServerActivity::class.java)
         startActivity(intent)
     }
@@ -280,13 +284,13 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     private fun startFragmentActivity(path: String, isCreateShortcutMode: Boolean) {
         val intent = Intent(this, FragmentActivity::class.java)
         var isExtSdCard = false
-        intent.putExtra("path", path)
+        intent.putExtra(KEY_INTENT_PATH, path)
         if (storageDirectories.size > 1 && path == storageDirectories.elementAt(1) && !isCreateShortcutMode) {
             isExtSdCard = true
         }
-        intent.putExtra("isExtSdCard", isExtSdCard)
+        intent.putExtra(KEY_INTENT_IS_EXTCARD, isExtSdCard)
         if (isCreateShortcutMode) {
-            intent.putExtra("isCreateShortcutMode", isCreateShortcutMode)
+            intent.putExtra(KEY_INTENT_IS_CREATE_SHORTCUT_MODE, isCreateShortcutMode)
             startActivityForResult(intent, 1)
         } else startActivity(intent)
     }
@@ -294,9 +298,9 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     private fun startFragmentActivityForSearch(searchQuery: String) {
         val intent = Intent(this, FragmentActivity::class.java)
 
-        intent.putExtra("searchQuery", searchQuery)
-        intent.putExtra("isDeviceWideSearchMode", true)
-        intent.putStringArrayListExtra("storageDirectories", storageDirectories)
+        intent.putExtra(KEY_INTENT_SEARCH_QUERY, searchQuery)
+        intent.putExtra(KEY_INTENT_IS_DEVICE_WIDE_SEARCH_MODE, true)
+        intent.putStringArrayListExtra(KEY_INTENT_STORAGE_DIRECTORIES, storageDirectories)
 
         startActivity(intent)
     }
@@ -306,7 +310,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         //in case of new shortcut creation
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
-                newShortcutPath = data!!.getStringExtra("newShortcutPath")!!
+                newShortcutPath = data!!.getStringExtra(KEY_INTENT_NEW_SHORTCUT_PATH)!!
 
                 val newFragment = CreateShortcutDialog()
                 newFragment.show(supportFragmentManager, "")
@@ -316,7 +320,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
 
     private fun startSettingsActivity() {
         val intent = Intent(this, PreferencesActivity::class.java)
-        intent.putExtra("isMainActivity", true)
+        intent.putExtra(KEY_INTENT_IS_MAIN_ACTIVITY, true)
         startActivity(intent)
     }
 
@@ -344,6 +348,15 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         }
     }
 
+    fun showLoadingDialog() {
+        progressDialog = ProgressDialog()
+        progressDialog?.show(supportFragmentManager, "")
+    }
+
+    fun hideLoadingDialog() {
+        progressDialog?.dismiss()
+    }
+
     private fun hideKeyboard() {
         val inputManager: InputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         inputManager.hideSoftInputFromWindow(currentFocus?.windowToken, InputMethodManager.SHOW_FORCED)
@@ -351,6 +364,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
 
     override fun onQueryTextSubmit(query: String?): Boolean {
         if (query != null) {
+            showLoadingDialog()
             startFragmentActivityForSearch(query)
             hideKeyboard()
         }

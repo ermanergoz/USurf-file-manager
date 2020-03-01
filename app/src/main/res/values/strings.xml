@@ -55,13 +55,21 @@
     <string name="extension">Extension:</string>
     <string name="this_file_is_hidden">Hidden file.</string>
 
-    <!--FTP dialog-->
+    <!--FTP stuff-->
     <string name="status">Status:</string>
     <string name="URL">URL:</string>
     <string name="port">Port:</string>
     <string name="shared_path">Shared Path:</string>
     <string name="connect">Connect</string>
+    <string name="edit">Edit</string>
     <string name="disconnect">Disconnect</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="connected">Connected</string>
+    <string name="disconnected">Disconnected</string>
+
+    <!--progress dialog-->
+    <string name="wait">Please wait</string>
 
     <!--preferences_main-->
     <string name="change_theme">Change theme</string>
@@ -81,6 +89,7 @@
 
     <!--broadcast receiver-->
     <string name="file_broadcast_receiver">com.erman.drawerfm.fileBroadcastReceiver</string>
+    <string name="ftp_broadcast_receiver">com.erman.drawerfm.fileBroadcastReceiver</string>
 
     <!--fragment stuff-->
     <string name="empty_folder_size_text">Empty Folder</string>
