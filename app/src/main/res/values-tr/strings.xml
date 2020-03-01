@@ -56,13 +56,21 @@
     <string name="extension">Uzantı:</string>
     <string name="this_file_is_hidden">Gizli dosya.</string>
 
-    <!--FTP dialog-->
+    <!--FTP stuff-->
     <string name="status">Durum:</string>
     <string name="URL">URL:</string>
     <string name="port">Port:</string>
     <string name="shared_path">Paylaşılan:</string>
     <string name="connect">Bağlan</string>
+    <string name="edit">Düzenle</string>
     <string name="disconnect">Durdur</string>
+    <string name="username">Kullanıcı Adı</string>
+    <string name="password">Şifre</string>
+    <string name="connected">Bağlandı</string>
+    <string name="disconnected">Bağlantı kesildi</string>
+
+    <!--progress dialog-->
+    <string name="wait">Lütfen bekleyin</string>
 
     <!--preferences_main-->
     <string name="change_theme">Temayı değiştir</string>
@@ -82,6 +90,7 @@
 
     <!--broadcast receiver-->
     <string name="file_broadcast_receiver">com.erman.drawerfm.fileBroadcastReceiver</string>
+    <string name="ftp_broadcast_receiver">com.erman.drawerfm.fileBroadcastReceiver</string>
 
     <!--fragment stuff-->
     <string name="empty_folder_size_text">Boş Klasör</string>
