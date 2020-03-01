@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.EditText
 import androidx.fragment.app.DialogFragment
+import com.erman.drawerfm.common.CREATE_NEW_FILE
 import com.erman.drawerfm.R
 
 class CreateNew(var title: String, var whatToCreate: String) : DialogFragment() {
@@ -23,7 +24,7 @@ class CreateNew(var title: String, var whatToCreate: String) : DialogFragment() 
 
             this.nameEditText = dialogView.findViewById(R.id.nameEditText)
 
-            if(whatToCreate == "file")
+            if(whatToCreate == CREATE_NEW_FILE)
                 nameEditText.setText(".txt")
 
             builder.setMessage(title)
