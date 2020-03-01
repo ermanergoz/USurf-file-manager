@@ -107,12 +107,8 @@ class FTPServerActivity : AppCompatActivity() {
     }
 
     private fun updateServiceStatus() {
-        if (getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE).getBoolean(KEY_INTENT_IS_SERVICE_ACTIVE, false)) {
-            connectButton.text = getString(R.string.disconnect)
-
-        } else {
-            connectButton.text = getString(R.string.connect)
-
-        }
+        if (getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE).getBoolean(KEY_INTENT_IS_SERVICE_ACTIVE, false)) connectButton.text =
+            getString(R.string.disconnect)
+        else connectButton.text = getString(R.string.connect)
     }
 }
