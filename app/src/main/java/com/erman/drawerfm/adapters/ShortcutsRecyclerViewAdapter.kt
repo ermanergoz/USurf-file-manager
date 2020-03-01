@@ -6,7 +6,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.erman.drawerfm.common.MARQUEE_CHOICE_KEY
+import com.erman.drawerfm.common.MARQUEE_REPEAT_LIM
 import com.erman.drawerfm.R
+import com.erman.drawerfm.common.SHARED_PREF_FILE
 import com.erman.drawerfm.database.Shortcut
 import com.erman.drawerfm.interfaces.OnShortcutClickListener
 import kotlinx.android.synthetic.main.shortcut_recycler_layout.view.*
@@ -51,12 +54,12 @@ class ShortcutRecyclerViewAdapter(var context: Context) :
             itemView.shortcut.setBackgroundResource(R.drawable.storage_button_style)
             itemView.shortcut.isSingleLine = true
 
-            if (itemView.context.getSharedPreferences("com.erman.draverfm",
-                                                      Context.MODE_PRIVATE).getBoolean("marquee choice", true)) {
+            if (itemView.context.getSharedPreferences(SHARED_PREF_FILE,
+                                                      Context.MODE_PRIVATE).getBoolean(MARQUEE_CHOICE_KEY, true)) {
                 itemView.shortcut.ellipsize =
                     TextUtils.TruncateAt.MARQUEE  //for sliding names if the length is longer than 1 line
                 itemView.shortcut.isSelected = true
-                itemView.shortcut.marqueeRepeatLimit = -1   //-1 is for forever
+                itemView.shortcut.marqueeRepeatLimit = MARQUEE_REPEAT_LIM   //-1 is for forever
             }
         }
 

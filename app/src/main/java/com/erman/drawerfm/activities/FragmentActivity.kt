@@ -27,35 +27,34 @@ import com.erman.drawerfm.interfaces.OnFileClickListener
 import android.app.Activity
 import android.content.SharedPreferences
 import androidx.core.view.isGone
-import com.erman.drawerfm.R
+import com.erman.drawerfm.*
+import com.erman.drawerfm.common.*
 
-class FragmentActivity : AppCompatActivity(), OnFileClickListener, RenameDialog.DialogRenameFileListener,
-    CreateNew.DialogCreateFolderListener, SearchView.OnQueryTextListener {
+class FragmentActivity : AppCompatActivity(), OnFileClickListener, RenameDialog.DialogRenameFileListener, CreateNew.DialogCreateFolderListener,
+    SearchView.OnQueryTextListener {
     private var newShortcutPath = ""
     private var isCreateShortcutMode = false
     lateinit var path: String
-    lateinit var longClickedFile: File
+    private lateinit var longClickedFile: File
     private lateinit var filesListFragment: ListDirFragment
     private lateinit var filesSearchFragment: FileSearchFragment
     private val fragmentManager: FragmentManager = supportFragmentManager
-    var isMoveOperation = false
-    var isCopyOperation = false
-    var isMultipleSelection = false
-    var multipleSelectionList = mutableListOf<File>()
-    var isExtSdCard = false
-    var isSearchMode = false
+    private var isMoveOperation = false
+    private var isCopyOperation = false
+    private var isMultipleSelection = false
+    private var multipleSelectionList = mutableListOf<File>()
+    private var isExtSdCard = false
+    private var isSearchMode = false
     private lateinit var preferences: SharedPreferences
-    lateinit var preferencesEditor: SharedPreferences.Editor
-    private var sharedPrefFile: String = "com.erman.draverfm"
+    private lateinit var preferencesEditor: SharedPreferences.Editor
 
     private fun setTheme() {
-        val chosenTheme = getSharedPreferences("com.erman.draverfm", Context.MODE_PRIVATE).getString("theme choice", "System default")
 
-        when (chosenTheme) {
-            "Dark theme" -> {
+        when (getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE).getString(THEME_CHOICE_KEY, THEME_DEF_VAL)) {
+            DARK_THEME -> {
                 setTheme(R.style.DarkTheme)
             }
-            "Light theme" -> {
+            LIGHT_THEME -> {
                 setTheme(R.style.LightTheme)
             }
             else -> {
@@ -92,18 +91,22 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, RenameDialog.
         setTheme()
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         setContentView(R.layout.activity_fragment)
-        this.isSearchMode = intent.getBooleanExtra("isDeviceWideSearchMode", false)
+        hideProgressBar()
+        this.isSearchMode = intent.getBooleanExtra(KEY_INTENT_IS_DEVICE_WIDE_SEARCH_MODE, false)
 
         if (isSearchMode) {
-            launchSearchFragment("", intent.getStringExtra("searchQuery")!!, true, intent.getStringArrayListExtra("storageDirectories")!!)
+            launchSearchFragment("",
+                                 intent.getStringExtra(KEY_INTENT_SEARCH_QUERY)!!,
+                                 true,
+                                 intent.getStringArrayListExtra(KEY_INTENT_STORAGE_DIRECTORIES)!!)
         } else {
-            this.path = intent.getStringExtra("path")
+            this.path = intent.getStringExtra(KEY_INTENT_PATH)
             if (!File(path).isDirectory) {  //if user adds a file to shorcuts instead of a folder and tries to open it from there
                 openFile(File(path))
                 finish()
             }
-            this.isCreateShortcutMode = intent.getBooleanExtra("isCreateShortcutMode", false)
-            this.isExtSdCard = intent.getBooleanExtra("isExtSdCard", false)
+            this.isCreateShortcutMode = intent.getBooleanExtra(KEY_INTENT_IS_CREATE_SHORTCUT_MODE, false)
+            this.isExtSdCard = intent.getBooleanExtra(KEY_INTENT_IS_EXTCARD, false)
             if (isExtSdCard) {  //hafıza kartı
                 launchSAF()
             }
@@ -134,15 +137,18 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, RenameDialog.
         }
 
         deleteButton.setOnClickListener {
+            showProgressBar()
             delete(this, multipleSelectionList, isExtSdCard) { finishAndUpdate() }
         }
 
         OKButton.setOnClickListener {
             if (isCopyOperation) {
+                showProgressBar()
                 copyFile(this, multipleSelectionList, path, isExtSdCard) { finishAndUpdate() }
                 isMoveOperation = false
             }
             if (isMoveOperation) {
+                showProgressBar()
                 moveFile(this, multipleSelectionList, path, isExtSdCard) { finishAndUpdate() }
                 isMoveOperation = false
             }
@@ -191,7 +197,7 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, RenameDialog.
             val fileUris: ArrayList<Uri> = arrayListOf()
 
             for (i in 0 until multipleSelectionList.size) {
-                fileUris.add(FileProvider.getUriForFile(this, "com.erman.drawerfm", //(use your app signature + ".provider" )
+                fileUris.add(FileProvider.getUriForFile(this, packageName, //(use your app signature + ".provider" )
                                                         multipleSelectionList[i]))  //used this instead of File().toUri to avoid FileUriExposedException
             }
 
@@ -209,6 +215,7 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, RenameDialog.
         }
 
         extractButton.setOnClickListener {
+            showProgressBar()
             unzip(this, multipleSelectionList) { finishAndUpdate() }
         }
     }
@@ -244,7 +251,7 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, RenameDialog.
 
     private fun openFile(directory: File) {
         val intent = Intent(Intent.ACTION_VIEW)
-        intent.data = FileProvider.getUriForFile(this, "com.erman.drawerfm", File(directory.path))
+        intent.data = FileProvider.getUriForFile(this, packageName, File(directory.path))
         try {
             intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
             startActivity(intent)
@@ -287,8 +294,8 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, RenameDialog.
 
     private fun startSettingsActivity() {
         val intent = Intent(this, PreferencesActivity::class.java)
-        intent.putExtra("isMainActivity", false)
-        intent.putExtra("currentPath", path)
+        intent.putExtra(KEY_INTENT_IS_MAIN_ACTIVITY, false)
+        intent.putExtra(KEY_INTENT_CURRENT_PATH, path)
         startActivity(intent)
     }
 
@@ -321,7 +328,7 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, RenameDialog.
             newShortcutPath = directory.path
 
             val intent = Intent()
-            intent.putExtra("newShortcutPath", newShortcutPath)
+            intent.putExtra(KEY_INTENT_NEW_SHORTCUT_PATH, newShortcutPath)
             setResult(RESULT_OK, intent)
             finish()
         } else {
@@ -374,25 +381,29 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, RenameDialog.
     }
 
     override fun dialogCreateNewListener(newFileName: String, whatToCreate: String) {
-        if (whatToCreate == "folder") createFolder(this, path, newFileName, isExtSdCard) { finishAndUpdate() }
+        if (whatToCreate == CREATE_NEW_FOLDER) createFolder(this, path, newFileName, isExtSdCard) { finishAndUpdate() }
 
-        if (whatToCreate == "file") createFile(this, path, newFileName, isExtSdCard) { finishAndUpdate() }
+        if (whatToCreate == CREATE_NEW_FILE) createFile(this, path, newFileName, isExtSdCard) { finishAndUpdate() }
 
-        if (whatToCreate == "zip") zipFile(this, multipleSelectionList, newFileName, isExtSdCard) { finishAndUpdate() }
+        if (whatToCreate == CREATE_NEW_ZIP) {
+            showProgressBar()
+            zipFile(this, multipleSelectionList, newFileName, isExtSdCard) { finishAndUpdate() }
+        }
 
         newFileFloatingButton.isVisible = false
         newFolderFloatingButton.isVisible = false
     }
 
     private fun updateFragment() {
-        if(!isSearchMode) { //
+        if (!isSearchMode) { //
             // in search mode app crashes because the path is not initialized. Updating is not necessary when searching.
             // Changes will be saved.
             val broadcastIntent = Intent()
             broadcastIntent.action = applicationContext.getString(R.string.file_broadcast_receiver)
-            broadcastIntent.putExtra("path for broadcast", path)
+            broadcastIntent.putExtra(KEY_INTENT_PATH_FOR_BROADCAST, path)
             LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent)
         }
+        hideProgressBar()
     }
 
 
@@ -400,7 +411,7 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, RenameDialog.
         // On Android 5, trigger storage access framework.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)   //If you really do need full access to an entire subtree of documents,
-            this.startActivityForResult(intent, 3)
+            this.startActivityForResult(intent, 2)
         }
     }
 
@@ -413,14 +424,22 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, RenameDialog.
                 contentResolver.takePersistableUriPermission(treeUri!!,
                                                              Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
             }
-            preferences = this.getSharedPreferences(sharedPrefFile, AppCompatActivity.MODE_PRIVATE)
+            preferences = this.getSharedPreferences(SHARED_PREF_FILE, AppCompatActivity.MODE_PRIVATE)
             preferencesEditor = preferences.edit()
-            preferencesEditor.putString("extSdCardChosenUri", treeUri.toString())
+            preferencesEditor.putString(KEY_INTENT_EXTCARD_CHOSEN_URI, treeUri.toString())
             preferencesEditor.apply()
         } else {
             return
         }
         super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    fun showProgressBar() {
+        progressBar.isGone = false
+    }
+
+    fun hideProgressBar() {
+        progressBar.isGone = true
     }
 
     private fun hideKeyboard() {

@@ -7,7 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.erman.drawerfm.R
+import com.erman.drawerfm.*
+import com.erman.drawerfm.common.*
 import com.erman.drawerfm.utilities.getConvertedFileSize
 import kotlinx.android.synthetic.main.directory_recycler_list_layout.view.*
 import java.io.File
@@ -17,13 +18,13 @@ class DirectoryRecyclerViewAdapter : RecyclerView.Adapter<DirectoryRecyclerViewA
     var onClickListener: ((File) -> Unit)? = null
     var onLongClickListener: ((File) -> Unit)? = null
     var directoryList = listOf<File>()
-    private val dateFormat = SimpleDateFormat("dd MMMM | HH:mm:ss")
+    private val dateFormat = SimpleDateFormat(SIMPLE_DATE_FORMAT_PATTERN)
     //var multipleSelectionList = mutableListOf<ConstraintLayout>()
     var isMultipleSelection = false
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return if (parent.context.getSharedPreferences("com.erman.draverfm",
-                                                       Context.MODE_PRIVATE).getBoolean("grid view", false)) {
+        return if (parent.context.getSharedPreferences(SHARED_PREF_FILE,
+                                                       Context.MODE_PRIVATE).getBoolean(KEY_INTENT_GRID_VIEW, false)) {
             ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.directory_recycler_grid_layout,
                                                                    parent,
                                                                    false))
@@ -80,12 +81,12 @@ class DirectoryRecyclerViewAdapter : RecyclerView.Adapter<DirectoryRecyclerViewA
             else itemView.nameTextView.text = directory.name
             itemView.nameTextView.isSingleLine = true
 
-            if (itemView.context.getSharedPreferences("com.erman.draverfm",
-                                                      Context.MODE_PRIVATE).getBoolean("marquee choice", true)) {
+            if (itemView.context.getSharedPreferences(SHARED_PREF_FILE,
+                                                      Context.MODE_PRIVATE).getBoolean(MARQUEE_CHOICE_KEY, true)) {
                 itemView.nameTextView.ellipsize =
                     TextUtils.TruncateAt.MARQUEE  //for sliding names if the length is longer than 1 line
                 itemView.nameTextView.isSelected = true
-                itemView.nameTextView.marqueeRepeatLimit = -1   //-1 is for forever
+                itemView.nameTextView.marqueeRepeatLimit = MARQUEE_REPEAT_LIM   //-1 is for forever
             }
 
             if (directory.isDirectory) {
