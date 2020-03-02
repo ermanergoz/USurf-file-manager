@@ -15,13 +15,15 @@
         android:layout_marginTop="16dp"
         android:layout_marginRight="4dp"
         android:text="@string/URL"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/urlTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
+        android:layout_marginTop="4dp"
         android:layout_marginRight="8dp"
         android:textSize="16sp" />
 
@@ -33,13 +35,15 @@
         android:layout_marginTop="16dp"
         android:layout_marginRight="4dp"
         android:text="@string/username"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/userNameTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
+        android:layout_marginTop="4dp"
         android:layout_marginRight="8dp"
         android:textSize="16sp" />
 
@@ -51,13 +55,15 @@
         android:layout_marginTop="16dp"
         android:layout_marginRight="4dp"
         android:text="@string/password"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/passwordTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
+        android:layout_marginTop="4dp"
         android:layout_marginRight="8dp"
         android:textSize="16sp" />
 
@@ -69,13 +75,15 @@
         android:layout_marginTop="16dp"
         android:layout_marginRight="4dp"
         android:text="@string/port"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/portTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
+        android:layout_marginTop="4dp"
         android:layout_marginRight="8dp"
         android:layout_marginBottom="16dp"
         android:textSize="16sp" />
@@ -92,15 +100,11 @@
         android:id="@+id/connectButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="24dp"
         android:layout_marginTop="16dp"
+        android:layout_marginRight="24dp"
+        android:background="@drawable/storage_button_style"
         android:text="@string/connect" />
-
-    <Button
-        android:id="@+id/editButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="@string/edit" />
 
 
 </LinearLayout>
