@@ -56,3 +56,8 @@ const val DEFAULT_USER_NAME: String = "anonymous"
 //FTPServerActivity
 const val KEY_INTENT_CHOSEN_PATH: String = "chosenPath"
 const val KEY_INTENT_IS_SERVICE_ACTIVE: String = "isServiceActive"
+const val CHANNEL_ID: String = "notificationChannel"
+const val PORT_KEY: String = "port"
+const val PASSWORD_KEY: String = "password"
+const val USERNAME_KEY: String = "username"
+const val PASSWORD_DEF_VAL: String = ""

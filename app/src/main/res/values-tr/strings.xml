@@ -64,10 +64,14 @@
     <string name="connect">Bağlan</string>
     <string name="edit">Düzenle</string>
     <string name="disconnect">Durdur</string>
-    <string name="username">Kullanıcı Adı</string>
-    <string name="password">Şifre</string>
+    <string name="username">Kullanıcı Adı:</string>
+    <string name="password">Şifre:</string>
     <string name="connected">Bağlandı</string>
     <string name="disconnected">Bağlantı kesildi</string>
+    <string name="channel_name" >FTPNotificationChannel</string>
+    <string name="channel_description" >FTP notification channel</string>
+    <string name="ftp_is_running" >FTP sunucusu çalışıyor</string>
+    <string name="no_internet" >İnternet bağlantısı yok</string>
 
     <!--progress dialog-->
     <string name="wait">Lütfen bekleyin</string>

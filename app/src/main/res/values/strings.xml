@@ -63,10 +63,14 @@
     <string name="connect">Connect</string>
     <string name="edit">Edit</string>
     <string name="disconnect">Disconnect</string>
-    <string name="username">Username</string>
-    <string name="password">Password</string>
+    <string name="username">Username:</string>
+    <string name="password">Password:</string>
     <string name="connected">Connected</string>
     <string name="disconnected">Disconnected</string>
+    <string name="channel_name" >FTPNotificationChannel</string>
+    <string name="channel_description" >FTP notification channel</string>
+    <string name="ftp_is_running" >FTP server is running</string>
+    <string name="no_internet" >No internet connection</string>
 
     <!--progress dialog-->
     <string name="wait">Please wait</string>
