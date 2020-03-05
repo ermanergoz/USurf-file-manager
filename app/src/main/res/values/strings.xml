@@ -71,6 +71,9 @@
     <string name="channel_description" >FTP notification channel</string>
     <string name="ftp_is_running" >FTP server is running</string>
     <string name="no_internet" >No internet connection</string>
+    <string name="edit_username">Edit username</string>
+    <string name="edit_password" >Edit password</string>
+    <string name="edit_port" >Edit port</string>
 
     <!--progress dialog-->
     <string name="wait">Please wait</string>
