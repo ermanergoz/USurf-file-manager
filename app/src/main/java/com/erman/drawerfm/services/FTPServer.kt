@@ -9,15 +9,12 @@ import android.os.IBinder
 import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.erman.drawerfm.R
-import com.erman.drawerfm.common.DEFAULT_PORT
-import com.erman.drawerfm.common.DEFAULT_USER_NAME
-import com.erman.drawerfm.common.KEY_INTENT_CHOSEN_PATH
+import com.erman.drawerfm.common.*
 import org.apache.ftpserver.ConnectionConfigFactory
 import org.apache.ftpserver.FtpServer
 import org.apache.ftpserver.FtpServerFactory
 import org.apache.ftpserver.listener.ListenerFactory
 import org.apache.ftpserver.usermanager.impl.BaseUser
-
 
 class FTPServer : Service() {
     private val serverFactory = FtpServerFactory()
@@ -36,7 +33,8 @@ class FTPServer : Service() {
             listenerFactory.port = DEFAULT_PORT
 
             val user = BaseUser()
-            user.name = DEFAULT_USER_NAME
+            user.name = getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE).getString(USERNAME_KEY, DEFAULT_USER_NAME)!!
+            user.password = getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE).getString(PASSWORD_KEY, PASSWORD_DEF_VAL)!!
             user.homeDirectory = intent!!.getStringExtra(KEY_INTENT_CHOSEN_PATH)
 
             serverFactory.userManager.save(user)
