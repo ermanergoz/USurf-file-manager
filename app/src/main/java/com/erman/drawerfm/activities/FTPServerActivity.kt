@@ -14,21 +14,27 @@ import android.widget.RadioButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.fragment.app.FragmentManager
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.erman.drawerfm.R
 import com.erman.drawerfm.common.*
+import com.erman.drawerfm.dialogs.EditDialog
+import com.erman.drawerfm.dialogs.EditPasswordDialog
+import com.erman.drawerfm.dialogs.EditPortDialog
 import com.erman.drawerfm.services.FTPServer
 import com.erman.drawerfm.utilities.FTPServerBroadcastListener
 import com.erman.drawerfm.utilities.getStorageDirectories
 import kotlinx.android.synthetic.main.activity_ftpserver.*
 
-class FTPServerActivity : AppCompatActivity() {
+class FTPServerActivity : AppCompatActivity(), EditDialog.EditDialogListener, EditPasswordDialog.EditPasswordDialogListener,
+    EditPortDialog.EditPortDialogListener {
 
     lateinit var chosenPath: String
     private lateinit var ftpBroadcastListener: FTPServerBroadcastListener
     private lateinit var preferences: SharedPreferences
     lateinit var preferencesEditor: SharedPreferences.Editor
     private var port: Int = 0
+    private val fragmentManager: FragmentManager = supportFragmentManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,14 +74,20 @@ class FTPServerActivity : AppCompatActivity() {
         }
 
         userNameTextView.setOnLongClickListener {
+            val newFragment = EditDialog(getString(R.string.edit_username))
+            newFragment.show(fragmentManager, "")
             true
         }
 
         passwordTextView.setOnLongClickListener {
+            val newFragment = EditPasswordDialog(getString(R.string.edit_password))
+            newFragment.show(fragmentManager, "")
             true
         }
 
         portTextView.setOnLongClickListener {
+            val newFragment = EditPortDialog(getString(R.string.edit_port))
+            newFragment.show(fragmentManager, "")
             true
         }
     }
@@ -167,5 +179,26 @@ class FTPServerActivity : AppCompatActivity() {
             preferencesEditor.apply()
             removeNotification()
         }
+    }
+
+    override fun editDialogListener(stringInput: String) {
+        preferencesEditor = preferences.edit()
+        preferencesEditor.putString(USERNAME_KEY, stringInput)
+        preferencesEditor.apply()
+        updateInfo()
+    }
+
+    override fun editPasswordDialogListener(stringInput: String) {
+        preferencesEditor = preferences.edit()
+        preferencesEditor.putString(PASSWORD_KEY, stringInput)
+        preferencesEditor.apply()
+        updateInfo()
+    }
+
+    override fun editPortDialogListener(numberInput: Int) {
+        preferencesEditor = preferences.edit()
+        preferencesEditor.putInt(PORT_KEY, numberInput)
+        preferencesEditor.apply()
+        updateInfo()
     }
 }
