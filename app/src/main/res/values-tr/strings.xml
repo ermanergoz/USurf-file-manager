@@ -72,6 +72,9 @@
     <string name="channel_description" >FTP notification channel</string>
     <string name="ftp_is_running" >FTP sunucusu çalışıyor</string>
     <string name="no_internet" >İnternet bağlantısı yok</string>
+    <string name="edit_username" >Kullanıcı adını düzenle</string>
+    <string name="edit_password" >Şifreyi düzenle</string>
+    <string name="edit_port" >Soketi düzenle</string>
 
     <!--progress dialog-->
     <string name="wait">Lütfen bekleyin</string>
