@@ -31,7 +31,7 @@ class FTPServer : Service() {
         if (isConnectedToWifi()) {
             val listenerFactory = ListenerFactory()
             val connectionConfigFactory = ConnectionConfigFactory()
-            connectionConfigFactory.isAnonymousLoginEnabled = true
+            //connectionConfigFactory.isAnonymousLoginEnabled = true
             serverFactory.connectionConfig = connectionConfigFactory.createConnectionConfig()
             listenerFactory.port = DEFAULT_PORT
 
