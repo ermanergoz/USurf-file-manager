@@ -183,7 +183,8 @@ class FTPServerActivity : AppCompatActivity(), EditDialog.EditDialogListener, Ed
 
     override fun editDialogListener(stringInput: String) {
         preferencesEditor = preferences.edit()
-        preferencesEditor.putString(USERNAME_KEY, stringInput)
+        if (stringInput == "") preferencesEditor.putString(USERNAME_KEY, DEFAULT_USER_NAME)
+        else preferencesEditor.putString(USERNAME_KEY, stringInput)
         preferencesEditor.apply()
         updateInfo()
     }
