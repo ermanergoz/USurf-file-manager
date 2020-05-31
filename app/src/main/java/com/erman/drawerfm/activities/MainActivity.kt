@@ -37,6 +37,7 @@ import com.erman.drawerfm.dialogs.ErrorDialog
 import com.erman.drawerfm.dialogs.ProgressDialog
 import com.erman.drawerfm.dialogs.ShortcutOptionsDialog
 import com.erman.drawerfm.interfaces.OnShortcutClickListener
+import com.erman.drawerfm.utilities.copyToExtCard
 import com.erman.drawerfm.utilities.getStorageDirectories
 import com.erman.drawerfm.utilities.getUsedStoragePercentage
 import io.realm.Realm
