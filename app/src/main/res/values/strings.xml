@@ -1,82 +1,25 @@
 <resources>
-    <string name="app_name">DrawerFM</string>
-    <string name="create_shortcut">Add Shortcut</string>
-    <string name="ok">OK</string>
-    <string name="cancel">Cancel</string>
-    <string name="invalid_path">Path is invalid!</string>
-    <string name="duplicate_shortcut">This shortcut already exists!</string>
+    <string name="app_name">DraverFM</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
 
-    <!--toast notifications-->
-    <string name="unable_to_execute_search_query">Unable to execute search query</string>
-    <string name="file_unsupported_or_no_application">Cannot open file. Either we cannot open the file, or there is no application supports it.</string>
-    <string name="error_while_renaming">"Error while renaming: "</string>
-    <string name="renaming_successful">Renamed</string>
-    <string name="error_while_deleting">"Error while deleting: "</string>
-    <string name="deleting_successful">Deleted</string>
-    <string name="folder_creation_successful">"New folder created: "</string>
-    <string name="error_when_creating_folder">"Error while creating new folder: "</string>
-    <string name="file_creation_successful">"New file created: "</string>
-    <string name="error_when_creating_file">"Error while creating new file: "</string>
-    <string name="copy_successful">Copied</string>
-    <string name="error_while_copying">Error while copying</string>
-    <string name="moving_successful">Moved</string>
-    <string name="error_while_moving">Error while moving</string>
-    <string name="new_shortcut_instruction">To create a shortcut, navigate to the file/folder and long press it to choose. Press back button to cancel.</string>
-    <string name="canceled">Canceled</string>
-    <string name="compressing_successful">Compressed</string>
-    <string name="error_while_compressing">Error while compressing</string>
-    <string name="extracting_successful">Extracted</string>
-    <string name="error_while_extracting">Error while extracting</string>
-
-    <!--create shortcut dialog-->
-    <string name="name">Name:</string>
-    <string name="path">Path:</string>
-    <string name="yes">Yes</string>
-    <string name="no">No</string>
-    <string name="remove_shortcut_message">Are you sure you want to delete this shortcut?</string>
-
-    <!--about drawerFM dialog-->
-    <string name="app_version">Version: 1.0.0</string>
-    <string name="credit">Yusuf Erman ERGÖZ</string>
-    <string name="about">About</string>
-
-    <!--com.erman.drawerfm.utilities.rename file dialog-->
-    <string name="rename_file">Rename</string>
-    <string name="new_directory_name">New directory name</string>
-    <string name="new_file_name">New file name</string>
-
-    <!--file information dialog-->
-    <string name="size">Size:</string>
-    <string name="permission">Permissions:</string>
-    <string name="last_modification_date">Last modification date:</string>
-    <string name="folder">Folder</string>
-    <string name="size_in_storage">File size percentage in storage:</string>
-    <string name="storage">Used storage percentage:</string>
-    <string name="extension">Extension:</string>
-    <string name="this_file_is_hidden">Hidden file.</string>
-
-    <!--FTP stuff-->
-    <string name="status">Status:</string>
-    <string name="URL">URL:</string>
-    <string name="port">Port:</string>
-    <string name="shared_path">Shared Path:</string>
-    <string name="connect">Connect</string>
-    <string name="edit">Edit</string>
-    <string name="disconnect">Disconnect</string>
-    <string name="username">Username:</string>
-    <string name="password">Password:</string>
-    <string name="connected">Connected</string>
-    <string name="disconnected">Disconnected</string>
-    <string name="channel_name" >FTPNotificationChannel</string>
-    <string name="channel_description" >FTP notification channel</string>
-    <string name="ftp_is_running" >FTP server is running</string>
-    <string name="no_internet" >No internet connection</string>
-    <string name="edit_username">Edit username</string>
-    <string name="edit_password" >Edit password</string>
-    <string name="edit_port" >Edit port</string>
-
-    <!--progress dialog-->
-    <string name="wait">Please wait</string>
+    <string name="menu_home">Home</string>
+    <string name="menu_directory">Directory</string>
+    <string name="menu_library">Library</string>
+    <string name="ic_preference_credit">Designed by Pixel perfect from Flaticon</string>
+    <string name="preferences_icon">Preferences Icon:</string>
+    <string name="icons">Icons:</string>
+    <string name="ftp_icon">FTP Icon:</string>
+    <string name="designed_by_pixel_perfect_from_flaticon">Designed by Pixel perfect from Flaticon</string>
+    <string name="ftp">FTP</string>
+    <string name="preferences">Preferences</string>
+    <string name="info">Information</string>
+    <string name="information_icon">Information Icon:</string>
+    <string name="designed_by_freepic_from_flaticon">Designed by Freepic from Flaticon</string>
 
     <!--preferences_main-->
     <string name="change_theme">Change theme</string>
@@ -93,27 +36,7 @@
     <string name="descending_order">Descending order</string>
     <string name="show_files_on_top">Show files on top</string>
     <string name="show_folders_on_top">Show folders on top</string>
-
-    <!--broadcast receiver-->
-    <string name="file_broadcast_receiver">com.erman.drawerfm.fileBroadcastReceiver</string>
-    <string name="ftp_broadcast_receiver">com.erman.drawerfm.fileBroadcastReceiver</string>
-
-    <!--fragment stuff-->
-    <string name="empty_folder_size_text">Empty Folder</string>
-    <string name="empty_folder">There is nothing here.</string>
-    <string name="files_num">Files</string>
-    <string name="copy">Copy</string>
-    <string name="move">Move</string>
-    <string name="rename">Rename</string>
-    <string name="delete">Delete</string>
-    <string name="compress">Compress</string>
-    <string name="extract">Extract</string>
-    <string name="information">Information</string>
-    <string name="share">Share</string>
-    <string name="more">More</string>
-    <string name="collapse">Collapse</string>
-
-    <!--search stuff-->
-    <string name="unsuccessful_search">Nothing found.</string>
-    <string name="results_for">Results for: </string>
+    <string name="device_wide_search">Device-wide Search</string>
+    <string name="device_wide_search_icon">Device-wide Search Icon:</string>
+    <string name="designed_by_those_icons_from_flaticon">Designed by Those Icons from Flaticon</string>
 </resources>
