@@ -10,7 +10,7 @@
 
 • Device-wide, keyword based file search. 
 
-• Add support to copy – paste multiple files to multiple places multiple times. 
+• Add support to copy–paste multiple files to multiple places multiple times. 
 
 • Access to root files if the device is rooted. 
 
