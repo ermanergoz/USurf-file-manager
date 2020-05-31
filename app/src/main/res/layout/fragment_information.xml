@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/def_layout_margin"
+        android:layout_marginTop="@dimen/def_layout_margin"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/icons"
+            android:textSize="@dimen/title_text_size"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/def_layout_margin"
+            android:layout_marginLeft="@dimen/def_layout_margin"
+            android:layout_marginTop="@dimen/subtitle_vertical_margin"
+            android:text="@string/preferences_icon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/subtitle_horizontal_margin"
+            android:layout_marginLeft="@dimen/subtitle_horizontal_margin"
+            android:text="@string/ic_preference_credit"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/def_layout_margin"
+            android:layout_marginLeft="@dimen/def_layout_margin"
+            android:layout_marginTop="@dimen/subtitle_vertical_margin"
+            android:text="@string/ftp_icon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/subtitle_horizontal_margin"
+            android:layout_marginLeft="@dimen/subtitle_horizontal_margin"
+            android:text="@string/designed_by_pixel_perfect_from_flaticon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:id="@+id/textView6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/def_layout_margin"
+            android:layout_marginLeft="@dimen/def_layout_margin"
+            android:layout_marginTop="@dimen/subtitle_vertical_margin"
+            android:text="@string/information_icon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:id="@+id/textView7"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/subtitle_horizontal_margin"
+            android:layout_marginLeft="@dimen/subtitle_horizontal_margin"
+            android:text="@string/designed_by_freepic_from_flaticon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:id="@+id/textView8"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/def_layout_margin"
+            android:layout_marginLeft="@dimen/def_layout_margin"
+            android:layout_marginTop="@dimen/subtitle_vertical_margin"
+            android:text="@string/device_wide_search_icon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:id="@+id/textView9"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/subtitle_horizontal_margin"
+            android:layout_marginLeft="@dimen/subtitle_horizontal_margin"
+            android:text="@string/designed_by_those_icons_from_flaticon"
+            android:textSize="@dimen/text_size" />
+    </LinearLayout>
+</ScrollView>
