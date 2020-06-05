@@ -7,19 +7,13 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
 
+    <!--drawer menu-->
     <string name="menu_home">Home</string>
     <string name="menu_directory">SDCARD/EXTSDCARD</string>
     <string name="menu_library">Library</string>
-    <string name="ic_preference_credit">Designed by Pixel perfect from Flaticon</string>
-    <string name="preferences_icon">Preferences Icon:</string>
-    <string name="icons">Icons:</string>
-    <string name="ftp_icon">FTP Icon:</string>
-    <string name="designed_by_pixel_perfect_from_flaticon">Designed by Pixel perfect from Flaticon</string>
-    <string name="ftp">FTP</string>
-    <string name="preferences">Preferences</string>
-    <string name="info">Information</string>
-    <string name="information_icon">Information Icon:</string>
-    <string name="designed_by_freepic_from_flaticon">Designed by Freepic from Flaticon</string>
+    <string name="menu_ftp">FTP</string>
+    <string name="menu_preferences">Preferences</string>
+    <string name="menu_info">Information</string>
 
     <!--preferences_main-->
     <string name="change_theme">Change theme</string>
@@ -37,6 +31,23 @@
     <string name="show_files_on_top">Show files on top</string>
     <string name="show_folders_on_top">Show folders on top</string>
     <string name="device_wide_search">Device-wide Search</string>
+
+    <!--LibraryFragment-->
+    <string name="images">Images</string>
+    <string name="videos">Videos</string>
+    <string name="music">Music</string>
+    <string name="documents">Documents</string>
+    <string name="applications">Applications</string>
+    <string name="archives">Archives</string>
+
+    <!--InformationFragment-->
+    <string name="applogo_description">appLogo</string>
+    <string name="developer">Developer:</string>
+    <string name="yusuf_erman_ergoz">Yusuf Erman ERGÖZ</string>
+    <string name="version">Version:</string>
+    <string name="app_version">1.2-rc3</string>
+    <string name="github">Github:</string>
+    <string name="github_link">https://github.com/ermanergoz/DraverFM</string>
     <string name="device_wide_search_icon">Device-wide Search Icon:</string>
     <string name="designed_by_those_icons_from_flaticon">Designed by Those Icons from Flaticon</string>
     <string name="home_icon">Home Icon:</string>
@@ -54,17 +65,12 @@
     <string name="library_archive_icon">Library Compressed Icon:</string>
     <string name="designed_by_roundicons_from_flaticon">Designed by Roundicons from Flaticon</string>
     <string name="designed_by_pixelmeetup_from_flaticon">Designed by Pixelmeetup from Flaticon</string>
-    <string name="images">Images</string>
-    <string name="videos">Videos</string>
-    <string name="music">Music</string>
-    <string name="documents">Documents</string>
-    <string name="applications">Applications</string>
-    <string name="archives">Archives</string>
-    <string name="applogo">appLogo</string>
-    <string name="developer">Developer:</string>
-    <string name="yusuf_erman_ergoz">Yusuf Erman ERGÖZ</string>
-    <string name="version">Version:</string>
-    <string name="app_version">1.2-rc3</string>
-    <string name="github">Github:</string>
-    <string name="github_link">https://github.com/ermanergoz/DraverFM</string>
+    <string name="information_icon">Information Icon:</string>
+    <string name="designed_by_freepic_from_flaticon">Designed by Freepic from Flaticon</string>
+    <string name="ic_preference_credit">Designed by Pixel perfect from Flaticon</string>
+    <string name="preferences_icon">Preferences Icon:</string>
+    <string name="icons">Icons:</string>
+    <string name="ftp_icon">FTP Icon:</string>
+    <string name="designed_by_pixel_perfect_from_flaticon">Designed by Pixel perfect from Flaticon</string>
+
 </resources>
