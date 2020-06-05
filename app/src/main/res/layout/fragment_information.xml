@@ -289,7 +289,7 @@
             android:layout_marginStart="@dimen/def_layout_margin"
             android:layout_marginLeft="@dimen/def_layout_margin"
             android:layout_marginTop="@dimen/subtitle_vertical_margin"
-            android:text="@string/library_compressed_icon"
+            android:text="@string/library_archive_icon"
             android:textSize="@dimen/text_size" />
 
         <TextView

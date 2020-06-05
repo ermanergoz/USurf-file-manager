@@ -51,7 +51,7 @@
     <string name="library_audio_icon">Library Audio Icon:</string>
     <string name="library_document_icon">Library Document Icon:</string>
     <string name="library_apk_icon">Library Apk Icon:</string>
-    <string name="library_compressed_icon">Library Compressed Icon:</string>
+    <string name="library_archive_icon">Library Compressed Icon:</string>
     <string name="designed_by_roundicons_from_flaticon">Designed by Roundicons from Flaticon</string>
     <string name="designed_by_pixelmeetup_from_flaticon">Designed by Pixelmeetup from Flaticon</string>
     <string name="images">Images</string>

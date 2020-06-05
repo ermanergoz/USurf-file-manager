@@ -27,7 +27,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/def_layout_margin"
-            app:srcCompat="@drawable/ic_image" />
+            app:srcCompat="@drawable/ic_image"
+            android:contentDescription="@string/library_images_icon" />
 
         <TextView
             android:layout_width="match_parent"
@@ -63,7 +64,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            app:srcCompat="@drawable/ic_video" />
+            app:srcCompat="@drawable/ic_video"
+            android:contentDescription="@string/library_video_icon" />
 
         <TextView
             android:layout_width="match_parent"
@@ -99,7 +101,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            app:srcCompat="@drawable/ic_audio" />
+            app:srcCompat="@drawable/ic_audio"
+            android:contentDescription="@string/library_audio_icon" />
 
         <TextView
             android:layout_width="match_parent"
@@ -135,7 +138,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/def_layout_margin"
-            app:srcCompat="@drawable/ic_document" />
+            app:srcCompat="@drawable/ic_document"
+            android:contentDescription="@string/library_document_icon" />
 
         <TextView
             android:layout_width="match_parent"
@@ -171,7 +175,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/def_layout_margin"
-            app:srcCompat="@drawable/ic_android" />
+            app:srcCompat="@drawable/ic_android"
+            android:contentDescription="@string/library_apk_icon" />
 
         <TextView
             android:layout_width="match_parent"
@@ -207,7 +212,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/def_layout_margin"
-            app:srcCompat="@drawable/ic_compressed" />
+            app:srcCompat="@drawable/ic_compressed"
+            android:contentDescription="@string/library_archive_icon" />
 
         <TextView
             android:layout_width="match_parent"
