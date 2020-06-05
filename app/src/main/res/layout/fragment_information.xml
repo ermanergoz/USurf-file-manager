@@ -14,7 +14,7 @@
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="119dp"
-            android:layout_marginBottom="@dimen/subtitle_vertical_margin"
+            android:layout_marginBottom="@dimen/def_layout_margin"
             android:contentDescription="@string/applogo"
             android:background="@drawable/side_nav_bar"
             app:srcCompat="@mipmap/ic_launcher" />
@@ -32,7 +32,7 @@
             android:layout_marginStart="@dimen/def_layout_margin"
             android:layout_marginLeft="@dimen/def_layout_margin"
             android:layout_marginTop="@dimen/subtitle_vertical_margin"
-            android:layout_marginBottom="@dimen/subtitle_vertical_margin"
+            android:layout_marginBottom="@dimen/def_layout_margin"
             android:text="@string/yusuf_erman_ergoz"
             android:textSize="@dimen/text_size" />
 
@@ -48,8 +48,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/def_layout_margin"
             android:layout_marginLeft="@dimen/def_layout_margin"
-            android:layout_marginTop="@dimen/subtitle_vertical_margin"
-            android:layout_marginBottom="@dimen/subtitle_vertical_margin"
+            android:layout_marginTop="@dimen/def_layout_margin"
+            android:layout_marginBottom="@dimen/def_layout_margin"
             android:text="@string/app_version"
             android:textSize="@dimen/text_size" />
 
@@ -65,8 +65,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/def_layout_margin"
             android:layout_marginLeft="@dimen/def_layout_margin"
-            android:layout_marginTop="@dimen/subtitle_vertical_margin"
-            android:layout_marginBottom="@dimen/subtitle_vertical_margin"
+            android:layout_marginTop="@dimen/def_layout_margin"
+            android:layout_marginBottom="@dimen/def_layout_margin"
             android:autoLink="web"
             android:singleLine="true"
             android:text="@string/github_link"
