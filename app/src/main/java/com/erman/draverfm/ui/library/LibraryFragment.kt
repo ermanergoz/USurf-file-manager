@@ -22,10 +22,10 @@ class LibraryFragment : Fragment() {
         libraryViewModel =
                 ViewModelProviders.of(this).get(LibraryViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_library, container, false)
-        val textView: TextView = root.findViewById(R.id.text_library)
-        libraryViewModel.text.observe(viewLifecycleOwner, Observer {
-            textView.text = it
-        })
+        //val textView: TextView = root.findViewById(R.id.text_library)
+        //libraryViewModel.text.observe(viewLifecycleOwner, Observer {
+            //textView.text = it
+        //})
         return root
     }
 }
