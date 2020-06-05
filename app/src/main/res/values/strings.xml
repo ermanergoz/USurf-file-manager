@@ -60,4 +60,11 @@
     <string name="documents">Documents</string>
     <string name="applications">Applications</string>
     <string name="archives">Archives</string>
+    <string name="applogo">appLogo</string>
+    <string name="developer">Developer:</string>
+    <string name="yusuf_erman_ergoz">Yusuf Erman ERGÖZ</string>
+    <string name="version">Version:</string>
+    <string name="app_version">1.2-rc3</string>
+    <string name="github">Github:</string>
+    <string name="github_link">https://github.com/ermanergoz/DraverFM</string>
 </resources>
