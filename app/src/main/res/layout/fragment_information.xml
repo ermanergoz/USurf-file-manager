@@ -16,6 +16,7 @@
             android:layout_height="119dp"
             android:layout_marginBottom="@dimen/subtitle_vertical_margin"
             android:contentDescription="@string/applogo"
+            android:background="@drawable/side_nav_bar"
             app:srcCompat="@mipmap/ic_launcher" />
 
         <TextView
