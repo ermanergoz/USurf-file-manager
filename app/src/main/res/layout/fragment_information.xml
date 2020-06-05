@@ -135,5 +135,107 @@
             android:layout_marginLeft="@dimen/subtitle_horizontal_margin"
             android:text="@string/designed_by_srip_from_flaticon"
             android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/def_layout_margin"
+            android:layout_marginLeft="@dimen/def_layout_margin"
+            android:layout_marginTop="@dimen/subtitle_vertical_margin"
+            android:text="@string/library_images_icon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/subtitle_horizontal_margin"
+            android:layout_marginLeft="@dimen/subtitle_horizontal_margin"
+            android:text="@string/designed_by_becris_from_flaticon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/def_layout_margin"
+            android:layout_marginLeft="@dimen/def_layout_margin"
+            android:layout_marginTop="@dimen/subtitle_vertical_margin"
+            android:text="@string/library_video_icon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/subtitle_horizontal_margin"
+            android:layout_marginLeft="@dimen/subtitle_horizontal_margin"
+            android:text="@string/designed_by_freepic_from_flaticon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/def_layout_margin"
+            android:layout_marginLeft="@dimen/def_layout_margin"
+            android:layout_marginTop="@dimen/subtitle_vertical_margin"
+            android:text="@string/library_audio_icon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/subtitle_horizontal_margin"
+            android:layout_marginLeft="@dimen/subtitle_horizontal_margin"
+            android:text="@string/designed_by_freepic_from_flaticon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/def_layout_margin"
+            android:layout_marginLeft="@dimen/def_layout_margin"
+            android:layout_marginTop="@dimen/subtitle_vertical_margin"
+            android:text="@string/library_document_icon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/subtitle_horizontal_margin"
+            android:layout_marginLeft="@dimen/subtitle_horizontal_margin"
+            android:text="@string/designed_by_becris_from_flaticon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/def_layout_margin"
+            android:layout_marginLeft="@dimen/def_layout_margin"
+            android:layout_marginTop="@dimen/subtitle_vertical_margin"
+            android:text="@string/library_apk_icon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/subtitle_horizontal_margin"
+            android:layout_marginLeft="@dimen/subtitle_horizontal_margin"
+            android:text="@string/designed_by_pixelmeetup_from_flaticon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/def_layout_margin"
+            android:layout_marginLeft="@dimen/def_layout_margin"
+            android:layout_marginTop="@dimen/subtitle_vertical_margin"
+            android:text="@string/library_compressed_icon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/subtitle_horizontal_margin"
+            android:layout_marginLeft="@dimen/subtitle_horizontal_margin"
+            android:text="@string/designed_by_roundicons_from_flaticon"
+            android:textSize="@dimen/text_size" />
     </LinearLayout>
 </ScrollView>
