@@ -33,7 +33,6 @@ import com.erman.drawerfm.common.*
 class FragmentActivity : AppCompatActivity(), OnFileClickListener, RenameDialog.DialogRenameFileListener, CreateNew.DialogCreateFolderListener,
     SearchView.OnQueryTextListener {
     private var newShortcutPath = ""
-
     private var isCreateShortcutMode = false
     lateinit var path: String
     private lateinit var longClickedFile: File
