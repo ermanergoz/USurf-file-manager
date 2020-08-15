@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_home">
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="com.erman.usurf.home.ui.HomeFragment"
+        android:label="@string/menu_home"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/nav_directory"
+        android:name="com.erman.usurf.directory.ui.DirectoryFragment"
+        android:label="@string/menu_directory"
+        tools:layout="@layout/fragment_directory" />
+
+    <fragment
+        android:id="@+id/nav_library"
+        android:name="com.erman.usurf.library.ui.LibraryFragment"
+        android:label="@string/menu_library"
+        tools:layout="@layout/fragment_library" />
+
+    <fragment
+        android:id="@+id/nav_info"
+        android:name="com.erman.usurf.credit.Credits"
+        android:label="@string/menu_info"
+        tools:layout="@layout/fragment_information" />
+
+    <fragment
+        android:id="@+id/nav_ftp"
+        android:name="com.erman.usurf.ftp.ui.FTPFragment"
+        android:label="@string/menu_ftp"
+        tools:layout="@layout/fragment_ftp" />
+
+    <fragment
+        android:id="@+id/nav_preferences"
+        android:name="com.erman.usurf.preference.MainPreferencesFragment"
+        android:label="@string/menu_preferences" />
+</navigation>
