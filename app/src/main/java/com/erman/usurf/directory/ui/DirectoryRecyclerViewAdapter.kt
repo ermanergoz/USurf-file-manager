@@ -8,6 +8,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.erman.usurf.*
+import com.erman.usurf.directory.utils.KEY_INTENT_GRID_VIEW
+import com.erman.usurf.directory.utils.MARQUEE_CHOICE_KEY
+import com.erman.usurf.directory.utils.MARQUEE_REPEAT_LIM
+import com.erman.usurf.directory.utils.SIMPLE_DATE_FORMAT_PATTERN
 import com.erman.usurf.utils.*
 import kotlinx.android.synthetic.main.directory_recycler_list_layout.view.*
 import java.io.File

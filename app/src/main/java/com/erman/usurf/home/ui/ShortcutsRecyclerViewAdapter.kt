@@ -7,9 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.erman.usurf.home.data.Shortcut
-import com.erman.usurf.utils.MARQUEE_CHOICE_KEY
-import com.erman.usurf.utils.MARQUEE_REPEAT_LIM
 import com.erman.usurf.R
+import com.erman.usurf.directory.utils.MARQUEE_CHOICE_KEY
+import com.erman.usurf.directory.utils.MARQUEE_REPEAT_LIM
 import com.erman.usurf.home.model.OnShortcutClickListener
 import com.erman.usurf.utils.SHARED_PREF_FILE
 import kotlinx.android.synthetic.main.shortcut_recycler_layout.view.*
