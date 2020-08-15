@@ -1,0 +1,20 @@
+package com.erman.usurf.preference.utils
+
+//FileListPreferencesFragment
+const val KEY_SORT_FILES_LIST_PREFERENCE: String = "sortListPreference"
+const val KEY_SHOW_HIDDEN_SWITCH: String = "showHiddenFileSwitch"
+const val KEY_SHOW_FILES_ONLY_SWITCH: String = "showFilesOnlySwitch"
+const val KEY_SHOW_FOLDERS_ONLY_SWITCH: String = "showFoldersOnlySwitch"
+const val KEY_ASCENDING_ORDER_CHECKBOX: String = "ascendingOrderPreference"
+const val KEY_DESCENDING_ORDER_CHECKBOX: String = "descendingOrderPreference"
+const val KEY_FILES_ON_TOP_CHECKBOX: String = "showFilesOnTopPreference"
+const val KEY_FOLDERS_ON_TOP_CHECKBOX: String = "showFoldersOnTopPreference"
+const val PREFERENCE_FILE_SORT: String = "sortFileMode"
+const val PREFERENCE_SHOW_HIDDEN: String = "showHidden"
+const val PREFERENCE_SHOW_FILES_ONLY: String = "showFilesOnly"
+const val PREFERENCE_SHOW_FOLDERS_ONLY: String = "showFoldersOnly"
+const val PREFERENCE_ASCENDING_ORDER: String = "ascendingOrder"
+const val PREFERENCE_DESCENDING_ORDER: String = "descendingOrder"
+const val PREFERENCE_FILES_ON_TOP: String = "showFilesOnTop"
+const val PREFERENCE_FOLDERS_ON_TOP: String = "showFoldersOnTop"
+const val DEFAULT_FILE_SORT_MODE: String = "Sort by name"
