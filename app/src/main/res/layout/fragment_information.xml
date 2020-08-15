@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/def_layout_margin"
+        android:layout_marginTop="@dimen/def_layout_margin"
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="119dp"
+            android:layout_marginBottom="@dimen/def_layout_margin"
+            android:contentDescription="@string/applogo_description"
+            android:background="@drawable/side_nav_bar"
+            app:srcCompat="@mipmap/ic_launcher" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/developer"
+            android:textSize="@dimen/title_text_size"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/def_layout_margin"
+            android:layout_marginLeft="@dimen/def_layout_margin"
+            android:layout_marginTop="@dimen/subtitle_vertical_margin"
+            android:layout_marginBottom="@dimen/def_layout_margin"
+            android:text="@string/yusuf_erman_ergoz"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/version"
+            android:textSize="@dimen/title_text_size"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/def_layout_margin"
+            android:layout_marginLeft="@dimen/def_layout_margin"
+            android:layout_marginTop="@dimen/def_layout_margin"
+            android:layout_marginBottom="@dimen/def_layout_margin"
+            android:text="@string/app_version"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/github"
+            android:textSize="@dimen/title_text_size"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/def_layout_margin"
+            android:layout_marginLeft="@dimen/def_layout_margin"
+            android:layout_marginTop="@dimen/def_layout_margin"
+            android:layout_marginBottom="@dimen/def_layout_margin"
+            android:autoLink="web"
+            android:singleLine="true"
+            android:text="@string/github_link"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/icons"
+            android:textSize="@dimen/title_text_size"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/def_layout_margin"
+            android:layout_marginLeft="@dimen/def_layout_margin"
+            android:layout_marginTop="@dimen/subtitle_vertical_margin"
+            android:text="@string/preferences_icon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/subtitle_horizontal_margin"
+            android:layout_marginLeft="@dimen/subtitle_horizontal_margin"
+            android:text="@string/ic_preference_credit"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/def_layout_margin"
+            android:layout_marginLeft="@dimen/def_layout_margin"
+            android:layout_marginTop="@dimen/subtitle_vertical_margin"
+            android:text="@string/ftp_icon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/subtitle_horizontal_margin"
+            android:layout_marginLeft="@dimen/subtitle_horizontal_margin"
+            android:text="@string/designed_by_pixel_perfect_from_flaticon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/def_layout_margin"
+            android:layout_marginLeft="@dimen/def_layout_margin"
+            android:layout_marginTop="@dimen/subtitle_vertical_margin"
+            android:text="@string/information_icon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/subtitle_horizontal_margin"
+            android:layout_marginLeft="@dimen/subtitle_horizontal_margin"
+            android:text="@string/designed_by_freepic_from_flaticon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/def_layout_margin"
+            android:layout_marginLeft="@dimen/def_layout_margin"
+            android:layout_marginTop="@dimen/subtitle_vertical_margin"
+            android:text="@string/device_wide_search_icon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/subtitle_horizontal_margin"
+            android:layout_marginLeft="@dimen/subtitle_horizontal_margin"
+            android:text="@string/designed_by_those_icons_from_flaticon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/def_layout_margin"
+            android:layout_marginLeft="@dimen/def_layout_margin"
+            android:layout_marginTop="@dimen/subtitle_vertical_margin"
+            android:text="@string/home_icon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/subtitle_horizontal_margin"
+            android:layout_marginLeft="@dimen/subtitle_horizontal_margin"
+            android:text="@string/designed_by_smashicons_from_flaticon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/def_layout_margin"
+            android:layout_marginLeft="@dimen/def_layout_margin"
+            android:layout_marginTop="@dimen/subtitle_vertical_margin"
+            android:text="@string/library_icon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/subtitle_horizontal_margin"
+            android:layout_marginLeft="@dimen/subtitle_horizontal_margin"
+            android:text="@string/designed_by_mavadee_from_flaticon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/def_layout_margin"
+            android:layout_marginLeft="@dimen/def_layout_margin"
+            android:layout_marginTop="@dimen/subtitle_vertical_margin"
+            android:text="@string/storage_icon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/subtitle_horizontal_margin"
+            android:layout_marginLeft="@dimen/subtitle_horizontal_margin"
+            android:text="@string/designed_by_srip_from_flaticon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/def_layout_margin"
+            android:layout_marginLeft="@dimen/def_layout_margin"
+            android:layout_marginTop="@dimen/subtitle_vertical_margin"
+            android:text="@string/library_images_icon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/subtitle_horizontal_margin"
+            android:layout_marginLeft="@dimen/subtitle_horizontal_margin"
+            android:text="@string/designed_by_becris_from_flaticon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/def_layout_margin"
+            android:layout_marginLeft="@dimen/def_layout_margin"
+            android:layout_marginTop="@dimen/subtitle_vertical_margin"
+            android:text="@string/library_video_icon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/subtitle_horizontal_margin"
+            android:layout_marginLeft="@dimen/subtitle_horizontal_margin"
+            android:text="@string/designed_by_freepic_from_flaticon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/def_layout_margin"
+            android:layout_marginLeft="@dimen/def_layout_margin"
+            android:layout_marginTop="@dimen/subtitle_vertical_margin"
+            android:text="@string/library_audio_icon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/subtitle_horizontal_margin"
+            android:layout_marginLeft="@dimen/subtitle_horizontal_margin"
+            android:text="@string/designed_by_freepic_from_flaticon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/def_layout_margin"
+            android:layout_marginLeft="@dimen/def_layout_margin"
+            android:layout_marginTop="@dimen/subtitle_vertical_margin"
+            android:text="@string/library_document_icon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/subtitle_horizontal_margin"
+            android:layout_marginLeft="@dimen/subtitle_horizontal_margin"
+            android:text="@string/designed_by_becris_from_flaticon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/def_layout_margin"
+            android:layout_marginLeft="@dimen/def_layout_margin"
+            android:layout_marginTop="@dimen/subtitle_vertical_margin"
+            android:text="@string/library_apk_icon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/subtitle_horizontal_margin"
+            android:layout_marginLeft="@dimen/subtitle_horizontal_margin"
+            android:text="@string/designed_by_pixelmeetup_from_flaticon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/def_layout_margin"
+            android:layout_marginLeft="@dimen/def_layout_margin"
+            android:layout_marginTop="@dimen/subtitle_vertical_margin"
+            android:text="@string/library_archive_icon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/subtitle_horizontal_margin"
+            android:layout_marginLeft="@dimen/subtitle_horizontal_margin"
+            android:text="@string/designed_by_roundicons_from_flaticon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/def_layout_margin"
+            android:layout_marginLeft="@dimen/def_layout_margin"
+            android:layout_marginTop="@dimen/subtitle_vertical_margin"
+            android:text="@string/plus_icon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/subtitle_horizontal_margin"
+        android:layout_marginLeft="@dimen/subtitle_horizontal_margin"
+        android:text="@string/designed_by_hirschwolf_from_flaticon"
+        android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/def_layout_margin"
+            android:layout_marginLeft="@dimen/def_layout_margin"
+            android:layout_marginTop="@dimen/subtitle_vertical_margin"
+            android:text="@string/folder_icon"
+            android:textSize="@dimen/text_size" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/subtitle_horizontal_margin"
+            android:layout_marginLeft="@dimen/subtitle_horizontal_margin"
+            android:text="@string/designed_by_smashicons_from_flaticon"
+            android:textSize="@dimen/text_size" />
+    </LinearLayout>
+</ScrollView>
