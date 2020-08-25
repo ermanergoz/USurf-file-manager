@@ -1,6 +1,5 @@
 package com.erman.usurf
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -10,13 +9,9 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import com.erman.usurf.ftp.model.FtpCallback
-import com.erman.usurf.ftp.model.FTPServer
 import com.google.android.material.navigation.NavigationView
 
-
-class MainActivity : AppCompatActivity(), FtpCallback {
-
+class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,12 +42,5 @@ class MainActivity : AppCompatActivity(), FtpCallback {
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
-    }
-
-    override fun ftpListener() {
-        Intent(this, FTPServer()::class.java).also { intent ->
-            //intent.putExtra(KEY_INTENT_CHOSEN_PATH, chosenPath)
-            startService(intent)
-        }
     }
 }

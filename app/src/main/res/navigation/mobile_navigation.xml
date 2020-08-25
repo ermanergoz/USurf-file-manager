@@ -37,6 +37,7 @@
 
     <fragment
         android:id="@+id/nav_preferences"
-        android:name="com.erman.usurf.preference.MainPreferencesFragment"
+        android:name="com.erman.usurf.preference.ui.MainPreferencesFragment"
         android:label="@string/menu_preferences" />
+
 </navigation>
