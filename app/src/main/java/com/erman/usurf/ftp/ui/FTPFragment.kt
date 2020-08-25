@@ -1,109 +1,61 @@
 package com.erman.usurf.ftp.ui
 
-import android.content.Context
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
+import com.erman.usurf.utils.EventObserver
 import com.erman.usurf.R
 import com.erman.usurf.databinding.FragmentFtpBinding
-import com.erman.usurf.ftp.model.FtpCallback
-import com.erman.usurf.ftp.model.ConnectionLiveData
-import kotlinx.android.synthetic.main.fragment_ftp.*
+import com.erman.usurf.utils.ViewModelFactory
 
 class FTPFragment : Fragment() {
-
     private lateinit var fTPFragmentViewModel: FTPFragmentViewModel
-    private lateinit var connectionLiveData: ConnectionLiveData
-    private lateinit var ftpCallback: FtpCallback
+    private lateinit var viewModelFactory: ViewModelFactory
 
-    override fun onCreateView(inflater: LayoutInflater,
-                              container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        viewModelFactory = ViewModelFactory()
+        fTPFragmentViewModel = ViewModelProvider(this, viewModelFactory).get(FTPFragmentViewModel::class.java)
+        val binding: FragmentFtpBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_ftp, container, false)
 
-        fTPFragmentViewModel = ViewModelProviders.of(this).get(FTPFragmentViewModel::class.java)
-        val binding: FragmentFtpBinding =
-            DataBindingUtil.inflate(inflater, R.layout.fragment_ftp, container, false)
-
-        connectionLiveData = ConnectionLiveData(requireContext())
-        connectionLiveData.observe(viewLifecycleOwner, Observer {
-            updateConnectionStatus(it)
-            updateURLText(it)
+        val usernameTextView: TextView = binding.root.findViewById(R.id.editUserNameTextView)
+        fTPFragmentViewModel.username.observe(viewLifecycleOwner, Observer {
+            usernameTextView.text = it
         })
 
-        //binding.lifecycleOwner = this
-        //binding.viewModel = fTPFragmentViewModel
+        val passwordTextView: TextView = binding.root.findViewById(R.id.editPasswordTextView)
+        fTPFragmentViewModel.password.observe(viewLifecycleOwner, Observer {
+            passwordTextView.text = it
+        })
 
+        val portTextView: TextView = binding.root.findViewById(R.id.editPortTextView)
+        fTPFragmentViewModel.port.observe(viewLifecycleOwner, Observer {
+            portTextView.text = it
+        })
 
+        fTPFragmentViewModel.openTaskEvent.observe(viewLifecycleOwner, EventObserver {
+            Toast.makeText(context, getString(it), Toast.LENGTH_LONG).show()
+        })
+
+        binding.lifecycleOwner = this
+        binding.viewModel = fTPFragmentViewModel
         return binding.root
-    }
-
-    private fun updateConnectionStatus(isConnected: Boolean) {
-        if (isConnected) {
-            statusTextView.text = getString(R.string.connected)
-            statusTextView.setTextColor(Color.GREEN)
-        } else {
-            statusTextView.text = getString(R.string.no_connection)
-            statusTextView.setTextColor(Color.RED)
-        }
-    }
-
-    private fun updateURLText(isConnected: Boolean) {
-        fTPFragmentViewModel.ipAddress.observe(viewLifecycleOwner, Observer {
-            if (isConnected)
-                urlTextView.text = it
-            else
-                urlTextView.text = ""
-        })
-    }
-
-    private fun setOnLongClickListeners() {
-        userNameTextView.setOnLongClickListener {
-            //val newFragment = EditDialog(getString(R.string.edit_username))
-            //newFragment.show(fragmentManager, "")
-            true
-        }
-
-        passwordTextView.setOnLongClickListener {
-            //val newFragment = EditPasswordDialog(getString(R.string.edit_password))
-            //newFragment.show(fragmentManager, "")
-            true
-        }
-
-        portTextView.setOnLongClickListener {
-            //val newFragment = EditPortDialog(getString(R.string.edit_port))
-            //newFragment.show(fragmentManager, "")
-            true
-        }
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-
-        try {
-            ftpCallback = context as FtpCallback
-        } catch (err: ClassCastException) {
-            err.printStackTrace()
-        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        connectButton.setOnClickListener {
-            ftpCallback.ftpListener()
-        }
-
-        radioButtonGroup.setOnCheckedChangeListener { group, checkedId ->
+        //radioButtonGroup.setOnCheckedChangeListener { group, checkedId ->
             //if (checkedId == 0) chosenPath = getStorageDirectories(this)[0]
             //if (checkedId == 1) chosenPath = getStorageDirectories(this)[1]
 
             //restartService()
-        }
+        //}
     }
 }
