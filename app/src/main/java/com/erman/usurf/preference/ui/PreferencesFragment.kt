@@ -1,4 +1,4 @@
-package com.erman.usurf.preference
+package com.erman.usurf.preference.ui
 
 import android.content.SharedPreferences
 import android.os.Bundle

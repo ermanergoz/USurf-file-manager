@@ -8,8 +8,9 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import androidx.lifecycle.LiveData
+import com.erman.usurf.MainApplication.Companion.appContext
 
-class ConnectionLiveData(private val context: Context) : LiveData<Boolean>() {
+class ConnectionLiveData : LiveData<Boolean>() {
 
     private val networkReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -19,7 +20,7 @@ class ConnectionLiveData(private val context: Context) : LiveData<Boolean>() {
 
     override fun onActive() {
         super.onActive()
-        context.registerReceiver(
+        appContext.registerReceiver(
             networkReceiver,
             IntentFilter("android.net.conn.CONNECTIVITY_CHANGE")
         )
@@ -28,7 +29,7 @@ class ConnectionLiveData(private val context: Context) : LiveData<Boolean>() {
     override fun onInactive() {
         super.onInactive()
         try {
-            context.unregisterReceiver(networkReceiver)
+            appContext.unregisterReceiver(networkReceiver)
         } catch (err: Exception) {
             err.printStackTrace()
         }
