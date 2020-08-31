@@ -6,52 +6,34 @@ import com.erman.usurf.utils.Event
 import com.erman.usurf.R
 import com.erman.usurf.ftp.data.FtpPreferenceProvider
 import com.erman.usurf.ftp.model.ConnectionLiveData
-import com.erman.usurf.ftp.model.FTPHelper
+import com.erman.usurf.ftp.model.FtpModel
 import com.erman.usurf.ftp.model.FTPLiveData
 import com.erman.usurf.ftp.model.FTPServer
 import com.erman.usurf.ftp.utils.DEFAULT_PORT
 
-class FTPFragmentViewModel(private val fTPHelper: FTPHelper) : ViewModel() {
+class FTPViewModel(private val fTPHelper: FtpModel) : ViewModel() {
     private var preferenceProvider = FtpPreferenceProvider()
 
-    val url: MutableLiveData<String>
-        get() = _url
-
-    val port: MutableLiveData<String>
-        get() = _port
-
-    val username: MutableLiveData<String>
-        get() = _username
-
-    val password: MutableLiveData<String>
-        get() = _password
-
-    val isServiceRunning: MutableLiveData<FTPLiveData>
-        get() = _isServiceRunning
-
-    val isConnectedToWifi: MutableLiveData<ConnectionLiveData>
-        get() = _isConnectedToWifi
-
-    private val _url = MutableLiveData<String>().apply {
+    val url = MutableLiveData<String>().apply {
         value = fTPHelper.getIpAddress()
     }
 
-    private val _username = MutableLiveData<String>().apply {
+    val username = MutableLiveData<String>().apply {
         value = preferenceProvider.getUsername()
     }
 
-    private val _password = MutableLiveData<String>().apply {
+    val password = MutableLiveData<String>().apply {
         value = preferenceProvider.getPassword()
     }
 
-    private val _port = MutableLiveData<String>().apply {
+    val port = MutableLiveData<String>().apply {
         value = preferenceProvider.getPort().toString()
     }
 
-    private val _isConnectedToWifi = MutableLiveData<ConnectionLiveData>().apply {
+    val isConnectedToWifi = MutableLiveData<ConnectionLiveData>().apply {
         value = ConnectionLiveData()
     }
-    private val _isServiceRunning = MutableLiveData<FTPLiveData>().apply {
+    val isServiceRunning = MutableLiveData<FTPLiveData>().apply {
         value = FTPLiveData()
     }
 
