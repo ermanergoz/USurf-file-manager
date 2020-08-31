@@ -6,7 +6,7 @@
 
         <variable
             name="viewModel"
-            type="com.erman.usurf.ftp.ui.FTPFragmentViewModel" />
+            type="com.erman.usurf.ftp.ui.FTPViewModel" />
     </data>
 
     <ScrollView
