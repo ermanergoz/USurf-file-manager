@@ -1,11 +1,13 @@
 package com.erman.usurf.directory.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.erman.usurf.R
+import com.erman.usurf.home.utils.KEY_BUNDLE_STORAGE_DIRECTORY
 
 class DirectoryFragment : Fragment() {
 
@@ -23,5 +25,11 @@ class DirectoryFragment : Fragment() {
         //    textView.text = it
         //})
         return root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        Log.e("selected path", requireArguments().getString(KEY_BUNDLE_STORAGE_DIRECTORY)!!)
     }
 }
