@@ -75,6 +75,7 @@
     <string name="designed_by_pixel_perfect_from_flaticon">Designed by Pixel perfect from Flaticon</string>
     <string name="plus_icon">Plus Icon:</string>
     <string name="designed_by_hirschwolf_from_flaticon">Designed by hirschwolf from Flaticon</string>
+    <string name="designed_by_xnimrodx_from_flaticon">Designed by xnimrodx from Flaticon</string>
     <string name="url">URL:</string>
     <string name="folder_icon">Folder Icon:</string>
 
@@ -128,6 +129,7 @@
     <string name="error_while_compressing">Error while compressing</string>
     <string name="extracting_successful">Extracted</string>
     <string name="error_while_extracting">Error while extracting</string>
+    <string name="press_back_again">Press back button again to go to the home screen.</string>
 
     <!--create shortcut dialog-->
     <string name="name">Name:</string>
