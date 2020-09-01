@@ -5,31 +5,57 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.activity.addCallback
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
 import com.erman.usurf.R
-import com.erman.usurf.home.utils.KEY_BUNDLE_STORAGE_DIRECTORY
+import com.erman.usurf.databinding.FragmentDirectoryBinding
+import com.erman.usurf.utils.ViewModelFactory
+import kotlinx.android.synthetic.main.fragment_directory.*
 
 class DirectoryFragment : Fragment() {
-
+    private lateinit var viewModelFactory: ViewModelFactory
     private lateinit var directoryViewModel: DirectoryViewModel
+    private lateinit var directoryRecyclerViewAdapter: DirectoryRecyclerViewAdapter
 
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
-       // directoryViewModel = ViewModelProviders.of(this).get(DirectoryViewModel::class.java)
-        val root = inflater.inflate(R.layout.fragment_directory, container, false)
-        //val textView: TextView = root.findViewById(R.id.text_directory)
-        //directoryViewModel.text.observe(viewLifecycleOwner, Observer {
-        //    textView.text = it
-        //})
-        return root
+        viewModelFactory = ViewModelFactory()
+        directoryViewModel = ViewModelProvider(
+            requireActivity(),
+            viewModelFactory
+        ).get(DirectoryViewModel::class.java)
+        val binding: FragmentDirectoryBinding =
+            DataBindingUtil.inflate(inflater, R.layout.fragment_directory, container, false)
+
+        binding.lifecycleOwner = this
+        //binding.viewModel = directoryViewModel
+
+        requireActivity().onBackPressedDispatcher.addCallback(this) {
+            if (!directoryViewModel.onBackPressed()) {
+                findNavController().popBackStack()
+            }
+        }
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        Log.e("selected path", requireArguments().getString(KEY_BUNDLE_STORAGE_DIRECTORY)!!)
+        fileListRecyclerView.layoutManager = GridLayoutManager(context, 1)
+        directoryRecyclerViewAdapter = DirectoryRecyclerViewAdapter(directoryViewModel)
+        fileListRecyclerView.adapter = directoryRecyclerViewAdapter
+
+        directoryViewModel.path.observe(viewLifecycleOwner, Observer {
+            directoryRecyclerViewAdapter.updateData(directoryViewModel.getFileList())
+        })
     }
 }
