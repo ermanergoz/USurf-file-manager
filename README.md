@@ -4,7 +4,7 @@
 
 • Detection of rarely used and large files and folders and notify the user about them.
 
-• Support to open files by type such as video, audio etc.
+• Support to open files by type such as video, audio etc. - [x]
 
 • Support for Bluetooth file transfer.
 
