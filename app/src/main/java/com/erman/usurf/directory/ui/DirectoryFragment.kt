@@ -1,7 +1,6 @@
 package com.erman.usurf.directory.ui
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +14,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.erman.usurf.R
 import com.erman.usurf.databinding.FragmentDirectoryBinding
+import com.erman.usurf.utils.EventObserver
 import com.erman.usurf.utils.ViewModelFactory
 import kotlinx.android.synthetic.main.fragment_directory.*
 
@@ -37,7 +37,11 @@ class DirectoryFragment : Fragment() {
             DataBindingUtil.inflate(inflater, R.layout.fragment_directory, container, false)
 
         binding.lifecycleOwner = this
-        //binding.viewModel = directoryViewModel
+        binding.viewModel = directoryViewModel
+
+        directoryViewModel.toastMessage.observe(viewLifecycleOwner, EventObserver {
+            Toast.makeText(context, getString(it), Toast.LENGTH_LONG).show()
+        })
 
         requireActivity().onBackPressedDispatcher.addCallback(this) {
             if (!directoryViewModel.onBackPressed()) {
