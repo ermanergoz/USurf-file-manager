@@ -174,5 +174,7 @@
     <string name="share">Share</string>
     <string name="more">More</string>
     <string name="collapse">Collapse</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
 
 </resources>
