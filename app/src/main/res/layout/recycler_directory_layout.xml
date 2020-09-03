@@ -21,6 +21,7 @@
         android:background="?android:attr/panelBackground"
         android:foreground="?selectableItemBackground"
         android:onClick="@{() -> viewModel.onFileClick(file)}"
+        android:onLongClick="@{() -> viewModel.onFileLongClick(file)}"
         android:padding="4dp">
 
         <TextView
