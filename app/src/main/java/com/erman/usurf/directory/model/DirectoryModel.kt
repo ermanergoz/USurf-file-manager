@@ -1,5 +1,11 @@
 package com.erman.usurf.directory.model
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.util.Log
+import android.widget.Toast
+import androidx.core.content.FileProvider
+import com.erman.usurf.MainApplication.Companion.appContext
 import java.io.File
 import java.lang.Exception
 
@@ -136,5 +142,13 @@ class DirectoryModel() {
             else -> size.toDouble().toString() + " Bytes"
         }
         return sizeStr
+    }
+
+    fun openFile(directory: File) {
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.data = FileProvider.getUriForFile(appContext, appContext.packageName, File(directory.path))
+        intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        appContext.startActivity(intent)
     }
 }
