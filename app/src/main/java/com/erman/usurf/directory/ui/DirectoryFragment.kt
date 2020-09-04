@@ -44,7 +44,7 @@ class DirectoryFragment : Fragment() {
         })
 
         directoryViewModel.multipleSelection.observe(viewLifecycleOwner, Observer {
-            directoryRecyclerViewAdapter.updateSelection(it)
+            directoryRecyclerViewAdapter.updateSelection()
         })
 
         requireActivity().onBackPressedDispatcher.addCallback(this) {
@@ -61,6 +61,7 @@ class DirectoryFragment : Fragment() {
         fileListRecyclerView.layoutManager = GridLayoutManager(context, 1)
         directoryRecyclerViewAdapter = DirectoryRecyclerViewAdapter(directoryViewModel)
         fileListRecyclerView.adapter = directoryRecyclerViewAdapter
+        fileListRecyclerView.itemAnimator!!.changeDuration=0
 
         directoryViewModel.path.observe(viewLifecycleOwner, Observer {
             directoryRecyclerViewAdapter.updateData(directoryViewModel.getFileList())
