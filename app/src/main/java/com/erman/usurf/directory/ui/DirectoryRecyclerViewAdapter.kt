@@ -1,6 +1,5 @@
 package com.erman.usurf.directory.ui
 
-import android.graphics.Color
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -11,20 +10,18 @@ import com.erman.usurf.directory.utils.MARQUEE_REPEAT_LIM
 import kotlinx.android.synthetic.main.recycler_directory_layout.view.*
 import androidx.databinding.library.baseAdapters.BR
 import com.erman.usurf.databinding.RecyclerDirectoryLayoutBinding
-import com.erman.usurf.utils.FileModel
+import com.erman.usurf.directory.model.FileModel
 
 class DirectoryRecyclerViewAdapter(var viewModel: DirectoryViewModel) :
     RecyclerView.Adapter<DirectoryRecyclerViewAdapter.ViewHolder>() {
-    var directoryList = listOf<FileModel>()
+    private var directoryList = listOf<FileModel>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val binding: RecyclerDirectoryLayoutBinding =
-            DataBindingUtil.inflate(
-                LayoutInflater.from(parent.context),
-                R.layout.recycler_directory_layout,
-                parent,
-                false
-            )
+        val binding: RecyclerDirectoryLayoutBinding = DataBindingUtil.inflate(
+            LayoutInflater.from(parent.context), R.layout.recycler_directory_layout,
+            parent, false
+        )
+
         binding.viewModel = viewModel
         return ViewHolder(binding)
     }
@@ -39,11 +36,11 @@ class DirectoryRecyclerViewAdapter(var viewModel: DirectoryViewModel) :
 
     inner class ViewHolder(var binding: RecyclerDirectoryLayoutBinding) :
         RecyclerView.ViewHolder(binding.root) {
+
         fun bindDirectory(directory: FileModel) {
             binding.setVariable(BR.file, directory)
-
-            itemView.nameTextView.ellipsize =
-                TextUtils.TruncateAt.MARQUEE  //for sliding names if the length is longer than 1 line
+            itemView.nameTextView.ellipsize = TextUtils.TruncateAt.MARQUEE
+            //for sliding names if the length is longer than 1 line
             itemView.nameTextView.isSelected = true
             itemView.nameTextView.marqueeRepeatLimit = MARQUEE_REPEAT_LIM   //-1 is for forever
         }

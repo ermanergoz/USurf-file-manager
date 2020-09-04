@@ -40,7 +40,7 @@ class HomeFragment : Fragment() {
         })
 
         homeViewModel.storagePath.observe(viewLifecycleOwner, Observer {
-            directoryViewModel.path.value = it
+            directoryViewModel.setPath(it)
         })
 
         binding.lifecycleOwner = this
