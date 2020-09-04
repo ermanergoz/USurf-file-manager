@@ -36,4 +36,4 @@ class FTPLiveData : LiveData<Boolean>() {
 }
 
 val isServiceRunning: Boolean
-    get() = FTPServer.isFtpServerRunning
+    get() = FtpServer.isFtpServerRunning
