@@ -1,7 +1,4 @@
-package com.erman.usurf.utils
-
-import com.erman.usurf.directory.utils.SIMPLE_DATE_FORMAT_PATTERN
-import java.text.SimpleDateFormat
+package com.erman.usurf.directory.model
 
 data class FileModel(
     var path: String = "",

@@ -10,7 +10,7 @@
 
         <variable
             name="file"
-            type="com.erman.usurf.utils.FileModel" />
+            type="com.erman.usurf.directory.model.FileModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

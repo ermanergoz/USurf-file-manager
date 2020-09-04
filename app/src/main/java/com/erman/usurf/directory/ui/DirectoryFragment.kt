@@ -23,19 +23,11 @@ class DirectoryFragment : Fragment() {
     private lateinit var directoryViewModel: DirectoryViewModel
     private lateinit var directoryRecyclerViewAdapter: DirectoryRecyclerViewAdapter
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         viewModelFactory = ViewModelFactory()
-        directoryViewModel = ViewModelProvider(
-            requireActivity(),
-            viewModelFactory
-        ).get(DirectoryViewModel::class.java)
+        directoryViewModel = ViewModelProvider(requireActivity(), viewModelFactory).get(DirectoryViewModel::class.java)
         val binding: FragmentDirectoryBinding =
             DataBindingUtil.inflate(inflater, R.layout.fragment_directory, container, false)
-
         binding.lifecycleOwner = this
         binding.viewModel = directoryViewModel
 
@@ -61,7 +53,7 @@ class DirectoryFragment : Fragment() {
         fileListRecyclerView.layoutManager = GridLayoutManager(context, 1)
         directoryRecyclerViewAdapter = DirectoryRecyclerViewAdapter(directoryViewModel)
         fileListRecyclerView.adapter = directoryRecyclerViewAdapter
-        fileListRecyclerView.itemAnimator!!.changeDuration=0
+        fileListRecyclerView.itemAnimator!!.changeDuration = 0 //to avoid flickering
 
         directoryViewModel.path.observe(viewLifecycleOwner, Observer {
             directoryRecyclerViewAdapter.updateData(directoryViewModel.getFileList())
