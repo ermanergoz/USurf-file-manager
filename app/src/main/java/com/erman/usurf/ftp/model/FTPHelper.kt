@@ -6,7 +6,7 @@ import android.net.wifi.WifiManager
 import android.util.Log
 import com.erman.usurf.MainApplication.Companion.appContext
 
-class FTPHelper {
+class FtpModel {
     fun getIpAddress(): String {
         val wifiManager =
             appContext.getSystemService(Context.WIFI_SERVICE) as WifiManager  //applicationContext is to avoid memory leak

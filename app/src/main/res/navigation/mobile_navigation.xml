@@ -9,13 +9,21 @@
         android:id="@+id/nav_home"
         android:name="com.erman.usurf.home.ui.HomeFragment"
         android:label="@string/menu_home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_nav_home_to_nav_directory"
+            app:destination="@id/nav_directory" />
+    </fragment>
 
     <fragment
         android:id="@+id/nav_directory"
         android:name="com.erman.usurf.directory.ui.DirectoryFragment"
         android:label="@string/menu_directory"
-        tools:layout="@layout/fragment_directory" />
+        tools:layout="@layout/fragment_directory" >
+        <action
+            android:id="@+id/action_nav_directory_to_nav_home"
+            app:destination="@id/nav_home" />
+    </fragment>
 
     <fragment
         android:id="@+id/nav_library"
