@@ -57,6 +57,7 @@
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:text="@string/ok"
+                android:textColor="@color/textColorDark"
                 android:textSize="12sp" />
 
             <Button
@@ -66,6 +67,7 @@
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:text="@string/cancel"
+                android:textColor="@color/textColorDark"
                 android:textSize="12sp" />
         </LinearLayout>
 
@@ -87,6 +89,7 @@
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:text="@string/compress"
+                android:textColor="@color/textColorDark"
                 android:textSize="12sp" />
 
             <Button
@@ -96,6 +99,7 @@
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:text="@string/extract"
+                android:textColor="@color/textColorDark"
                 android:textSize="12sp" />
 
             <Button
@@ -105,6 +109,7 @@
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:text="@string/information"
+                android:textColor="@color/textColorDark"
                 android:textSize="12sp" />
 
             <Button
@@ -114,6 +119,7 @@
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:text="@string/share"
+                android:textColor="@color/textColorDark"
                 android:textSize="12sp" />
         </LinearLayout>
 
@@ -138,6 +144,7 @@
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:text="@string/copy"
+                android:textColor="@color/textColorDark"
                 android:textSize="12sp" />
 
             <Button
@@ -147,6 +154,7 @@
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:text="@string/move"
+                android:textColor="@color/textColorDark"
                 android:textSize="12sp" />
 
             <Button
@@ -156,6 +164,7 @@
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:text="@string/rename"
+                android:textColor="@color/textColorDark"
                 android:textSize="12sp" />
 
             <Button
@@ -165,6 +174,7 @@
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:text="@string/delete"
+                android:textColor="@color/textColorDark"
                 android:textSize="12sp" />
 
             <Button
@@ -175,6 +185,7 @@
                 android:background="?android:attr/selectableItemBackground"
                 android:onClick="@{() -> viewModel.onMoreClicked()}"
                 android:text="@{viewModel.moreOptionMode ? @string/collapse : @string/more}"
+                android:textColor="@color/textColorDark"
                 android:textSize="12sp" />
         </LinearLayout>
 
