@@ -12,7 +12,7 @@
         android:id="@+id/storageButton"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/button_ripple_effect"
+        android:background="@drawable/button_selectable_background"
         android:clickable="true"
         android:focusable="true"
         android:onClick="@{() -> viewModel.onStorageButtonClick(storageButton)}">

@@ -10,7 +10,7 @@
 
         <variable
             name="file"
-            type="java.io.File" />
+            type="com.erman.usurf.utils.FileModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -18,7 +18,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="1dp"
-        android:background="?android:attr/panelBackground"
+        android:background="@drawable/button_ripple_effect"
         android:foreground="?selectableItemBackground"
         android:onClick="@{() -> viewModel.onFileClick(file)}"
         android:onLongClick="@{() -> viewModel.onFileLongClick(file)}"
@@ -46,7 +46,7 @@
             android:layout_marginLeft="4dp"
             android:gravity="start"
             android:singleLine="true"
-            android:text="@{file.isDirectory() ? viewModel.getSubFileCount(file) : viewModel.getFileSize(file)}"
+            android:text="@{file.isDirectory() ? file.subFileCount : file.size}"
             android:textSize="10sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/imageView"
@@ -58,7 +58,7 @@
             android:layout_height="wrap_content"
             android:gravity="end"
             android:singleLine="true"
-            android:text="@{viewModel.getLastModified(file)}"
+            android:text="@{file.lastModified}"
             android:textSize="10sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -70,7 +70,7 @@
             android:id="@+id/imageView"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:src="@{file.isDirectory() ? @drawable/ic_folder : @drawable/ic_file}"
+            android:src="@{file.isDirectory ? @drawable/ic_folder : @drawable/ic_file}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -84,7 +84,7 @@
             android:layout_marginRight="8dp"
             android:gravity="center"
             android:singleLine="true"
-            android:text="@{viewModel.getFileExtension(file)}"
+            android:text="@{file.isDirectory ? @string/empty : file.extension}"
             android:textAllCaps="true"
             android:textSize="9sp"
             android:textStyle="bold"

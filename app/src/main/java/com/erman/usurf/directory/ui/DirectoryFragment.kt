@@ -43,6 +43,10 @@ class DirectoryFragment : Fragment() {
             Toast.makeText(context, getString(it), Toast.LENGTH_LONG).show()
         })
 
+        directoryViewModel.multipleSelection.observe(viewLifecycleOwner, Observer {
+            directoryRecyclerViewAdapter.updateSelection(it)
+        })
+
         requireActivity().onBackPressedDispatcher.addCallback(this) {
             if (!directoryViewModel.onBackPressed()) {
                 findNavController().popBackStack()

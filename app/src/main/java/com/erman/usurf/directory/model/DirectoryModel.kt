@@ -1,95 +1,31 @@
 package com.erman.usurf.directory.model
 
-import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.util.Log
-import android.widget.Toast
 import androidx.core.content.FileProvider
 import com.erman.usurf.MainApplication.Companion.appContext
+import com.erman.usurf.directory.utils.SIMPLE_DATE_FORMAT_PATTERN
+import com.erman.usurf.utils.FileModel
 import java.io.File
-import java.lang.Exception
+import java.text.SimpleDateFormat
 
 class DirectoryModel() {
 
-    fun getFiles(
-        path: String/*,
-        showHidden: Boolean,
-        showFilesOnly: Boolean,
-        showFoldersOnly: Boolean,
-        fileSortMode: String?,
-        isAscending: Boolean,
-        isDescending: Boolean,
-        showFilesOnTop: Boolean,
-        showFoldersOnTop: Boolean*/
-    ): List<File> {
-        var files = listOf<File>()
-        try {
-            files = File(path).listFiles()!!.toList()
-        } catch (err: Exception) {
-            err.printStackTrace()
+    private val dateFormat = SimpleDateFormat(SIMPLE_DATE_FORMAT_PATTERN)
+
+    fun getFileModelsFromFiles(path: String): List<FileModel> {
+        val files = File(path).listFiles().toList()
+        return files.map {
+            FileModel(
+                it.path,
+                it.name,
+                getConvertedFileSize(it.length()),
+                it.isDirectory,
+                dateFormat.format(it.lastModified()),
+                it.extension,
+                (it.listFiles()?.size.toString() + "files"),
+                false
+            )
         }
-
-
-        //var files = File(path).listFiles()!!.filter { !it.isHidden || showHidden }
-        //    .filter { it.isFile || !showFilesOnly }
-        //    .filter { it.isDirectory || !showFoldersOnly }.toMutableList()
-//
-        //if (fileSortMode == "Sort by name") {
-        //    if (isAscending) files =
-        //        files.sortedWith(
-        //            compareBy(
-        //                { !it.isDirectory || !showFoldersOnTop },
-        //                { !it.isFile || !showFilesOnTop },
-        //                { it.name })
-        //        ).toMutableList()
-        //    else if (isDescending) {
-        //        files = files.sortedWith(compareBy<File>({ !it.isDirectory || !showFoldersOnTop },
-        //            { !it.isFile || !showFilesOnTop }).thenByDescending { it.name }).toMutableList()
-        //    }
-        //}
-//
-        //if (fileSortMode == "Sort by size") {
-        //    if (isAscending) files = files.sortedWith(
-        //        compareBy({ !it.isDirectory || !showFoldersOnTop },
-        //            { !it.isFile || !showFilesOnTop },
-        //            { it.length() },
-        //            {
-        //                getFolderSize(
-        //                    it.path
-        //                )
-        //            })
-        //    ).toMutableList()
-        //    else if (isDescending) {
-        //        files = files.sortedWith(
-        //            compareBy({ !it.isDirectory || !showFoldersOnTop },
-        //                { !it.isFile || !showFilesOnTop },
-        //                { it.length() },
-        //                {
-        //                    getFolderSize(
-        //                        it.path
-        //                    )
-        //                })
-        //        ).asReversed().toMutableList()
-        //        /*asReversed() is a view of the sorted list with reversed index and has better performance than using reverse()*/
-        //        /*in this case we have 2 descending fields and compareByDescending can take only one*/
-        //    }
-        //}
-        //if (fileSortMode == "Sort by last modified") {
-        //    if (isAscending) files =
-        //        files.sortedWith(
-        //            compareBy(
-        //                { !it.isDirectory || !showFoldersOnTop },
-        //                { !it.isFile || !showFilesOnTop },
-        //                { it.lastModified() })
-        //        )
-        //            .toMutableList()
-        //    else if (isDescending) {
-        //        files = files.sortedWith(compareBy<File>({ !it.isDirectory || !showFoldersOnTop },
-        //            { !it.isFile || !showFilesOnTop }).thenByDescending { it.lastModified() })
-        //            .toMutableList()
-        //    }
-        //}
-        return files
     }
 
     fun getFolderSize(path: String): Double {
@@ -144,10 +80,12 @@ class DirectoryModel() {
         return sizeStr
     }
 
-    fun openFile(directory: File) {
+    fun openFile(directory: FileModel) {
         val intent = Intent(Intent.ACTION_VIEW)
-        intent.data = FileProvider.getUriForFile(appContext, appContext.packageName, File(directory.path))
-        intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+        intent.data =
+            FileProvider.getUriForFile(appContext, appContext.packageName, File(directory.path))
+        intent.flags =
+            Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         appContext.startActivity(intent)
     }
