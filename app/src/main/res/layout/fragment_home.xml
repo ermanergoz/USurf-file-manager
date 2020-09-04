@@ -1,87 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".library.ui.LibraryFragment">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/shortcutRecyclerView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/dividerRight"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/dividerLeft"
-        app:layout_constraintTop_toBottomOf="@+id/dividerTop" />
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.gridlayout.widget.GridLayout
-        android:id="@+id/storageUsageBarLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-    </androidx.gridlayout.widget.GridLayout>
+    <data>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/addShortcut"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginBottom="8dp"
-        android:clickable="true"
-        android:focusable="true"
-        app:backgroundTint="@color/darkBlue"
-        app:layout_constraintBottom_toBottomOf="@+id/shortcutRecyclerView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0"
-        app:srcCompat="@drawable/ic_plus" />
+        <variable
+            name="viewModel"
+            type="com.erman.usurf.home.ui.HomeViewModel" />
+    </data>
 
-    <View
-        android:id="@+id/dividerTop"
-        android:layout_width="0dp"
-        android:layout_height="2dp"
-        android:layout_marginStart="1dp"
-        android:layout_marginLeft="1dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginEnd="1dp"
-        android:layout_marginRight="1dp"
-        android:background="@drawable/separator_gradient_top"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/storageUsageBarLayout" />
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".library.ui.LibraryFragment">
 
-    <View
-        android:id="@+id/dividerLeft"
-        android:layout_width="2dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="1dp"
-        android:layout_marginLeft="1dp"
-        android:background="@drawable/separator_gradient_side"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/shortcutRecyclerView"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/dividerTop" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/shortcutRecyclerView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/dividerRight"
+            app:layout_constraintStart_toEndOf="@+id/dividerLeft"
+            app:layout_constraintTop_toBottomOf="@+id/dividerTop" />
 
-    <View
-        android:id="@+id/dividerRight"
-        android:layout_width="2dp"
-        android:layout_height="0dp"
-        android:layout_marginEnd="1dp"
-        android:layout_marginRight="1dp"
-        android:background="@drawable/separator_gradient_side"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/shortcutRecyclerView"
-        app:layout_constraintTop_toBottomOf="@+id/dividerTop" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <androidx.gridlayout.widget.GridLayout
+            android:id="@+id/storageUsageBarLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+        </androidx.gridlayout.widget.GridLayout>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/addShortcut"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="8dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:backgroundTint="@color/darkBlue"
+            app:layout_constraintBottom_toBottomOf="@+id/shortcutRecyclerView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0"
+            app:srcCompat="@drawable/ic_plus" />
+
+        <View
+            android:id="@+id/dividerTop"
+            android:layout_width="0dp"
+            android:layout_height="2dp"
+            android:layout_marginStart="1dp"
+            android:layout_marginLeft="1dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="1dp"
+            android:layout_marginRight="1dp"
+            android:background="@drawable/separator_gradient_top"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/storageUsageBarLayout" />
+
+        <View
+            android:id="@+id/dividerLeft"
+            android:layout_width="2dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="1dp"
+            android:layout_marginLeft="1dp"
+            android:background="@drawable/separator_gradient_side"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/shortcutRecyclerView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/dividerTop" />
+
+        <View
+            android:id="@+id/dividerRight"
+            android:layout_width="2dp"
+            android:layout_height="0dp"
+            android:layout_marginEnd="1dp"
+            android:layout_marginRight="1dp"
+            android:background="@drawable/separator_gradient_side"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/shortcutRecyclerView"
+            app:layout_constraintTop_toBottomOf="@+id/dividerTop" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
