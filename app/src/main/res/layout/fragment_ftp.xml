@@ -59,7 +59,7 @@
                 android:layout_marginLeft="8dp"
                 android:layout_marginTop="4dp"
                 android:layout_marginRight="8dp"
-                android:text="@{viewModel.isConnectedToWifi() ? viewModel.url : @string/dash}"
+                android:text="@{viewModel.isConnectedToWifi() ? viewModel.url : @string/empty}"
                 android:textSize="16sp" />
 
             <TextView
@@ -153,7 +153,7 @@
                 android:layout_marginLeft="24dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginRight="24dp"
-                android:background="@drawable/button_ripple_effect"
+                android:background="@drawable/button_selectable_background"
                 android:enabled="@{viewModel.isConnectedToWifi()}"
                 android:onClick="@{() -> viewModel.onConnectClicked()}"
                 android:text="@{viewModel.isServiceRunning() ? @string/disconnect : @string/connect}" />
