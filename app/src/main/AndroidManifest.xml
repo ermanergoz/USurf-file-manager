@@ -17,7 +17,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <service android:name=".ftp.model.FTPServer" />
+        <service android:name=".ftp.model.FtpServer" />
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.erman.usurf"
