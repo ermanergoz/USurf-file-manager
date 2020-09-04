@@ -42,12 +42,6 @@ class DirectoryRecyclerViewAdapter(var viewModel: DirectoryViewModel) :
         fun bindDirectory(directory: FileModel) {
             binding.setVariable(BR.file, directory)
 
-            if (directory.isSelected) {
-                itemView.setBackgroundColor(Color.parseColor("#99CBFD"))
-            } else {
-                itemView.setBackgroundColor(Color.TRANSPARENT)
-            }
-
             itemView.nameTextView.ellipsize =
                 TextUtils.TruncateAt.MARQUEE  //for sliding names if the length is longer than 1 line
             itemView.nameTextView.isSelected = true
@@ -60,8 +54,9 @@ class DirectoryRecyclerViewAdapter(var viewModel: DirectoryViewModel) :
         notifyDataSetChanged()
     }
 
-    fun updateSelection(selectedFileList: MutableList<FileModel>) {
-        //TODO: Improve here to fix screen flickering
-        notifyDataSetChanged()
+    fun updateSelection() {
+        for (i in directoryList.indices) {
+            notifyItemChanged(i)
+        }
     }
 }
