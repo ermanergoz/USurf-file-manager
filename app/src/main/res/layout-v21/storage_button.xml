@@ -23,7 +23,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginEnd="0dp"
-            android:layout_marginRight="0dp"
             android:layout_marginBottom="0dp"
             android:progress="@{viewModel.getUsedStoragePercentage(storageButton)}" />
 
@@ -32,10 +31,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignStart="@id/progressBar"
-            android:layout_alignLeft="@id/progressBar"
             android:layout_alignTop="@id/progressBar"
             android:layout_alignEnd="@id/progressBar"
-            android:layout_alignRight="@id/progressBar"
             android:layout_alignBottom="@id/progressBar"
             android:gravity="center"
             android:maxLines="1"

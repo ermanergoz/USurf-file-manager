@@ -112,7 +112,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
-                android:text="@string/copy"
+                android:text="@string/copy_file"
                 android:textColor="@color/textColorDark"
                 android:textSize="12sp" />
 
@@ -168,7 +168,7 @@
             android:clickable="true"
             android:focusable="true"
             android:visibility="@{viewModel.optionMode ? View.GONE : View.VISIBLE}"
-            app:backgroundTint="@color/darkBlue"
+            app:backgroundTint="@color/colorAccent"
             app:layout_constraintBottom_toTopOf="@+id/moreOptionButtonBar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"

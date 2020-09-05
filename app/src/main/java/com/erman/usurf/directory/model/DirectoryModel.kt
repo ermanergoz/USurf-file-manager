@@ -1,5 +1,6 @@
 package com.erman.usurf.directory.model
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.core.content.FileProvider
 import com.erman.usurf.MainApplication.Companion.appContext
@@ -8,6 +9,7 @@ import java.io.File
 import java.text.SimpleDateFormat
 
 class DirectoryModel {
+    @SuppressLint("SimpleDateFormat")
     private val dateFormat = SimpleDateFormat(SIMPLE_DATE_FORMAT_PATTERN)
 
     fun getFileModelsFromFiles(path: String): List<FileModel> {
