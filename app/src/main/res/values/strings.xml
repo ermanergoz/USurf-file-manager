@@ -110,7 +110,8 @@
 
     <!--toast notifications-->
     <string name="unable_to_execute_search_query">Unable to execute search query</string>
-    <string name="file_unsupported_or_no_application">Cannot open file. Either we cannot open the file, or there is no application supports it.</string>
+    <string name="unsupported_file">There is no application that supports the file.</string>
+    <string name="unable_to_open_directory">Unable to open the directory.</string>
     <string name="error_while_renaming">"Error while renaming: "</string>
     <string name="renaming_successful">Renamed</string>
     <string name="error_while_deleting">"Error while deleting: "</string>
