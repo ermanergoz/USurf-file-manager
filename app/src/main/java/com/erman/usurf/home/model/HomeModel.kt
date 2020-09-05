@@ -142,7 +142,8 @@ class HomeModel() {
             storageButtons.add(binding)
             storageButtons[i].root.tag = storageDirectories.elementAt(i)
             storageButtons[i].root.buttonText.text=storageDirectories.elementAt(i)
-            storageButtons[i].root.progressBar.scaleY=20f
+            storageButtons[i].root.progressBar?.scaleY=20f
+            //It is null on older versions of android because I removed it from the layout
         }
         return storageButtons
     }
