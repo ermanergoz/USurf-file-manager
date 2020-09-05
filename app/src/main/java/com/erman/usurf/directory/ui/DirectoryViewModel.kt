@@ -1,6 +1,7 @@
 package com.erman.usurf.directory.ui
 
 import android.content.ActivityNotFoundException
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -59,10 +60,6 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
         return true
     }
 
-    fun onMoreClicked() {
-        _moreOptionMode.value = !_moreOptionMode.value!!
-    }
-
     fun onBackPressed(): Boolean {
         try {
             if (optionMode.value!!) {
@@ -98,5 +95,41 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
             }
         }
         return emptyList()
+    }
+
+    fun onCompressClicked() {
+        Log.e("compress", "clicked")
+    }
+
+    fun onExtractClicked() {
+        Log.e("extract", "clicked")
+    }
+
+    fun onInformationClicked() {
+        Log.e("information", "clicked")
+    }
+
+    fun onShareClicked() {
+        Log.e("share", "clicked")
+    }
+
+    fun onMoreClicked() {
+        _moreOptionMode.value = !_moreOptionMode.value!!
+    }
+
+    fun onCopyClicked() {
+        Log.e("copy", "clicked")
+    }
+
+    fun onMoveClicked() {
+        Log.e("move", "clicked")
+    }
+
+    fun onRenameClicked() {
+        Log.e("rename", "clicked")
+    }
+
+    fun onDeleteClicked() {
+        Log.e("delete", "clicked")
     }
 }
