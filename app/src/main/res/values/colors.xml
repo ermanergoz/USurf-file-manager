@@ -1,25 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!--common colors-->
     <color name="colorPrimary">#168DDA</color>
     <color name="colorAccent">#168DDA</color>
     <color name="colorPrimaryDark">#000000</color>
-    <color name="multipleSelectionColor">#808B96</color>
-
-    <!--light theme colors -->
     <color name="lightBlue">#99CBFD</color>
-    <color name="background">#FEF9E7</color>
     <color name="textColorLight">#000000</color>
-
-    <!--dark theme colors -->
-    <color name="darkBlue">#168DDA</color>
-    <color name="backgroundDark">#2B2B2B</color>
     <color name="textColorDark">#ffffff</color>
-
-    <!--daynnight theme colors -->
-    <color name="daynnightBlue">#99CBFD</color>
-    <color name="daynnightbackground">#FEF9E7</color>
     <color name="daynnightTextColor">#000000</color>
-
     <color name="separatorColor">#ABB2B9</color>
 </resources>
