@@ -164,7 +164,7 @@
     <string name="empty_folder_size_text">Empty Folder</string>
     <string name="empty_folder">There is nothing here.</string>
     <string name="files_num">Files</string>
-    <string name="copy">Copy</string>
+    <string name="copy_file">Copy</string>
     <string name="move">Move</string>
     <string name="rename">Rename</string>
     <string name="delete">Delete</string>

@@ -45,7 +45,7 @@
             android:layout_marginBottom="8dp"
             android:clickable="true"
             android:focusable="true"
-            app:backgroundTint="@color/darkBlue"
+            app:backgroundTint="@color/colorAccent"
             app:layout_constraintBottom_toBottomOf="@+id/shortcutRecyclerView"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"

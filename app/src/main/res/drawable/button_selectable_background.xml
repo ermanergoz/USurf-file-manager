@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ripple xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:color="@color/lightBlue"
-    tools:targetApi="lollipop">
-    <item android:id="@android:id/mask">
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
         <shape android:shape="rectangle">
-            <corners android:radius="0dp" />
             <solid android:color="@color/lightBlue" />
         </shape>
     </item>
     <item
         android:drawable="@drawable/button_frame"
         android:state_checked="false" />
-</ripple>
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent" />
+        </shape>
+    </item>
+</selector>
