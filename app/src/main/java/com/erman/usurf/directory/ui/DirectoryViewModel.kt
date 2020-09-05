@@ -45,7 +45,8 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                 try {
                     directoryModel.openFile(file)
                 } catch (err: ActivityNotFoundException) {
-                    _toastMessage.value = Event(R.string.file_unsupported_or_no_application)
+                    _toastMessage.value = Event(R.string.unsupported_file)
+                    err.printStackTrace()
                 }
             }
         }
@@ -88,8 +89,14 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
 
     fun getFileList(): List<FileModel> {
-        return if (!path.value.isNullOrEmpty()) {
-            directoryModel.getFileModelsFromFiles(path.value!!)
-        } else emptyList()
+        if (!path.value.isNullOrEmpty()) {
+            try {
+                return directoryModel.getFileModelsFromFiles(path.value!!)
+            } catch (err: IllegalStateException) {
+                _toastMessage.value = Event(R.string.unable_to_open_directory)
+                err.printStackTrace()
+            }
+        }
+        return emptyList()
     }
 }
