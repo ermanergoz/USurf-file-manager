@@ -2,10 +2,12 @@ package com.erman.usurf.directory.ui
 
 import android.content.Intent
 import android.util.Log
+import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.erman.usurf.R
+import com.erman.usurf.dialog.FileInformationDialog
 import com.erman.usurf.directory.model.DirectoryModel
 import com.erman.usurf.utils.Event
 import com.erman.usurf.directory.model.FileModel
@@ -23,6 +25,9 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
 
     private val _newActivity = MutableLiveData<Event<Intent?>>()
     val newActivity: LiveData<Event<Intent?>> = _newActivity
+
+    private val _dialog = MutableLiveData<Event<DialogFragment>>()
+    val dialog: LiveData<Event<DialogFragment>> = _dialog
 
     private val _optionMode = MutableLiveData<Boolean>().apply {
         value = false
@@ -109,7 +114,11 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
 
     fun onInformationClicked() {
-        Log.e("information", "clicked")
+        for (i in multipleSelection.value!!.indices) {
+            val queueIndicator = ((multipleSelection.value!!.size - (i + 1)) + 1).toString() +
+                    " / " + multipleSelection.value!!.size
+            _dialog.value = Event(FileInformationDialog(multipleSelection.value!![i], queueIndicator))
+        }
     }
 
     fun onShareClicked() {
