@@ -39,6 +39,10 @@ class DirectoryFragment : Fragment() {
             directoryRecyclerViewAdapter.updateSelection()
         })
 
+        directoryViewModel.newActivity.observe(viewLifecycleOwner, EventObserver {
+                startActivity(it)
+        })
+
         requireActivity().onBackPressedDispatcher.addCallback(this) {
             if (!directoryViewModel.onBackPressed()) {
                 findNavController().popBackStack()
