@@ -1,6 +1,6 @@
 package com.erman.usurf.directory.ui
 
-import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -20,6 +20,9 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
 
     private val _toastMessage = MutableLiveData<Event<Int>>()
     val toastMessage: LiveData<Event<Int>> = _toastMessage
+
+    private val _newActivity = MutableLiveData<Event<Intent?>>()
+    val newActivity: LiveData<Event<Intent?>> = _newActivity
 
     private val _optionMode = MutableLiveData<Boolean>().apply {
         value = false
@@ -43,11 +46,11 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
             if (file.isDirectory)
                 _path.value = file.path
             else {
-                try {
-                    directoryModel.openFile(file)
-                } catch (err: ActivityNotFoundException) {
+                val intent = directoryModel.openFile(file)
+                intent?.let {
+                    _newActivity.value = Event(it)
+                } ?: let {
                     _toastMessage.value = Event(R.string.unsupported_file)
-                    err.printStackTrace()
                 }
             }
         }
@@ -110,7 +113,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
 
     fun onShareClicked() {
-        Log.e("share", "clicked")
+        _newActivity.value = Event(directoryModel.share(multipleSelection.value!!))
     }
 
     fun onMoreClicked() {

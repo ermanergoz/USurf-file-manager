@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.core.content.FileProvider
@@ -12,7 +11,6 @@ import androidx.documentfile.provider.DocumentFile
 import com.erman.usurf.MainApplication.Companion.appContext
 import com.erman.usurf.R
 import com.erman.usurf.directory.utils.SIMPLE_DATE_FORMAT_PATTERN
-import com.erman.usurf.utils.SHARED_PREF_FILE
 import java.io.*
 import java.text.SimpleDateFormat
 import java.util.zip.ZipEntry
@@ -83,12 +81,11 @@ class DirectoryModel {
         return sizeStr
     }
 
-    fun openFile(directory: FileModel) {
+    fun openFile(directory: FileModel): Intent? {
         val intent = Intent(Intent.ACTION_VIEW)
         intent.data = FileProvider.getUriForFile(appContext, appContext.packageName, File(directory.path))
         intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        appContext.startActivity(intent)
+        intent.resolveActivity(appContext.packageManager)?.let { return intent } ?: let { return null }
     }
 
     fun manageMultipleSelectionList(file: FileModel, multipleSelection: MutableList<FileModel>): MutableList<FileModel> {
@@ -574,5 +571,21 @@ class DirectoryModel {
                 subPath += '/'
             }
         }
+    }
+
+    fun share(multipleSelectionList: List<FileModel>): Intent {
+        val fileUris: ArrayList<Uri> = arrayListOf()
+
+        for (fileModel in multipleSelectionList) {
+            fileUris.add(FileProvider.getUriForFile(appContext, appContext.packageName, //(use your app signature + ".provider" )
+                File(fileModel.path)))  //used this instead of File().toUri to avoid FileUriExposedException
+        }
+
+        val shareIntent = Intent().apply {
+            action = Intent.ACTION_SEND_MULTIPLE
+            putParcelableArrayListExtra(Intent.EXTRA_STREAM, fileUris)
+            type = "*/*"
+        }
+        return Intent.createChooser(shareIntent, appContext.getString(R.string.share))
     }
 }
