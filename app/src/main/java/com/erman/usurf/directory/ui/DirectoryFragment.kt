@@ -1,5 +1,6 @@
 package com.erman.usurf.directory.ui
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.erman.usurf.R
 import com.erman.usurf.databinding.FragmentDirectoryBinding
 import com.erman.usurf.utils.EventObserver
+import com.erman.usurf.utils.ShowDialog
 import com.erman.usurf.utils.ViewModelFactory
 import kotlinx.android.synthetic.main.fragment_directory.*
 
@@ -22,6 +24,7 @@ class DirectoryFragment : Fragment() {
     private lateinit var viewModelFactory: ViewModelFactory
     private lateinit var directoryViewModel: DirectoryViewModel
     private lateinit var directoryRecyclerViewAdapter: DirectoryRecyclerViewAdapter
+    private lateinit var dialogListener: ShowDialog
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         viewModelFactory = ViewModelFactory()
@@ -40,7 +43,11 @@ class DirectoryFragment : Fragment() {
         })
 
         directoryViewModel.newActivity.observe(viewLifecycleOwner, EventObserver {
-                startActivity(it)
+            startActivity(it)
+        })
+
+        directoryViewModel.dialog.observe(viewLifecycleOwner, EventObserver {
+            dialogListener.showDialog(it)
         })
 
         requireActivity().onBackPressedDispatcher.addCallback(this) {
@@ -62,5 +69,15 @@ class DirectoryFragment : Fragment() {
         directoryViewModel.path.observe(viewLifecycleOwner, Observer {
             directoryRecyclerViewAdapter.updateData(directoryViewModel.getFileList())
         })
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        try {
+            dialogListener = context as ShowDialog
+        } catch (err: ClassCastException) {
+            err.printStackTrace()
+        }
     }
 }

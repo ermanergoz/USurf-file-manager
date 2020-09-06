@@ -24,61 +24,58 @@ class DirectoryModel {
     fun getFileModelsFromFiles(path: String): List<FileModel> {
         val files = File(path).listFiles().toList()
         return files.map {
-            FileModel(it.path, it.name, getConvertedFileSize(it.length()), it.isDirectory,
+            FileModel(it.path, it.name, getConvertedFileSize(it), it.isDirectory,
                 dateFormat.format(it.lastModified()), it.extension,
-                (it.listFiles()?.size.toString() + " files"), false)
+                (it.listFiles()?.size.toString() + " files"), getPermissions(it), it.isHidden)
         }
     }
 
-    fun getFolderSize(path: String): Double {
-        if (File(path).exists()) {
+    private fun getPermissions(file: File): String {
+        return when {
+            file.canRead() && file.canWrite() -> "-RW"
+            else -> if (!file.canRead() && file.canWrite()) "-W"
+            else if (file.canRead() && !file.canWrite()) "-R"
+            else "NONE"
+        }
+    }
+
+    private fun getConvertedFileSize(file: File): String {
+        val size: Long = if (file.isFile) {
+            file.length()
+        } else {
+            getFolderSize(file).toLong()
+        }
+
+        var sizeStr = ""
+
+        val kilobyte = size / 1024.0
+        val megabyte = size / (1024.0 * 1024.0)
+        val gigabyte = size / (1024.0 * 1024.0 * 1024.0)
+        val terabyte = size / (1024.0 * 1024.0 * 1024.0 * 1024.0)
+
+        sizeStr = when {
+            terabyte > 1 -> "%.2f".format(terabyte) + " TB"
+            gigabyte > 1 -> "%.2f".format(gigabyte) + " GB"
+            megabyte > 1 -> "%.2f".format(megabyte) + " MB"
+            kilobyte > 1 -> "%.2f".format(kilobyte) + " KB"
+            else -> "$size Bytes"
+        }
+        return sizeStr
+    }
+
+    private fun getFolderSize(file: File): Double {
+        if (file.exists()) {
             var size = 0.0
-            var fileList = File(path).listFiles().toList()
+            val fileList = file.listFiles().toList()
 
             for (i in fileList.indices) {
                 if (fileList[i].isDirectory)
-                    size += getFolderSize(fileList[i].path)
+                    size += getFolderSize(fileList[i])
                 else size += fileList[i].length()
             }
             return size
         }
         return 0.0
-    }
-
-    private fun getConvertedFileSize(size: Long): String {
-        var sizeStr = ""
-
-        val kilobyte = size / 1024.0
-        val megabyte = size / (1024.0 * 1024.0)
-        val gigabyte = size / (1024.0 * 1024.0 * 1024.0)
-        val terabyte = size / (1024.0 * 1024.0 * 1024.0 * 1024.0)
-
-        sizeStr = when {
-            terabyte > 1 -> "%.2f".format(terabyte) + " TB"
-            gigabyte > 1 -> "%.2f".format(gigabyte) + " GB"
-            megabyte > 1 -> "%.2f".format(megabyte) + " MB"
-            kilobyte > 1 -> "%.2f".format(kilobyte) + " KB"
-            else -> size.toDouble().toString() + " Bytes"
-        }
-        return sizeStr
-    }
-
-    fun getConvertedFileSize(size: Double): String {
-        var sizeStr = ""
-
-        val kilobyte = size / 1024.0
-        val megabyte = size / (1024.0 * 1024.0)
-        val gigabyte = size / (1024.0 * 1024.0 * 1024.0)
-        val terabyte = size / (1024.0 * 1024.0 * 1024.0 * 1024.0)
-
-        sizeStr = when {
-            terabyte > 1 -> "%.2f".format(terabyte) + " TB"
-            gigabyte > 1 -> "%.2f".format(gigabyte) + " GB"
-            megabyte > 1 -> "%.2f".format(megabyte) + " MB"
-            kilobyte > 1 -> "%.2f".format(kilobyte) + " KB"
-            else -> size.toDouble().toString() + " Bytes"
-        }
-        return sizeStr
     }
 
     fun openFile(directory: FileModel): Intent? {
@@ -340,7 +337,8 @@ class DirectoryModel {
 
             for (i in copyOrMoveSources.indices) {
                 if (copyOrMoveSources[i].isDirectory) {
-                    isSuccess = File(copyOrMoveSources[i].path).copyRecursively(File(copyOrMoveDestination + File.separator + copyOrMoveSources[i].name))
+                    isSuccess =
+                        File(copyOrMoveSources[i].path).copyRecursively(File(copyOrMoveDestination + File.separator + copyOrMoveSources[i].name))
                 } else {
                     try {
                         File(copyOrMoveSources[i].path).copyTo(File(copyOrMoveDestination + File.separator + copyOrMoveSources[i].name))

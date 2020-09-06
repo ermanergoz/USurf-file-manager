@@ -173,20 +173,4 @@ class HomeModel() {
         ) * 100 / getTotalStorage(path))).toInt()
         return 0
     }
-
-    //fun getFolderUsedStoragePercentage(path: String): Double {
-    //    if (path != "/" && (getTotalStorage(path)).toInt() != 0) return ((getFolderSize(
-    //        path
-    //    ) * 100.0 / getTotalStorage(path)))
-    //    return 0.0
-    //}
-
-    //fun getFolderUsedStoragePercentage(path: String, size: Long): Double {
-    //    if (path != "/" && (getTotalStorage(path)).toDouble() != 0.0) return ((size * 100.0 / getTotalStorage(
-    //        path
-    //    )))
-    //    return 0.0
-    //}
-
-
 }
