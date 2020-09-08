@@ -1,12 +1,15 @@
 package com.erman.usurf.directory.ui
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.addCallback
+import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -15,10 +18,13 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.erman.usurf.R
 import com.erman.usurf.databinding.FragmentDirectoryBinding
+import com.erman.usurf.dialog.FileInformationDialog
+import com.erman.usurf.dialog.RenameDialog
 import com.erman.usurf.utils.EventObserver
 import com.erman.usurf.utils.ShowDialog
 import com.erman.usurf.utils.ViewModelFactory
 import kotlinx.android.synthetic.main.fragment_directory.*
+import java.io.File
 
 class DirectoryFragment : Fragment() {
     private lateinit var viewModelFactory: ViewModelFactory
@@ -42,12 +48,47 @@ class DirectoryFragment : Fragment() {
             directoryRecyclerViewAdapter.updateSelection()
         })
 
-        directoryViewModel.newActivity.observe(viewLifecycleOwner, EventObserver {
-            startActivity(it)
+        directoryViewModel.openFile.observe(viewLifecycleOwner, Observer {
+            it.getContentIfNotHandled()?.let {args ->
+                val intent = Intent(Intent.ACTION_VIEW)
+                intent.data = FileProvider.getUriForFile(requireContext(), requireContext().packageName, File(args.path))
+                intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                intent.resolveActivity(requireContext().packageManager)?.let { startActivity(intent) }
+                    ?: let { Toast.makeText(context, getString(R.string.unsupported_file), Toast.LENGTH_LONG).show() }
+            }
         })
 
-        directoryViewModel.dialog.observe(viewLifecycleOwner, EventObserver {
-            dialogListener.showDialog(it)
+        directoryViewModel.onShare.observe(viewLifecycleOwner, Observer {
+            it.getContentIfNotHandled()?.let {args ->
+                val fileUris: ArrayList<Uri> = arrayListOf()
+
+                for (fileModel in args.multipleSelectionList) {
+                    fileUris.add(FileProvider.getUriForFile(requireContext(), requireContext().packageName, //(use your app signature + ".provider" )
+                        File(fileModel.path)))  //used this instead of File().toUri to avoid FileUriExposedException
+                }
+                val shareIntent = Intent().apply {
+                    action = Intent.ACTION_SEND_MULTIPLE
+                    putParcelableArrayListExtra(Intent.EXTRA_STREAM, fileUris)
+                    type = "*/*"
+                }
+                startActivity(Intent.createChooser(shareIntent, requireContext().getString(R.string.share)))
+            }
+        })
+
+        directoryViewModel.onRename.observe(viewLifecycleOwner, Observer {
+            it.getContentIfNotHandled()?.let {args ->
+                dialogListener.showDialog(RenameDialog(args.name))
+            }
+        })
+
+        directoryViewModel.onInformation.observe(viewLifecycleOwner, Observer {
+            it.getContentIfNotHandled()?.let { args ->
+                dialogListener.showDialog(FileInformationDialog(args.file))
+            }
+        })
+
+        directoryViewModel.updateDirectoryList.observe(viewLifecycleOwner, Observer {
+            directoryRecyclerViewAdapter.updateData(it)
         })
 
         requireActivity().onBackPressedDispatcher.addCallback(this) {
