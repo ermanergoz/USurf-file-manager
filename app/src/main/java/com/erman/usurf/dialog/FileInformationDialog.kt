@@ -11,7 +11,7 @@ import com.erman.usurf.R
 import com.erman.usurf.databinding.DialogFileInformationBinding
 import com.erman.usurf.directory.model.FileModel
 
-class FileInformationDialog(var file: FileModel, var queue: String) : DialogFragment() {
+class FileInformationDialog(    var file: FileModel) : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
             val builder = AlertDialog.Builder(it)
@@ -22,7 +22,7 @@ class FileInformationDialog(var file: FileModel, var queue: String) : DialogFrag
             binding.setVariable(BR.file, file)
             binding.lifecycleOwner = this
 
-            builder.setMessage(file.name + " " + getString(R.string.information) + " " + queue)
+            builder.setMessage(file.name + " " + getString(R.string.information))
                 .setPositiveButton(R.string.ok, DialogInterface.OnClickListener { _, _ ->
                 })
 

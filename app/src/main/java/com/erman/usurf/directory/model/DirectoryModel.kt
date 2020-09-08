@@ -2,11 +2,8 @@ package com.erman.usurf.directory.model
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.util.Log
 import android.widget.Toast
-import androidx.core.content.FileProvider
 import androidx.documentfile.provider.DocumentFile
 import com.erman.usurf.MainApplication.Companion.appContext
 import com.erman.usurf.R
@@ -22,6 +19,7 @@ class DirectoryModel {
     private val dateFormat = SimpleDateFormat(SIMPLE_DATE_FORMAT_PATTERN)
 
     fun getFileModelsFromFiles(path: String): List<FileModel> {
+        Log.e("current path", path)
         val files = File(path).listFiles().toList()
         return files.map {
             FileModel(it.path, it.name, getConvertedFileSize(it), it.isDirectory,
@@ -40,11 +38,9 @@ class DirectoryModel {
     }
 
     private fun getConvertedFileSize(file: File): String {
-        val size: Long = if (file.isFile) {
+        val size: Long = if (file.isFile)
             file.length()
-        } else {
-            getFolderSize(file).toLong()
-        }
+        else getFolderSize(file).toLong()
 
         var sizeStr = ""
 
@@ -76,13 +72,6 @@ class DirectoryModel {
             return size
         }
         return 0.0
-    }
-
-    fun openFile(directory: FileModel): Intent? {
-        val intent = Intent(Intent.ACTION_VIEW)
-        intent.data = FileProvider.getUriForFile(appContext, appContext.packageName, File(directory.path))
-        intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-        intent.resolveActivity(appContext.packageManager)?.let { return intent } ?: let { return null }
     }
 
     fun manageMultipleSelectionList(file: FileModel, multipleSelection: MutableList<FileModel>): MutableList<FileModel> {
@@ -200,20 +189,20 @@ class DirectoryModel {
     //    return res
     //}
 
-    fun rename(context: Context, selectedDirectories: List<File>, newNameToBe: String, isExtSdCard: Boolean, updateFragment: () -> Unit) {
+    fun rename(selectedDirectories: List<FileModel>, newNameToBe: String) {
         var isSuccess = false
 
-        if (isExtSdCard) {
-            for (i in selectedDirectories.indices) {
-                var newFileName = newNameToBe
-                if (i > 0) newFileName = newFileName + "(" + i + ")"
-                //isSuccess = getDocumentFile(
-                //    selectedDirectories[i],
-                //    selectedDirectories[i].isDirectory,
-                //    context
-                //)!!.renameTo(newFileName)
-            }
-        } else {
+        //if (isExtSdCard) {
+        //    for (i in selectedDirectories.indices) {
+        //        var newFileName = newNameToBe
+        //        if (i > 0) newFileName = newFileName + "(" + i + ")"
+        //        //isSuccess = getDocumentFile(
+        //        //    selectedDirectories[i],
+        //        //    selectedDirectories[i].isDirectory,
+        //        //    context
+        //        //)!!.renameTo(newFileName)
+        //    }
+        //} else {
             for (i in selectedDirectories.indices) {
                 val dirName = selectedDirectories[i].path.removeSuffix(selectedDirectories[i].name)
                 var newFileName = newNameToBe
@@ -228,15 +217,15 @@ class DirectoryModel {
                 isSuccess = prev.renameTo(new)
 
                 if (!isSuccess) {
-                    Toast.makeText(context, context.getString(R.string.error_while_renaming) + prev.name, Toast.LENGTH_LONG).show()
+                    Toast.makeText(appContext, appContext.getString(R.string.error_while_renaming) + prev.name, Toast.LENGTH_LONG).show()
                     break
                 }
             }
-        }
-        if (isSuccess) {
-            Toast.makeText(context, context.getString(R.string.renaming_successful), Toast.LENGTH_LONG).show()
-            updateFragment.invoke()
-        }
+        //}
+        //if (isSuccess) {
+        //    Toast.makeText(context, context.getString(R.string.renaming_successful), Toast.LENGTH_LONG).show()
+        //    updateFragment.invoke()
+        //}
     }
 
     fun deleteFolderRecursively(documentFile: DocumentFile): Boolean {
@@ -569,21 +558,5 @@ class DirectoryModel {
                 subPath += '/'
             }
         }
-    }
-
-    fun share(multipleSelectionList: List<FileModel>): Intent {
-        val fileUris: ArrayList<Uri> = arrayListOf()
-
-        for (fileModel in multipleSelectionList) {
-            fileUris.add(FileProvider.getUriForFile(appContext, appContext.packageName, //(use your app signature + ".provider" )
-                File(fileModel.path)))  //used this instead of File().toUri to avoid FileUriExposedException
-        }
-
-        val shareIntent = Intent().apply {
-            action = Intent.ACTION_SEND_MULTIPLE
-            putParcelableArrayListExtra(Intent.EXTRA_STREAM, fileUris)
-            type = "*/*"
-        }
-        return Intent.createChooser(shareIntent, appContext.getString(R.string.share))
     }
 }
