@@ -1,16 +1,12 @@
 package com.erman.usurf.directory.ui
 
-import android.content.Intent
 import android.util.Log
-import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.erman.usurf.R
-import com.erman.usurf.dialog.FileInformationDialog
-import com.erman.usurf.directory.model.DirectoryModel
+import com.erman.usurf.directory.model.*
 import com.erman.usurf.utils.Event
-import com.erman.usurf.directory.model.FileModel
 import java.io.File
 import java.lang.Exception
 
@@ -23,11 +19,17 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     private val _toastMessage = MutableLiveData<Event<Int>>()
     val toastMessage: LiveData<Event<Int>> = _toastMessage
 
-    private val _newActivity = MutableLiveData<Event<Intent?>>()
-    val newActivity: LiveData<Event<Intent?>> = _newActivity
+    private val _openFile = MutableLiveData<Event<UIEventArgs.OpenFileActivityArgs>>()
+    val openFile: LiveData<Event<UIEventArgs.OpenFileActivityArgs>> = _openFile
 
-    private val _dialog = MutableLiveData<Event<DialogFragment>>()
-    val dialog: LiveData<Event<DialogFragment>> = _dialog
+    private val _onShare = MutableLiveData<Event<UIEventArgs.ShareActivityArgs>>()
+    val onShare: LiveData<Event<UIEventArgs.ShareActivityArgs>> = _onShare
+
+    private val _onRename = MutableLiveData<Event<UIEventArgs.RenameDialogArgs>>()
+    val onRename: LiveData<Event<UIEventArgs.RenameDialogArgs>> = _onRename
+
+    private val _onInformation = MutableLiveData<Event<UIEventArgs.InformationDialogArgs>>()
+    val onInformation: LiveData<Event<UIEventArgs.InformationDialogArgs>> = _onInformation
 
     private val _optionMode = MutableLiveData<Boolean>().apply {
         value = false
@@ -39,6 +41,11 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
     val multipleSelection: LiveData<MutableList<FileModel>> = _multipleSelection
 
+    private val _updateDirectoryList = MutableLiveData<List<FileModel>>().apply {
+        value = mutableListOf()
+    }
+    val updateDirectoryList: LiveData<List<FileModel>> = _updateDirectoryList
+
     private val _moreOptionMode = MutableLiveData<Boolean>().apply {
         value = false
     }
@@ -48,16 +55,8 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
         if (multiSelectionMode)
             _multipleSelection.value = directoryModel.manageMultipleSelectionList(file, multipleSelection.value!!)
         else {
-            if (file.isDirectory)
-                _path.value = file.path
-            else {
-                val intent = directoryModel.openFile(file)
-                intent?.let {
-                    _newActivity.value = Event(it)
-                } ?: let {
-                    _toastMessage.value = Event(R.string.unsupported_file)
-                }
-            }
+            if (file.isDirectory) _path.value = file.path
+            else _openFile.value = Event(UIEventArgs.OpenFileActivityArgs(file.path))
         }
     }
 
@@ -68,13 +67,17 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
         return true
     }
 
+    private fun turnOffOptionMode() {
+        _multipleSelection.value = directoryModel.clearMultipleSelection(multipleSelection.value!!)
+        _optionMode.value = false
+        _moreOptionMode.value = false
+        multiSelectionMode = false
+    }
+
     fun onBackPressed(): Boolean {
         try {
             if (optionMode.value!!) {
-                _multipleSelection.value = directoryModel.clearMultipleSelection(multipleSelection.value!!)
-                _optionMode.value = false
-                _moreOptionMode.value = false
-                multiSelectionMode = false
+                turnOffOptionMode()
                 return true
             } else {
                 val prevFile = File(File(path.value!!).parent!!)
@@ -114,15 +117,13 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
 
     fun onInformationClicked() {
-        for (i in multipleSelection.value!!.indices) {
-            val queueIndicator = ((multipleSelection.value!!.size - (i + 1)) + 1).toString() +
-                    " / " + multipleSelection.value!!.size
-            _dialog.value = Event(FileInformationDialog(multipleSelection.value!![i], queueIndicator))
+        for (file in multipleSelection.value!!) {
+            _onInformation.value = Event(UIEventArgs.InformationDialogArgs(file))
         }
     }
 
     fun onShareClicked() {
-        _newActivity.value = Event(directoryModel.share(multipleSelection.value!!))
+        _onShare.value = Event(UIEventArgs.ShareActivityArgs(multipleSelection.value!!))
     }
 
     fun onMoreClicked() {
@@ -137,8 +138,16 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
         Log.e("move", "clicked")
     }
 
+    fun onRenameOkPressed(fileName: String) {
+        directoryModel.rename(multipleSelection.value!!, fileName)
+        _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
+        turnOffOptionMode()
+    }
+
     fun onRenameClicked() {
-        Log.e("rename", "clicked")
+        val file: FileModel? = if (multipleSelection.value!!.size == 1) multipleSelection.value!!.first()
+        else null
+        _onRename.value = Event(UIEventArgs.RenameDialogArgs(file?.name))
     }
 
     fun onDeleteClicked() {
