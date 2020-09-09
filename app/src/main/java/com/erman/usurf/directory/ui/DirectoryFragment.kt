@@ -18,10 +18,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.erman.usurf.R
 import com.erman.usurf.databinding.FragmentDirectoryBinding
-import com.erman.usurf.dialog.ui.CreateFileDialog
-import com.erman.usurf.dialog.ui.CreateFolderDialog
-import com.erman.usurf.dialog.ui.FileInformationDialog
-import com.erman.usurf.dialog.ui.RenameDialog
+import com.erman.usurf.dialog.ui.*
 import com.erman.usurf.utils.EventObserver
 import com.erman.usurf.utils.ShowDialog
 import com.erman.usurf.utils.ViewModelFactory
@@ -57,6 +54,12 @@ class DirectoryFragment : Fragment() {
                 intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
                 intent.resolveActivity(requireContext().packageManager)?.let { startActivity(intent) }
                     ?: let { Toast.makeText(context, getString(R.string.unsupported_file), Toast.LENGTH_LONG).show() }
+            }
+        })
+
+        directoryViewModel.onCompress.observe(viewLifecycleOwner, Observer {
+            it.getContentIfNotHandled()?.let {
+                dialogListener.showDialog(CompressDialog())
             }
         })
 
