@@ -2,12 +2,16 @@ package com.erman.usurf.directory.model
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.net.Uri
+import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.documentfile.provider.DocumentFile
 import com.erman.usurf.MainApplication.Companion.appContext
 import com.erman.usurf.R
 import com.erman.usurf.directory.utils.SIMPLE_DATE_FORMAT_PATTERN
+import com.erman.usurf.utils.DirectoryPreferenceProvider
+import com.erman.usurf.utils.StoragePaths
 import java.io.*
 import java.text.SimpleDateFormat
 import java.util.zip.ZipEntry
@@ -93,320 +97,247 @@ class DirectoryModel {
         return multipleSelection
     }
 
-
-    //fun getDocumentFile(file: File, isDirectory: Boolean, context: Context): DocumentFile? {
-    //    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) return DocumentFile.fromFile(file)
-//
-    //    val getExtSdCardBaseFolder = getStorageDirectories(
-    //        context
-    //    ).elementAt(1)
-    //    var originalDirectory = false
-//
-    //    var relativePathOfFile: String? = null
-    //    try {
-    //        val fullPath = file.canonicalPath
-    //        if (getExtSdCardBaseFolder != fullPath) relativePathOfFile = fullPath.substring(getExtSdCardBaseFolder.length + 1)
-    //        else originalDirectory = true
-    //    } catch (e: IOException) {
-    //        return null
-    //    } catch (f: Exception) {
-    //        originalDirectory = true
-    //    }
-//
-    //    val extSdCardChosenUri = context.getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE).getString("extSdCardChosenUri", null)
-//
-    //    var treeUri: Uri? = null
-    //    if (extSdCardChosenUri != null) treeUri = Uri.parse(extSdCardChosenUri)
-    //    if (treeUri == null) {
-    //        return null
-    //    }
-//
-    //    // start with root of SD card and then parse through document tree.
-    //    var document = DocumentFile.fromTreeUri(context, treeUri)
-    //    if (originalDirectory) return document
-    //    val parts = relativePathOfFile!!.split("/".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-//
-    //    for (i in parts.indices) {
-    //        var nextDocument = document!!.findFile(parts[i])
-//
-    //        if (nextDocument == null) {
-    //            nextDocument = if (i < parts.size - 1 || isDirectory) {
-    //                document.createDirectory(parts[i])
-    //            } else {
-    //                document.createFile("*/*", parts[i])
-    //            }
-    //        }
-    //        document = nextDocument
-    //    }
-    //    return document
-    //}
-
-    //fun getSearchedDirectoryFiles(path: String, searchQuery: String): List<File> {
-    //    try {
-    //        return File(path).listFiles()!!.filter { file ->
-    //            searchQuery.decapitalize().toRegex().containsMatchIn(file.nameWithoutExtension.decapitalize())
-    //        }.toList()
-    //    } catch (err: Exception) {
-    //        Log.e("getSearchedDirFiles", err.toString())
-    //    }
-    //    return emptyList()
-    //}
-
-    //fun getSearchedDeviceFiles(storagePaths: ArrayList<String>, searchQuery: String): List<File> {
-    //    val fileList = mutableListOf<File>()
-    //    try {
-    //        for (i in storagePaths.indices) {
-    //            Log.e("strg", storagePaths[i])
-    //            fileList.addAll(
-    //                getSubSearchedFiles(
-    //                    File(
-    //                        storagePaths[i]
-    //                    ), searchQuery
-    //                )
-    //            )
-    //        }
-//
-    //        return fileList.filter { file ->
-    //            searchQuery.decapitalize().toRegex().containsMatchIn(file.nameWithoutExtension.decapitalize())
-    //        }
-    //    } catch (err: Exception) {
-    //        Log.e("getSearchedDeviceFiles", err.toString())
-    //    }
-    //    return emptyList()
-    //}
-
-    //fun getSubSearchedFiles(directory: File, searchQuery: String, res: MutableSet<File> = mutableSetOf<File>()): Set<File> {
-    //    //Depth first search algorithm
-//
-    //    for (file in directory.listFiles()!!.toSet()) {
-    //        if (file.isDirectory) {
-    //            getSubSearchedFiles(file, searchQuery, res)
-    //        } else {
-    //            res.add(file)
-    //        }
-    //        res.addAll(directory.listFiles()!!.toSet())
-    //    }
-    //    return res
-    //}
-
-    fun rename(selectedDirectories: List<FileModel>, newNameToBe: String) {
-        var isSuccess = false
-
-        //if (isExtSdCard) {
-        //    for (i in selectedDirectories.indices) {
-        //        var newFileName = newNameToBe
-        //        if (i > 0) newFileName = newFileName + "(" + i + ")"
-        //        //isSuccess = getDocumentFile(
-        //        //    selectedDirectories[i],
-        //        //    selectedDirectories[i].isDirectory,
-        //        //    context
-        //        //)!!.renameTo(newFileName)
-        //    }
-        //} else {
-            for (i in selectedDirectories.indices) {
-                val dirName = selectedDirectories[i].path.removeSuffix(selectedDirectories[i].name)
-                var newFileName = newNameToBe
-
-                if (i > 0) newFileName = newFileName + "(" + i + ")"
-
-                if (!selectedDirectories[i].isDirectory) {
-                    newFileName = newFileName + "." + selectedDirectories[i].extension
-                }
-                val prev = File(dirName, selectedDirectories[i].name)
-                val new = File(dirName, newFileName)
-                isSuccess = prev.renameTo(new)
-
-                if (!isSuccess) {
-                    Toast.makeText(appContext, appContext.getString(R.string.error_while_renaming) + prev.name, Toast.LENGTH_LONG).show()
-                    break
+    private fun getDocumentFile(file: File, isDirectory: Boolean): DocumentFile? {
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) return DocumentFile.fromFile(file)
+        val getExtSdCardBaseFolder = StoragePaths().getStorageDirectories().elementAt(1)
+        var originalDirectory = false
+        var relativePathOfFile: String? = null
+        try {
+            val fullPath = file.canonicalPath
+            if (getExtSdCardBaseFolder != fullPath) relativePathOfFile = fullPath.substring(getExtSdCardBaseFolder.length + 1)
+            else originalDirectory = true
+        } catch (e: IOException) {
+            return null
+        } catch (f: Exception) {
+            originalDirectory = true
+        }
+        val extSdCardChosenUri = DirectoryPreferenceProvider().getChosenUri()
+        var treeUri: Uri? = null
+        if (extSdCardChosenUri != null) treeUri = Uri.parse(extSdCardChosenUri)
+        if (treeUri == null) {
+            return null
+        }
+        // start with root of SD card and then parse through document tree.
+        var document = DocumentFile.fromTreeUri(appContext, treeUri)
+        if (originalDirectory) return document
+        val parts = relativePathOfFile!!.split("/".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        for (i in parts.indices) {
+            var nextDocument = document!!.findFile(parts[i])
+            if (nextDocument == null) {
+                nextDocument = if (i < parts.size - 1 || isDirectory) {
+                    document.createDirectory(parts[i])
+                } else {
+                    document.createFile("*/*", parts[i])
                 }
             }
-        //}
-        //if (isSuccess) {
-        //    Toast.makeText(context, context.getString(R.string.renaming_successful), Toast.LENGTH_LONG).show()
-        //    updateFragment.invoke()
-        //}
+            document = nextDocument
+        }
+        return document
     }
 
-    fun deleteFolderRecursively(documentFile: DocumentFile): Boolean {
+    fun rename(selectedDirectories: List<FileModel>, newNameToBe: String): Boolean {
+        var isSuccess = false
+
+        for (i in selectedDirectories.indices) {
+            val dirName = selectedDirectories[i].path.removeSuffix(selectedDirectories[i].name)
+            var newFileName = newNameToBe
+
+            if (i > 0) newFileName = "$newFileName($i)"
+
+            if (!selectedDirectories[i].isDirectory) {
+                newFileName = newFileName + "." + selectedDirectories[i].extension
+            }
+            val prev = File(dirName, selectedDirectories[i].name)
+            val new = File(dirName, newFileName)
+            isSuccess = prev.renameTo(new)
+
+        }
+        return isSuccess
+    }
+
+    fun renameWithSaf(selectedDirectories: List<FileModel>, newNameToBe: String): Boolean {
+        var isSuccess = false
+
+        for (i in selectedDirectories.indices) {
+            var newFileName = newNameToBe
+            if (i > 0) newFileName = "$newFileName($i)"
+            isSuccess = getDocumentFile(File(selectedDirectories[i].path),
+                selectedDirectories[i].isDirectory)!!.renameTo(newFileName)
+        }
+        return isSuccess
+    }
+
+    fun delete(selectedDirectories: List<FileModel>): Boolean {
+        var isSuccess = false
+
+        for (i in selectedDirectories.indices) {
+            isSuccess = if (selectedDirectories[i].isDirectory) {
+                File(selectedDirectories[i].path).deleteRecursively()
+            } else {
+                File(selectedDirectories[i].path).delete()
+            }
+            if (!isSuccess)
+                break
+        }
+        return isSuccess
+    }
+
+    private fun deleteFolderRecursively(documentFile: DocumentFile): Boolean {
         if (documentFile.listFiles().isNotEmpty()) {
             for (i in documentFile.listFiles().size - 1 downTo 0) {
                 deleteFolderRecursively(documentFile.listFiles()[i])
             }
         }
         if (documentFile.delete()) return true
-
         return false
     }
 
-    fun delete(context: Context, selectedDirectories: List<File>, isExtSdCard: Boolean, updateFragment: () -> Unit) {
+    fun deleteWithSaf(selectedDirectories: List<FileModel>): Boolean {
         var isSuccess = false
 
-        if (isExtSdCard) {
-            for (i in selectedDirectories.indices) {
-                //isSuccess = deleteFolderRecursively(
-                //    getDocumentFile(
-                //        selectedDirectories[i],
-                //        selectedDirectories[i].isDirectory,
-                //        context
-                //    )!!
-                //)
-            }
-        } else {
-            for (i in selectedDirectories.indices) {
-                isSuccess = if (selectedDirectories[i].isDirectory) {
-                    File(selectedDirectories[i].path).deleteRecursively()
-                } else {
-                    File(selectedDirectories[i].path).delete()
-                }
-                if (!isSuccess) {
-                    Toast.makeText(context, context.getString(R.string.error_while_deleting) + selectedDirectories[i].name, Toast.LENGTH_LONG).show()
+        for (i in selectedDirectories.indices) {
+            isSuccess = deleteFolderRecursively(getDocumentFile(
+                File(selectedDirectories[i].path), selectedDirectories[i].isDirectory)!!)
+            if (!isSuccess)
+                break
+        }
+        return isSuccess
+    }
+
+    fun createFolder(path: String, folderName: String): Boolean {
+        return try {
+            if (!File("$path/$folderName").exists())
+                File("$path/$folderName").mkdir()
+            else
+                false
+        } catch (err: IOException) {
+            err.printStackTrace()
+            false
+        }
+    }
+
+    fun createFolderWithSaf(path: String, folderName: String): Boolean {
+        return try {
+            if (!File("$path/$folderName").exists()) {
+                getDocumentFile(File(path), File(path).isDirectory)!!.createDirectory(folderName)
+                File("$path/$folderName").exists()
+            } else
+                false
+        } catch (err: NullPointerException) {
+            err.printStackTrace()
+            false
+        }
+    }
+
+    fun createFile(path: String, fileName: String): Boolean {
+        return try {
+            if (!File("$path/$fileName").exists())
+                File("$path/$fileName").createNewFile()
+            else
+                false
+        } catch (err: IOException) {
+            err.printStackTrace()
+            false
+        }
+    }
+
+    fun createFileWithSaf(path: String, fileName: String): Boolean {
+        return try {
+            if (!File("$path/$fileName").exists()) {
+                getDocumentFile(File(path), File(path).isDirectory)!!.createFile("*/*", fileName)
+                File("$path/$fileName").exists()
+            } else
+                false
+        } catch (err: NullPointerException) {
+            err.printStackTrace()
+            false
+        }
+    }
+
+    fun copyFile(copyOrMoveSources: List<FileModel>, copyOrMoveDestination: String): Boolean {
+        var isSuccess = false
+
+        for (i in copyOrMoveSources.indices) {
+            if (copyOrMoveSources[i].isDirectory) {
+                isSuccess =
+                    File(copyOrMoveSources[i].path).copyRecursively(File(copyOrMoveDestination + File.separator + copyOrMoveSources[i].name))
+            } else {
+                try {
+                    File(copyOrMoveSources[i].path).copyTo(File(copyOrMoveDestination + File.separator + copyOrMoveSources[i].name))
+                } catch (err: IOException) {
+                    isSuccess = false
                     break
                 }
+                isSuccess = true
             }
         }
-        if (isSuccess) {
-            updateFragment.invoke()
-            Toast.makeText(context, context.getString(R.string.deleting_successful), Toast.LENGTH_LONG).show()
-        }
+        return isSuccess
     }
 
-    fun createFolder(context: Context, path: String, folderName: String, isExtSdCard: Boolean, updateFragment: () -> Unit) {
+    fun copyFileWithSaf(copyOrMoveSources: List<FileModel>, copyOrMoveDestination: String): Boolean {
         var isSuccess = false
-        if (isExtSdCard) {
-            //getDocumentFile(
-            //    File(path),
-            //    File(path).isDirectory,
-            //    context
-            //)!!.createDirectory(folderName)
-
-            if (File(path + "/" + folderName).isDirectory) isSuccess = true
-        } else {
-            isSuccess = File(path + "/" + folderName).mkdir()
+        for (i in copyOrMoveSources.indices) {
+            isSuccess = copyToExtCard(File(copyOrMoveSources[i].path), copyOrMoveDestination)
+            if (!isSuccess) break
         }
-        if (isSuccess) {
-            Toast.makeText(context, context.getString(R.string.folder_creation_successful) + folderName, Toast.LENGTH_LONG).show()
-
-            updateFragment.invoke()
-        } else Toast.makeText(context, context.getString(R.string.error_when_creating_folder) + folderName, Toast.LENGTH_LONG).show()
+        return isSuccess
     }
 
-    fun createFile(context: Context, path: String, folderName: String, isExtSdCard: Boolean, updateFragment: () -> Unit) {
-        var isSuccess = false
-        if (isExtSdCard) {
-            //getDocumentFile(
-            //    File(path),
-            //    File(path).isDirectory,
-            //    context
-            //)!!.createFile("*/*", folderName)
-
-            if (File(path + "/" + folderName).isFile) isSuccess = true
-        } else {
-            isSuccess = File(path + "/" + folderName).createNewFile()
-        }
-        if (isSuccess) {
-            Toast.makeText(context, context.getString(R.string.file_creation_successful) + folderName, Toast.LENGTH_LONG).show()
-
-            updateFragment.invoke()
-        } else Toast.makeText(context, context.getString(R.string.error_when_creating_file) + folderName, Toast.LENGTH_LONG).show()
-    }
-
-    fun copyFile(context: Context, copyOrMoveSources: List<File>, copyOrMoveDestination: String, isExtSdCard: Boolean, updateFragment: () -> Unit) {
-        var isSuccess = false
-
-        if (isExtSdCard) {
-            for (i in copyOrMoveSources.indices) {
-                copyToExtCard(
-                    copyOrMoveSources[i],
-                    copyOrMoveDestination,
-                    context
-                )
-            }
-        } else {
-
-            for (i in copyOrMoveSources.indices) {
-                if (copyOrMoveSources[i].isDirectory) {
-                    isSuccess =
-                        File(copyOrMoveSources[i].path).copyRecursively(File(copyOrMoveDestination + File.separator + copyOrMoveSources[i].name))
-                } else {
-                    try {
-                        File(copyOrMoveSources[i].path).copyTo(File(copyOrMoveDestination + File.separator + copyOrMoveSources[i].name))
-                    } catch (err: IOException) {
-                        isSuccess = false
-                        break
-                    }
-                    isSuccess = true
-                }
-            }
-        }
-        if (isSuccess) {
-            Toast.makeText(context, context.getString(R.string.copy_successful), Toast.LENGTH_LONG).show()
-            updateFragment.invoke()
-        } else {
-            Toast.makeText(context, context.getString(R.string.error_while_copying), Toast.LENGTH_LONG).show()
-        }
-    }
-
-    fun copyToExtCard(sourceFile: File, copyOrMoveDestination: String?, context: Context): Boolean {
-        //var documentFileDestination: DocumentFile = getDocumentFile(
-        //    File(copyOrMoveDestination!!),
-        //    File(copyOrMoveDestination).isDirectory,
-        //    context
-        //)!!
+    private fun copyToExtCard(sourceFile: File, copyOrMoveDestination: String?): Boolean {
+        var documentFileDestination: DocumentFile = getDocumentFile(
+            File(copyOrMoveDestination!!),
+            File(copyOrMoveDestination).isDirectory
+        )!!
         var fileInputStream: FileInputStream? = null
         var outputStream: OutputStream? = null
 
         if (sourceFile.isDirectory) {
-            //documentFileDestination.createDirectory(sourceFile.name)!!
+            documentFileDestination.createDirectory(sourceFile.name)!!
 
             for (i in sourceFile.listFiles()!!.indices) {
-                copyToExtCard(
-                    sourceFile.listFiles()!![i],
-                    copyOrMoveDestination + File.separator + sourceFile.name,
-                    context
-                )
+                copyToExtCard(sourceFile.listFiles()!![i],
+                    copyOrMoveDestination + File.separator + sourceFile.name)
             }
         } else {
-            //documentFileDestination = documentFileDestination.createFile(sourceFile.extension, sourceFile.name)!!
-            //try {
-            //    fileInputStream = FileInputStream(sourceFile)
-            //    outputStream = context.contentResolver.openOutputStream(documentFileDestination.uri)!!
-//
-            //    val buffer = 6144
-            //    val byteArray = ByteArray(buffer)
-            //    var bytesRead: Int
-            //    try {
-            //        while (fileInputStream.read(byteArray).also { bytesRead = it } != -1) {
-            //            outputStream.write(byteArray, 0, bytesRead)
-            //        }
-            //    } catch (err: Exception) {
-            //        err.printStackTrace()
-            //    } finally {
-            //        try {
-            //            fileInputStream.close()
-            //            outputStream.close()
-            //            return true
-            //        } catch (err: Exception) {
-            //            err.printStackTrace()
-            //        }
-            //    }
-            //} catch (err: Exception) {
-            //    err.printStackTrace()
-            //} finally {
-            //    try {
-            //        fileInputStream!!.close()
-            //        outputStream!!.close()
-            //        return true
-            //    } catch (err: Exception) {
-            //        err.printStackTrace()
-            //    }
-            //}
+            documentFileDestination = documentFileDestination.createFile(sourceFile.extension, sourceFile.name)!!
+            try {
+                fileInputStream = FileInputStream(sourceFile)
+                outputStream = appContext.contentResolver.openOutputStream(documentFileDestination.uri)!!
+                val buffer = 6144
+                val byteArray = ByteArray(buffer)
+                var bytesRead: Int
+                try {
+                    while (fileInputStream.read(byteArray).also { bytesRead = it } != -1) {
+                        outputStream.write(byteArray, 0, bytesRead)
+                    }
+                } catch (err: Exception) {
+                    err.printStackTrace()
+                } finally {
+                    try {
+                        fileInputStream.close()
+                        outputStream.close()
+                        return true
+                    } catch (err: Exception) {
+                        err.printStackTrace()
+                    }
+                }
+            } catch (err: Exception) {
+                err.printStackTrace()
+            } finally {
+                try {
+                    fileInputStream!!.close()
+                    outputStream!!.close()
+                    return true
+                } catch (err: Exception) {
+                    err.printStackTrace()
+                }
+            }
             return false
         }
         return false
     }
 
-    fun moveFile(context: Context, copyOrMoveSources: List<File>, copyOrMoveDestination: String, isExtSdCard: Boolean, updateFragment: () -> Unit) {
+    fun moveFile(copyOrMoveSources: List<FileModel>, copyOrMoveDestination: String): Boolean {
         var isSuccess = false
 
         for (i in copyOrMoveSources.indices) {
@@ -427,12 +358,13 @@ class DirectoryModel {
                 isSuccess = File(copyOrMoveSources[i].path).delete()
             }
         }
-        if (isSuccess) {
-            Toast.makeText(context, context.getString(R.string.moving_successful), Toast.LENGTH_LONG).show()
-            updateFragment.invoke()
-        } else {
-            Toast.makeText(context, context.getString(R.string.error_while_moving), Toast.LENGTH_LONG).show()
-        }
+        return isSuccess
+    }
+
+    fun moveFileWithSaf(copyOrMoveSources: List<FileModel>, copyOrMoveDestination: String): Boolean {
+        if (copyFileWithSaf(copyOrMoveSources, copyOrMoveDestination))
+            return deleteWithSaf(copyOrMoveSources)
+        return false
     }
 
     fun zipFile(context: Context, selectedDirectories: List<File>, zipName: String, isExtSdCard: Boolean, updateFragment: () -> Unit) {
@@ -548,7 +480,7 @@ class DirectoryModel {
         Toast.makeText(context, context.getString(R.string.extracting_successful), Toast.LENGTH_LONG).show()
     }
 
-    fun createSubDirectories(zipEntryName: String, baseFolderPath: String) {
+    private fun createSubDirectories(zipEntryName: String, baseFolderPath: String) {
         var subPath = ""
 
         for (i in zipEntryName.indices) {

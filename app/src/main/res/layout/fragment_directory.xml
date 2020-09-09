@@ -40,26 +40,63 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <LinearLayout
+            android:id="@+id/confirmationButtonBar"
+            android:layout_width="411dp"
+            android:layout_height="wrap_content"
+            android:background="@color/colorAccent"
+            android:orientation="horizontal"
+            android:visibility="@{(viewModel.moveMode || viewModel.copyMode) ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="@+id/fileListRecyclerView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0"
+            tools:visibility="visible">
+
+            <Button
+                android:id="@+id/OKButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="?android:attr/selectableItemBackground"
+                android:onClick="@{() -> viewModel.confirmAction()}"
+                android:text="@string/ok"
+                android:textColor="@color/textColorDark"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/cancelButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="?android:attr/selectableItemBackground"
+                android:onClick="@{() -> viewModel.turnOffOptionMode()}"
+                android:text="@string/cancel"
+                android:textColor="@color/textColorDark"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/moreOptionButtonBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@color/colorAccent"
             android:orientation="vertical"
             android:visibility="@{viewModel.moreOptionMode ? View.VISIBLE : View.GONE}"
-            app:layout_constraintBottom_toTopOf="@+id/optionButtonBar"
+            app:layout_constraintBottom_toBottomOf="@+id/fileListRecyclerView"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/fileListRecyclerView"
+            app:layout_constraintTop_toBottomOf="@+id/confirmationButtonBar"
             app:layout_constraintVertical_bias="1.0">
 
             <Button
                 android:id="@+id/compressButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:onClick="@{() -> viewModel.onCompressClicked()}"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
+                android:onClick="@{() -> viewModel.compress()}"
                 android:text="@string/compress"
                 android:textColor="@color/textColorDark"
                 android:textSize="12sp" />
@@ -68,9 +105,9 @@
                 android:id="@+id/extractButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:onClick="@{() -> viewModel.onExtractClicked()}"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
+                android:onClick="@{() -> viewModel.extract()}"
                 android:text="@string/extract"
                 android:textColor="@color/textColorDark"
                 android:textSize="12sp" />
@@ -79,9 +116,9 @@
                 android:id="@+id/informationButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:onClick="@{() -> viewModel.onInformationClicked()}"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
+                android:onClick="@{() -> viewModel.showFileInformation()}"
                 android:text="@string/information"
                 android:textColor="@color/textColorDark"
                 android:textSize="12sp" />
@@ -89,10 +126,10 @@
             <Button
                 android:id="@+id/shareButton"
                 android:layout_width="wrap_content"
-                android:onClick="@{() -> viewModel.onShareClicked()}"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
+                android:onClick="@{() -> viewModel.share()}"
                 android:text="@string/share"
                 android:textColor="@color/textColorDark"
                 android:textSize="12sp" />
@@ -105,7 +142,7 @@
             android:background="@color/colorAccent"
             android:gravity="center"
             android:orientation="horizontal"
-            android:visibility="@{viewModel.optionMode ? View.VISIBLE : View.GONE}"
+            android:visibility="@{(viewModel.optionMode &amp;&amp; (viewModel.moveMode==false &amp;&amp; viewModel.copyMode==false)) ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
@@ -115,8 +152,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:onClick="@{() -> viewModel.onCopyClicked()}"
                 android:background="?android:attr/selectableItemBackground"
+                android:onClick="@{() -> viewModel.copy()}"
                 android:text="@string/copy_file"
                 android:textColor="@color/textColorDark"
                 android:textSize="12sp" />
@@ -126,8 +163,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:onClick="@{() -> viewModel.onMoveClicked()}"
                 android:background="?android:attr/selectableItemBackground"
+                android:onClick="@{() -> viewModel.move()}"
                 android:text="@string/move"
                 android:textColor="@color/textColorDark"
                 android:textSize="12sp" />
@@ -136,9 +173,9 @@
                 android:id="@+id/renameButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:onClick="@{() -> viewModel.onRenameClicked()}"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
+                android:onClick="@{() -> viewModel.rename()}"
                 android:text="@string/rename"
                 android:textColor="@color/textColorDark"
                 android:textSize="12sp" />
@@ -148,8 +185,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:onClick="@{() -> viewModel.onDeleteClicked()}"
                 android:background="?android:attr/selectableItemBackground"
+                android:onClick="@{() -> viewModel.delete()}"
                 android:text="@string/delete"
                 android:textColor="@color/textColorDark"
                 android:textSize="12sp" />
@@ -160,14 +197,14 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
-                android:onClick="@{() -> viewModel.onMoreClicked()}"
+                android:onClick="@{() -> viewModel.showMoreOption()}"
                 android:text="@{viewModel.moreOptionMode ? @string/less : @string/more}"
                 android:textColor="@color/textColorDark"
                 android:textSize="12sp" />
         </LinearLayout>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/create"
+            android:id="@+id/createNewFloatingButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
@@ -175,15 +212,52 @@
             android:layout_marginBottom="16dp"
             android:clickable="true"
             android:focusable="true"
+            android:onClick="@{() -> viewModel.onCreate()}"
             android:visibility="@{viewModel.optionMode ? View.GONE : View.VISIBLE}"
             app:backgroundTint="@color/colorAccent"
             app:layout_constraintBottom_toTopOf="@+id/moreOptionButtonBar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="1.0"
             app:srcCompat="@drawable/ic_plus" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/newFileFloatingButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="16dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:onClick="@{() -> viewModel.createFile()}"
+            android:visibility="@{(viewModel.createMode &amp;&amp; (viewModel.optionMode==false)) ? View.VISIBLE : View.GONE}"
+            app:backgroundTint="@color/colorAccent"
+            app:layout_constraintBottom_toTopOf="@+id/createNewFloatingButton"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:srcCompat="@drawable/ic_file_white" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/newFolderFloatingButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="16dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:onClick="@{() -> viewModel.createFolder()}"
+            android:visibility="@{(viewModel.createMode &amp;&amp; (viewModel.optionMode==false)) ? View.VISIBLE : View.GONE}"
+            app:backgroundTint="@color/colorAccent"
+            app:layout_constraintBottom_toTopOf="@+id/newFileFloatingButton"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/fileListRecyclerView"
+            app:layout_constraintVertical_bias="1.0"
+            app:srcCompat="@drawable/ic_folder_white" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
