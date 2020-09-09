@@ -367,27 +367,21 @@ class DirectoryModel {
         return false
     }
 
-    fun zipFile(context: Context, selectedDirectories: List<File>, zipName: String, isExtSdCard: Boolean, updateFragment: () -> Unit) {
+    fun compressFile(selectedDirectories: List<FileModel>, zipName: String): Boolean {
         val buffer = 6144
 
         try {
-            val destination = FileOutputStream(selectedDirectories[0].parent!! + File.separator + zipName + ".zip") //burası
+            val destination = FileOutputStream(File(selectedDirectories[0].path).parent!! + File.separator + zipName + ".zip") //burası
             val output = ZipOutputStream(BufferedOutputStream(destination))
             val data = ByteArray(buffer)
 
             for (i in selectedDirectories.indices) {
                 if (selectedDirectories[i].isDirectory) {
-                    if (!zipFolder(
-                            selectedDirectories[i].listFiles()!!.toList(),
-                            output,
-                            selectedDirectories[i].name
-                        )
-                    ) {
-                        Toast.makeText(context, context.getString(R.string.error_while_compressing), Toast.LENGTH_LONG).show()
-                        return  //in case of an error in zipFolder function
+                    if (!zipFolder(File(selectedDirectories[0].path).listFiles()!!.toList(), output, selectedDirectories[i].name)) {
+                        return false//in case of an error in zipFolder function
                     }
                 } else {
-                    val fileOrigin = BufferedInputStream(FileInputStream(selectedDirectories[i]))
+                    val fileOrigin = BufferedInputStream(FileInputStream(File(selectedDirectories[0].path)))
                     output.putNextEntry(ZipEntry(selectedDirectories[i].name))
                     var counter = (fileOrigin.read(data, 0, buffer))
 
@@ -400,12 +394,10 @@ class DirectoryModel {
             }
             output.close()
         } catch (err: Exception) {
-            Toast.makeText(context, context.getString(R.string.error_while_compressing), Toast.LENGTH_LONG).show()
-            Log.e("Error while compressing", err.toString())
-            return
+            err.printStackTrace()
+            return false
         }
-        updateFragment.invoke()
-        Toast.makeText(context, context.getString(R.string.compressing_successful), Toast.LENGTH_LONG).show()
+        return true
     }
 
     fun zipFolder(selectedDirectories: List<File>, output: ZipOutputStream, folderName: String): Boolean {
@@ -439,13 +431,14 @@ class DirectoryModel {
         }
     }
 
-    fun unzip(context: Context, selectedDirectories: List<File>, updateFragment: () -> Unit) {
+    fun extractFiles(selectedDirectories: List<FileModel>): Boolean {
         val buffer = 6144
         val data = ByteArray(buffer)
 
         try {
             for (i in selectedDirectories.indices) {
-                val baseFolderPath = selectedDirectories[i].parent!! + File.separator + selectedDirectories[i].nameWithoutExtension
+                val baseFolderPath =
+                    File(selectedDirectories[0].path).parent!! + File.separator + File(selectedDirectories[0].path).nameWithoutExtension
                 File(baseFolderPath).mkdir()
 
                 val zipInput = ZipInputStream(FileInputStream(selectedDirectories[i].path))
@@ -471,13 +464,11 @@ class DirectoryModel {
                 }
                 zipInput.close()
             }
-            updateFragment.invoke()
-        } catch (e: Exception) {
-            Toast.makeText(context, context.getString(R.string.error_while_extracting), Toast.LENGTH_LONG).show()
-            Log.e("Error while extracting", e.toString())
-            return
+        } catch (err: Exception) {
+            err.printStackTrace()
+            return false
         }
-        Toast.makeText(context, context.getString(R.string.extracting_successful), Toast.LENGTH_LONG).show()
+        return true
     }
 
     private fun createSubDirectories(zipEntryName: String, baseFolderPath: String) {
