@@ -1,4 +1,6 @@
-package com.erman.usurf.directory.model
+package com.erman.usurf.dialog.model
+
+import com.erman.usurf.directory.model.FileModel
 
 sealed class UIEventArgs {
     data class RenameDialogArgs(val name: String?)
@@ -7,4 +9,5 @@ sealed class UIEventArgs {
     object CreateFileDialogArgs : UIEventArgs()
     data class OpenFileActivityArgs(val path: String)
     data class ShareActivityArgs(val multipleSelectionList: List<FileModel>)
+    object SAFActivityArgs : UIEventArgs()
 }
