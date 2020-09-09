@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.erman.usurf.home.ui.HomeViewModel" />
+    </data>
+
+    <RelativeLayout
+        android:id="@+id/storageButton"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/button_selectable_background"
+        android:clickable="true"
+        android:focusable="true"
+        android:onClick="@{() -> viewModel.onStorageButtonClick(storageButton)}">
+
+        <TextView
+            android:id="@+id/buttonText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:maxLines="1"
+            android:textSize="18sp" />
+    </RelativeLayout>
+</layout>
