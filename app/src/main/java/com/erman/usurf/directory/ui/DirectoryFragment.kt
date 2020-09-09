@@ -18,8 +18,10 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.erman.usurf.R
 import com.erman.usurf.databinding.FragmentDirectoryBinding
-import com.erman.usurf.dialog.FileInformationDialog
-import com.erman.usurf.dialog.RenameDialog
+import com.erman.usurf.dialog.ui.CreateFileDialog
+import com.erman.usurf.dialog.ui.CreateFolderDialog
+import com.erman.usurf.dialog.ui.FileInformationDialog
+import com.erman.usurf.dialog.ui.RenameDialog
 import com.erman.usurf.utils.EventObserver
 import com.erman.usurf.utils.ShowDialog
 import com.erman.usurf.utils.ViewModelFactory
@@ -78,6 +80,18 @@ class DirectoryFragment : Fragment() {
         directoryViewModel.onRename.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.let {args ->
                 dialogListener.showDialog(RenameDialog(args.name))
+            }
+        })
+
+        directoryViewModel.onCreateFolder.observe(viewLifecycleOwner, Observer {
+            it.getContentIfNotHandled()?.let {
+                dialogListener.showDialog(CreateFolderDialog())
+            }
+        })
+
+        directoryViewModel.onCreateFile.observe(viewLifecycleOwner, Observer {
+            it.getContentIfNotHandled()?.let {
+                dialogListener.showDialog(CreateFileDialog())
             }
         })
 
