@@ -1,4 +1,4 @@
-package com.erman.usurf.dialog
+package com.erman.usurf.dialog.ui
 
 import android.app.AlertDialog
 import android.app.Dialog
@@ -12,7 +12,7 @@ import com.erman.usurf.R
 import com.erman.usurf.directory.ui.DirectoryViewModel
 import com.erman.usurf.utils.ViewModelFactory
 
-class RenameDialog(val name: String?) : DialogFragment() {
+class CreateFolderDialog() : DialogFragment() {
     private lateinit var viewModelFactory: ViewModelFactory
     private lateinit var editDialogViewModel: DirectoryViewModel
     private lateinit var editText: EditText
@@ -26,11 +26,11 @@ class RenameDialog(val name: String?) : DialogFragment() {
             editDialogViewModel = ViewModelProvider(requireActivity(), viewModelFactory).get(DirectoryViewModel::class.java)
 
             this.editText = dialogView.findViewById(R.id.editText)
-            name?.let { editText.setText(it) } ?: let { editText.setText("") }
+            editText.setText(R.string.new_folder)
 
-            builder.setMessage(getString(R.string.rename))
+            builder.setMessage(getString(R.string.create_new_folder))
                 .setPositiveButton(R.string.ok, DialogInterface.OnClickListener { _, _ ->
-                    editDialogViewModel.onRenameOkPressed(editText.text.toString())
+                    editDialogViewModel.onFolderCreateOkPressed(editText.text.toString())
                 })
             builder.setView(dialogView)
             builder.create()

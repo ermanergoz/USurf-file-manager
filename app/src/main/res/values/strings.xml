@@ -114,12 +114,12 @@
     <string name="unable_to_open_directory">Unable to open the directory.</string>
     <string name="error_while_renaming">"Error while renaming: "</string>
     <string name="renaming_successful">Renamed</string>
-    <string name="error_while_deleting">"Error while deleting: "</string>
+    <string name="error_while_deleting">"Error while deleting"</string>
     <string name="deleting_successful">Deleted</string>
-    <string name="folder_creation_successful">"New folder created: "</string>
-    <string name="error_when_creating_folder">"Error while creating new folder: "</string>
-    <string name="file_creation_successful">"New file created: "</string>
-    <string name="error_when_creating_file">"Error while creating new file: "</string>
+    <string name="folder_creation_successful">"New folder created"</string>
+    <string name="error_when_creating_folder">"Error while creating new folder"</string>
+    <string name="file_creation_successful">"New file created"</string>
+    <string name="error_when_creating_file">"Error while creating new file"</string>
     <string name="copy_successful">Copied</string>
     <string name="error_while_copying">Error while copying</string>
     <string name="moving_successful">Moved</string>
@@ -173,6 +173,9 @@
     <string name="extract">Extract</string>
     <string name="information">Information</string>
     <string name="share">Share</string>
+    <string name="create_new_folder">Create new folder</string>
+    <string name="new_folder">New Folder</string>
+    <string name="new_file">New File.txt</string>
     <string name="more">More</string>
     <string name="less">Less</string>
     <string name="cancel">Cancel</string>

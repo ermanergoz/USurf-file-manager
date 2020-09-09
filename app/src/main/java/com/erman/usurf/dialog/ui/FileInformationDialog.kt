@@ -1,4 +1,4 @@
-package com.erman.usurf.dialog
+package com.erman.usurf.dialog.ui
 
 import android.app.AlertDialog
 import android.app.Dialog
