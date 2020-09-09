@@ -7,6 +7,7 @@ sealed class UIEventArgs {
     data class InformationDialogArgs(val file: FileModel) : UIEventArgs()
     object CreateFolderDialogArgs : UIEventArgs()
     object CreateFileDialogArgs : UIEventArgs()
+    object CompressDialogArgs : UIEventArgs()
     data class OpenFileActivityArgs(val path: String)
     data class ShareActivityArgs(val multipleSelectionList: List<FileModel>)
     object SAFActivityArgs : UIEventArgs()

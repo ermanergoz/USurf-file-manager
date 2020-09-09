@@ -29,6 +29,9 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     private val _onRename = MutableLiveData<Event<UIEventArgs.RenameDialogArgs>>()
     val onRename: LiveData<Event<UIEventArgs.RenameDialogArgs>> = _onRename
 
+    private val _onCompress = MutableLiveData<Event<UIEventArgs.CompressDialogArgs>>()
+    val onCompress: LiveData<Event<UIEventArgs.CompressDialogArgs>> = _onCompress
+
     private val _onCreateFile = MutableLiveData<Event<UIEventArgs.CreateFileDialogArgs>>()
     val onCreateFile: LiveData<Event<UIEventArgs.CreateFileDialogArgs>> = _onCreateFile
 
@@ -96,6 +99,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
         multiSelectionMode = false
         _copyMode.value = false
         _moveMode.value = false
+        _createMode.value = false
     }
 
     fun onBackPressed(): Boolean {
@@ -133,11 +137,29 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
 
     fun compress() {
-        Log.e("compress", "clicked")
+        _onCompress.value = Event(UIEventArgs.CompressDialogArgs)
+    }
+
+    fun onFileCompressOkPressed(name: String) {
+        when {
+            directoryModel.compressFile(multipleSelection.value!!, name) -> {
+                _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
+                _toastMessage.value = Event(R.string.compressing_successful)
+            }
+            else -> _toastMessage.value = Event(R.string.error_while_compressing)
+        }
+        turnOffOptionMode()
     }
 
     fun extract() {
-        Log.e("extract", "clicked")
+        when {
+            directoryModel.extractFiles(multipleSelection.value!!) -> {
+                _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
+                _toastMessage.value = Event(R.string.extracting_successful)
+            }
+            else -> _toastMessage.value = Event(R.string.error_while_extracting)
+        }
+        turnOffOptionMode()
     }
 
     fun showFileInformation() {
@@ -258,6 +280,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
             }
             else -> _toastMessage.value = Event(R.string.error_when_creating_folder)
         }
+        turnOffOptionMode()
     }
 
     fun onFileCreateOkPressed(fileName: String) {
@@ -272,5 +295,6 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
             }
             else -> _toastMessage.value = Event(R.string.error_when_creating_file)
         }
+        turnOffOptionMode()
     }
 }
