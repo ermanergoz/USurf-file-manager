@@ -11,7 +11,7 @@ import com.erman.usurf.R
 import com.erman.usurf.databinding.DialogFileInformationBinding
 import com.erman.usurf.directory.model.FileModel
 
-class FileInformationDialog(    var file: FileModel) : DialogFragment() {
+class FileInformationDialog(var file: FileModel) : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
             val builder = AlertDialog.Builder(it)
