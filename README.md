@@ -1,10 +1,10 @@
 # USurf File Manager
 
-• File transfer over WI-FI using FTP. - [x]
+• File transfer over WI-FI using FTP.
 
 • Detection of rarely used and large files and folders and notify the user about them.
 
-• Support to open files by type such as video, audio etc. - [x]
+• Support to open files by type such as video, audio etc.
 
 • Support for Bluetooth file transfer. - [x]
 
