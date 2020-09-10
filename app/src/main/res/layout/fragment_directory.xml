@@ -32,6 +32,7 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/fileListRecyclerView"
             android:layout_width="0dp"
+            android:visibility="@{viewModel.isOperationInProgress ? View.GONE : View.VISIBLE}"
             android:layout_height="0dp"
             app:layout_constraintBottom_toTopOf="@+id/optionButtonBar"
             app:layout_constraintEnd_toEndOf="parent"
@@ -70,7 +71,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
-                android:onClick="@{() -> viewModel.turnOffOptionMode()}"
+                android:onClick="@{() -> viewModel.turnOffOptionPanel()}"
                 android:text="@string/cancel"
                 android:textColor="@color/textColorDark"
                 android:textSize="12sp" />
@@ -213,7 +214,7 @@
             android:clickable="true"
             android:focusable="true"
             android:onClick="@{() -> viewModel.onCreate()}"
-            android:visibility="@{viewModel.optionMode ? View.GONE : View.VISIBLE}"
+            android:visibility="@{(viewModel.optionMode || viewModel.isOperationInProgress)  ? View.GONE : View.VISIBLE}"
             app:backgroundTint="@color/colorAccent"
             app:layout_constraintBottom_toTopOf="@+id/moreOptionButtonBar"
             app:layout_constraintEnd_toEndOf="parent"
@@ -258,6 +259,32 @@
             app:layout_constraintTop_toTopOf="@+id/fileListRecyclerView"
             app:layout_constraintVertical_bias="1.0"
             app:srcCompat="@drawable/ic_folder_white" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/lightBlue"
+            android:orientation="vertical"
+            android:visibility="@{viewModel.isOperationInProgress ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:text="@string/processing"
+                android:textColor="@color/textColorLight"
+                android:textSize="14sp" />
+
+            <ProgressBar
+                style="?android:attr/progressBarStyle"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="8dp" />
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
