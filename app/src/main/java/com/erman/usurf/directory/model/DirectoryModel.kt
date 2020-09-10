@@ -400,7 +400,7 @@ class DirectoryModel {
         return true
     }
 
-    fun zipFolder(selectedDirectories: List<File>, output: ZipOutputStream, folderName: String): Boolean {
+    private fun zipFolder(selectedDirectories: List<File>, output: ZipOutputStream, folderName: String): Boolean {
         val buffer = 6144
         val data = ByteArray(buffer)
 
@@ -475,10 +475,10 @@ class DirectoryModel {
         var subPath = ""
 
         for (i in zipEntryName.indices) {
-            if (zipEntryName[i] != '/') subPath += zipEntryName[i]
+            subPath += if (zipEntryName[i] != '/') zipEntryName[i]
             else {
                 File(baseFolderPath + File.separator + subPath).mkdir()
-                subPath += '/'
+                '/'
             }
         }
     }
