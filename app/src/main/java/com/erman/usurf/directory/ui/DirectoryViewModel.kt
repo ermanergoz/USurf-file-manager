@@ -216,11 +216,11 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
 
     fun confirmAction() {
-        turnOffOptionPanel()
-        _isOperationInProgress.value = true
-        launch {
-            when {
-                copyMode.value!! -> {
+        when {
+            copyMode.value!! -> {
+                turnOffOptionPanel()
+                _isOperationInProgress.value = true
+                launch {
                     when {
                         directoryModel.copyFile(multipleSelection.value!!, path.value!!) -> {
                             _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
@@ -232,8 +232,14 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                         }
                         else -> _toastMessage.value = Event(R.string.error_while_copying)
                     }
+                    _isOperationInProgress.value = false
+                    clearMultipleSelection()
                 }
-                moveMode.value!! -> {
+            }
+            moveMode.value!! -> {
+                turnOffOptionPanel()
+                _isOperationInProgress.value = true
+                launch {
                     when {
                         directoryModel.moveFile(multipleSelection.value!!, path.value!!) -> {
                             _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
@@ -245,12 +251,13 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                         }
                         else -> _toastMessage.value = Event(R.string.error_while_moving)
                     }
+                    _isOperationInProgress.value = false
+                    clearMultipleSelection()
                 }
             }
-            _isOperationInProgress.value = false
-            clearMultipleSelection()
         }
     }
+
 
     fun onRenameOkPressed(fileName: String) {
         turnOffOptionPanel()
