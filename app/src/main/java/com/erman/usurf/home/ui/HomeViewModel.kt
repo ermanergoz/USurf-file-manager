@@ -32,7 +32,7 @@ class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
     fun onStorageButtonClick(view: View) {
         _storagePath.value = view.tag.toString()
         _navigateToDirectory.value = Event(R.id.action_nav_home_to_nav_directory)
-        if (!File(storagePath.value!!).canWrite() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+        if (!File(storagePath.value!!).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.P)
             _saf.value = Event(UIEventArgs.SAFActivityArgs)
     }
 
