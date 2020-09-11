@@ -183,4 +183,6 @@
 
     <string name="processing">Processing…</string>
 
+    <string name="compressing">Compressing</string>
+
 </resources>

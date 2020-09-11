@@ -7,10 +7,7 @@ import com.erman.usurf.R
 import com.erman.usurf.dialog.model.UIEventArgs
 import com.erman.usurf.directory.model.*
 import com.erman.usurf.utils.Event
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.io.File
 import java.lang.Exception
 import kotlin.coroutines.CoroutineContext
@@ -29,11 +26,6 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
 
     private val _onShare = MutableLiveData<Event<UIEventArgs.ShareActivityArgs>>()
     val onShare: LiveData<Event<UIEventArgs.ShareActivityArgs>> = _onShare
-
-    private val _isOperationInProgress = MutableLiveData<Boolean>().apply {
-        value = false
-    }
-    val isOperationInProgress: LiveData<Boolean> = _isOperationInProgress
 
     private val _onRename = MutableLiveData<Event<UIEventArgs.RenameDialogArgs>>()
     val onRename: LiveData<Event<UIEventArgs.RenameDialogArgs>> = _onRename
@@ -86,14 +78,12 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     val moreOptionMode: LiveData<Boolean> = _moreOptionMode
 
     fun onFileClick(file: FileModel) {
-        _isOperationInProgress.value = true
         if (multiSelectionMode)
             _multipleSelection.value = directoryModel.manageMultipleSelectionList(file, multipleSelection.value!!)
         else {
             if (file.isDirectory) _path.value = file.path
             else _openFile.value = Event(UIEventArgs.OpenFileActivityArgs(file.path))
         }
-        _isOperationInProgress.value = false
     }
 
     fun onFileLongClick(file: FileModel): Boolean {
@@ -140,18 +130,15 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
 
     fun getFileList(): List<FileModel> {
-        _isOperationInProgress.value = true
         if (!path.value.isNullOrEmpty()) {
             try {
                 val fileList = directoryModel.getFileModelsFromFiles(path.value!!)
-                _isOperationInProgress.value = false
                 return fileList
             } catch (err: IllegalStateException) {
                 _toastMessage.value = Event(R.string.unable_to_open_directory)
                 err.printStackTrace()
             }
         }
-        _isOperationInProgress.value = false
         return emptyList()
     }
 
@@ -161,23 +148,22 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
 
     fun onFileCompressOkPressed(name: String) {
         turnOffOptionPanel()
-        _isOperationInProgress.value = true
+        _toastMessage.value = Event(R.string.compressing)
         launch {
-            when {
-                directoryModel.compressFile(multipleSelection.value!!, name) -> {
-                    _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
-                    _toastMessage.value = Event(R.string.compressing_successful)
-                }
-                else -> _toastMessage.value = Event(R.string.error_while_compressing)
+            try {
+                directoryModel.compressFile(multipleSelection.value!!, name)
+                _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
+                _toastMessage.value = Event(R.string.compressing_successful)
+            } catch (err: CancellationException) {
+                _toastMessage.value = Event(R.string.error_while_compressing)
+            } finally {
+                clearMultipleSelection()
             }
-            _isOperationInProgress.value = false
-            clearMultipleSelection()
         }
     }
 
     fun extract() {
         turnOffOptionPanel()
-        _isOperationInProgress.value = true
         launch {
             when {
                 directoryModel.extractFiles(multipleSelection.value!!) -> {
@@ -186,7 +172,6 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                 }
                 else -> _toastMessage.value = Event(R.string.error_while_extracting)
             }
-            _isOperationInProgress.value = false
             clearMultipleSelection()
         }
     }
@@ -219,7 +204,6 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
         when {
             copyMode.value!! -> {
                 turnOffOptionPanel()
-                _isOperationInProgress.value = true
                 launch {
                     when {
                         directoryModel.copyFile(multipleSelection.value!!, path.value!!) -> {
@@ -232,13 +216,11 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                         }
                         else -> _toastMessage.value = Event(R.string.error_while_copying)
                     }
-                    _isOperationInProgress.value = false
                     clearMultipleSelection()
                 }
             }
             moveMode.value!! -> {
                 turnOffOptionPanel()
-                _isOperationInProgress.value = true
                 launch {
                     when {
                         directoryModel.moveFile(multipleSelection.value!!, path.value!!) -> {
@@ -251,7 +233,6 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                         }
                         else -> _toastMessage.value = Event(R.string.error_while_moving)
                     }
-                    _isOperationInProgress.value = false
                     clearMultipleSelection()
                 }
             }
@@ -261,7 +242,6 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
 
     fun onRenameOkPressed(fileName: String) {
         turnOffOptionPanel()
-        _isOperationInProgress.value = true
         launch {
             when {
                 directoryModel.rename(multipleSelection.value!!, fileName) -> {
@@ -274,7 +254,6 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                 }
                 else -> _toastMessage.value = Event(R.string.error_while_renaming)
             }
-            _isOperationInProgress.value = false
             clearMultipleSelection()
         }
     }
@@ -287,7 +266,6 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
 
     fun delete() {
         turnOffOptionPanel()
-        _isOperationInProgress.value = true
         launch {
             when {
                 directoryModel.delete(multipleSelection.value!!) -> {
@@ -300,7 +278,6 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                 }
                 else -> _toastMessage.value = Event(R.string.error_while_deleting)
             }
-            _isOperationInProgress.value = false
             clearMultipleSelection()
         }
     }
@@ -319,7 +296,6 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
 
     fun onFolderCreateOkPressed(folderName: String) {
         turnOffOptionPanel()
-        _isOperationInProgress.value = true
         launch {
             when {
                 directoryModel.createFolder(path.value!!, folderName) -> {
@@ -332,14 +308,12 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                 }
                 else -> _toastMessage.value = Event(R.string.error_when_creating_folder)
             }
-            _isOperationInProgress.value = false
             clearMultipleSelection()
         }
     }
 
     fun onFileCreateOkPressed(fileName: String) {
         turnOffOptionPanel()
-        _isOperationInProgress.value = true
         launch {
             when {
                 directoryModel.createFile(path.value!!, fileName) -> {
@@ -352,7 +326,6 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                 }
                 else -> _toastMessage.value = Event(R.string.error_when_creating_file)
             }
-            _isOperationInProgress.value = false
             clearMultipleSelection()
         }
     }
