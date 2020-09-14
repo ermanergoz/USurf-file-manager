@@ -1,14 +1,11 @@
 package com.erman.usurf.directory.model
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.util.Log
-import android.widget.Toast
 import androidx.documentfile.provider.DocumentFile
 import com.erman.usurf.MainApplication.Companion.appContext
-import com.erman.usurf.R
 import com.erman.usurf.directory.utils.SIMPLE_DATE_FORMAT_PATTERN
 import com.erman.usurf.utils.DirectoryPreferenceProvider
 import com.erman.usurf.utils.StoragePaths
@@ -26,10 +23,9 @@ class DirectoryModel {
     private val dateFormat = SimpleDateFormat(SIMPLE_DATE_FORMAT_PATTERN)
 
     fun getFileModelsFromFiles(path: String): List<FileModel> {
-        Log.e("current path", path)
         val files = File(path).listFiles().toList()
         return files.map {
-            FileModel(it.path, it.name, getConvertedFileSize(it), it.isDirectory,
+            FileModel(it.path, it.nameWithoutExtension, getConvertedFileSize(it), it.isDirectory,
                 dateFormat.format(it.lastModified()), it.extension,
                 (it.listFiles()?.size.toString() + " files"), getPermissions(it), it.isHidden)
         }
@@ -67,7 +63,7 @@ class DirectoryModel {
     }
 
     private fun getFolderSize(file: File): Double {
-        if (file.exists()) {
+        if (file.exists() && file.listFiles() != null) {
             var size = 0.0
             val fileList = file.listFiles().toList()
 
@@ -138,38 +134,38 @@ class DirectoryModel {
         return document
     }
 
-    suspend fun rename(selectedDirectories: List<FileModel>, newNameToBe: String) = withContext(Dispatchers.IO) {
-        for (i in selectedDirectories.indices) {
-            val dirName = selectedDirectories[i].path.removeSuffix(selectedDirectories[i].name)
-            var newFileName = newNameToBe
+    suspend fun rename(selectedDirectory: FileModel, newFileName: String) = withContext(Dispatchers.IO) {
+        val dirName = File(selectedDirectory.path).parent
 
-            if (i > 0) newFileName = "$newFileName($i)"
-
-            if (!selectedDirectories[i].isDirectory) {
-                newFileName = newFileName + "." + selectedDirectories[i].extension
-            }
-            val prev = File(dirName, selectedDirectories[i].name)
-            val new = File(dirName, newFileName)
-            if (!prev.renameTo(new))
-                cancel()
+        val prevFullName = if (selectedDirectory.isDirectory) {
+            selectedDirectory.name
+        } else {
+            selectedDirectory.name + "." + selectedDirectory.extension
         }
+
+        if (prevFullName == newFileName)
+            cancel()
+
+        val prev = File(dirName, prevFullName)
+        val new = File(dirName, newFileName)
+        prev.renameTo(new)
+
+        if (!File("$dirName$newFileName").exists())
+            cancel()
     }
 
-    suspend fun renameWithSaf(selectedDirectories: List<FileModel>, newNameToBe: String) = withContext(Dispatchers.IO) {
-        for (i in selectedDirectories.indices) {
-            var newFileName = newNameToBe
-            if (i > 0) newFileName = "$newFileName($i)"
-            if (!getDocumentFile(File(selectedDirectories[i].path),
-                    selectedDirectories[i].isDirectory)!!.renameTo(newFileName))
-                cancel()
-        }
+    suspend fun renameWithSaf(selectedDirectory: FileModel, newFileName: String) = withContext(Dispatchers.IO) {
+        val dirName = File(selectedDirectory.path).parent
+        val documentFile = getDocumentFile(File(selectedDirectory.path), selectedDirectory.isDirectory)
+        documentFile?.renameTo(newFileName)
+
+        if (!File("$dirName/$newFileName").exists())
+            cancel()
     }
 
     suspend fun delete(selectedDirectories: List<FileModel>) = withContext(Dispatchers.IO) {
-        var isSuccess = false
-
         for (i in selectedDirectories.indices) {
-            isSuccess = if (selectedDirectories[i].isDirectory) {
+            val isSuccess = if (selectedDirectories[i].isDirectory) {
                 File(selectedDirectories[i].path).deleteRecursively()
             } else {
                 File(selectedDirectories[i].path).delete()
@@ -185,93 +181,96 @@ class DirectoryModel {
                 deleteFolderRecursively(documentFile.listFiles()[i])
             }
         }
-        if (documentFile.delete()) return true
-        return false
+        documentFile.delete()
+        return !documentFile.exists()
     }
 
     suspend fun deleteWithSaf(selectedDirectories: List<FileModel>) = withContext(Dispatchers.IO) {
-        var isSuccess = false
-
         for (i in selectedDirectories.indices) {
-            isSuccess = deleteFolderRecursively(getDocumentFile(
-                File(selectedDirectories[i].path), selectedDirectories[i].isDirectory)!!)
-            if (!isSuccess)
+            if (!deleteFolderRecursively(getDocumentFile(File(selectedDirectories[i].path), selectedDirectories[i].isDirectory)!!)) {
                 cancel()
+            }
         }
-        true
     }
 
     suspend fun createFolder(path: String, folderName: String) = withContext(Dispatchers.IO) {
-        try {
-            if (!File("$path/$folderName").exists())
-                File("$path/$folderName").mkdir()
-            else
+        if (!File("$path/$folderName").exists()) {
+            File("$path/$folderName").mkdir()
+            if (!File("$path/$folderName").exists())   //try catch wont work here. Doesnt throw IOException
                 cancel()
-        } catch (err: IOException) {
-            err.printStackTrace()
+        } else
             cancel()
-        }
     }
 
     suspend fun createFolderWithSaf(path: String, folderName: String) = withContext(Dispatchers.IO) {
-        try {
-            if (!File("$path/$folderName").exists()) {
-                getDocumentFile(File(path), File(path).isDirectory)!!.createDirectory(folderName)
-                File("$path/$folderName").exists()
-            } else
+        if (!File("$path/$folderName").exists()) {
+            getDocumentFile(File(path), File(path).isDirectory)!!.createDirectory(folderName)
+            if (!File("$path/$folderName").exists())
                 cancel()
-        } catch (err: NullPointerException) {
-            err.printStackTrace()
+        } else {
             cancel()
         }
     }
 
     suspend fun createFile(path: String, fileName: String) = withContext(Dispatchers.IO) {
-        try {
-            if (!File("$path/$fileName").exists())
+        if (!File("$path/$fileName").exists()) {
+            try {   ////if wont work here. Throws IOException
                 File("$path/$fileName").createNewFile()
-            else
+            } catch (err: IOException) {
                 cancel()
-        } catch (err: IOException) {
-            err.printStackTrace()
+            }
+        } else
             cancel()
-        }
     }
 
     suspend fun createFileWithSaf(path: String, fileName: String) = withContext(Dispatchers.IO) {
-        try {
-            if (!File("$path/$fileName").exists()) {
-                getDocumentFile(File(path), File(path).isDirectory)!!.createFile("*/*", fileName)
-                File("$path/$fileName").exists()
-            } else
+        if (!File("$path/$fileName").exists()) {
+            getDocumentFile(File(path), File(path).isDirectory)!!.createFile("*/*", fileName)
+            if (!File("$path/$fileName").exists())
                 cancel()
-        } catch (err: NullPointerException) {
-            err.printStackTrace()
+        } else
             cancel()
+    }
+
+    private fun doesFileExist(fileModel: FileModel, copyOrMoveDestination: String): Boolean {
+        for (file in File(copyOrMoveDestination).listFiles()) {
+            if (file.name == fileModel.name + "." + fileModel.extension)
+                return true
         }
+        return false
     }
 
     suspend fun copyFile(copyOrMoveSources: List<FileModel>, copyOrMoveDestination: String) = withContext(Dispatchers.IO) {
         for (i in copyOrMoveSources.indices) {
-            if (copyOrMoveSources[i].isDirectory) {
-                if (!File(copyOrMoveSources[i].path).copyRecursively(File(copyOrMoveDestination + File.separator + copyOrMoveSources[i].name)))
-                    cancel()
-            } else {
-                try {
-                    File(copyOrMoveSources[i].path).copyTo(File(copyOrMoveDestination + File.separator + copyOrMoveSources[i].name))
-                } catch (err: IOException) {
-                    cancel()
+            if (!doesFileExist(copyOrMoveSources[i], copyOrMoveDestination)) {
+                if (copyOrMoveSources[i].isDirectory) {
+                    if (!File(copyOrMoveSources[i].path).copyRecursively(File(copyOrMoveDestination + File.separator + copyOrMoveSources[i].name)))
+                        cancel()
+                } else {
+                    try {
+                        File(copyOrMoveSources[i].path).copyTo(File(
+                            copyOrMoveDestination + File.separator + copyOrMoveSources[i].name + "." + copyOrMoveSources[i].extension))
+                    } catch (err: IOException) {
+                        cancel()
+                    }
                 }
+            } else {
+                Log.e("file already", "exists")
+                cancel()
             }
         }
     }
 
     suspend fun copyFileWithSaf(copyOrMoveSources: List<FileModel>, copyOrMoveDestination: String) = withContext(Dispatchers.IO) {
         for (i in copyOrMoveSources.indices) {
-            if (!copyToExtCard(File(copyOrMoveSources[i].path), copyOrMoveDestination))
+            if (!doesFileExist(copyOrMoveSources[i], copyOrMoveDestination)) {
+                if (!copyToExtCard(File(copyOrMoveSources[i].path), copyOrMoveDestination))
+                    cancel()
+            } else {
+                Log.e("file already", "exists")
                 cancel()
+            }
         }
-        true
     }
 
     private fun copyToExtCard(sourceFile: File, copyOrMoveDestination: String?): Boolean {
@@ -350,10 +349,18 @@ class DirectoryModel {
         }
     }
 
-    suspend fun moveFileWithSaf(copyOrMoveSources: List<FileModel>, copyOrMoveDestination: String): Boolean = withContext(Dispatchers.IO) {
-        if (copyFileWithSaf(copyOrMoveSources, copyOrMoveDestination))
+    suspend fun moveFileWithSaf(copyOrMoveSources: List<FileModel>, copyOrMoveDestination: String) = withContext(Dispatchers.IO) {
+        try {
+            copyFileWithSaf(copyOrMoveSources, copyOrMoveDestination)
+        } catch (err: Exception) {
+            cancel()
+        }
+
+        try {
             deleteWithSaf(copyOrMoveSources)
-        false
+        } catch (err: Exception) {
+            cancel()
+        }
     }
 
     suspend fun compressFile(selectedDirectories: List<FileModel>, zipName: String) = withContext(Dispatchers.IO) {
@@ -367,7 +374,7 @@ class DirectoryModel {
             for (i in selectedDirectories.indices) {
                 if (selectedDirectories[i].isDirectory) {
                     if (!zipFolder(File(selectedDirectories[0].path).listFiles()!!.toList(), output, selectedDirectories[i].name)) {
-                        cancel("error in zipFolder function")//in case of an error in zipFolder function
+                        cancel()//in case of an error in zipFolder function
                     }
                 } else {
                     val fileOrigin = BufferedInputStream(FileInputStream(File(selectedDirectories[0].path)))
