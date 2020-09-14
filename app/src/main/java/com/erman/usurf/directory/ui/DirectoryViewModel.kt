@@ -164,15 +164,17 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
 
     fun extract() {
         turnOffOptionPanel()
+        _toastMessage.value = Event(R.string.extracting)
         launch {
-            when {
-                directoryModel.extractFiles(multipleSelection.value!!) -> {
-                    _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
-                    _toastMessage.value = Event(R.string.extracting_successful)
-                }
-                else -> _toastMessage.value = Event(R.string.error_while_extracting)
+            try {
+                directoryModel.extractFiles(multipleSelection.value!!)
+                _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
+                _toastMessage.value = Event(R.string.extracting_successful)
+            } catch (err: CancellationException) {
+                _toastMessage.value = Event(R.string.error_while_extracting)
+            } finally {
+                clearMultipleSelection()
             }
-            clearMultipleSelection()
         }
     }
 
@@ -204,81 +206,101 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
         when {
             copyMode.value!! -> {
                 turnOffOptionPanel()
+                _toastMessage.value = Event(R.string.copying)
                 launch {
-                    when {
-                        directoryModel.copyFile(multipleSelection.value!!, path.value!!) -> {
+                    try {
+                        directoryModel.copyFile(multipleSelection.value!!, path.value!!)
+                        _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
+                        _toastMessage.value = Event(R.string.copy_successful)
+                    } catch (err: CancellationException) {
+                        try {
+                            directoryModel.copyFileWithSaf(multipleSelection.value!!, path.value!!)
                             _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
                             _toastMessage.value = Event(R.string.copy_successful)
+                        } catch (err: CancellationException) {
+                            _toastMessage.value = Event(R.string.error_while_copying)
                         }
-                        directoryModel.copyFileWithSaf(multipleSelection.value!!, path.value!!) -> {
-                            _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
-                            _toastMessage.value = Event(R.string.copy_successful)
-                        }
-                        else -> _toastMessage.value = Event(R.string.error_while_copying)
+                    } finally {
+                        clearMultipleSelection()
                     }
-                    clearMultipleSelection()
                 }
             }
             moveMode.value!! -> {
                 turnOffOptionPanel()
+                _toastMessage.value = Event(R.string.moving)
                 launch {
-                    when {
-                        directoryModel.moveFile(multipleSelection.value!!, path.value!!) -> {
+                    try {
+                        directoryModel.moveFile(multipleSelection.value!!, path.value!!)
+                        _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
+                        _toastMessage.value = Event(R.string.moving_successful)
+                    } catch (err: CancellationException) {
+                        try {
+                            directoryModel.moveFileWithSaf(multipleSelection.value!!, path.value!!)
                             _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
                             _toastMessage.value = Event(R.string.moving_successful)
+                        } catch (err: CancellationException) {
+                            _toastMessage.value = Event(R.string.error_while_moving)
                         }
-                        directoryModel.moveFileWithSaf(multipleSelection.value!!, path.value!!) -> {
-                            _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
-                            _toastMessage.value = Event(R.string.moving_successful)
-                        }
-                        else -> _toastMessage.value = Event(R.string.error_while_moving)
+                    } finally {
+                        clearMultipleSelection()
                     }
-                    clearMultipleSelection()
                 }
             }
         }
     }
 
-
     fun onRenameOkPressed(fileName: String) {
         turnOffOptionPanel()
+        _toastMessage.value = Event(R.string.renaming)
         launch {
-            when {
-                directoryModel.rename(multipleSelection.value!!, fileName) -> {
+            try {
+                directoryModel.rename(multipleSelection.value!!.last(), fileName)
+                _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
+                _toastMessage.value = Event(R.string.renaming_successful)
+            } catch (err: CancellationException) {
+                try {
+                    directoryModel.renameWithSaf(multipleSelection.value!!.last(), fileName)
                     _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
                     _toastMessage.value = Event(R.string.renaming_successful)
+                } catch (err: CancellationException) {
+                    _toastMessage.value = Event(R.string.error_while_renaming)
                 }
-                directoryModel.renameWithSaf(multipleSelection.value!!, fileName) -> {
-                    _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
-                    _toastMessage.value = Event(R.string.renaming_successful)
-                }
-                else -> _toastMessage.value = Event(R.string.error_while_renaming)
+            } finally {
+                clearMultipleSelection()
             }
-            clearMultipleSelection()
         }
     }
 
     fun rename() {
-        val file: FileModel? = if (multipleSelection.value!!.size == 1) multipleSelection.value!!.first()
-        else null
-        _onRename.value = Event(UIEventArgs.RenameDialogArgs(file?.name))
+        if (multipleSelection.value!!.size > 1)
+            _toastMessage.value = Event(R.string.forced_single_selection_info)
+
+        if (multipleSelection.value!!.last().isDirectory)
+            _onRename.value = Event(UIEventArgs.RenameDialogArgs(multipleSelection.value!!.last().name))
+        else
+            _onRename.value = Event(UIEventArgs.RenameDialogArgs(multipleSelection.value!!.last().name +
+                    "." + multipleSelection.value!!.last().extension))
     }
 
     fun delete() {
         turnOffOptionPanel()
+        _toastMessage.value = Event(R.string.deleting)
         launch {
-            when {
-                directoryModel.delete(multipleSelection.value!!) -> {
+            try {
+                directoryModel.delete(multipleSelection.value!!)
+                _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
+                _toastMessage.value = Event(R.string.deleting_successful)
+            } catch (err: CancellationException) {
+                try {
+                    directoryModel.deleteWithSaf(multipleSelection.value!!)
                     _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
                     _toastMessage.value = Event(R.string.deleting_successful)
+                } catch (err: CancellationException) {
+                    _toastMessage.value = Event(R.string.error_while_deleting)
                 }
-                directoryModel.deleteWithSaf(multipleSelection.value!!) -> {
-                    _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
-                    _toastMessage.value = Event(R.string.deleting_successful)
-                }
-                else -> _toastMessage.value = Event(R.string.error_while_deleting)
+            } finally {
+                clearMultipleSelection()
             }
-            clearMultipleSelection()
         }
     }
 
@@ -296,37 +318,45 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
 
     fun onFolderCreateOkPressed(folderName: String) {
         turnOffOptionPanel()
+        _toastMessage.value = Event(R.string.creating)
         launch {
-            when {
-                directoryModel.createFolder(path.value!!, folderName) -> {
+            try {
+                directoryModel.createFolder(path.value!!, folderName)
+                _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
+                _toastMessage.value = Event(R.string.folder_creation_successful)
+            } catch (err: CancellationException) {
+                try {
+                    directoryModel.createFolderWithSaf(path.value!!, folderName)
                     _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
                     _toastMessage.value = Event(R.string.folder_creation_successful)
+                } catch (err: CancellationException) {
+                    _toastMessage.value = Event(R.string.error_when_creating_folder)
                 }
-                directoryModel.createFolderWithSaf(path.value!!, folderName) -> {
-                    _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
-                    _toastMessage.value = Event(R.string.folder_creation_successful)
-                }
-                else -> _toastMessage.value = Event(R.string.error_when_creating_folder)
+            } finally {
+                clearMultipleSelection()
             }
-            clearMultipleSelection()
         }
     }
 
     fun onFileCreateOkPressed(fileName: String) {
         turnOffOptionPanel()
+        _toastMessage.value = Event(R.string.creating)
         launch {
-            when {
-                directoryModel.createFile(path.value!!, fileName) -> {
+            try {
+                directoryModel.createFile(path.value!!, fileName)
+                _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
+                _toastMessage.value = Event(R.string.file_creation_successful)
+            } catch (err: CancellationException) {
+                try {
+                    directoryModel.createFileWithSaf(path.value!!, fileName)
                     _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
                     _toastMessage.value = Event(R.string.file_creation_successful)
+                } catch (err: CancellationException) {
+                    _toastMessage.value = Event(R.string.error_when_creating_file)
                 }
-                directoryModel.createFileWithSaf(path.value!!, fileName) -> {
-                    _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
-                    _toastMessage.value = Event(R.string.file_creation_successful)
-                }
-                else -> _toastMessage.value = Event(R.string.error_when_creating_file)
+            } finally {
+                clearMultipleSelection()
             }
-            clearMultipleSelection()
         }
     }
 
