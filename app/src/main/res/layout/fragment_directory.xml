@@ -33,11 +33,11 @@
             android:id="@+id/fileListRecyclerView"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            app:layout_constraintBottom_toTopOf="@+id/optionButtonBar"
+            app:layout_constraintBottom_toTopOf="@+id/confirmationButtonBar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/divider" />
 
         <LinearLayout
             android:id="@+id/confirmationButtonBar"
@@ -46,7 +46,7 @@
             android:background="@color/colorAccent"
             android:orientation="horizontal"
             android:visibility="@{(viewModel.moveMode || viewModel.copyMode) ? View.VISIBLE : View.GONE}"
-            app:layout_constraintBottom_toBottomOf="@+id/fileListRecyclerView"
+            app:layout_constraintBottom_toTopOf="@+id/optionButtonBar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -258,6 +258,35 @@
             app:layout_constraintTop_toTopOf="@+id/fileListRecyclerView"
             app:layout_constraintVertical_bias="1.0"
             app:srcCompat="@drawable/ic_folder_white" />
+
+        <TextView
+            android:id="@+id/pathTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginRight="4dp"
+            android:ellipsize="start"
+            android:singleLine="true"
+            android:text="@{viewModel.path}"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="0dp"
+            android:layout_height="2dp"
+            android:layout_marginTop="4dp"
+            android:background="?android:attr/listDivider"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/pathTextView" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
