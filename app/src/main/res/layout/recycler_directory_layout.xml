@@ -33,7 +33,7 @@
             android:layout_marginLeft="4dp"
             android:gravity="center_vertical"
             android:singleLine="true"
-            android:text="@{file.name}"
+            android:text="@{file.isDirectory ? file.name : file.nameWithoutExtension}"
             android:textSize="18sp"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintStart_toEndOf="@+id/imageView"

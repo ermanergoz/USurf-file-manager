@@ -3,6 +3,7 @@ package com.erman.usurf.directory.model
 data class FileModel(
     var path: String = "",
     var name: String = "",
+    var nameWithoutExtension: String = "",
     var size: String = "",
     var isDirectory: Boolean = false,
     var lastModified: String = "",
