@@ -70,7 +70,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
-                android:onClick="@{() -> viewModel.turnOffOptionPanel()}"
+                android:onClick="@{() -> viewModel.endCopyMode()}"
                 android:text="@string/cancel"
                 android:textColor="@color/textColorDark"
                 android:textSize="12sp" />
@@ -255,7 +255,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/fileListRecyclerView"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0"
             app:srcCompat="@drawable/ic_folder_white" />
 
