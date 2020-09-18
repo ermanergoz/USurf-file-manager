@@ -114,12 +114,12 @@
     <string name="unable_to_open_directory">Unable to open the directory.</string>
     <string name="error_while_renaming">"Error while renaming: "</string>
     <string name="renaming_successful">Renamed</string>
-    <string name="error_while_deleting">"Error while deleting: "</string>
+    <string name="error_while_deleting">"Error while deleting"</string>
     <string name="deleting_successful">Deleted</string>
-    <string name="folder_creation_successful">"New folder created: "</string>
-    <string name="error_when_creating_folder">"Error while creating new folder: "</string>
-    <string name="file_creation_successful">"New file created: "</string>
-    <string name="error_when_creating_file">"Error while creating new file: "</string>
+    <string name="folder_creation_successful">"New folder created"</string>
+    <string name="error_when_creating_folder">"Error while creating new folder"</string>
+    <string name="file_creation_successful">"New file created"</string>
+    <string name="error_when_creating_file">"Error while creating new file"</string>
     <string name="copy_successful">Copied</string>
     <string name="error_while_copying">Error while copying</string>
     <string name="moving_successful">Moved</string>
@@ -131,6 +131,7 @@
     <string name="extracting_successful">Extracted</string>
     <string name="error_while_extracting">Error while extracting</string>
     <string name="press_back_again">Press back button again to go to the home screen.</string>
+        <string name="forced_single_selection_info">This operation will be performed to the last selected item only.</string>
 
     <!--create shortcut dialog-->
     <string name="name">Name:</string>
@@ -156,7 +157,7 @@
     <string name="size_in_storage">File size percentage in storage:</string>
     <string name="storage">Used storage percentage:</string>
     <string name="extension">Extension:</string>
-    <string name="this_file_is_hidden">Hidden file.</string>
+    <string name="hidden_file">Hidden</string>
 
     <!--progress dialog-->
     <string name="wait">Please wait</string>
@@ -173,9 +174,22 @@
     <string name="extract">Extract</string>
     <string name="information">Information</string>
     <string name="share">Share</string>
+    <string name="create_new_folder">Create new folder</string>
+    <string name="new_folder">New Folder</string>
+    <string name="new_file">New File.txt</string>
     <string name="more">More</string>
     <string name="less">Less</string>
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
+
+    <string name="processing">Processing…</string>
+
+    <string name="compressing">Compressing</string>
+    <string name="extracting">Extracting</string>
+    <string name="deleting">Deleting</string>
+    <string name="copying">Copying</string>
+    <string name="moving">Moving</string>
+    <string name="renaming">Renaming</string>
+    <string name="creating">Creating</string>
 
 </resources>
