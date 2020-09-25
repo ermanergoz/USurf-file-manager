@@ -36,23 +36,6 @@
 
         </androidx.gridlayout.widget.GridLayout>
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/addShortcut"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="8dp"
-            android:clickable="true"
-            android:focusable="true"
-            app:backgroundTint="@color/colorAccent"
-            app:layout_constraintBottom_toBottomOf="@+id/shortcutRecyclerView"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="1.0"
-            app:srcCompat="@drawable/ic_plus" />
-
         <View
             android:id="@+id/dividerTop"
             android:layout_width="0dp"

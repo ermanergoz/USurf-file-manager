@@ -31,7 +31,7 @@ class HomeModel() {
         return storageButtons
     }
 
-    fun getTotalStorage(path: String): Long {
+    private fun getTotalStorage(path: String): Long {
         val stat = StatFs(path)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             return stat.totalBytes
@@ -39,7 +39,7 @@ class HomeModel() {
         return 0
     }
 
-    fun getUsedStorage(path: String): Long {
+    private fun getUsedStorage(path: String): Long {
         val stat = StatFs(path)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             val free = stat.availableBlocksLong
