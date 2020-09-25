@@ -1,6 +1,7 @@
 package com.erman.usurf.home.ui
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -8,21 +9,30 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.Toast
+import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
 import com.erman.usurf.R
 import com.erman.usurf.databinding.FragmentHomeBinding
+import com.erman.usurf.dialog.ui.RenameDialog
+import com.erman.usurf.dialog.ui.ShortcutOptionsDialog
 import com.erman.usurf.directory.ui.DirectoryViewModel
+import com.erman.usurf.utils.ShowDialog
 import com.erman.usurf.utils.ViewModelFactory
 import kotlinx.android.synthetic.main.fragment_home.*
+import java.io.File
 
 class HomeFragment : Fragment() {
     private lateinit var homeViewModel: HomeViewModel
     private lateinit var viewModelFactory: ViewModelFactory
     private lateinit var directoryViewModel: DirectoryViewModel
+    private lateinit var shortcutRecyclerViewAdapter: ShortcutRecyclerViewAdapter
+    private lateinit var dialogListener: ShowDialog
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         viewModelFactory = ViewModelFactory()
@@ -34,12 +44,12 @@ class HomeFragment : Fragment() {
             ViewModelProvider(requireActivity(), viewModelFactory).get(DirectoryViewModel::class.java)
 
         homeViewModel.navigateToDirectory.observe(viewLifecycleOwner, Observer {
-            it.getContentIfNotHandled()?.let {navId ->
+            it.getContentIfNotHandled()?.let { navId ->
                 findNavController().navigate(navId)
             }
         })
 
-        homeViewModel.storagePath.observe(viewLifecycleOwner, Observer {
+        homeViewModel.path.observe(viewLifecycleOwner, Observer {
             directoryViewModel.setPath(it)
         })
 
@@ -53,9 +63,45 @@ class HomeFragment : Fragment() {
                 }
             }
         })
+
+        homeViewModel.onShortcutOption.observe(viewLifecycleOwner, Observer {
+            it.getContentIfNotHandled()?.let {args ->
+                dialogListener.showDialog(ShortcutOptionsDialog(args.view))
+            }
+        })
+
+        homeViewModel.onRename.observe(viewLifecycleOwner, Observer {
+            it.getContentIfNotHandled()?.let { args ->
+                dialogListener.showDialog(RenameDialog(args.name))
+            }
+        })
+
+        homeViewModel.openFile.observe(viewLifecycleOwner, Observer {
+            it.getContentIfNotHandled()?.let { args ->
+                val intent = Intent(Intent.ACTION_VIEW)
+                intent.data = FileProvider.getUriForFile(requireContext(), requireContext().packageName, File(args.path))
+                intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                intent.resolveActivity(requireContext().packageManager)?.let { startActivity(intent) }
+                    ?: let { Toast.makeText(context, getString(R.string.unsupported_file), Toast.LENGTH_LONG).show() }
+            }
+        })
+
         binding.lifecycleOwner = this
         binding.viewModel = homeViewModel
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        shortcutRecyclerViewAdapter = ShortcutRecyclerViewAdapter(homeViewModel)
+        shortcutRecyclerView.layoutManager = GridLayoutManager(context, 2)
+        shortcutRecyclerView.adapter = shortcutRecyclerViewAdapter
+        shortcutRecyclerView.itemAnimator!!.changeDuration = 0 //to avoid flickering
+
+        homeViewModel.shortcuts.observe(viewLifecycleOwner, Observer {
+            shortcutRecyclerViewAdapter.updateData(it)
+        })
     }
 
     override fun onResume() {
@@ -65,7 +111,7 @@ class HomeFragment : Fragment() {
             val buttonLayoutParams =
                 FrameLayout.LayoutParams(520, 200)
             buttonLayoutParams.setMargins(10, 0, 10, 0)
-            for (i in it.indices) {
+            for (i in it.indices) { //TODO: Make this more kotlinish
                 it[i].lifecycleOwner = this
                 it[i].viewModel = homeViewModel
                 storageUsageBarLayout.addView(it[i].root, buttonLayoutParams)
@@ -81,7 +127,7 @@ class HomeFragment : Fragment() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (resultCode === Activity.RESULT_OK) {
+        if (resultCode == Activity.RESULT_OK) {
             val treeUri = data!!.data
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -93,5 +139,15 @@ class HomeFragment : Fragment() {
             return
         }
         super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        try {
+            dialogListener = context as ShowDialog
+        } catch (err: ClassCastException) {
+            err.printStackTrace()
+        }
     }
 }

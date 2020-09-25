@@ -5,3 +5,5 @@ const val GRID_LAYOUT_COLUMN_NUMBER: Int = 2
 const val KEY_INTENT_IS_CREATE_SHORTCUT_MODE: String = "isCreateShortcutMode"
 const val KEY_BUNDLE_STORAGE_DIRECTORY: String = "storageDirectory"
 const val KEY_INTENT_NEW_SHORTCUT_PATH: String = "newShortcutPath"
+const val REALM_FIELD_NAME_PATH: String = "path"
+
