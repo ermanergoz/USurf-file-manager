@@ -48,7 +48,7 @@ class DirectoryFragment : Fragment() {
         })
 
         directoryViewModel.openFile.observe(viewLifecycleOwner, Observer {
-            it.getContentIfNotHandled()?.let {args ->
+            it.getContentIfNotHandled()?.let { args ->
                 val intent = Intent(Intent.ACTION_VIEW)
                 intent.data = FileProvider.getUriForFile(requireContext(), requireContext().packageName, File(args.path))
                 intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
@@ -64,7 +64,7 @@ class DirectoryFragment : Fragment() {
         })
 
         directoryViewModel.onShare.observe(viewLifecycleOwner, Observer {
-            it.getContentIfNotHandled()?.let {args ->
+            it.getContentIfNotHandled()?.let { args ->
                 val fileUris: ArrayList<Uri> = arrayListOf()
 
                 for (fileModel in args.multipleSelectionList) {
@@ -81,7 +81,7 @@ class DirectoryFragment : Fragment() {
         })
 
         directoryViewModel.onRename.observe(viewLifecycleOwner, Observer {
-            it.getContentIfNotHandled()?.let {args ->
+            it.getContentIfNotHandled()?.let { args ->
                 dialogListener.showDialog(RenameDialog(args.name))
             }
         })
@@ -101,6 +101,12 @@ class DirectoryFragment : Fragment() {
         directoryViewModel.onInformation.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.let { args ->
                 dialogListener.showDialog(FileInformationDialog(args.file))
+            }
+        })
+
+        directoryViewModel.onAddShortcut.observe(viewLifecycleOwner, Observer {
+            it.getContentIfNotHandled()?.let { args ->
+                dialogListener.showDialog(AddShortcutDialog(args.path))
             }
         })
 

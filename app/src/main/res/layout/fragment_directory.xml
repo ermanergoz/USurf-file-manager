@@ -91,6 +91,17 @@
             app:layout_constraintVertical_bias="1.0">
 
             <Button
+                android:id="@+id/shortcutButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="?android:attr/selectableItemBackground"
+                android:onClick="@{() -> viewModel.shortcutButton()}"
+                android:text="@string/shortcut"
+                android:textColor="@color/textColorDark"
+                android:textSize="12sp" />
+
+            <Button
                 android:id="@+id/compressButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
