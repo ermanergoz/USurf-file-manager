@@ -42,6 +42,9 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     private val _onInformation = MutableLiveData<Event<UIEventArgs.InformationDialogArgs>>()
     val onInformation: LiveData<Event<UIEventArgs.InformationDialogArgs>> = _onInformation
 
+    private val _onAddShortcut = MutableLiveData<Event<UIEventArgs.ShortcutDialogArgs>>()
+    val onAddShortcut: LiveData<Event<UIEventArgs.ShortcutDialogArgs>> = _onAddShortcut
+
     private val _copyMode = MutableLiveData<Boolean>().apply {
         value = false
     }
@@ -102,7 +105,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
         _createMode.value = false
     }
 
-    private fun clearMultipleSelection() {
+    fun clearMultipleSelection() {
         _multipleSelection.value = directoryModel.clearMultipleSelection(multipleSelection.value!!)
     }
 
@@ -310,15 +313,22 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
         _toastMessage.value = Event(R.string.creating)
         launch {
             try {
-                directoryModel.createFile(path.value!!, fileName)
-                _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
-                _toastMessage.value = Event(R.string.file_creation_successful)
+                path.value?.let {
+                    directoryModel.createFile(it, fileName)
+                    _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(it)
+                    _toastMessage.value = Event(R.string.file_creation_successful)
+                }
             } catch (err: CancellationException) {
                 _toastMessage.value = Event(R.string.error_when_creating_file)
             } finally {
                 clearMultipleSelection()
             }
         }
+    }
+
+    fun shortcutButton() {
+        val file = multipleSelection.value!!.last()
+        _onAddShortcut.value = Event(UIEventArgs.ShortcutDialogArgs(file.path))
     }
 
     override val coroutineContext: CoroutineContext
