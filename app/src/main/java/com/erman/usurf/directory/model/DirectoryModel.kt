@@ -7,8 +7,7 @@ import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import com.erman.usurf.MainApplication.Companion.appContext
 import com.erman.usurf.directory.utils.SIMPLE_DATE_FORMAT_PATTERN
-import com.erman.usurf.utils.DirectoryPreferenceProvider
-import com.erman.usurf.utils.StoragePaths
+import com.erman.usurf.utils.*
 import kotlinx.coroutines.*
 import java.io.*
 import java.text.SimpleDateFormat
@@ -95,6 +94,7 @@ class DirectoryModel {
     }
 
     private fun getDocumentFile(file: File, isDirectory: Boolean): DocumentFile? {
+        logd("getDocumentFile")
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) return DocumentFile.fromFile(file)
         val getExtSdCardBaseFolder = StoragePaths().getStorageDirectories().elementAt(1)
         var originalDirectory = false
@@ -103,9 +103,10 @@ class DirectoryModel {
             val fullPath = file.canonicalPath
             if (getExtSdCardBaseFolder != fullPath) relativePathOfFile = fullPath.substring(getExtSdCardBaseFolder.length + 1)
             else originalDirectory = true
-        } catch (e: IOException) {
+        } catch (err: IOException) {
+            loge("getDocumentFile $err")
             return null
-        } catch (f: Exception) {
+        } catch (err: Exception) {
             originalDirectory = true
         }
         val extSdCardChosenUri = DirectoryPreferenceProvider().getChosenUri()
@@ -134,7 +135,7 @@ class DirectoryModel {
 
     suspend fun rename(selectedDirectory: FileModel, newFileName: String) = withContext(Dispatchers.IO) {
         val dirName = File(selectedDirectory.path).parent
-
+        logi("Rename " + selectedDirectory.path + " to " + newFileName)
         if (selectedDirectory.name == newFileName)
             cancel()
 
@@ -151,7 +152,7 @@ class DirectoryModel {
 
     suspend fun delete(selectedDirectories: List<FileModel>) = withContext(Dispatchers.IO) {
         for (i in selectedDirectories.indices) {
-            Log.i("deleting", selectedDirectories[i].name)
+            logi("Delete " + selectedDirectories[i].path)
             val isSuccess = if (selectedDirectories[i].isDirectory) {
                 File(selectedDirectories[i].path).deleteRecursively()
             } else {
@@ -174,6 +175,7 @@ class DirectoryModel {
     }
 
     suspend fun createFolder(path: String, folderName: String) = withContext(Dispatchers.IO) {
+        logi("Create folder: $path $folderName")
         if (!File("$path/$folderName").exists()) {
             if (!File("$path/$folderName").mkdir()) {
                 //try catch wont work here. Doesn't throw IOException
@@ -186,6 +188,7 @@ class DirectoryModel {
     }
 
     suspend fun createFile(path: String, fileName: String) = withContext(Dispatchers.IO) {
+        logi("Create file: $path $fileName")
         if (!File("$path/$fileName").exists()) {
             try {   //if wont work here. Throws IOException
                 File("$path/$fileName").createNewFile()
@@ -210,6 +213,7 @@ class DirectoryModel {
 
     suspend fun copyFile(copyOrMoveSources: List<FileModel>, copyOrMoveDestination: String) = withContext(Dispatchers.IO) {
         for (i in copyOrMoveSources.indices) {
+            logi("Copy: from " + copyOrMoveSources[i].path + " to " + copyOrMoveDestination)
             if (!doesFileExist(copyOrMoveSources[i], copyOrMoveDestination)) {
                 if (copyOrMoveSources[i].isDirectory) {
                     if (!File(copyOrMoveSources[i].path).copyRecursively(File(copyOrMoveDestination + File.separator + copyOrMoveSources[i].name))) {
@@ -257,25 +261,25 @@ class DirectoryModel {
                         outputStream.write(byteArray, 0, bytesRead)
                     }
                 } catch (err: Exception) {
-                    err.printStackTrace()
+                    loge("copyToExtCard$err")
                 } finally {
                     try {
                         fileInputStream.close()
                         outputStream.close()
                         return true
                     } catch (err: Exception) {
-                        err.printStackTrace()
+                        loge("copyToExtCard$err")
                     }
                 }
             } catch (err: Exception) {
-                err.printStackTrace()
+                loge("copyToExtCard$err")
             } finally {
                 try {
                     fileInputStream!!.close()
                     outputStream!!.close()
                     return true
                 } catch (err: Exception) {
-                    err.printStackTrace()
+                    loge("copyToExtCard$err")
                 }
             }
             return false
@@ -285,6 +289,7 @@ class DirectoryModel {
 
     suspend fun moveFile(copyOrMoveSources: List<FileModel>, copyOrMoveDestination: String) = withContext(Dispatchers.IO) {
         for (i in copyOrMoveSources.indices) {
+            logi("Move: from " + copyOrMoveSources[i].path + " to " + copyOrMoveDestination)
             try {
                 copyFile(copyOrMoveSources, copyOrMoveDestination)
             } catch (err: CancellationException) {
@@ -308,6 +313,7 @@ class DirectoryModel {
             val data = ByteArray(buffer)
 
             for (i in selectedDirectories.indices) {
+                logi("Compress: " + selectedDirectories[i].name)
                 if (selectedDirectories[i].isDirectory) {
                     if (!zipFolder(File(selectedDirectories[0].path).listFiles()!!.toList(), output, selectedDirectories[i].name)) {
                         cancel()//in case of an error in zipFolder function
@@ -326,8 +332,8 @@ class DirectoryModel {
             }
             output.close()
         } catch (err: Exception) {
-            err.printStackTrace()
-            cancel(err.toString())
+            loge("compressFile$err")
+            cancel()
         }
         true
     }
@@ -358,7 +364,7 @@ class DirectoryModel {
             }
             return true
         } catch (err: Exception) {
-            Log.e("Error while compressing", err.toString())
+            loge("compressFile$err")
             return false
         }
     }
@@ -369,6 +375,7 @@ class DirectoryModel {
 
         try {
             for (i in selectedDirectories.indices) {
+                logi("Extract: " + selectedDirectories[i].name)
                 val baseFolderPath =
                     File(selectedDirectories[0].path).parent!! + File.separator + File(selectedDirectories[0].path).name
                 File(baseFolderPath).mkdir()
@@ -397,7 +404,7 @@ class DirectoryModel {
                 zipInput.close()
             }
         } catch (err: Exception) {
-            err.printStackTrace()
+            loge("compressFile$err")
             cancel()
         }
     }

@@ -7,6 +7,8 @@ import com.erman.usurf.R
 import com.erman.usurf.dialog.model.UIEventArgs
 import com.erman.usurf.directory.model.*
 import com.erman.usurf.utils.Event
+import com.erman.usurf.utils.logd
+import com.erman.usurf.utils.loge
 import kotlinx.coroutines.*
 import java.io.File
 import java.lang.Exception
@@ -129,6 +131,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
             }
         } catch (err: Exception) {
             err.printStackTrace()
+            loge("onBackPressed $err")
         }
         return false
     }
@@ -143,7 +146,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                 return directoryModel.getFileModelsFromFiles(path.value!!)
             } catch (err: IllegalStateException) {
                 _toastMessage.value = Event(R.string.unable_to_open_directory)
-                err.printStackTrace()
+                loge("getFileList $err")
             }
         }
         return emptyList()
@@ -156,6 +159,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     fun onFileCompressOkPressed(name: String) {
         turnOffOptionPanel()
         _toastMessage.value = Event(R.string.compressing)
+        logd("onFileCompressOkPressed")
         launch {
             try {
                 directoryModel.compressFile(multipleSelection.value!!, name)
@@ -163,6 +167,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                 _toastMessage.value = Event(R.string.compressing_successful)
             } catch (err: CancellationException) {
                 _toastMessage.value = Event(R.string.error_while_compressing)
+                loge("onFileCompressOkPressed $err")
             } finally {
                 clearMultipleSelection()
             }
@@ -172,6 +177,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     fun extract() {
         turnOffOptionPanel()
         _toastMessage.value = Event(R.string.extracting)
+        logd("extract")
         launch {
             try {
                 directoryModel.extractFiles(multipleSelection.value!!)
@@ -179,6 +185,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                 _toastMessage.value = Event(R.string.extracting_successful)
             } catch (err: CancellationException) {
                 _toastMessage.value = Event(R.string.error_while_extracting)
+                loge("extract $err")
             } finally {
                 clearMultipleSelection()
             }
@@ -213,6 +220,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
         when {
             copyMode.value!! -> {
                 _toastMessage.value = Event(R.string.copying)
+                logd("copy - copyMode")
                 launch {
                     try {
                         directoryModel.copyFile(multipleSelection.value!!, path.value!!)
@@ -220,12 +228,14 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                         _toastMessage.value = Event(R.string.copy_successful)
                     } catch (err: CancellationException) {
                         _toastMessage.value = Event(R.string.error_while_copying)
+                        loge("confirmAction-copyMode $err")
                     }
                 }
             }
             moveMode.value!! -> {
                 turnOffOptionPanel()
                 _toastMessage.value = Event(R.string.moving)
+                logd("move - moveMode")
                 launch {
                     try {
                         directoryModel.moveFile(multipleSelection.value!!, path.value!!)
@@ -233,6 +243,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                         _toastMessage.value = Event(R.string.moving_successful)
                     } catch (err: CancellationException) {
                         _toastMessage.value = Event(R.string.error_while_moving)
+                        loge("confirmAction-moveMode $err")
                     } finally {
                         clearMultipleSelection()
                     }
@@ -244,6 +255,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     fun onRenameOkPressed(fileName: String) {
         turnOffOptionPanel()
         _toastMessage.value = Event(R.string.renaming)
+        logd("onRenameOkPressed")
         launch {
             try {
                 directoryModel.rename(multipleSelection.value!!.last(), fileName)
@@ -251,6 +263,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                 _toastMessage.value = Event(R.string.renaming_successful)
             } catch (err: CancellationException) {
                 _toastMessage.value = Event(R.string.error_while_renaming)
+                loge("onRenameOkPressed $err")
             } finally {
                 clearMultipleSelection()
             }
@@ -267,6 +280,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     fun delete() {
         turnOffOptionPanel()
         _toastMessage.value = Event(R.string.deleting)
+        logd("delete")
         launch {
             try {
                 directoryModel.delete(multipleSelection.value!!)
@@ -274,6 +288,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                 _toastMessage.value = Event(R.string.deleting_successful)
             } catch (err: CancellationException) {
                 _toastMessage.value = Event(R.string.error_while_deleting)
+                loge("delete $err")
             } finally {
                 clearMultipleSelection()
             }
@@ -295,6 +310,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     fun onFolderCreateOkPressed(folderName: String) {
         turnOffOptionPanel()
         _toastMessage.value = Event(R.string.creating)
+        logd("onFolderCreateOkPressed")
         launch {
             try {
                 directoryModel.createFolder(path.value!!, folderName)
@@ -302,6 +318,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                 _toastMessage.value = Event(R.string.folder_creation_successful)
             } catch (err: CancellationException) {
                 _toastMessage.value = Event(R.string.error_when_creating_folder)
+                loge("onFolderCreateOkPressed $err")
             } finally {
                 clearMultipleSelection()
             }
@@ -311,6 +328,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     fun onFileCreateOkPressed(fileName: String) {
         turnOffOptionPanel()
         _toastMessage.value = Event(R.string.creating)
+        logd("onFileCreateOkPressed")
         launch {
             try {
                 path.value?.let {
@@ -320,6 +338,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                 }
             } catch (err: CancellationException) {
                 _toastMessage.value = Event(R.string.error_when_creating_file)
+                loge("onFileCreateOkPressed $err")
             } finally {
                 clearMultipleSelection()
             }
@@ -327,6 +346,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
 
     fun shortcutButton() {
+        logd("shortcutButton")
         val file = multipleSelection.value!!.last()
         _onAddShortcut.value = Event(UIEventArgs.ShortcutDialogArgs(file.path))
     }

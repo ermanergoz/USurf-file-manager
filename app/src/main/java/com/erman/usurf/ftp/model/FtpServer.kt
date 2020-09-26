@@ -28,6 +28,7 @@ class FtpServer : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        logd("Start FTP server service")
         // Let it continue running until it is stopped.
         val listenerFactory = ListenerFactory()
         val connectionConfigFactory = ConnectionConfigFactory()
@@ -52,6 +53,7 @@ class FtpServer : Service() {
     }
 
     override fun onDestroy() {
+        logd("Stop FTP server service")
         super.onDestroy()
         server!!.stop()
         sendBroadcast()
@@ -60,6 +62,7 @@ class FtpServer : Service() {
     }
 
     private fun sendBroadcast() {
+        logd("Send broadcast")
         val broadcastIntent = Intent()
         broadcastIntent.action = applicationContext.getString(R.string.ftp_broadcast_receiver)
         LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(broadcastIntent)
