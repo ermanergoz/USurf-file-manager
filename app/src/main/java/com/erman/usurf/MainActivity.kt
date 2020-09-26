@@ -15,12 +15,14 @@ import android.Manifest
 import android.os.Build
 import androidx.fragment.app.DialogFragment
 import com.erman.usurf.utils.ShowDialog
+import com.erman.usurf.utils.logd
 
 class MainActivity : AppCompatActivity(), ShowDialog {
     private lateinit var appBarConfiguration: AppBarConfiguration
 
     private fun requestPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            logd("Request read and write permissions")
             ActivityCompat.requestPermissions(this,
                 arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
@@ -45,7 +47,8 @@ class MainActivity : AppCompatActivity(), ShowDialog {
                 R.id.nav_library,
                 R.id.nav_preferences,
                 R.id.nav_ftp,
-                R.id.nav_info
+                R.id.nav_info,
+                R.id.nav_history
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
@@ -60,6 +63,7 @@ class MainActivity : AppCompatActivity(), ShowDialog {
     }
 
     override fun showDialog(dialog: DialogFragment) {
+        logd("Show a dialog")
         dialog.show(supportFragmentManager ,"")
     }
 }
