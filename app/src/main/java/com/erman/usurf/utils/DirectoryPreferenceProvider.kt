@@ -11,11 +11,13 @@ class DirectoryPreferenceProvider {
     lateinit var preferencesEditor: SharedPreferences.Editor
 
     fun getChosenUri(): String? {
+        logd("getChosenUri")
         return MainApplication.appContext.getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE).getString(KEY_INTENT_EXTCARD_CHOSEN_URI, "")
     }
 
     @SuppressLint("CommitPrefEdits")
     fun editChosenUri(treeUri: String) {
+        logd("editChosenUri")
         preferencesEditor = preferences.edit()
         preferencesEditor.putString(KEY_INTENT_EXTCARD_CHOSEN_URI, treeUri)
         preferencesEditor.apply()
