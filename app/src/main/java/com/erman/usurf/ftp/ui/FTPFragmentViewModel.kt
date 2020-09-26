@@ -10,6 +10,7 @@ import com.erman.usurf.ftp.model.FtpModel
 import com.erman.usurf.ftp.model.FTPLiveData
 import com.erman.usurf.ftp.model.FtpServer
 import com.erman.usurf.ftp.utils.DEFAULT_PORT
+import com.erman.usurf.utils.loge
 
 class FTPViewModel(private val ftpModel: FtpModel) : ViewModel() {
     private var preferenceProvider = FtpPreferenceProvider()
@@ -59,7 +60,7 @@ class FTPViewModel(private val ftpModel: FtpModel) : ViewModel() {
             newPort = port.toString().toInt()
         }catch (err: NumberFormatException)
         {
-            err.printStackTrace()
+            loge("onPortChanged$err")
             newPort = DEFAULT_PORT
             _toastMessage.value = Event(R.string.port_error)
         }

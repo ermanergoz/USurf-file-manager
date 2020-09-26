@@ -24,7 +24,8 @@ class ShortcutRecyclerViewAdapter(var viewModel: HomeViewModel) :
     var shortcuts = listOf<Shortcut>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShortcutHolder {
-        val binding: RecyclerShortcutLayoutBinding = DataBindingUtil.inflate(LayoutInflater.from(parent.context), R.layout.recycler_shortcut_layout, parent, false)
+        val binding: RecyclerShortcutLayoutBinding =
+            DataBindingUtil.inflate(LayoutInflater.from(parent.context), R.layout.recycler_shortcut_layout, parent, false)
 
         binding.viewModel = viewModel
         return ShortcutHolder(binding)
@@ -43,17 +44,12 @@ class ShortcutRecyclerViewAdapter(var viewModel: HomeViewModel) :
             itemView.shortcut.text = shortcut.name
             itemView.shortcut.tag = shortcut.path
             itemView.shortcut.isSingleLine = true
-
-            if (itemView.context.getSharedPreferences(
-                    SHARED_PREF_FILE,
-                    Context.MODE_PRIVATE).getBoolean(
-                    MARQUEE_CHOICE_KEY, true)) {
-                itemView.shortcut.ellipsize =
-                    TextUtils.TruncateAt.MARQUEE  //for sliding names if the length is longer than 1 line
-                itemView.shortcut.isSelected = true
-                itemView.shortcut.marqueeRepeatLimit =
-                    MARQUEE_REPEAT_LIM   //-1 is for forever
-            }
+            
+            itemView.shortcut.ellipsize = TextUtils.TruncateAt.MARQUEE
+            //for sliding names if the length is longer than 1 line
+            itemView.shortcut.isSelected = true
+            itemView.shortcut.marqueeRepeatLimit = MARQUEE_REPEAT_LIM
+            //-1 is for forever
         }
     }
 
