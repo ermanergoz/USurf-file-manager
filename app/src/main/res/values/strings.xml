@@ -6,7 +6,7 @@
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
-    <string name="empty"></string>
+    <string name="empty" />
 
     <!--drawer menu-->
     <string name="menu_home">Home</string>
@@ -15,6 +15,7 @@
     <string name="menu_ftp">FTP</string>
     <string name="menu_preferences">Preferences</string>
     <string name="menu_info">Information</string>
+    <string name="menu_history">History</string>
 
     <!--preferences_main-->
     <string name="change_theme">Change theme</string>
@@ -132,6 +133,7 @@
     <string name="error_while_extracting">Error while extracting</string>
     <string name="press_back_again">Press back button again to go to the home screen.</string>
     <string name="forced_single_selection_info">This operation will be performed to the last selected item only.</string>
+    <string name="cleared">Cleared</string>
 
     <!--create shortcut dialog-->
     <string name="name">Name:</string>
@@ -192,5 +194,8 @@
     <string name="moving">Moving</string>
     <string name="renaming">Renaming</string>
     <string name="creating">Creating</string>
+    <string name="history_icon">History Icon:</string>
+    <string name="clear">Clear</string>
+    <string name="file_icon">File Icon:</string>
 
 </resources>
