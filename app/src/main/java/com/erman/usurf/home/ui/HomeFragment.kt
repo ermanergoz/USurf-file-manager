@@ -22,8 +22,7 @@ import com.erman.usurf.databinding.FragmentHomeBinding
 import com.erman.usurf.dialog.ui.RenameDialog
 import com.erman.usurf.dialog.ui.ShortcutOptionsDialog
 import com.erman.usurf.directory.ui.DirectoryViewModel
-import com.erman.usurf.utils.ShowDialog
-import com.erman.usurf.utils.ViewModelFactory
+import com.erman.usurf.utils.*
 import kotlinx.android.synthetic.main.fragment_home.*
 import java.io.File
 
@@ -65,7 +64,7 @@ class HomeFragment : Fragment() {
         })
 
         homeViewModel.onShortcutOption.observe(viewLifecycleOwner, Observer {
-            it.getContentIfNotHandled()?.let {args ->
+            it.getContentIfNotHandled()?.let { args ->
                 dialogListener.showDialog(ShortcutOptionsDialog(args.view))
             }
         })
@@ -78,6 +77,7 @@ class HomeFragment : Fragment() {
 
         homeViewModel.openFile.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.let { args ->
+                logd("Open a shortcut file")
                 val intent = Intent(Intent.ACTION_VIEW)
                 intent.data = FileProvider.getUriForFile(requireContext(), requireContext().packageName, File(args.path))
                 intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
@@ -128,8 +128,8 @@ class HomeFragment : Fragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == Activity.RESULT_OK) {
+            logd("Get read and write permissions")
             val treeUri = data!!.data
-
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 requireContext().contentResolver.takePersistableUriPermission(treeUri!!,
                     Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
