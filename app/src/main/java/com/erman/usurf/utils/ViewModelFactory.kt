@@ -6,8 +6,6 @@ import com.erman.usurf.directory.model.DirectoryModel
 import com.erman.usurf.directory.ui.DirectoryViewModel
 import com.erman.usurf.ftp.model.FtpModel
 import com.erman.usurf.ftp.ui.FTPViewModel
-import com.erman.usurf.history.model.HistoryModel
-import com.erman.usurf.history.ui.HistoryViewModel
 import com.erman.usurf.home.model.HomeModel
 import com.erman.usurf.home.ui.HomeViewModel
 
@@ -29,8 +27,6 @@ class ViewModelFactory : ViewModelProvider.Factory {
                     HomeViewModel(HomeModel())
                 isAssignableFrom(DirectoryViewModel::class.java) ->
                     DirectoryViewModel(DirectoryModel())
-                isAssignableFrom(HistoryViewModel::class.java) ->
-                    HistoryViewModel(HistoryModel())
                 //TODO: Add rest of the view models
                 else ->
                     throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")

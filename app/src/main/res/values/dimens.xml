@@ -10,5 +10,4 @@
     <dimen name="def_layout_margin">8dp</dimen>
     <dimen name="subtitle_horizontal_margin">16dp</dimen>
     <dimen name="subtitle_vertical_margin">8dp</dimen>
-    <dimen name="no_gap_margin">0dp</dimen>
 </resources>
