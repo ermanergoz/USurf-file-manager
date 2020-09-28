@@ -2,6 +2,25 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:background="?attr/background">
 
+    <ListPreference
+        android:entries="@array/sort_files"
+        android:entryValues="@array/sort_files"
+        android:icon="@android:drawable/arrow_down_float"
+        android:key="sortListPreference"
+        android:defaultValue="Sort by name"
+        android:title="@string/sort_by" />
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="ascendingOrderPreference"
+        android:title="@string/ascending_order" />
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="descendingOrderPreference"
+        android:title="@string/descending_order" />
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="showHiddenFileSwitch"
+        android:title="@string/show_hidden_files" />
     <SwitchPreference
         android:defaultValue="false"
         android:key="root_access"

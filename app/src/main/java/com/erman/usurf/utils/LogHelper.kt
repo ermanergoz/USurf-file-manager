@@ -37,14 +37,9 @@ fun logToFile(type: String, message: String) {
 
         val fileTimeStamp = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(Date())
         val timeStamp = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.getDefault()).format(Date())
-
-        val fileName = if (type == "Info")
-            "Info.txt"
-        else
-            "$type-$fileTimeStamp.txt"
+        val fileName = "$type-$fileTimeStamp.txt"
 
         val file = File(appContext.getExternalFilesDir(null)?.absolutePath + File.separator + "logs" + File.separator + fileName)
-
         file.createNewFile()
 
         if (file.exists()) {
@@ -57,5 +52,4 @@ fun logToFile(type: String, message: String) {
     } catch (err: Exception) {
         Log.e("Log", "Error while logging into file : $err")
     }
-
 }

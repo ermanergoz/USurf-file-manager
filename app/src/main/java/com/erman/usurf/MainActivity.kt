@@ -44,11 +44,9 @@ class MainActivity : AppCompatActivity(), ShowDialog {
             setOf(
                 R.id.nav_home,
                 R.id.nav_directory,
-                R.id.nav_library,
                 R.id.nav_preferences,
                 R.id.nav_ftp,
-                R.id.nav_info,
-                R.id.nav_history
+                R.id.nav_info
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)

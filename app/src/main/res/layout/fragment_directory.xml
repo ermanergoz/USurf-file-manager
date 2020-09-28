@@ -54,17 +54,6 @@
             tools:visibility="visible">
 
             <Button
-                android:id="@+id/OKButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="?android:attr/selectableItemBackground"
-                android:onClick="@{() -> viewModel.confirmAction()}"
-                android:text="@string/ok"
-                android:textColor="@color/textColorDark"
-                android:textSize="12sp" />
-
-            <Button
                 android:id="@+id/cancelButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -72,6 +61,17 @@
                 android:background="?android:attr/selectableItemBackground"
                 android:onClick="@{() -> viewModel.endCopyMode()}"
                 android:text="@string/cancel"
+                android:textColor="@color/textColorDark"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/OKButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="?android:attr/selectableItemBackground"
+                android:onClick="@{() -> viewModel.confirmAction()}"
+                android:text="@string/ok"
                 android:textColor="@color/textColorDark"
                 android:textSize="12sp" />
         </LinearLayout>
