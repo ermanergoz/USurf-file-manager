@@ -16,4 +16,4 @@
 
 • Integrated zip/unzip files / folder feature. - [x]
 
-• Support to add / remove shortcuts to the main activity.
+• Support to add / remove shortcuts to the main activity. - [x]

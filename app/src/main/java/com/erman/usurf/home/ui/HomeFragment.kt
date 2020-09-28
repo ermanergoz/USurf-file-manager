@@ -97,7 +97,7 @@ class HomeFragment : Fragment() {
         shortcutRecyclerViewAdapter = ShortcutRecyclerViewAdapter(homeViewModel)
         shortcutRecyclerView.layoutManager = GridLayoutManager(context, 2)
         shortcutRecyclerView.adapter = shortcutRecyclerViewAdapter
-        shortcutRecyclerView.itemAnimator!!.changeDuration = 0 //to avoid flickering
+        shortcutRecyclerView.itemAnimator?.let { it.changeDuration = 0 }//to avoid flickering
 
         homeViewModel.shortcuts.observe(viewLifecycleOwner, Observer {
             shortcutRecyclerViewAdapter.updateData(it)
@@ -129,12 +129,13 @@ class HomeFragment : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == Activity.RESULT_OK) {
             logd("Get read and write permissions")
-            val treeUri = data!!.data
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                requireContext().contentResolver.takePersistableUriPermission(treeUri!!,
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            data?.data?.let { treeUri ->
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    requireContext().contentResolver.takePersistableUriPermission(treeUri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                }
+                homeViewModel.saveDocumentTree(treeUri.toString())
             }
-            homeViewModel.saveDocumentTree(treeUri.toString())
         } else {
             return
         }
