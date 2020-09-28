@@ -12,10 +12,20 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
 import androidx.core.app.ActivityCompat
 import android.Manifest
+import android.app.ProgressDialog.show
+import android.app.SearchManager
+import android.content.Context
 import android.os.Build
+import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
+import android.widget.SearchView
+import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
+import com.erman.usurf.dialog.ui.SearchDialog
 import com.erman.usurf.utils.ShowDialog
 import com.erman.usurf.utils.logd
+import io.realm.kotlin.where
 
 class MainActivity : AppCompatActivity(), ShowDialog {
     private lateinit var appBarConfiguration: AppBarConfiguration
@@ -40,6 +50,7 @@ class MainActivity : AppCompatActivity(), ShowDialog {
         val navController = findNavController(R.id.nav_host_fragment)
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
+
         appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.nav_home,
@@ -52,6 +63,11 @@ class MainActivity : AppCompatActivity(), ShowDialog {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
+        navView.setNavigationItemSelectedListener {
+            Log.e("clicked", it.title.toString())
+            false
+        }
+
         requestPermissions()
     }
 
@@ -60,8 +76,19 @@ class MainActivity : AppCompatActivity(), ShowDialog {
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_main_activity, menu)
+
+        val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
+        val search = menu!!.findItem(R.id.deviceWideSearch).actionView as SearchView
+        search.setSearchableInfo(searchManager.getSearchableInfo(componentName))
+        //search.setOnQueryTextListener(this)
+
+        return super.onCreateOptionsMenu(menu)
+    }
+
     override fun showDialog(dialog: DialogFragment) {
         logd("Show a dialog")
-        dialog.show(supportFragmentManager ,"")
+        dialog.show(supportFragmentManager, "")
     }
 }
