@@ -40,7 +40,7 @@ class ConnectionLiveData : LiveData<Boolean>() {
     }
 }
 
-val Context.isConnected: Boolean
+val Context.isConnected: Boolean?
     get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
         val connectivityManager =
             (getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager)
@@ -48,5 +48,5 @@ val Context.isConnected: Boolean
             connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
         activeNetwork?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ?: false
     } else {
-        (getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager)?.activeNetworkInfo!!.isConnected
+        (getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager)?.activeNetworkInfo?.isConnected
     }

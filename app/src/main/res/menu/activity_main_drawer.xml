@@ -14,33 +14,20 @@
             android:icon="@drawable/ic_hdd"
             android:title="@string/menu_directory" />
         <item
-            android:id="@+id/nav_library"
-            android:icon="@drawable/ic_library"
-            android:title="@string/menu_library" />
-
-        <item
             android:id="@+id/nav_device_search"
             android:icon="@drawable/ic_search"
             android:title="@string/device_wide_search" />
-
         <item
             android:id="@+id/nav_ftp"
             android:icon="@drawable/ic_ftp"
             android:title="@string/menu_ftp" />
-
         <item
             android:id="@+id/nav_preferences"
             android:icon="@drawable/ic_preferences"
             android:title="@string/menu_preferences" />
-
         <item
             android:id="@+id/nav_info"
             android:icon="@drawable/ic_info"
             android:title="@string/menu_info" />
-
-        <item
-            android:id="@+id/nav_history"
-            android:icon="@drawable/ic_history"
-            android:title="@string/menu_history" />
     </group>
 </menu>

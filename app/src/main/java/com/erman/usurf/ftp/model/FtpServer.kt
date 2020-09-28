@@ -37,17 +37,24 @@ class FtpServer : Service() {
         listenerFactory.port = DEFAULT_PORT
 
         val user = BaseUser()
-        user.name = getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE).getString(
-            USERNAME_KEY, DEFAULT_USER_NAME)!!
-        user.password = getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE).getString(
-            PASSWORD_KEY, PASSWORD_DEF_VAL)!!
+        getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE).getString(
+            USERNAME_KEY, DEFAULT_USER_NAME)?.let {
+            user.name = it
+        }
+        getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE).getString(
+            PASSWORD_KEY, PASSWORD_DEF_VAL)?.let {
+            user.password = it
+        }
         user.homeDirectory = "storage/emulated/0"/*intent!!.getStringExtra(KEY_INTENT_CHOSEN_PATH)*/
 
         serverFactory.userManager.save(user)
         serverFactory.addListener("default", listenerFactory.createListener())
-        server!!.start()
-        sendBroadcast()
-        isFtpServerRunning = true
+        server?.let {
+            it.start()
+            sendBroadcast()
+            isFtpServerRunning = true
+            logd("FTP server started")
+        }
 
         return START_STICKY //will restart if the android system terminates for any reason.
     }
@@ -55,10 +62,12 @@ class FtpServer : Service() {
     override fun onDestroy() {
         logd("Stop FTP server service")
         super.onDestroy()
-        server!!.stop()
-        sendBroadcast()
-        isFtpServerRunning = false
-        Log.i("DefaultFtpServer", "FTP server stopped")
+        server?.let {
+            it.stop()
+            sendBroadcast()
+            isFtpServerRunning = false
+            logd("FTP server stopped")
+        }
     }
 
     private fun sendBroadcast() {
