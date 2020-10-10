@@ -56,7 +56,7 @@ class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
 
     fun onStorageButtonClick(view: View) {
         _path.value = view.tag.toString()
-        _navigateToDirectory.value = Event(R.id.action_nav_home_to_nav_directory)
+        _navigateToDirectory.value = Event(R.id.global_action_nav_home_to_nav_directory)
         path.value?.let { path ->
             if (!File(path).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.P)
                 _saf.value = Event(UIEventArgs.SAFActivityArgs)
@@ -82,7 +82,7 @@ class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
         if (File(shortcutPath).isDirectory) {
             logd("Open a shortcut directory")
             _path.value = shortcutPath
-            _navigateToDirectory.value = Event(R.id.action_nav_home_to_nav_directory)
+            _navigateToDirectory.value = Event(R.id.global_action_nav_home_to_nav_directory)
         } else _openFile.value = Event(UIEventArgs.OpenFileActivityArgs(shortcutPath))
     }
 
