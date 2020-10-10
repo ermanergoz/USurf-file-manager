@@ -29,9 +29,9 @@ class SearchDialog : DialogFragment() {
 
             this.editText = dialogView.findViewById(R.id.editText)
 
-            builder.setMessage(getString(R.string.rename))
+            builder.setMessage(getString(R.string.search))
                 .setPositiveButton(R.string.ok, DialogInterface.OnClickListener { _, _ ->
-                    editDialogViewModel.onRenameOkPressed(editText.text.toString())
+                    editDialogViewModel.onFileSearchOkPressed(editText.text.toString())
 
                     val inputMethodManager: InputMethodManager =
                         requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager

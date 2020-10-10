@@ -1,5 +1,6 @@
 package com.erman.usurf.directory.ui
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -81,6 +82,35 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
         value = false
     }
     val moreOptionMode: LiveData<Boolean> = _moreOptionMode
+
+    fun getSearchedDeviceFiles(storagePaths: ArrayList<String>, searchQuery: String): List<File> {
+        val fileList = mutableListOf<File>()
+        try {
+            for (i in storagePaths.indices) {
+                Log.e("strg", storagePaths[i])
+                fileList.addAll(getSubSearchedFiles(File(storagePaths[i]), searchQuery))
+            }
+            return fileList.filter { file ->
+                searchQuery.decapitalize().toRegex().containsMatchIn(file.nameWithoutExtension.decapitalize())
+            }
+        } catch (err: Exception) {
+            Log.e("getSearchedDeviceFiles", err.toString())
+        }
+        return emptyList()
+    }
+
+    fun getSubSearchedFiles(directory: File, searchQuery: String, res: MutableSet<File> = mutableSetOf<File>()): Set<File> {
+        //Depth first search algorithm
+        for (file in directory.listFiles()!!.toSet()) {
+            if (file.isDirectory) {
+                getSubSearchedFiles(file, searchQuery, res)
+            } else {
+                res.add(file)
+            }
+            res.addAll(directory.listFiles()!!.toSet())
+        }
+        return res
+    }
 
     fun onFileClick(file: FileModel) {
         if (multiSelectionMode) {
@@ -391,6 +421,10 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                 clearMultipleSelection()
             }
         }
+    }
+
+    fun onFileSearchOkPressed(fileName: String) {
+
     }
 
     fun shortcutButton() {
