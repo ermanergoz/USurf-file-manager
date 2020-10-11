@@ -68,10 +68,10 @@ class MainActivity : AppCompatActivity(), ShowDialog {
         navView.setNavigationItemSelectedListener {
             clearNavItemChecked(navView)
             when (it.itemId) {
-                R.id.nav_home -> navController.navigate(R.id.global_action_nav_directory_to_nav_home)
-                R.id.nav_preferences -> navController.navigate(R.id.global_action_nav_home_to_nav_preferences)
-                R.id.nav_ftp -> navController.navigate(R.id.global_action_nav_home_to_nav_ftp)
-                R.id.nav_info -> navController.navigate(R.id.global_action_nav_home_to_nav_info)
+                R.id.nav_home -> navController.navigate(R.id.global_action_nav_home)
+                R.id.nav_preferences -> navController.navigate(R.id.global_action_nav_preferences)
+                R.id.nav_ftp -> navController.navigate(R.id.global_action_to_nav_ftp)
+                R.id.nav_info -> navController.navigate(R.id.global_action_nav_info)
                 R.id.nav_device_wide_search -> showDialog(SearchDialog())
             }
             drawerLayout.closeDrawers()
@@ -81,20 +81,22 @@ class MainActivity : AppCompatActivity(), ShowDialog {
         requestPermissions()
     }
 
-    private fun addStorageToDrawer (navView: NavigationView, navController: NavController, drawerLayout: DrawerLayout) {
+    private fun addStorageToDrawer(navView: NavigationView, navController: NavController, drawerLayout: DrawerLayout) {
         val storageDirectories = StoragePaths().getStorageDirectories()
 
         for (path in storageDirectories) {
-            val storage = navView.menu.add(path)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                storage.icon = ContextCompat.getDrawable(this, R.drawable.ic_hdd)
-            }
-            storage.setOnMenuItemClickListener {
-                clearNavItemChecked(navView)
-                onStorageButtonClick(path, navController)
-                drawerLayout.closeDrawers()
-                storage.isChecked = true
-                true
+            if (path != "/") {
+                val storage = navView.menu.add(path)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    storage.icon = ContextCompat.getDrawable(this, R.drawable.ic_hdd)
+                }
+                storage.setOnMenuItemClickListener {
+                    clearNavItemChecked(navView)
+                    onStorageButtonClick(path, navController)
+                    drawerLayout.closeDrawers()
+                    storage.isChecked = true
+                    true
+                }
             }
         }
     }
@@ -107,7 +109,7 @@ class MainActivity : AppCompatActivity(), ShowDialog {
 
     private fun onStorageButtonClick(path: String, navController: NavController) {
         directoryViewModel.setPath(path)
-        navController.navigate(R.id.global_action_nav_home_to_nav_directory)
+        navController.navigate(R.id.global_action_nav_directory)
         if (!File(path).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
@@ -145,9 +147,9 @@ class MainActivity : AppCompatActivity(), ShowDialog {
 
     override fun onBackPressed() {
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
-        if(drawerLayout.isDrawerOpen(GravityCompat.START))
+        if (drawerLayout.isDrawerOpen(GravityCompat.START))
             drawerLayout.closeDrawers()
-         else
+        else
             super.onBackPressed()
     }
 }
