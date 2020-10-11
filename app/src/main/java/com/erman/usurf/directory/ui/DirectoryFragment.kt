@@ -148,4 +148,9 @@ class DirectoryFragment : Fragment() {
             loge("onAttach $err")
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        directoryRecyclerViewAdapter.updateData(directoryViewModel.getFileList())
+    }
 }
