@@ -16,7 +16,7 @@ class MainPreferencesFragment : PreferenceFragmentCompat() {
         setPreferencesFromResource(R.xml.preferences_main, rootKey)
         preferenceProvider = PreferenceProvider()
 
-        findPreference<SwitchPreference>("root_access")?.setOnPreferenceChangeListener { preference, newValue ->
+        findPreference<SwitchPreference>("root_access")?.setOnPreferenceChangeListener { _, newValue ->
             preferenceProvider.editRootAccessPreference(newValue as Boolean)
             true
         }
@@ -29,13 +29,13 @@ class MainPreferencesFragment : PreferenceFragmentCompat() {
 
         val sortListPreference = findPreference<ListPreference>(KEY_SORT_FILES_LIST_PREFERENCE)
 
-        sortListPreference?.setOnPreferenceChangeListener { preference, newValue ->
+        sortListPreference?.setOnPreferenceChangeListener { _, newValue ->
             sortListPreference.title = newValue.toString()
             preferenceProvider.editFileSortPreference(newValue.toString())
             true
         }
 
-        findPreference<SwitchPreference>(KEY_SHOW_HIDDEN_SWITCH)?.setOnPreferenceChangeListener { preference, newValue ->
+        findPreference<SwitchPreference>(KEY_SHOW_HIDDEN_SWITCH)?.setOnPreferenceChangeListener { _, newValue ->
             preferenceProvider.editShowHiddenPreference(newValue as Boolean)
             true
         }
@@ -43,7 +43,7 @@ class MainPreferencesFragment : PreferenceFragmentCompat() {
         val ascendingOrderPreference = findPreference<CheckBoxPreference>(KEY_ASCENDING_ORDER_CHECKBOX)
         val descendingOrderPreference = findPreference<CheckBoxPreference>(KEY_DESCENDING_ORDER_CHECKBOX)
 
-        ascendingOrderPreference?.setOnPreferenceChangeListener { preference, newValue ->
+        ascendingOrderPreference?.setOnPreferenceChangeListener { _, newValue ->
             if (descendingOrderPreference!!.isChecked) {
                 descendingOrderPreference.isChecked = false
                 preferenceProvider.editAscendingOrderPreference(newValue as Boolean)
@@ -51,7 +51,7 @@ class MainPreferencesFragment : PreferenceFragmentCompat() {
             } else false
         }
 
-        descendingOrderPreference?.setOnPreferenceChangeListener { preference, newValue ->
+        descendingOrderPreference?.setOnPreferenceChangeListener { _, newValue ->
             if (ascendingOrderPreference!!.isChecked) {
                 ascendingOrderPreference.isChecked = false
                 preferenceProvider.editDescendingOrderPreference(newValue as Boolean)

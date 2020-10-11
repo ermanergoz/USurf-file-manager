@@ -1,6 +1,5 @@
 package com.erman.usurf.preference.utils
 
-//FileListPreferencesFragment
 const val KEY_SORT_FILES_LIST_PREFERENCE: String = "sortListPreference"
 const val PREFERENCE_FILE_SORT: String = "sortFileMode"
 const val KEY_SHOW_HIDDEN_SWITCH: String = "showHiddenFileSwitch"

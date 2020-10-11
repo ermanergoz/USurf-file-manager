@@ -63,6 +63,17 @@ class HomeFragment : Fragment() {
             }
         })
 
+        homeViewModel.storageButtons.observe(viewLifecycleOwner, Observer {
+            val buttonLayoutParams =
+                FrameLayout.LayoutParams(520, 200)
+            buttonLayoutParams.setMargins(10, 0, 10, 0)
+            for (i in it.indices) { //TODO: Make this more kotlinish
+                it[i].lifecycleOwner = this
+                it[i].viewModel = homeViewModel
+                storageUsageBarLayout.addView(it[i].root, buttonLayoutParams)
+            }
+        })
+
         homeViewModel.onShortcutOption.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.let { args ->
                 dialogListener.showDialog(ShortcutOptionsDialog(args.view))
@@ -104,19 +115,16 @@ class HomeFragment : Fragment() {
         })
     }
 
+    private fun refreshStorageButtons() {
+        storageUsageBarLayout.removeAllViews()
+        homeViewModel.createStorageButtons()
+    }
+
     override fun onResume() {
         super.onResume()
         //To avoid storage buttons from disappearing when resuming the app from background
-        homeViewModel.storageButtons.observe(viewLifecycleOwner, Observer {
-            val buttonLayoutParams =
-                FrameLayout.LayoutParams(520, 200)
-            buttonLayoutParams.setMargins(10, 0, 10, 0)
-            for (i in it.indices) { //TODO: Make this more kotlinish
-                it[i].lifecycleOwner = this
-                it[i].viewModel = homeViewModel
-                storageUsageBarLayout.addView(it[i].root, buttonLayoutParams)
-            }
-        })
+        //And also, to refresh it after preference change
+        refreshStorageButtons()
     }
 
     override fun onPause() {
