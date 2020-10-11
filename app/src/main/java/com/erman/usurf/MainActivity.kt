@@ -14,6 +14,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.os.Build
+import android.view.Menu
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.iterator
@@ -22,10 +23,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import com.erman.usurf.dialog.ui.SearchDialog
 import com.erman.usurf.directory.ui.DirectoryViewModel
+import com.erman.usurf.home.model.FinishActivity
 import com.erman.usurf.utils.*
 import java.io.File
 
-class MainActivity : AppCompatActivity(), ShowDialog {
+class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNavDrawer {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var directoryViewModel: DirectoryViewModel
     private lateinit var viewModelFactory: ViewModelFactory
@@ -51,9 +53,13 @@ class MainActivity : AppCompatActivity(), ShowDialog {
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         val navView: NavigationView = findViewById(R.id.nav_view)
         val navController = findNavController(R.id.nav_host_fragment)
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
 
+        setupNavDrawer(navView, navController, drawerLayout)
+        addStoragesToDrawer(navView, navController, drawerLayout)
+        requestPermissions()
+    }
+
+    private fun setupNavDrawer(navView: NavigationView, navController: NavController, drawerLayout: DrawerLayout) {
         appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.nav_home,
@@ -77,28 +83,29 @@ class MainActivity : AppCompatActivity(), ShowDialog {
             drawerLayout.closeDrawers()
             true
         }
-        addStorageToDrawer(navView, navController, drawerLayout)
-        requestPermissions()
     }
 
-    private fun addStorageToDrawer(navView: NavigationView, navController: NavController, drawerLayout: DrawerLayout) {
+    private fun addStoragesToDrawer(navView: NavigationView, navController: NavController, drawerLayout: DrawerLayout) {
         val storageDirectories = StoragePaths().getStorageDirectories()
 
         for (path in storageDirectories) {
-            if (path != "/") {
-                val storage = navView.menu.add(path)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    storage.icon = ContextCompat.getDrawable(this, R.drawable.ic_hdd)
-                }
-                storage.setOnMenuItemClickListener {
-                    clearNavItemChecked(navView)
-                    onStorageButtonClick(path, navController)
-                    drawerLayout.closeDrawers()
-                    storage.isChecked = true
-                    true
-                }
+            val storage = navView.menu.add(R.id.storage, Menu.NONE, 0, path)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                storage.icon = ContextCompat.getDrawable(this, R.drawable.ic_hdd)
+            }
+            storage.setOnMenuItemClickListener {
+                clearNavItemChecked(navView)
+                onStorageButtonClick(path, navController)
+                drawerLayout.closeDrawers()
+                storage.isChecked = true
+                true
             }
         }
+    }
+
+    private fun refreshNavDrawer(navView: NavigationView, navController: NavController, drawerLayout: DrawerLayout) {
+        navView.menu.removeGroup(R.id.storage)
+        addStoragesToDrawer(navView, navController, drawerLayout)
     }
 
     private fun clearNavItemChecked(navView: NavigationView) {
@@ -151,5 +158,17 @@ class MainActivity : AppCompatActivity(), ShowDialog {
             drawerLayout.closeDrawers()
         else
             super.onBackPressed()
+    }
+
+    override fun finishActivity() {
+        finish()
+    }
+
+    override fun refreshNavDrawer() {
+        val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
+        val navView: NavigationView = findViewById(R.id.nav_view)
+        val navController = findNavController(R.id.nav_host_fragment)
+
+        refreshNavDrawer(navView, navController, drawerLayout)
     }
 }

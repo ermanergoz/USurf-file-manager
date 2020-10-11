@@ -1,5 +1,6 @@
 package com.erman.usurf.preference.ui
 
+import android.content.Context
 import android.os.Bundle
 import android.widget.Toast
 import androidx.preference.*
@@ -7,10 +8,13 @@ import com.erman.usurf.MainApplication
 import com.erman.usurf.R
 import com.erman.usurf.preference.data.PreferenceProvider
 import com.erman.usurf.preference.utils.*
+import com.erman.usurf.utils.RefreshNavDrawer
+import com.erman.usurf.utils.loge
 import java.io.File
 
 class MainPreferencesFragment : PreferenceFragmentCompat() {
     lateinit var preferenceProvider: PreferenceProvider
+    lateinit var navDrawerRefreshListener: RefreshNavDrawer
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences_main, rootKey)
@@ -18,6 +22,7 @@ class MainPreferencesFragment : PreferenceFragmentCompat() {
 
         findPreference<SwitchPreference>("root_access")?.setOnPreferenceChangeListener { _, newValue ->
             preferenceProvider.editRootAccessPreference(newValue as Boolean)
+            navDrawerRefreshListener.refreshNavDrawer()
             true
         }
 
@@ -57,6 +62,16 @@ class MainPreferencesFragment : PreferenceFragmentCompat() {
                 preferenceProvider.editDescendingOrderPreference(newValue as Boolean)
                 true
             } else false
+        }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        try {
+            navDrawerRefreshListener = context as RefreshNavDrawer
+        } catch (err: ClassCastException) {
+            loge("onAttach $err")
         }
     }
 }
