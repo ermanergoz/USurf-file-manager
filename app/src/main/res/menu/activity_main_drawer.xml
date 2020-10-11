@@ -31,4 +31,7 @@
             android:icon="@drawable/ic_info"
             android:title="@string/menu_info" />
     </group>
+
+    <group android:checkableBehavior="single"
+        android:id="@+id/storage"/>
 </menu>

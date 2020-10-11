@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -22,6 +23,7 @@ import com.erman.usurf.databinding.FragmentHomeBinding
 import com.erman.usurf.dialog.ui.RenameDialog
 import com.erman.usurf.dialog.ui.ShortcutOptionsDialog
 import com.erman.usurf.directory.ui.DirectoryViewModel
+import com.erman.usurf.home.model.FinishActivity
 import com.erman.usurf.utils.*
 import kotlinx.android.synthetic.main.fragment_home.*
 import java.io.File
@@ -32,6 +34,7 @@ class HomeFragment : Fragment() {
     private lateinit var directoryViewModel: DirectoryViewModel
     private lateinit var shortcutRecyclerViewAdapter: ShortcutRecyclerViewAdapter
     private lateinit var dialogListener: ShowDialog
+    private lateinit var finishActivityListener: FinishActivity
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         viewModelFactory = ViewModelFactory()
@@ -97,6 +100,10 @@ class HomeFragment : Fragment() {
             }
         })
 
+        requireActivity().onBackPressedDispatcher.addCallback(this) {
+            finishActivityListener.finishActivity()
+        }
+
         binding.lifecycleOwner = this
         binding.viewModel = homeViewModel
         return binding.root
@@ -155,6 +162,7 @@ class HomeFragment : Fragment() {
 
         try {
             dialogListener = context as ShowDialog
+            finishActivityListener = context as FinishActivity
         } catch (err: ClassCastException) {
             err.printStackTrace()
         }
