@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import com.erman.usurf.MainApplication.Companion.appContext
 import com.erman.usurf.directory.utils.SIMPLE_DATE_FORMAT_PATTERN
+import com.erman.usurf.preference.data.PreferenceProvider
 import com.erman.usurf.utils.*
 import kotlinx.coroutines.*
 import java.io.*
@@ -18,10 +19,22 @@ import java.util.zip.ZipOutputStream
 class DirectoryModel {
     @SuppressLint("SimpleDateFormat")
     private val dateFormat = SimpleDateFormat(SIMPLE_DATE_FORMAT_PATTERN)
+    private val preferenceProvider = PreferenceProvider()
 
     fun getFileModelsFromFiles(path: String): List<FileModel> {
-        val files = File(path).listFiles().toList()
-        return files.map {
+        val showHidden = preferenceProvider.getShowHiddenPreference()
+        var fileList = File(path).listFiles().filter { !it.isHidden || showHidden }.toList()
+
+        when (preferenceProvider.getFileSortPreference()) {
+            "Sort by name" -> fileList = fileList.sortedWith(compareBy ({ !it.isDirectory }, { it.name })).toList()
+            "Sort by size" -> fileList = fileList.sortedWith(compareBy ({ !it.isDirectory }, { it.length() }, { getFolderSize(it) })).toList()
+            "Sort by last modified" -> fileList = fileList.sortedWith(compareBy ({ !it.isDirectory }, { it.lastModified() })).toList()
+        }
+
+        if(preferenceProvider.getDescendingOrderPreference())
+            fileList = fileList.sortedWith(compareBy { it.isDirectory }).reversed()
+
+        return fileList.map {
             FileModel(it.path, it.name, it.nameWithoutExtension, getConvertedFileSize(it), it.isDirectory,
                 dateFormat.format(it.lastModified()), it.extension,
                 (it.listFiles()?.size.toString() + " files"), getPermissions(it), it.isHidden)
