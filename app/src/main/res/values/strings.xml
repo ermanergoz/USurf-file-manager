@@ -77,7 +77,7 @@
     <string name="last_modification_date">Last modification date:</string>
     <string name="extension">Extension:</string>
     <string name="hidden_file">Hidden</string>
-    <string name="empty_folder">There is nothing here.</string>
+    <string name="empty_folder">Empty.</string>
     <string name="copy_file">Copy</string>
     <string name="move">Move</string>
     <string name="rename">Rename</string>
