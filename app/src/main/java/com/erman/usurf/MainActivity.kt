@@ -14,6 +14,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.os.Build
+import android.util.DisplayMetrics
 import android.view.Menu
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
@@ -27,7 +28,7 @@ import com.erman.usurf.home.model.FinishActivity
 import com.erman.usurf.utils.*
 import java.io.File
 
-class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNavDrawer {
+class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNavDrawer, StorageAccessFramework, HomeStorageButton {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var directoryViewModel: DirectoryViewModel
     private lateinit var viewModelFactory: ViewModelFactory
@@ -118,11 +119,7 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
         directoryViewModel.setPath(path)
         navController.navigate(R.id.global_action_nav_directory)
         if (!File(path).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-                //If you really do need full access to an entire subtree of documents,
-                this.startActivityForResult(intent, 2)
-            }
+            launchSAF()
         }
     }
 
@@ -164,11 +161,35 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
         finish()
     }
 
-    override fun refreshNavDrawer() {
+    override fun refreshStorageButtons() {
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         val navView: NavigationView = findViewById(R.id.nav_view)
         val navController = findNavController(R.id.nav_host_fragment)
 
         refreshNavDrawer(navView, navController, drawerLayout)
+    }
+
+    override fun launchSAF() {
+        //https://developer.android.com/reference/android/support/v4/provider/DocumentFile
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+            //If you really do need full access to an entire subtree of documents,
+            this.startActivityForResult(intent, 2)
+        }
+    }
+
+    override fun autoSizeButtonDimensions(storageButtonCount: Int, sideMargin: Int): Pair<Int, Int> {
+        val displayMetrics = DisplayMetrics()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            this.display?.getRealMetrics(displayMetrics)
+        } else {
+            windowManager.defaultDisplay.getMetrics(displayMetrics)
+        }
+        val screenWidth = displayMetrics.widthPixels
+        val screenHeight = displayMetrics.heightPixels
+
+        return Pair(((screenWidth - ((sideMargin * 2) * storageButtonCount)) / storageButtonCount),
+            (screenHeight / (8 + storageButtonCount)))
     }
 }
