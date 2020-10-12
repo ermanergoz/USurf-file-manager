@@ -24,7 +24,7 @@ class HomeModel() {
             val binding: StorageButtonBinding = DataBindingUtil.inflate(LayoutInflater.from(appContext), R.layout.storage_button, null, false)
             storageButtons.add(binding)
             storageButtons[i].root.tag = storageDirectories.elementAt(i)
-            storageButtons[i].root.buttonText.text=storageDirectories.elementAt(i)
+            storageButtons[i].root.buttonText.text =storageDirectories.elementAt(i)
             storageButtons[i].root.progressBar?.scaleY=20f
             //It is null on older versions of android because I removed it from the layout
         }

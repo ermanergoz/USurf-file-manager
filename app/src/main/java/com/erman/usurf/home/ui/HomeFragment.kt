@@ -34,6 +34,7 @@ class HomeFragment : Fragment() {
     private lateinit var dialogListener: ShowDialog
     private lateinit var finishActivityListener: FinishActivity
     private lateinit var safListener: StorageAccessFramework
+    private lateinit var storageButtonDimensions: HomeStorageButton
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         viewModelFactory = ViewModelFactory()
@@ -59,13 +60,14 @@ class HomeFragment : Fragment() {
         })
 
         homeViewModel.storageButtons.observe(viewLifecycleOwner, Observer {
-            val buttonLayoutParams =
-                FrameLayout.LayoutParams(520, 200)
-            buttonLayoutParams.setMargins(10, 0, 10, 0)
-            for (i in it.indices) { //TODO: Make this more kotlinish
-                it[i].lifecycleOwner = this
-                it[i].viewModel = homeViewModel
-                storageUsageBarLayout.addView(it[i].root, buttonLayoutParams)
+            val sideMargin = 8
+            val dimensions = storageButtonDimensions.autoSizeButtonDimensions(it.size, sideMargin)
+            val buttonLayoutParams = FrameLayout.LayoutParams(dimensions.first, dimensions.second)
+            buttonLayoutParams.setMargins(sideMargin, 0, sideMargin, 0)
+            it.forEach {button ->
+                button.lifecycleOwner = this
+                button.viewModel = homeViewModel
+                storageUsageBarLayout.addView(button.root, buttonLayoutParams)
             }
         })
 
@@ -141,6 +143,7 @@ class HomeFragment : Fragment() {
             dialogListener = context as ShowDialog
             finishActivityListener = context as FinishActivity
             safListener = context as StorageAccessFramework
+            storageButtonDimensions = context as HomeStorageButton
         } catch (err: ClassCastException) {
             err.printStackTrace()
         }
