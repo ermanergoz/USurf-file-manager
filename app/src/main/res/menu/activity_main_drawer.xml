@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <group android:checkableBehavior="single">
+    <group android:checkableBehavior="none">
 
         <item
             android:id="@+id/nav_home"
@@ -32,6 +32,6 @@
             android:title="@string/menu_info" />
     </group>
 
-    <group android:checkableBehavior="single"
+    <group android:checkableBehavior="none"
         android:id="@+id/storage"/>
 </menu>
