@@ -1,7 +1,6 @@
 package com.erman.usurf.home.data
 
 import android.widget.TextView
-import androidx.lifecycle.LiveData
 import com.erman.usurf.home.utils.REALM_FIELD_NAME_PATH
 import com.erman.usurf.utils.logd
 import io.realm.Realm

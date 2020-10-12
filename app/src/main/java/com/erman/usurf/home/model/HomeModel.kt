@@ -1,18 +1,14 @@
 package com.erman.usurf.home.model
 
-import android.content.Context
 import android.os.Build
-import android.os.Environment
 import android.os.StatFs
 import android.view.LayoutInflater
 import androidx.databinding.DataBindingUtil
-import com.erman.usurf.MainApplication.Companion.appContext
+import com.erman.usurf.app.MainApplication.Companion.appContext
 import com.erman.usurf.R
 import com.erman.usurf.databinding.StorageButtonBinding
 import com.erman.usurf.utils.StoragePaths
 import kotlinx.android.synthetic.main.storage_button.view.*
-import java.io.File
-import java.io.IOException
 
 class HomeModel() {
     fun createStorageButtons(): MutableList<StorageButtonBinding> {

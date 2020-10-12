@@ -9,6 +9,5 @@ const val KEY_INTENT_IS_MAIN_ACTIVITY: String = "isMainActivity"
 const val KEY_INTENT_CURRENT_PATH: String = "currentPath"
 const val KEY_INTENT_PATH_FOR_BROADCAST: String = "path for broadcast"
 const val KEY_INTENT_EXTCARD_CHOSEN_URI: String = "extSdCardChosenUri"
-const val   REALM_CONFIG_FILE_NAME: String = "usurf.realm"
+const val REALM_CONFIG_FILE_NAME: String = "usurf.realm"
 const val SHARED_PREF_FILE: String = "com.erman.usurf"
-

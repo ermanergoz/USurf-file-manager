@@ -1,7 +1,9 @@
-package com.erman.usurf
+package com.erman.usurf.app
 
 import android.app.Application
 import android.content.Context
+import com.erman.usurf.app.data.ApplicationDao
+import com.erman.usurf.app.data.ApplicationPreferenceProvider
 import com.erman.usurf.utils.REALM_CONFIG_FILE_NAME
 import io.realm.Realm
 import io.realm.RealmConfiguration
@@ -16,11 +18,15 @@ class MainApplication : Application() {
         appContext = this.applicationContext
 
         //Documentation: https://realm.io/docs/kotlin/latest/#realms
-        // Initialize Realm
         Realm.init(this)
         val config = RealmConfiguration.Builder().name(REALM_CONFIG_FILE_NAME).deleteRealmIfMigrationNeeded().build()
         Realm.setDefaultConfiguration(config)
-        // Get a Realm instance for this thread
-        //realm = Realm.getDefaultInstance()
+        val realm = Realm.getDefaultInstance()
+        val preferenceProvider = ApplicationPreferenceProvider()
+
+        if (preferenceProvider.getIsFirstLaunch()) {
+            ApplicationDao(realm).addInitialShortcuts()
+            preferenceProvider.editIsFirstLaunch(false)
+        }
     }
 }
