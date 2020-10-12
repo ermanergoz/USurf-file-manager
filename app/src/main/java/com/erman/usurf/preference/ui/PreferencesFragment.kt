@@ -22,7 +22,7 @@ class MainPreferencesFragment : PreferenceFragmentCompat() {
 
         findPreference<SwitchPreference>("root_access")?.setOnPreferenceChangeListener { _, newValue ->
             preferenceProvider.editRootAccessPreference(newValue as Boolean)
-            navDrawerRefreshListener.refreshNavDrawer()
+            navDrawerRefreshListener.refreshStorageButtons()
             true
         }
 
