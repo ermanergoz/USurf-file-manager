@@ -1,9 +1,7 @@
 package com.erman.usurf.home.ui
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -35,6 +33,7 @@ class HomeFragment : Fragment() {
     private lateinit var shortcutRecyclerViewAdapter: ShortcutRecyclerViewAdapter
     private lateinit var dialogListener: ShowDialog
     private lateinit var finishActivityListener: FinishActivity
+    private lateinit var safListener: StorageAccessFramework
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         viewModelFactory = ViewModelFactory()
@@ -56,14 +55,7 @@ class HomeFragment : Fragment() {
         })
 
         homeViewModel.saf.observe(viewLifecycleOwner, Observer {
-            //https://developer.android.com/reference/android/support/v4/provider/DocumentFile
-            it.getContentIfNotHandled()?.let {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-                    //If you really do need full access to an entire subtree of documents,
-                    this.startActivityForResult(intent, 2)
-                }
-            }
+            safListener.launchSAF()
         })
 
         homeViewModel.storageButtons.observe(viewLifecycleOwner, Observer {
@@ -101,6 +93,7 @@ class HomeFragment : Fragment() {
         })
 
         requireActivity().onBackPressedDispatcher.addCallback(this) {
+            //workaround for displaying home fragment repeatedly until back stack is empty
             finishActivityListener.finishActivity()
         }
 
@@ -141,28 +134,13 @@ class HomeFragment : Fragment() {
         storageUsageBarLayout.removeAllViews()
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (resultCode == Activity.RESULT_OK) {
-            logd("Get read and write permissions")
-            data?.data?.let { treeUri ->
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    requireContext().contentResolver.takePersistableUriPermission(treeUri,
-                        Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-                }
-                homeViewModel.saveDocumentTree(treeUri.toString())
-            }
-        } else {
-            return
-        }
-        super.onActivityResult(requestCode, resultCode, data)
-    }
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
         try {
             dialogListener = context as ShowDialog
             finishActivityListener = context as FinishActivity
+            safListener = context as StorageAccessFramework
         } catch (err: ClassCastException) {
             err.printStackTrace()
         }
