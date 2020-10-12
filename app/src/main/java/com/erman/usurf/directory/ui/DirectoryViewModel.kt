@@ -83,6 +83,11 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
     val moreOptionMode: LiveData<Boolean> = _moreOptionMode
 
+    private val _isEmptyDir = MutableLiveData<Boolean>().apply {
+        value = false
+    }
+    val isDirectoryEmpty: LiveData<Boolean> = _isEmptyDir
+
     fun getSearchedDeviceFiles(storagePaths: ArrayList<String>, searchQuery: String): List<File> {
         val fileList = mutableListOf<File>()
         try {
@@ -184,7 +189,9 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
         if (!path.value.isNullOrEmpty()) {
             try {
                 path.value?.let {path ->
-                    return directoryModel.getFileModelsFromFiles(path)
+                    val directory = directoryModel.getFileModelsFromFiles(path)
+                    _isEmptyDir.value = directory.isNullOrEmpty()
+                    return directory
                 }
             } catch (err: IllegalStateException) {
                 _toastMessage.value = Event(R.string.unable_to_open_directory)
