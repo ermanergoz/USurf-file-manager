@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.activity.addCallback
@@ -16,6 +17,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.erman.usurf.R
 import com.erman.usurf.databinding.FragmentHomeBinding
 import com.erman.usurf.dialog.ui.RenameDialog
@@ -104,6 +106,13 @@ class HomeFragment : Fragment() {
         return binding.root
     }
 
+    private fun runRecyclerViewAnimation(recyclerView: RecyclerView) {
+        val context = recyclerView.context
+        val controller = AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_move_up)
+        recyclerView.layoutAnimation = controller
+        recyclerView.scheduleLayoutAnimation()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -114,6 +123,7 @@ class HomeFragment : Fragment() {
 
         homeViewModel.shortcuts.observe(viewLifecycleOwner, Observer {
             shortcutRecyclerViewAdapter.updateData(it)
+            runRecyclerViewAnimation(shortcutRecyclerView)
         })
     }
 
