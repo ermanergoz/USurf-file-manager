@@ -4,7 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.widget.Toast
 import androidx.preference.*
-import com.erman.usurf.MainApplication
+import com.erman.usurf.app.MainApplication
 import com.erman.usurf.R
 import com.erman.usurf.preference.data.PreferenceProvider
 import com.erman.usurf.preference.utils.*
