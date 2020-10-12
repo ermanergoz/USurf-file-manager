@@ -25,6 +25,7 @@
             android:layout_height="56dp"
             android:layout_margin="4dp"
             android:gravity="center"
+            android:textColor="@color/daynnightTextColor"
             android:textSize="22sp" />
     </LinearLayout>
 </layout>

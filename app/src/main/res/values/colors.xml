@@ -4,8 +4,8 @@
     <color name="colorAccent">#168DDA</color>
     <color name="colorPrimaryDark">#000000</color>
     <color name="lightBlue">#99CBFD</color>
-    <color name="textColorLight">#000000</color>
+    <color name="textColorLight">#3c3c3c</color>
     <color name="textColorDark">#ffffff</color>
-    <color name="daynnightTextColor">#000000</color>
+    <color name="daynnightTextColor">#3c3c3c</color>
     <color name="separatorColor">#ABB2B9</color>
 </resources>

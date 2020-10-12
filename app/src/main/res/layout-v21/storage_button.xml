@@ -23,9 +23,9 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginEnd="0dp"
-            android:progressTint="@color/colorAccent"
             android:layout_marginBottom="0dp"
-            android:progress="@{viewModel.getUsedStoragePercentage(storageButton)}" />
+            android:progress="@{viewModel.getUsedStoragePercentage(storageButton)}"
+            android:progressTint="@color/colorAccent" />
 
         <TextView
             android:id="@+id/buttonText"
@@ -35,8 +35,12 @@
             android:layout_alignTop="@id/progressBar"
             android:layout_alignEnd="@id/progressBar"
             android:layout_alignBottom="@id/progressBar"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:ellipsize="start"
             android:gravity="center"
-            android:maxLines="1"
+            android:singleLine="true"
+            android:textColor="@color/daynnightTextColor"
             android:textSize="18sp" />
     </RelativeLayout>
 </layout>
