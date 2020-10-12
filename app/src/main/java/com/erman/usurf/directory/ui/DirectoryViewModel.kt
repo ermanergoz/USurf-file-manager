@@ -86,7 +86,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     private val _isEmptyDir = MutableLiveData<Boolean>().apply {
         value = false
     }
-    val isDirectoryEmpty: LiveData<Boolean> = _isEmptyDir
+    val isEmptyDir: LiveData<Boolean> = _isEmptyDir
 
     fun getSearchedDeviceFiles(storagePaths: ArrayList<String>, searchQuery: String): List<File> {
         val fileList = mutableListOf<File>()
