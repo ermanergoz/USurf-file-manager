@@ -8,7 +8,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import androidx.lifecycle.LiveData
-import com.erman.usurf.MainApplication.Companion.appContext
+import com.erman.usurf.app.MainApplication.Companion.appContext
 import com.erman.usurf.utils.logd
 import com.erman.usurf.utils.loge
 

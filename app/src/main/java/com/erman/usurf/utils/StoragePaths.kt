@@ -2,7 +2,7 @@ package com.erman.usurf.utils
 
 import android.os.Build
 import android.os.Environment
-import com.erman.usurf.MainApplication
+import com.erman.usurf.app.MainApplication
 import com.erman.usurf.preference.data.PreferenceProvider
 import java.io.File
 import java.io.IOException

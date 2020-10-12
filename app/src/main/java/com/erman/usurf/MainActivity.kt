@@ -18,7 +18,6 @@ import android.util.DisplayMetrics
 import android.view.Menu
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
-import androidx.core.view.iterator
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
@@ -172,11 +171,11 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
     override fun autoSizeButtonDimensions(storageButtonCount: Int, sideMargin: Int): Pair<Int, Int> {
         val displayMetrics = DisplayMetrics()
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
             this.display?.getRealMetrics(displayMetrics)
-        } else {
+        else
             windowManager.defaultDisplay.getMetrics(displayMetrics)
-        }
+
         val screenWidth = displayMetrics.widthPixels
         val screenHeight = displayMetrics.heightPixels
 
