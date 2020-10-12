@@ -73,7 +73,6 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         navView.setNavigationItemSelectedListener {
-            clearNavItemChecked(navView)
             when (it.itemId) {
                 R.id.nav_home -> navController.navigate(R.id.global_action_nav_home)
                 R.id.nav_preferences -> navController.navigate(R.id.global_action_nav_preferences)
@@ -95,10 +94,8 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
                 storage.icon = ContextCompat.getDrawable(this, R.drawable.ic_hdd)
             }
             storage.setOnMenuItemClickListener {
-                clearNavItemChecked(navView)
                 onStorageButtonClick(path, navController)
                 drawerLayout.closeDrawers()
-                storage.isChecked = true
                 true
             }
         }
@@ -107,12 +104,6 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
     private fun refreshNavDrawer(navView: NavigationView, navController: NavController, drawerLayout: DrawerLayout) {
         navView.menu.removeGroup(R.id.storage)
         addStoragesToDrawer(navView, navController, drawerLayout)
-    }
-
-    private fun clearNavItemChecked(navView: NavigationView) {
-        for (item in navView.menu) {
-            item.isChecked = false
-        }
     }
 
     private fun onStorageButtonClick(path: String, navController: NavController) {
