@@ -23,9 +23,9 @@
             android:id="@+id/shortcut"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:layout_margin="4dp"
+            android:layout_margin="@dimen/layout_margin_4"
             android:gravity="center"
             android:textColor="@color/daynnightTextColor"
-            android:textSize="22sp" />
+            android:textSize="@dimen/text_size_22" />
     </LinearLayout>
 </layout>

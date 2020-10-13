@@ -23,139 +23,139 @@
                 android:id="@+id/textView15"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginRight="4dp"
+                android:layout_marginLeft="@dimen/horizontal_margin_4"
+                android:layout_marginTop="@dimen/vertical_margin_16"
+                android:layout_marginRight="@dimen/horizontal_margin_4"
                 android:text="@string/wifi_status"
-                android:textSize="18sp"
+                android:textSize="@dimen/text_size_18"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/statusTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginRight="8dp"
+                android:layout_marginLeft="@dimen/horizontal_margin_8"
+                android:layout_marginTop="@dimen/vertical_margin_4"
+                android:layout_marginRight="@dimen/horizontal_margin_8"
                 android:text="@{viewModel.isConnectedToWifi() ? @string/connected : @string/no_connection}"
                 android:textColor="@{viewModel.isConnectedToWifi() ? @android:color/holo_green_dark : @android:color/holo_red_dark}"
-                android:textSize="16sp" />
+                android:textSize="@dimen/text_size_16" />
 
             <TextView
                 android:id="@+id/textView7"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginRight="4dp"
+                android:layout_marginLeft="@dimen/horizontal_margin_4"
+                android:layout_marginTop="@dimen/vertical_margin_16"
+                android:layout_marginRight="@dimen/horizontal_margin_4"
                 android:text="@string/url"
-                android:textSize="18sp"
+                android:textSize="@dimen/text_size_18"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/urlTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginRight="8dp"
+                android:layout_marginLeft="@dimen/horizontal_margin_8"
+                android:layout_marginTop="@dimen/vertical_margin_4"
+                android:layout_marginRight="@dimen/horizontal_margin_8"
                 android:text="@{viewModel.isConnectedToWifi() ? viewModel.url : @string/empty}"
-                android:textSize="16sp" />
+                android:textSize="@dimen/text_size_16" />
 
             <TextView
                 android:id="@+id/textView6"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginRight="4dp"
+                android:layout_marginLeft="@dimen/horizontal_margin_4"
+                android:layout_marginTop="@dimen/vertical_margin_16"
+                android:layout_marginRight="@dimen/horizontal_margin_4"
                 android:text="@string/username"
-                android:textSize="18sp"
+                android:textSize="@dimen/text_size_18"
                 android:textStyle="bold" />
 
             <EditText
                 android:id="@+id/editUserNameTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginRight="8dp"
+                android:layout_marginLeft="@dimen/horizontal_margin_8"
+                android:layout_marginTop="@dimen/vertical_margin_4"
+                android:layout_marginRight="@dimen/horizontal_margin_8"
                 android:ems="10"
                 android:importantForAutofill="no"
                 android:inputType="textPersonName"
                 android:onTextChanged="@{viewModel.onUsernameChanged}"
                 android:text="@{viewModel.username}"
-                android:textSize="16sp"
+                android:textSize="@dimen/text_size_16"
                 tools:ignore="LabelFor" />
 
             <TextView
                 android:id="@+id/textView14"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginRight="4dp"
+                android:layout_marginLeft="@dimen/horizontal_margin_4"
+                android:layout_marginTop="@dimen/vertical_margin_16"
+                android:layout_marginRight="@dimen/horizontal_margin_4"
                 android:text="@string/password"
-                android:textSize="18sp"
+                android:textSize="@dimen/text_size_18"
                 android:textStyle="bold" />
 
             <EditText
                 android:id="@+id/editPasswordTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginRight="8dp"
+                android:layout_marginLeft="@dimen/horizontal_margin_8"
+                android:layout_marginTop="@dimen/vertical_margin_4"
+                android:layout_marginRight="@dimen/horizontal_margin_8"
                 android:autofillHints=""
                 android:ems="10"
                 android:inputType="textPassword"
                 android:onTextChanged="@{viewModel.onPasswordChanged}"
                 android:text="@{viewModel.password}"
-                android:textSize="16sp"
+                android:textSize="@dimen/text_size_16"
                 tools:ignore="LabelFor" />
 
             <TextView
                 android:id="@+id/textView13"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginRight="4dp"
+                android:layout_marginLeft="@dimen/horizontal_margin_4"
+                android:layout_marginTop="@dimen/vertical_margin_16"
+                android:layout_marginRight="@dimen/horizontal_margin_4"
                 android:text="@string/port"
-                android:textSize="18sp"
+                android:textSize="@dimen/text_size_18"
                 android:textStyle="bold" />
 
             <EditText
                 android:id="@+id/editPortTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginBottom="16dp"
+                android:layout_marginLeft="@dimen/horizontal_margin_8"
+                android:layout_marginTop="@dimen/vertical_margin_4"
+                android:layout_marginRight="@dimen/horizontal_margin_8"
+                android:layout_marginBottom="@dimen/vertical_margin_16"
                 android:ems="10"
                 android:importantForAutofill="no"
                 android:inputType="numberDecimal"
                 android:onTextChanged="@{viewModel.onPortChanged}"
                 android:text="@{viewModel.port}"
-                android:textSize="16sp"
+                android:textSize="@dimen/text_size_16"
                 tools:ignore="LabelFor" />
 
             <RadioGroup
                 android:id="@+id/radioButtonGroup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp" />
+                android:layout_margin="@dimen/layout_margin_8"
+                android:layout_marginTop="@dimen/vertical_margin_16"
+                android:layout_marginBottom="@dimen/vertical_margin_16" />
 
             <Button
                 android:id="@+id/connectButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="24dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginRight="24dp"
+                android:layout_marginLeft="@dimen/horizontal_margin_24"
+                android:layout_marginTop="@dimen/vertical_margin_16"
+                android:layout_marginRight="@dimen/horizontal_margin_24"
                 android:background="@drawable/button_selectable_background"
                 android:enabled="@{viewModel.isConnectedToWifi()}"
                 android:onClick="@{() -> viewModel.onConnectClicked()}"

@@ -7,14 +7,14 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/def_layout_margin"
-        android:layout_marginTop="@dimen/def_layout_margin"
+        android:layout_margin="@dimen/layout_margin_8"
+        android:layout_marginTop="@dimen/layout_margin_8"
         android:orientation="vertical">
 
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="119dp"
-            android:layout_marginBottom="@dimen/def_layout_margin"
+            android:layout_marginBottom="@dimen/layout_margin_8"
             android:background="@drawable/side_nav_bar"
             android:contentDescription="@string/applogo_description"
             app:srcCompat="@mipmap/ic_launcher" />
@@ -23,215 +23,191 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/developer"
-            android:textSize="@dimen/title_text_size"
+            android:textSize="@dimen/text_size_24"
             android:textStyle="bold" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/def_layout_margin"
-            android:layout_marginLeft="@dimen/def_layout_margin"
-            android:layout_marginTop="@dimen/subtitle_vertical_margin"
-            android:layout_marginBottom="@dimen/def_layout_margin"
+            android:layout_marginStart="@dimen/layout_margin_8"
+            android:layout_marginLeft="@dimen/layout_margin_8"
             android:text="@string/yusuf_erman_ergoz"
-            android:textSize="@dimen/text_size" />
+            android:textSize="@dimen/text_size_18" />
 
         <TextView
+            android:layout_marginTop="@dimen/vertical_margin_16"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/version"
-            android:textSize="@dimen/title_text_size"
+            android:textSize="@dimen/text_size_24"
             android:textStyle="bold" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/def_layout_margin"
-            android:layout_marginLeft="@dimen/def_layout_margin"
-            android:layout_marginTop="@dimen/def_layout_margin"
-            android:layout_marginBottom="@dimen/def_layout_margin"
+            android:layout_marginStart="@dimen/layout_margin_8"
+            android:layout_marginLeft="@dimen/layout_margin_8"
             android:text="@string/app_version"
-            android:textSize="@dimen/text_size" />
+            android:textSize="@dimen/text_size_18" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/vertical_margin_16"
             android:text="@string/github"
-            android:textSize="@dimen/title_text_size"
+            android:textSize="@dimen/text_size_24"
             android:textStyle="bold" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/def_layout_margin"
-            android:layout_marginLeft="@dimen/def_layout_margin"
-            android:layout_marginTop="@dimen/def_layout_margin"
-            android:layout_marginBottom="@dimen/def_layout_margin"
+            android:layout_marginStart="@dimen/layout_margin_8"
+            android:layout_marginLeft="@dimen/layout_margin_8"
             android:autoLink="web"
             android:singleLine="true"
             android:text="@string/github_link"
-            android:textSize="@dimen/text_size" />
+            android:textSize="@dimen/text_size_18" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/vertical_margin_16"
             android:text="@string/icons"
-            android:textSize="@dimen/title_text_size"
+            android:textSize="@dimen/text_size_24"
             android:textStyle="bold" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/def_layout_margin"
-            android:layout_marginLeft="@dimen/def_layout_margin"
-            android:layout_marginTop="@dimen/subtitle_vertical_margin"
-            android:text="@string/preferences_icon"
-            android:textSize="@dimen/text_size" />
+            android:layout_marginStart="@dimen/layout_margin_8"
+            android:layout_marginLeft="@dimen/layout_margin_8"
+            android:text="@string/icons_pix_perfect"
+            android:textSize="@dimen/text_size_18" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/subtitle_horizontal_margin"
-            android:layout_marginLeft="@dimen/subtitle_horizontal_margin"
-            android:text="@string/ic_preference_credit"
-            android:textSize="@dimen/text_size" />
+            android:layout_marginStart="@dimen/layout_margin_8"
+            android:layout_marginLeft="@dimen/layout_margin_8"
+            android:autoLink="web"
+            android:singleLine="true"
+            android:text="@string/pix_perfect_link"
+            android:textSize="@dimen/text_size_18" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/def_layout_margin"
-            android:layout_marginLeft="@dimen/def_layout_margin"
-            android:layout_marginTop="@dimen/subtitle_vertical_margin"
-            android:text="@string/ftp_icon"
-            android:textSize="@dimen/text_size" />
+            android:layout_marginStart="@dimen/layout_margin_8"
+            android:layout_marginLeft="@dimen/layout_margin_8"
+            android:layout_marginTop="@dimen/vertical_margin_16"
+            android:text="@string/icons_freepic"
+            android:textSize="@dimen/text_size_18" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/subtitle_horizontal_margin"
-            android:layout_marginLeft="@dimen/subtitle_horizontal_margin"
-            android:text="@string/designed_by_pixel_perfect_from_flaticon"
-            android:textSize="@dimen/text_size" />
+            android:layout_marginStart="@dimen/layout_margin_8"
+            android:layout_marginLeft="@dimen/layout_margin_8"
+            android:autoLink="web"
+            android:singleLine="true"
+            android:text="@string/freepic_url"
+            android:textSize="@dimen/text_size_18" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/def_layout_margin"
-            android:layout_marginLeft="@dimen/def_layout_margin"
-            android:layout_marginTop="@dimen/subtitle_vertical_margin"
-            android:text="@string/information_icon"
-            android:textSize="@dimen/text_size" />
+            android:layout_marginStart="@dimen/layout_margin_8"
+            android:layout_marginLeft="@dimen/layout_margin_8"
+            android:layout_marginTop="@dimen/vertical_margin_16"
+            android:text="@string/icons_those_icons"
+            android:textSize="@dimen/text_size_18" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/subtitle_horizontal_margin"
-            android:layout_marginLeft="@dimen/subtitle_horizontal_margin"
-            android:text="@string/designed_by_freepic_from_flaticon"
-            android:textSize="@dimen/text_size" />
+            android:layout_marginStart="@dimen/layout_margin_8"
+            android:layout_marginLeft="@dimen/layout_margin_8"
+            android:autoLink="web"
+            android:singleLine="true"
+            android:text="@string/those_icons_url"
+            android:textSize="@dimen/text_size_18" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/def_layout_margin"
-            android:layout_marginLeft="@dimen/def_layout_margin"
-            android:layout_marginTop="@dimen/subtitle_vertical_margin"
-            android:text="@string/device_wide_search_icon"
-            android:textSize="@dimen/text_size" />
+            android:layout_marginStart="@dimen/layout_margin_8"
+            android:layout_marginLeft="@dimen/layout_margin_8"
+            android:layout_marginTop="@dimen/vertical_margin_16"
+            android:text="@string/icons_smashicons"
+            android:textSize="@dimen/text_size_18" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/subtitle_horizontal_margin"
-            android:layout_marginLeft="@dimen/subtitle_horizontal_margin"
-            android:text="@string/designed_by_those_icons_from_flaticon"
-            android:textSize="@dimen/text_size" />
+            android:layout_marginStart="@dimen/layout_margin_8"
+            android:layout_marginLeft="@dimen/layout_margin_8"
+            android:autoLink="web"
+            android:singleLine="true"
+            android:text="@string/smashicons_url"
+            android:textSize="@dimen/text_size_18" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/def_layout_margin"
-            android:layout_marginLeft="@dimen/def_layout_margin"
-            android:layout_marginTop="@dimen/subtitle_vertical_margin"
-            android:text="@string/home_icon"
-            android:textSize="@dimen/text_size" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/subtitle_horizontal_margin"
-            android:layout_marginLeft="@dimen/subtitle_horizontal_margin"
-            android:text="@string/designed_by_smashicons_from_flaticon"
-            android:textSize="@dimen/text_size" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/def_layout_margin"
-            android:layout_marginLeft="@dimen/def_layout_margin"
-            android:layout_marginTop="@dimen/subtitle_vertical_margin"
+            android:layout_marginStart="@dimen/layout_margin_8"
+            android:layout_marginLeft="@dimen/layout_margin_8"
+            android:layout_marginTop="@dimen/vertical_margin_16"
             android:text="@string/storage_icon"
-            android:textSize="@dimen/text_size" />
+            android:textSize="@dimen/text_size_18" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/subtitle_horizontal_margin"
-            android:layout_marginLeft="@dimen/subtitle_horizontal_margin"
-            android:text="@string/designed_by_srip_from_flaticon"
-            android:textSize="@dimen/text_size" />
+            android:layout_marginStart="@dimen/layout_margin_8"
+            android:layout_marginLeft="@dimen/layout_margin_8"
+            android:autoLink="web"
+            android:singleLine="true"
+            android:text="@string/srip_url"
+            android:textSize="@dimen/text_size_18" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/def_layout_margin"
-            android:layout_marginLeft="@dimen/def_layout_margin"
-            android:layout_marginTop="@dimen/subtitle_vertical_margin"
-            android:text="@string/plus_icon"
-            android:textSize="@dimen/text_size" />
+            android:layout_marginStart="@dimen/layout_margin_8"
+            android:layout_marginLeft="@dimen/layout_margin_8"
+            android:layout_marginTop="@dimen/vertical_margin_16"
+            android:text="@string/icons_hirschwolf"
+            android:textSize="@dimen/text_size_18" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/subtitle_horizontal_margin"
-            android:layout_marginLeft="@dimen/subtitle_horizontal_margin"
-            android:text="@string/designed_by_hirschwolf_from_flaticon"
-            android:textSize="@dimen/text_size" />
+            android:layout_marginStart="@dimen/layout_margin_8"
+            android:layout_marginLeft="@dimen/layout_margin_8"
+            android:autoLink="web"
+            android:singleLine="true"
+            android:text="@string/hirschwolf_url"
+            android:textSize="@dimen/text_size_18" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/def_layout_margin"
-            android:layout_marginLeft="@dimen/def_layout_margin"
-            android:layout_marginTop="@dimen/subtitle_vertical_margin"
+            android:layout_marginStart="@dimen/layout_margin_8"
+            android:layout_marginLeft="@dimen/layout_margin_8"
+            android:layout_marginTop="@dimen/vertical_margin_16"
             android:text="@string/folder_icon"
-            android:textSize="@dimen/text_size" />
+            android:textSize="@dimen/text_size_18" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/subtitle_horizontal_margin"
-            android:layout_marginLeft="@dimen/subtitle_horizontal_margin"
-            android:text="@string/designed_by_xnimrodx_from_flaticon"
-            android:textSize="@dimen/text_size" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/def_layout_margin"
-            android:layout_marginLeft="@dimen/def_layout_margin"
-            android:layout_marginTop="@dimen/subtitle_vertical_margin"
-            android:text="@string/file_icon"
-            android:textSize="@dimen/text_size" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/subtitle_horizontal_margin"
-            android:layout_marginLeft="@dimen/subtitle_horizontal_margin"
-            android:layout_marginBottom="32dp"
-            android:text="@string/designed_by_xnimrodx_from_flaticon"
-            android:textSize="@dimen/text_size" />
+            android:layout_marginStart="@dimen/layout_margin_8"
+            android:layout_marginLeft="@dimen/layout_margin_8"
+            android:text="@string/xnimrodx_url"
+            android:autoLink="web"
+            android:singleLine="true"
+            android:textSize="@dimen/text_size_18"
+            android:layout_marginBottom="@dimen/vertical_margin_32"/>
 
     </LinearLayout>
 </ScrollView>
