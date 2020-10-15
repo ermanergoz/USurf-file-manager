@@ -4,6 +4,8 @@
 
     <data>
 
+        <import type="android.view.View" />
+
         <variable
             name="viewModel"
             type="com.erman.usurf.ftp.ui.FTPViewModel" />
@@ -147,7 +149,9 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/layout_margin_8"
                 android:layout_marginTop="@dimen/vertical_margin_16"
-                android:layout_marginBottom="@dimen/vertical_margin_16" />
+                android:layout_marginBottom="@dimen/vertical_margin_16"
+                android:onCheckedChanged="@{viewModel.onFtpPathSelected}"
+                android:visibility="@{viewModel.isServiceRunning ? View.GONE : View.VISIBLE}" />
 
             <Button
                 android:id="@+id/connectButton"
@@ -159,7 +163,7 @@
                 android:background="@drawable/button_selectable_background"
                 android:enabled="@{viewModel.isConnectedToWifi()}"
                 android:onClick="@{() -> viewModel.onConnectClicked()}"
-                android:text="@{viewModel.isServiceRunning() ? @string/disconnect : @string/connect}" />
+                android:text="@{viewModel.isServiceRunning ? @string/disconnect : @string/connect}" />
 
         </LinearLayout>
     </ScrollView>

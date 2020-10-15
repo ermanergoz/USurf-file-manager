@@ -31,7 +31,7 @@
     <string name="icons_freepic">Information icon by Freepic from flaticon.com</string>
     <string name="freepic_url">https://www.flaticon.com/authors/freepik</string>
     <string name="pix_perfect_link">https://www.flaticon.com/authors/pixel-perfect</string>
-    <string name="icons_pix_perfect">Preferences icon and FTP icon by Pixel perfect from flaticon.com</string>
+    <string name="icons_pix_perfect">Preferences icon, FTP icon and FTP notification icon by Pixel perfect from flaticon.com</string>
     <string name="icons">Icons:</string>
     <string name="icons_hirschwolf">Plus icon by hirschwolf</string>
     <string name="hirschwolf_url">https://www.flaticon.com/authors/hirschwolf</string>
@@ -106,4 +106,8 @@
     <string name="unable_to_delete_shortcut">Unable to delete shortcut</string>
     <string name="shortcut_renamed">Shortcut renamed</string>
     <string name="unable_to_rename_shortcut">Unable to rename shortcut</string>
+    <string name="ftp_server_is_running">Ftp Server is running</string>
+    <string name="notification_channel_name">FTPNotificationChannel</string>
+    <string name="notification_channel_description" >FTP notification channel</string>
+
 </resources>

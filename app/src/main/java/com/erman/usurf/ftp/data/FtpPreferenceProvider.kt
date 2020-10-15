@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.erman.usurf.app.MainApplication.Companion.appContext
 import com.erman.usurf.ftp.utils.*
 import com.erman.usurf.utils.SHARED_PREF_FILE
+import com.erman.usurf.utils.StoragePaths
 import com.erman.usurf.utils.logd
 
 class FtpPreferenceProvider {
@@ -39,5 +40,16 @@ class FtpPreferenceProvider {
     fun editPort(port: Int) {
         logd("editPort")
         preferences.edit().putInt(PORT_KEY, port).apply()
+    }
+
+    fun getFtpPath(): String? {
+        logd("getFtpPath")
+        return appContext.getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE)
+            .getString(KEY_INTENT_CHOSEN_PATH, StoragePaths().getStorageDirectories().first())
+    }
+
+    fun editFtpPath(path: String?) {
+        logd("editPort")
+        preferences.edit().putString(KEY_INTENT_CHOSEN_PATH, path).apply()
     }
 }
