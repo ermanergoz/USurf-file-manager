@@ -57,6 +57,9 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
         setupNavDrawer(navView, navController, drawerLayout)
         addStoragesToDrawer(navView, navController, drawerLayout)
         requestPermissions()
+
+        if (intent.getBooleanExtra(KEY_INTENT_IS_FTP_NOTIFICATION_CLICKED, INTENT_IS_FTP_NOTIFICATION_CLICKED_DEF_VAL))
+            navController.navigate(R.id.global_action_to_nav_ftp)
     }
 
     private fun setupNavDrawer(navView: NavigationView, navController: NavController, drawerLayout: DrawerLayout) {
