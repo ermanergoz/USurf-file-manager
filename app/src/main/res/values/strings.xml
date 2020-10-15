@@ -66,7 +66,6 @@
     <string name="error_while_compressing">Error while compressing</string>
     <string name="extracting_successful">Extracted</string>
     <string name="error_while_extracting">Error while extracting</string>
-    <string name="forced_single_selection_info">This operation will be performed to the last selected item only.</string>
     <string name="cleared">Cleared</string>
     <string name="name">Name:</string>
     <string name="path">Path:</string>
@@ -101,4 +100,10 @@
     <string name="renaming">Renaming</string>
     <string name="creating">Creating</string>
     <string name="search">Search</string>
+    <string name="shortcut_created">Shortcut created</string>
+    <string name="unable_to_create_shortcut">Unable to create shortcut</string>
+    <string name="shortcut_deleted">Shortcut deleted</string>
+    <string name="unable_to_delete_shortcut">Unable to delete shortcut</string>
+    <string name="shortcut_renamed">Shortcut renamed</string>
+    <string name="unable_to_rename_shortcut">Unable to rename shortcut</string>
 </resources>
