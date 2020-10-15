@@ -22,7 +22,7 @@ class DirectoryModel {
 
     fun getFileModelsFromFiles(path: String): List<FileModel> {
         val showHidden = preferenceProvider.getShowHiddenPreference()
-        var fileList = File(path).listFiles().filter { !it.isHidden || showHidden }.toList()
+        var fileList = File(path).listFiles().filter { !it.isHidden || showHidden }.sortedWith(compareBy ({ !it.isDirectory }, { it.name })).toList()
 
         when (preferenceProvider.getFileSortPreference()) {
             "Sort by name" -> fileList = fileList.sortedWith(compareBy ({ !it.isDirectory }, { it.name })).toList()
