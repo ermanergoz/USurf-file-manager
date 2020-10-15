@@ -96,6 +96,12 @@ class HomeFragment : Fragment() {
             }
         })
 
+        homeViewModel.toastMessage.observe(viewLifecycleOwner, Observer {
+            it.getContentIfNotHandled()?.let { messageId ->
+                Toast.makeText(context, getString(messageId), Toast.LENGTH_LONG).show()
+            }
+        })
+
         requireActivity().onBackPressedDispatcher.addCallback(this) {
             //workaround for displaying home fragment repeatedly until back stack is empty
             finishActivityListener.finishActivity()
