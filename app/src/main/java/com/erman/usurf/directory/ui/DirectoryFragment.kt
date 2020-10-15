@@ -165,6 +165,7 @@ class DirectoryFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        directoryViewModel.turnOffOptionPanel()
         directoryRecyclerViewAdapter.updateData(directoryViewModel.getFileList())
         runRecyclerViewAnimation(fileListRecyclerView)
     }

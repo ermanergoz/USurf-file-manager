@@ -13,4 +13,4 @@ const val ROOT_ACCESS_PREF_DEF_VAL: Boolean = false
 const val DEFAULT_FILE_SORT_MODE: String = "Sort by name"
 const val SHOW_HIDDEN_PREF_DEF_VAL: Boolean = false
 const val ASCENDING_ORDER_PREF_DEF_VAL: Boolean = true
-const val DESSCENDING_ORDER_PREF_DEF_VAL: Boolean = true
+const val DESSCENDING_ORDER_PREF_DEF_VAL: Boolean = false
