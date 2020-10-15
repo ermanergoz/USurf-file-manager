@@ -4,14 +4,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.RadioButton
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.erman.usurf.utils.EventObserver
 import com.erman.usurf.R
 import com.erman.usurf.databinding.FragmentFtpBinding
 import com.erman.usurf.utils.ViewModelFactory
+import kotlinx.android.synthetic.main.fragment_ftp.*
 
 class FTPFragment : Fragment() {
     private lateinit var fTPViewModel: FTPViewModel
@@ -28,8 +31,26 @@ class FTPFragment : Fragment() {
             Toast.makeText(context, getString(it), Toast.LENGTH_LONG).show()
         })
 
+        fTPViewModel.storagePaths.observe(viewLifecycleOwner, Observer {
+            for (storagePath in it) {
+                val radioButton = RadioButton(context)
+                radioButton.text = storagePath
+                radioButton.id = it.indexOf(storagePath)
+                if (storagePath == fTPViewModel.getFtpSelectedPath())
+                    radioButton.isChecked = true
+                radioButtonGroup.addView(radioButton)
+            }
+        })
+
         binding.lifecycleOwner = this
         binding.viewModel = fTPViewModel
         return binding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        //a workaround to fix the problem of button text not updating on resume
+        if(fTPViewModel.getServerStatus())
+            connectButton.text = getString(R.string.disconnect)
     }
 }
