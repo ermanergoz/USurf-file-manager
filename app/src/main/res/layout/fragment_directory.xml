@@ -33,6 +33,7 @@
             android:id="@+id/fileListRecyclerView"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:visibility="@{viewModel.loading ? View.GONE : View.VISIBLE}"
             app:layout_constraintBottom_toTopOf="@+id/confirmationButtonBar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -226,13 +227,13 @@
             android:clickable="true"
             android:focusable="true"
             android:onClick="@{() -> viewModel.onCreate()}"
-            android:visibility="@{viewModel.optionMode ? View.GONE : View.VISIBLE}"
+            android:visibility="@{viewModel.optionMode || viewModel.loading ? View.GONE : View.VISIBLE}"
             app:backgroundTint="@color/colorAccent"
             app:layout_constraintBottom_toTopOf="@+id/moreOptionButtonBar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:srcCompat="@drawable/ic_plus" />
+            app:srcCompat="@drawable/ic_menu" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/newFileFloatingButton"
@@ -242,15 +243,36 @@
             android:layout_marginRight="16dp"
             android:layout_marginBottom="16dp"
             android:clickable="true"
+            android:enabled="@{!viewModel.fileSearchMode}"
             android:focusable="true"
             android:onClick="@{() -> viewModel.createFile()}"
-            android:visibility="@{(viewModel.createMode &amp;&amp; (viewModel.optionMode==false)) ? View.VISIBLE : View.GONE}"
+            android:visibility="@{(viewModel.createMode &amp;&amp; (viewModel.optionMode == false  &amp;&amp; viewModel.loading == false)) ? View.VISIBLE : View.GONE}"
             app:backgroundTint="@color/colorAccent"
             app:layout_constraintBottom_toTopOf="@+id/createNewFloatingButton"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
             app:srcCompat="@drawable/ic_file_white" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/deviceWideSearchFloatingButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="16dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:onClick="@{() -> viewModel.deviceWideSearch()}"
+            android:visibility="@{((viewModel.createMode &amp;&amp; (viewModel.optionMode==false &amp;&amp; viewModel.loading == false))) ? View.VISIBLE : View.GONE}"
+            app:backgroundTint="@color/colorAccent"
+            app:layout_constraintBottom_toTopOf="@+id/newFolderFloatingButton"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0"
+            app:srcCompat="@drawable/ic_search" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/newFolderFloatingButton"
@@ -260,9 +282,10 @@
             android:layout_marginRight="16dp"
             android:layout_marginBottom="16dp"
             android:clickable="true"
+            android:enabled="@{!viewModel.fileSearchMode}"
             android:focusable="true"
             android:onClick="@{() -> viewModel.createFolder()}"
-            android:visibility="@{(viewModel.createMode &amp;&amp; (viewModel.optionMode==false)) ? View.VISIBLE : View.GONE}"
+            android:visibility="@{(viewModel.createMode &amp;&amp; (viewModel.optionMode==false  &amp;&amp; viewModel.loading == false)) ? View.VISIBLE : View.GONE}"
             app:backgroundTint="@color/colorAccent"
             app:layout_constraintBottom_toTopOf="@+id/newFileFloatingButton"
             app:layout_constraintEnd_toEndOf="parent"
@@ -285,6 +308,7 @@
             android:singleLine="true"
             android:text="@{viewModel.path}"
             android:textSize="@dimen/text_size_14"
+            android:visibility="@{viewModel.fileSearchMode ? View.GONE : View.VISIBLE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
@@ -328,6 +352,18 @@
                 android:gravity="center"
                 android:text="@string/empty_folder" />
         </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/loadingProgressBar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="@{viewModel.loading ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.10" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

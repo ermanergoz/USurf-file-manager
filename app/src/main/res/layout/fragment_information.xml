@@ -176,25 +176,6 @@
             android:layout_marginStart="@dimen/layout_margin_8"
             android:layout_marginLeft="@dimen/layout_margin_8"
             android:layout_marginTop="@dimen/vertical_margin_16"
-            android:text="@string/icons_hirschwolf"
-            android:textSize="@dimen/text_size_18" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
-            android:autoLink="web"
-            android:singleLine="true"
-            android:text="@string/hirschwolf_url"
-            android:textSize="@dimen/text_size_18" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
-            android:layout_marginTop="@dimen/vertical_margin_16"
             android:text="@string/folder_icon"
             android:textSize="@dimen/text_size_18" />
 
