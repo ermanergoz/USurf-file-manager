@@ -3,6 +3,7 @@ package com.erman.usurf.directory.model
 import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Build
+import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import com.erman.usurf.app.MainApplication.Companion.appContext
 import com.erman.usurf.directory.utils.SIMPLE_DATE_FORMAT_PATTERN
@@ -22,15 +23,15 @@ class DirectoryModel {
 
     fun getFileModelsFromFiles(path: String): List<FileModel> {
         val showHidden = preferenceProvider.getShowHiddenPreference()
-        var fileList = File(path).listFiles().filter { !it.isHidden || showHidden }.sortedWith(compareBy ({ !it.isDirectory }, { it.name })).toList()
+        var fileList = File(path).listFiles().filter { !it.isHidden || showHidden }.sortedWith(compareBy({ !it.isDirectory }, { it.name })).toList()
 
         when (preferenceProvider.getFileSortPreference()) {
-            "Sort by name" -> fileList = fileList.sortedWith(compareBy ({ !it.isDirectory }, { it.name })).toList()
-            "Sort by size" -> fileList = fileList.sortedWith(compareBy ({ !it.isDirectory }, { it.length() }, { getFolderSize(it) })).toList()
-            "Sort by last modified" -> fileList = fileList.sortedWith(compareBy ({ !it.isDirectory }, { it.lastModified() })).toList()
+            "Sort by name" -> fileList = fileList.sortedWith(compareBy({ !it.isDirectory }, { it.name })).toList()
+            "Sort by size" -> fileList = fileList.sortedWith(compareBy({ !it.isDirectory }, { it.length() }, { getFolderSize(it) })).toList()
+            "Sort by last modified" -> fileList = fileList.sortedWith(compareBy({ !it.isDirectory }, { it.lastModified() })).toList()
         }
 
-        if(preferenceProvider.getDescendingOrderPreference())
+        if (preferenceProvider.getDescendingOrderPreference())
             fileList = fileList.sortedWith(compareBy { it.isDirectory }).reversed()
 
         return fileList.map {
@@ -442,5 +443,39 @@ class DirectoryModel {
                 '/'
             }
         }
+    }
+
+    fun getSearchedDeviceFiles(searchQuery: String): List<FileModel> {
+        val fileList = mutableListOf<File>()
+        try {
+            val storagePaths = StoragePaths().getStorageDirectories()
+            for (i in storagePaths.indices) {
+                Log.e("strg", storagePaths[i])
+                fileList.addAll(getSubSearchedFiles(File(storagePaths[i]), searchQuery))
+            }
+            return fileList.filter { file ->
+                searchQuery.decapitalize().toRegex().containsMatchIn(file.nameWithoutExtension.decapitalize())
+            }.map {
+                FileModel(it.path, it.name, it.nameWithoutExtension, getConvertedFileSize(it), it.isDirectory,
+                    dateFormat.format(it.lastModified()), it.extension,
+                    (it.listFiles()?.size.toString() + " files"), getPermissions(it), it.isHidden)
+            }
+        } catch (err: java.lang.Exception) {
+            Log.e("getSearchedDeviceFiles", err.toString())
+        }
+        return emptyList()
+    }
+
+    private fun getSubSearchedFiles(directory: File, searchQuery: String, res: MutableSet<File> = mutableSetOf<File>()): Set<File> {
+        //Depth first search algorithm
+        for (file in directory.listFiles()!!.toSet()) {
+            if (file.isDirectory) {
+                getSubSearchedFiles(file, searchQuery, res)
+            } else {
+                res.add(file)
+            }
+            res.addAll(directory.listFiles()!!.toSet())
+        }
+        return res
     }
 }
