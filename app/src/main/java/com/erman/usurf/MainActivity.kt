@@ -16,22 +16,24 @@ import android.content.Intent
 import android.os.Build
 import android.util.DisplayMetrics
 import android.view.Menu
+import android.view.View
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.content.ContextCompat
-import androidx.core.os.bundleOf
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
-import com.erman.usurf.dialog.ui.SearchDialog
 import com.erman.usurf.directory.ui.DirectoryViewModel
 import com.erman.usurf.home.model.FinishActivity
 import com.erman.usurf.utils.*
+import kotlinx.android.synthetic.main.app_bar_main.*
 import java.io.File
 
 class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNavDrawer, StorageAccessFramework, HomeStorageButton {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var directoryViewModel: DirectoryViewModel
     private lateinit var viewModelFactory: ViewModelFactory
+    var destination: Int? = null
 
     private fun requestPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -76,19 +78,28 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         navView.setNavigationItemSelectedListener {
-             when (it.itemId) {
-                R.id.nav_home -> navController.navigate(R.id.global_action_nav_home)
-                R.id.nav_preferences -> navController.navigate(R.id.global_action_nav_preferences)
-                R.id.nav_ftp -> navController.navigate(R.id.global_action_to_nav_ftp)
-                R.id.nav_info -> navController.navigate(R.id.global_action_nav_info)
-                R.id.nav_device_wide_search -> {
-                    val bundle = bundleOf(KEY_BUNDLE_SEARCH_FILE to true)
-                    navController.navigate(R.id.global_action_nav_directory, bundle)
-                }
+            when (it.itemId) {
+                R.id.nav_home -> destination = R.id.global_action_nav_home
+                R.id.nav_preferences -> destination = R.id.global_action_nav_preferences
+                R.id.nav_ftp -> destination = R.id.global_action_to_nav_ftp
+                R.id.nav_info -> destination = R.id.global_action_nav_info
             }
             drawerLayout.closeDrawers()
             true
         }
+
+        val drawerToggle: ActionBarDrawerToggle =
+            object : ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close) {
+                override fun onDrawerClosed(view: View) {
+                    super.onDrawerClosed(view)
+                    //This whole thing is a workaround to fix nav drawer lag issue.
+                    //Goes to the destination after it closes instead of right after the click.
+                    destination?.let { navController.navigate(it) }
+                }
+            }
+        drawerToggle.isDrawerIndicatorEnabled = true
+        drawerLayout.addDrawerListener(drawerToggle)
+        drawerToggle.syncState()
     }
 
     private fun addStoragesToDrawer(navView: NavigationView, navController: NavController, drawerLayout: DrawerLayout) {
@@ -114,7 +125,7 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
 
     private fun onStorageButtonClick(path: String, navController: NavController) {
         directoryViewModel.setPath(path)
-        navController.navigate(R.id.global_action_nav_directory)
+        destination = R.id.global_action_nav_directory
         if (!File(path).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
             launchSAF()
         }

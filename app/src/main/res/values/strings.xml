@@ -4,7 +4,6 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="empty" />
     <string name="menu_home">Home</string>
-    <string name="menu_directory">SDCARD/EXTSDCARD</string>
     <string name="menu_ftp">FTP</string>
     <string name="menu_preferences">Preferences</string>
     <string name="menu_info">Information</string>
@@ -22,7 +21,7 @@
     <string name="app_version">1.2-rc3</string>
     <string name="github">Github:</string>
     <string name="github_link">https://github.com/ermanergoz/USurf</string>
-    <string name="icons_those_icons">Device-wide Search icon by Those Icons from flaticon.com</string>
+    <string name="icons_those_icons">Device-wide Search icon and Menu icon by Those Icons from flaticon.com</string>
     <string name="those_icons_url">https://www.flaticon.com/authors/those-icons</string>
     <string name="icons_smashicons">Home icon by Smashicons from flaticon.com</string>
     <string name="smashicons_url">https://www.flaticon.com/authors/smashicons</string>
@@ -33,8 +32,6 @@
     <string name="pix_perfect_link">https://www.flaticon.com/authors/pixel-perfect</string>
     <string name="icons_pix_perfect">Preferences icon, FTP icon and FTP notification icon by Pixel perfect from flaticon.com</string>
     <string name="icons">Icons:</string>
-    <string name="icons_hirschwolf">Plus icon by hirschwolf flaticon.com</string>
-    <string name="hirschwolf_url">https://www.flaticon.com/authors/hirschwolf</string>
     <string name="xnimrodx_url">https://www.flaticon.com/authors/xnimrodx</string>
     <string name="url">URL:</string>
     <string name="folder_icon">Folder icon and file icon by xnimrodx from flaticon.com</string>
@@ -109,5 +106,6 @@
     <string name="ftp_server_is_running">Ftp Server is running</string>
     <string name="notification_channel_name">FTPNotificationChannel</string>
     <string name="notification_channel_description" >FTP notification channel</string>
-
+    <string name="drawer_open" >Drawer open</string>
+    <string name="drawer_close" >Drawer close</string>
 </resources>
