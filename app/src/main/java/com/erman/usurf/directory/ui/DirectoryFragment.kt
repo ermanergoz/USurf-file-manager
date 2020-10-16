@@ -24,8 +24,6 @@ import com.erman.usurf.dialog.ui.*
 import com.erman.usurf.utils.*
 import kotlinx.android.synthetic.main.fragment_directory.*
 import java.io.File
-import java.lang.Exception
-
 
 class DirectoryFragment : Fragment() {
     private lateinit var viewModelFactory: ViewModelFactory
@@ -42,12 +40,6 @@ class DirectoryFragment : Fragment() {
         binding.lifecycleOwner = this
         binding.viewModel = directoryViewModel
 
-        try {
-            this.isFileSearch = requireArguments().getBoolean(KEY_BUNDLE_SEARCH_FILE)
-        } catch (err: Exception) {
-            loge("DirectoryFragment get bundle $err")
-        }
-
         directoryViewModel.toastMessage.observe(viewLifecycleOwner, EventObserver {
             Toast.makeText(context, getString(it), Toast.LENGTH_LONG).show()
         })
@@ -62,6 +54,7 @@ class DirectoryFragment : Fragment() {
                 val intent = Intent(Intent.ACTION_VIEW)
                 intent.data = FileProvider.getUriForFile(requireContext(), requireContext().packageName, File(args.path))
                 intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                intent.addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT)
                 intent.resolveActivity(requireContext().packageManager)?.let { startActivity(intent) }
                     ?: let {
                         Toast.makeText(context, getString(R.string.unsupported_file), Toast.LENGTH_LONG).show()
@@ -125,15 +118,19 @@ class DirectoryFragment : Fragment() {
             }
         })
 
+        directoryViewModel.onFileSearch.observe(viewLifecycleOwner, Observer {
+            it.getContentIfNotHandled()?.let { args ->
+                dialogListener.showDialog(SearchDialog())
+            }
+        })
+
         directoryViewModel.updateDirectoryList.observe(viewLifecycleOwner, Observer {
-            directoryRecyclerViewAdapter.updateData(it)
-            runRecyclerViewAnimation(fileListRecyclerView)
+                directoryRecyclerViewAdapter.updateData(it)
+                runRecyclerViewAnimation(fileListRecyclerView)
         })
 
         requireActivity().onBackPressedDispatcher.addCallback(this) {
-            if(isFileSearch) {
-                findNavController().popBackStack()
-            } else if (!directoryViewModel.onBackPressed()) {
+            if (!directoryViewModel.onBackPressed()) {
                 //goes to home fragment because it is annoying to navigate to the
                 //last opened fragment after directory fragment
                 findNavController().navigate(R.id.global_action_nav_home)
@@ -155,21 +152,14 @@ class DirectoryFragment : Fragment() {
         fileListRecyclerView.layoutManager = GridLayoutManager(context, 1)
         directoryRecyclerViewAdapter = DirectoryRecyclerViewAdapter(directoryViewModel)
         fileListRecyclerView.adapter = directoryRecyclerViewAdapter
-        //fileListRecyclerView.itemAnimator?.let { it.changeDuration = 0 } //to avoid flickering
 
-        if (isFileSearch) {
-            dialogListener.showDialog(SearchDialog())
-        }
-
-        directoryViewModel.searchedFileList.observe(viewLifecycleOwner, Observer {
-            directoryRecyclerViewAdapter.updateData(directoryViewModel.getSearchedFilesList())
+        directoryViewModel.path.observe(viewLifecycleOwner, Observer {
+            directoryViewModel.getFileList()
             runRecyclerViewAnimation(fileListRecyclerView)
         })
 
-        runRecyclerViewAnimation(fileListRecyclerView)
-
-        directoryViewModel.path.observe(viewLifecycleOwner, Observer {
-            directoryRecyclerViewAdapter.updateData(directoryViewModel.getFileList())
+        directoryViewModel.fileSearchQuery.observe(viewLifecycleOwner, Observer {
+            directoryViewModel.getSearchedFiles()
             runRecyclerViewAnimation(fileListRecyclerView)
         })
     }
@@ -187,7 +177,10 @@ class DirectoryFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         directoryViewModel.turnOffOptionPanel()
-        directoryRecyclerViewAdapter.updateData(directoryViewModel.getFileList())
+        if(isFileSearch)
+            directoryViewModel.getSearchedFiles()
+        else
+            directoryViewModel.getFileList()
         runRecyclerViewAnimation(fileListRecyclerView)
     }
 }
