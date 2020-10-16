@@ -1,6 +1,5 @@
 package com.erman.usurf.directory.ui
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -81,6 +80,11 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
     val updateDirectoryList: LiveData<List<FileModel>> = _updateDirectoryList
 
+    private val _searchedFileList = MutableLiveData<List<FileModel>>().apply {
+        value = mutableListOf()
+    }
+    val searchedFileList: LiveData<List<FileModel>> = _searchedFileList
+
     private val _moreOptionMode = MutableLiveData<Boolean>().apply {
         value = false
     }
@@ -91,34 +95,6 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
     val isEmptyDir: LiveData<Boolean> = _isEmptyDir
 
-    fun getSearchedDeviceFiles(storagePaths: ArrayList<String>, searchQuery: String): List<File> {
-        val fileList = mutableListOf<File>()
-        try {
-            for (i in storagePaths.indices) {
-                Log.e("strg", storagePaths[i])
-                fileList.addAll(getSubSearchedFiles(File(storagePaths[i]), searchQuery))
-            }
-            return fileList.filter { file ->
-                searchQuery.decapitalize().toRegex().containsMatchIn(file.nameWithoutExtension.decapitalize())
-            }
-        } catch (err: Exception) {
-            Log.e("getSearchedDeviceFiles", err.toString())
-        }
-        return emptyList()
-    }
-
-    fun getSubSearchedFiles(directory: File, searchQuery: String, res: MutableSet<File> = mutableSetOf<File>()): Set<File> {
-        //Depth first search algorithm
-        for (file in directory.listFiles()!!.toSet()) {
-            if (file.isDirectory) {
-                getSubSearchedFiles(file, searchQuery, res)
-            } else {
-                res.add(file)
-            }
-            res.addAll(directory.listFiles()!!.toSet())
-        }
-        return res
-    }
 
     fun onFileClick(file: FileModel) {
         if (multiSelectionMode) {
@@ -188,7 +164,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
         return false
     }
 
-    fun setPath(path: String) {
+    fun setPath(path: String?) {
         _path.value = path
     }
 
@@ -206,6 +182,10 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
             }
         }
         return emptyList()
+    }
+
+    fun getSearchedFilesList(): List<FileModel> {
+        _searchedFileList.value?.let { return it } ?: let { return emptyList() }
     }
 
     fun compress() {
@@ -437,7 +417,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
 
     fun onFileSearchOkPressed(fileName: String) {
-
+        _searchedFileList.value = directoryModel.getSearchedDeviceFiles(fileName)
     }
 
     fun shortcutButton() {
