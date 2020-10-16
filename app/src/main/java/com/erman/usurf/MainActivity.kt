@@ -17,6 +17,7 @@ import android.os.Build
 import android.util.DisplayMetrics
 import android.view.Menu
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
@@ -75,12 +76,15 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         navView.setNavigationItemSelectedListener {
-            when (it.itemId) {
+             when (it.itemId) {
                 R.id.nav_home -> navController.navigate(R.id.global_action_nav_home)
                 R.id.nav_preferences -> navController.navigate(R.id.global_action_nav_preferences)
                 R.id.nav_ftp -> navController.navigate(R.id.global_action_to_nav_ftp)
                 R.id.nav_info -> navController.navigate(R.id.global_action_nav_info)
-                R.id.nav_device_wide_search -> showDialog(SearchDialog())
+                R.id.nav_device_wide_search -> {
+                    val bundle = bundleOf(KEY_BUNDLE_SEARCH_FILE to true)
+                    navController.navigate(R.id.global_action_nav_directory, bundle)
+                }
             }
             drawerLayout.closeDrawers()
             true
