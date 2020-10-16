@@ -24,6 +24,7 @@ import com.erman.usurf.dialog.ui.*
 import com.erman.usurf.utils.*
 import kotlinx.android.synthetic.main.fragment_directory.*
 import java.io.File
+import java.lang.Exception
 
 
 class DirectoryFragment : Fragment() {
@@ -31,6 +32,7 @@ class DirectoryFragment : Fragment() {
     private lateinit var directoryViewModel: DirectoryViewModel
     private lateinit var directoryRecyclerViewAdapter: DirectoryRecyclerViewAdapter
     private lateinit var dialogListener: ShowDialog
+    private var isFileSearch: Boolean = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         viewModelFactory = ViewModelFactory()
@@ -39,6 +41,12 @@ class DirectoryFragment : Fragment() {
             DataBindingUtil.inflate(inflater, R.layout.fragment_directory, container, false)
         binding.lifecycleOwner = this
         binding.viewModel = directoryViewModel
+
+        try {
+            this.isFileSearch = requireArguments().getBoolean(KEY_BUNDLE_SEARCH_FILE)
+        } catch (err: Exception) {
+            loge("DirectoryFragment get bundle $err")
+        }
 
         directoryViewModel.toastMessage.observe(viewLifecycleOwner, EventObserver {
             Toast.makeText(context, getString(it), Toast.LENGTH_LONG).show()
@@ -123,7 +131,9 @@ class DirectoryFragment : Fragment() {
         })
 
         requireActivity().onBackPressedDispatcher.addCallback(this) {
-            if (!directoryViewModel.onBackPressed()) {
+            if(isFileSearch) {
+                findNavController().popBackStack()
+            } else if (!directoryViewModel.onBackPressed()) {
                 //goes to home fragment because it is annoying to navigate to the
                 //last opened fragment after directory fragment
                 findNavController().navigate(R.id.global_action_nav_home)
@@ -146,6 +156,17 @@ class DirectoryFragment : Fragment() {
         directoryRecyclerViewAdapter = DirectoryRecyclerViewAdapter(directoryViewModel)
         fileListRecyclerView.adapter = directoryRecyclerViewAdapter
         //fileListRecyclerView.itemAnimator?.let { it.changeDuration = 0 } //to avoid flickering
+
+        if (isFileSearch) {
+            dialogListener.showDialog(SearchDialog())
+        }
+
+        directoryViewModel.searchedFileList.observe(viewLifecycleOwner, Observer {
+            directoryRecyclerViewAdapter.updateData(directoryViewModel.getSearchedFilesList())
+            runRecyclerViewAnimation(fileListRecyclerView)
+        })
+
+        runRecyclerViewAnimation(fileListRecyclerView)
 
         directoryViewModel.path.observe(viewLifecycleOwner, Observer {
             directoryRecyclerViewAdapter.updateData(directoryViewModel.getFileList())
