@@ -124,8 +124,8 @@ class DirectoryFragment : Fragment() {
         })
 
         directoryViewModel.updateDirectoryList.observe(viewLifecycleOwner, Observer {
-                directoryRecyclerViewAdapter.updateData(it)
-                runRecyclerViewAnimation(fileListRecyclerView)
+            directoryRecyclerViewAdapter.updateData(it)
+            runRecyclerViewAnimation(fileListRecyclerView)
         })
 
         requireActivity().onBackPressedDispatcher.addCallback(this) {
@@ -175,7 +175,21 @@ class DirectoryFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        directoryViewModel.turnOffOptionPanel()
+        //this has to be done in fragment since we need to do this in lifecycle function
+        //this is to prevent option panel from closing when moving/copying files
+        //when we are not copying/moving, it is annoying to keep it open
+        var isCopyMode = false
+        var isMoveMode = false
+
+        directoryViewModel.copyMode.value?.let {
+            isCopyMode = it
+        }
+        directoryViewModel.moveMode.value?.let {
+            isMoveMode = it
+        }
+        if (!isCopyMode && !isMoveMode)
+            directoryViewModel.turnOffOptionPanel()
+
         directoryViewModel.getFileList()
         runRecyclerViewAnimation(fileListRecyclerView)
     }
