@@ -81,10 +81,10 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
     val optionMode: LiveData<Boolean> = _optionMode
 
-    private val _createMode = MutableLiveData<Boolean>().apply {
+    private val _menuMode = MutableLiveData<Boolean>().apply {
         value = false
     }
-    val createMode: LiveData<Boolean> = _createMode
+    val menuMode: LiveData<Boolean> = _menuMode
 
     private val _multipleSelection = MutableLiveData<MutableList<FileModel>>().apply {
         value = mutableListOf()
@@ -137,7 +137,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
         multiSelectionMode = false
         _copyMode.value = false
         _moveMode.value = false
-        _createMode.value = false
+        _menuMode.value = false
     }
 
     fun clearMultipleSelection() {
@@ -153,7 +153,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
 
     fun onBackPressed(): Boolean {
         try {
-            if (optionMode.value!! && !copyMode.value!! && !moveMode.value!! || createMode.value!!) {
+            if (optionMode.value!! && !copyMode.value!! && !moveMode.value!! || menuMode.value!!) {
                 turnOffOptionPanel()
                 clearMultipleSelection()
                 return true
@@ -178,6 +178,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
 
     fun setPath(path: String?) {
         _path.value = path
+        _fileSearchQuery.value = null
     }
 
     fun getFileList() {
@@ -189,8 +190,8 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                         val directory = directoryModel.getFileModelsFromFiles(path)
                         _isEmptyDir.value = directory.isNullOrEmpty()
                         _updateDirectoryList.value = directory
-                        _loading.value = false
                     }
+                    _loading.value = false
                 }
             } catch (err: IllegalStateException) {
                 _toastMessage.value = Event(R.string.unable_to_open_directory)
@@ -203,7 +204,10 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
         _loading.value = true
         fileSearchQuery.value?.let {
             launch {
-                _updateDirectoryList.value = directoryModel.getSearchedDeviceFiles(it)
+                val fileList = directoryModel.getSearchedDeviceFiles(it)
+                _isEmptyDir.value = fileList.isNullOrEmpty()
+                _updateDirectoryList.value = fileList
+                _menuMode.value = false
                 _loading.value = false
             }
         }
@@ -213,21 +217,18 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
         _onCompress.value = Event(UIEventArgs.CompressDialogArgs)
     }
 
-    private fun refreshFileList() {
+    fun refreshFileList() {
         launch {
             fileSearchMode.value?.let { isFileSearchMode ->
                 if (isFileSearchMode) {
                     fileSearchQuery.value?.let { fileSearchQuery ->
-                        _updateDirectoryList.value = directoryModel.getSearchedDeviceFiles(fileSearchQuery)
+                        if (isFileSearchMode)
+                            _updateDirectoryList.value = directoryModel.getSearchedDeviceFiles(fileSearchQuery)
                     }
                 } else {
                     path.value?.let { path ->
                         _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path)
                     }
-                }
-            } ?: let {
-                path.value?.let { path ->
-                    _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path)
                 }
             }
         }
@@ -396,8 +397,8 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
 
     fun onCreate() {
-        createMode.value?.let {
-            _createMode.value = !it
+        menuMode.value?.let {
+            _menuMode.value = !it
         }
     }
 
