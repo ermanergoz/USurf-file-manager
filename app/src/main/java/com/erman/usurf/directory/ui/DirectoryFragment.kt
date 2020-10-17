@@ -30,7 +30,6 @@ class DirectoryFragment : Fragment() {
     private lateinit var directoryViewModel: DirectoryViewModel
     private lateinit var directoryRecyclerViewAdapter: DirectoryRecyclerViewAdapter
     private lateinit var dialogListener: ShowDialog
-    private var isFileSearch: Boolean = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         viewModelFactory = ViewModelFactory()
@@ -177,10 +176,7 @@ class DirectoryFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         directoryViewModel.turnOffOptionPanel()
-        if(isFileSearch)
-            directoryViewModel.getSearchedFiles()
-        else
-            directoryViewModel.getFileList()
+        directoryViewModel.getFileList()
         runRecyclerViewAnimation(fileListRecyclerView)
     }
 }
