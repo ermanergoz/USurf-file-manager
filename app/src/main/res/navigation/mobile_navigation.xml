@@ -41,7 +41,7 @@
     <fragment
         android:id="@+id/nav_directory"
         android:name="com.erman.usurf.directory.ui.DirectoryFragment"
-        android:label="@string/menu_directory"
+        android:label=""
         tools:layout="@layout/fragment_directory" >
     </fragment>
 
