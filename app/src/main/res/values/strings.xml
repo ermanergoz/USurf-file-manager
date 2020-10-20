@@ -13,7 +13,6 @@
     <string name="sort_by">Sort by</string>
     <string name="ascending_order">Ascending order</string>
     <string name="descending_order">Descending order</string>
-    <string name="device_wide_search">Device-wide Search</string>
     <string name="applogo_description">appLogo</string>
     <string name="developer">Developer:</string>
     <string name="yusuf_erman_ergoz">Yusuf Erman ERGÖZ</string>
@@ -83,6 +82,7 @@
     <string name="create_new_folder">Create new folder</string>
     <string name="new_folder">New Folder</string>
     <string name="new_file">New File.txt</string>
+    <string name="new_compressed">New.zip</string>
     <string name="more">More</string>
     <string name="less">Less</string>
     <string name="cancel">Cancel</string>
@@ -91,6 +91,7 @@
     <string name="addShortcut">Add Shortcut</string>
     <string name="compressing">Compressing</string>
     <string name="extracting">Extracting</string>
+    <string name="invalid_extension">Invalid extension. Please choose a compressed file!</string>
     <string name="deleting">Deleting</string>
     <string name="copying">Copying</string>
     <string name="moving">Moving</string>

@@ -61,7 +61,8 @@ class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
         _path.value = view.tag.toString()
         _navigateToDirectory.value = Event(R.id.global_action_nav_directory)
         path.value?.let { path ->
-            if (!File(path).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.P)
+            if (!File(path).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.P
+                && DirectoryPreferenceProvider().getChosenUri() == "")
                 _saf.value = Event(UIEventArgs.SAFActivityArgs)
         }
     }
@@ -99,7 +100,7 @@ class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
 
     fun deleteShortcut(shortcutView: TextView) {
         logi("Delete shortcut: " + shortcutView.text)
-        if(shortcutDao.removeShortcut(shortcutView))
+        if (shortcutDao.removeShortcut(shortcutView))
             _toastMessage.value = Event(R.string.shortcut_deleted) //TODO: toast massege doesnt get displayed
         else
             _toastMessage.value = Event(R.string.unable_to_delete_shortcut)
@@ -116,7 +117,7 @@ class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
 
     fun onRenameShortcutOkPressed(shortcutView: TextView, shortcutName: String) {
         logi("Rename shortcut: " + shortcutView.text + " to " + shortcutName)
-        if(shortcutDao.renameShortcut(shortcutView, shortcutName))
+        if (shortcutDao.renameShortcut(shortcutView, shortcutName))
             _toastMessage.value = Event(R.string.shortcut_renamed) //TODO: toast massege doesnt get displayed
         else
             _toastMessage.value = Event(R.string.unable_to_rename_shortcut)
