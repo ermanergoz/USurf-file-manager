@@ -113,6 +113,10 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                 _multipleSelection.value = directoryModel.manageMultipleSelectionList(file, multipleSelection)
                 if (multipleSelection.size == 1)
                     _isSingleOperationMode.value = true
+                else if (multipleSelection.size == 0) {
+                    turnOffOptionPanel()
+                    clearMultipleSelection()
+                }
             }
         } else {
             _fileSearchMode.value = false
@@ -234,14 +238,14 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
         }
     }
 
-    fun onFileCompressOkPressed(name: String) {
+    fun onFileCompressOkPressed(zipNameWithExtension: String) {
         turnOffOptionPanel()
         _toastMessage.value = Event(R.string.compressing)
         logd("onFileCompressOkPressed")
         launch {
             try {
                 multipleSelection.value?.let { multipleSelection ->
-                    directoryModel.compressFile(multipleSelection, name)
+                    directoryModel.compressFiles(multipleSelection, zipNameWithExtension)
                     refreshFileList()
                     _toastMessage.value = Event(R.string.compressing_successful)
                 }
@@ -256,19 +260,25 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
 
     fun extract() {
         turnOffOptionPanel()
-        _toastMessage.value = Event(R.string.extracting)
-        logd("extract")
-        launch {
-            try {
-                multipleSelection.value?.let { multipleSelection ->
-                    directoryModel.extractFiles(multipleSelection)
-                    refreshFileList()
-                    _toastMessage.value = Event(R.string.extracting_successful)
+        multipleSelection.value?.let { multipleSelection ->
+            if (multipleSelection.first().extension == "zip") {
+                _toastMessage.value = Event(R.string.extracting)
+                logd("extract")
+                launch {
+                    try {
+                        directoryModel.extractFiles(multipleSelection)
+                        refreshFileList()
+                        _toastMessage.value = Event(R.string.extracting_successful)
+
+                    } catch (err: CancellationException) {
+                        _toastMessage.value = Event(R.string.error_while_extracting)
+                        loge("extract $err")
+                    } finally {
+                        clearMultipleSelection()
+                    }
                 }
-            } catch (err: CancellationException) {
-                _toastMessage.value = Event(R.string.error_while_extracting)
-                loge("extract $err")
-            } finally {
+            } else {
+                _toastMessage.value = Event(R.string.invalid_extension)
                 clearMultipleSelection()
             }
         }
