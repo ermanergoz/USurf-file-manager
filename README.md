@@ -8,7 +8,7 @@
 
 • Support for Bluetooth file transfer. - [x]
 
-• Device-wide, keyword based file search.
+• Device-wide, keyword based file search. - [x]
 
 • Add support to copy–paste multiple files to multiple places multiple times. - [x]
 
