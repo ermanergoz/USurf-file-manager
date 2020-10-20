@@ -120,9 +120,10 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
+                android:enabled="@{viewModel.isSingleOperationMode}"
                 android:onClick="@{() -> viewModel.extract()}"
                 android:text="@string/extract"
-                android:textColor="@color/textColorDark"
+                android:textColor="@{viewModel.isSingleOperationMode ? @color/textColorDark : @color/textColorLight}"
                 android:textSize="@dimen/text_size_12" />
 
             <Button

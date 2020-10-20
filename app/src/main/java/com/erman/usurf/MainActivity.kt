@@ -126,7 +126,8 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
     private fun onStorageButtonClick(path: String, navController: NavController) {
         directoryViewModel.setPath(path)
         destination = R.id.global_action_nav_directory
-        if (!File(path).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+        if (!File(path).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.P
+            && DirectoryPreferenceProvider().getChosenUri() == "") {
             launchSAF()
         }
     }

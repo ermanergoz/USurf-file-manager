@@ -28,6 +28,7 @@ class CompressDialog : DialogFragment() {
             editDialogViewModel = ViewModelProvider(requireActivity(), viewModelFactory).get(DirectoryViewModel::class.java)
 
             this.editText = dialogView.findViewById(R.id.editText)
+            editText.setText(R.string.new_compressed)
 
             builder.setMessage(getString(R.string.rename))
                 .setPositiveButton(R.string.ok, DialogInterface.OnClickListener { _, _ ->
