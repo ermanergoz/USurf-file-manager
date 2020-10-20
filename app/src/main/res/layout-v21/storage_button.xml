@@ -22,10 +22,10 @@
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginEnd="0dp"
-            android:progressTint="@color/colorAccent"
-            android:layout_marginBottom="0dp"
-            android:progress="@{viewModel.getUsedStoragePercentage(storageButton)}" />
+            android:layout_marginEnd="@dimen/vertical_margin_0"
+            android:layout_marginBottom="@dimen/vertical_margin_0"
+            android:progress="@{viewModel.getUsedStoragePercentage(storageButton)}"
+            android:progressTint="@color/colorAccent" />
 
         <TextView
             android:id="@+id/buttonText"
@@ -35,8 +35,12 @@
             android:layout_alignTop="@id/progressBar"
             android:layout_alignEnd="@id/progressBar"
             android:layout_alignBottom="@id/progressBar"
+            android:layout_marginLeft="@dimen/horizontal_margin_8"
+            android:layout_marginRight="@dimen/horizontal_margin_8"
+            android:ellipsize="start"
             android:gravity="center"
-            android:maxLines="1"
-            android:textSize="18sp" />
+            android:singleLine="true"
+            android:textColor="@color/daynnightTextColor"
+            android:textSize="@dimen/text_size_18" />
     </RelativeLayout>
 </layout>

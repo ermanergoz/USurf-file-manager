@@ -1,6 +1,5 @@
 package com.erman.usurf.directory.ui
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -8,10 +7,14 @@ import com.erman.usurf.R
 import com.erman.usurf.dialog.model.UIEventArgs
 import com.erman.usurf.directory.model.*
 import com.erman.usurf.utils.Event
+import com.erman.usurf.utils.logd
+import com.erman.usurf.utils.loge
+import kotlinx.coroutines.*
 import java.io.File
 import java.lang.Exception
+import kotlin.coroutines.CoroutineContext
 
-class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel() {
+class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel(), CoroutineScope {
     private var multiSelectionMode: Boolean = false
 
     private val _path = MutableLiveData<String>()
@@ -41,6 +44,28 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     private val _onInformation = MutableLiveData<Event<UIEventArgs.InformationDialogArgs>>()
     val onInformation: LiveData<Event<UIEventArgs.InformationDialogArgs>> = _onInformation
 
+    private val _onAddShortcut = MutableLiveData<Event<UIEventArgs.ShortcutDialogArgs>>()
+    val onAddShortcut: LiveData<Event<UIEventArgs.ShortcutDialogArgs>> = _onAddShortcut
+
+    private val _isSingleOperationMode = MutableLiveData<Boolean>()
+    val isSingleOperationMode: LiveData<Boolean> = _isSingleOperationMode
+
+    private val _fileSearchQuery = MutableLiveData<String>()
+    val fileSearchQuery: LiveData<String> = _fileSearchQuery
+
+    private val _loading = MutableLiveData<Boolean>().apply {
+        value = false
+    }
+    val loading: LiveData<Boolean> = _loading
+
+    private val _fileSearchMode = MutableLiveData<Boolean>().apply {
+        value = false
+    }
+    val fileSearchMode: LiveData<Boolean> = _fileSearchMode
+
+    private val _onFileSearch = MutableLiveData<Event<UIEventArgs.FileSearchDialogArgs>>()
+    val onFileSearch: LiveData<Event<UIEventArgs.FileSearchDialogArgs>> = _onFileSearch
+
     private val _copyMode = MutableLiveData<Boolean>().apply {
         value = false
     }
@@ -56,10 +81,10 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
     val optionMode: LiveData<Boolean> = _optionMode
 
-    private val _createMode = MutableLiveData<Boolean>().apply {
+    private val _menuMode = MutableLiveData<Boolean>().apply {
         value = false
     }
-    val createMode: LiveData<Boolean> = _createMode
+    val menuMode: LiveData<Boolean> = _menuMode
 
     private val _multipleSelection = MutableLiveData<MutableList<FileModel>>().apply {
         value = mutableListOf()
@@ -76,188 +101,315 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
     val moreOptionMode: LiveData<Boolean> = _moreOptionMode
 
+    private val _isEmptyDir = MutableLiveData<Boolean>().apply {
+        value = false
+    }
+    val isEmptyDir: LiveData<Boolean> = _isEmptyDir
+
     fun onFileClick(file: FileModel) {
-        if (multiSelectionMode)
-            _multipleSelection.value = directoryModel.manageMultipleSelectionList(file, multipleSelection.value!!)
-        else {
+        if (multiSelectionMode) {
+            _isSingleOperationMode.value = false
+            multipleSelection.value?.let { multipleSelection ->
+                _multipleSelection.value = directoryModel.manageMultipleSelectionList(file, multipleSelection)
+                if (multipleSelection.size == 1)
+                    _isSingleOperationMode.value = true
+                else if (multipleSelection.size == 0) {
+                    turnOffOptionPanel()
+                    clearMultipleSelection()
+                }
+            }
+        } else {
+            _fileSearchMode.value = false
             if (file.isDirectory) _path.value = file.path
             else _openFile.value = Event(UIEventArgs.OpenFileActivityArgs(file.path))
         }
     }
 
     fun onFileLongClick(file: FileModel): Boolean {
-        _multipleSelection.value = directoryModel.manageMultipleSelectionList(file, multipleSelection.value!!)
+        multipleSelection.value?.let { multipleSelection ->
+            _multipleSelection.value = directoryModel.manageMultipleSelectionList(file, multipleSelection)
+        }
+        _isSingleOperationMode.value = true
         _optionMode.value = true
         multiSelectionMode = true
         return true
     }
 
-    fun turnOffOptionMode() {
-        _multipleSelection.value = directoryModel.clearMultipleSelection(multipleSelection.value!!)
+    fun turnOffOptionPanel() {
         _optionMode.value = false
         _moreOptionMode.value = false
         multiSelectionMode = false
         _copyMode.value = false
         _moveMode.value = false
-        _createMode.value = false
+        _menuMode.value = false
+    }
+
+    fun clearMultipleSelection() {
+        multipleSelection.value?.let { multipleSelection ->
+            _multipleSelection.value = directoryModel.clearMultipleSelection(multipleSelection)
+        }
+    }
+
+    fun endCopyMode() {
+        turnOffOptionPanel()
+        clearMultipleSelection()
     }
 
     fun onBackPressed(): Boolean {
         try {
-            if (optionMode.value!!) {
-                turnOffOptionMode()
+            if (optionMode.value!! && !copyMode.value!! && !moveMode.value!! || menuMode.value!!) {
+                turnOffOptionPanel()
+                clearMultipleSelection()
                 return true
             } else {
-                val prevFile = File(File(path.value!!).parent!!)
-                if (prevFile.canRead()) {
-                    _path.value = prevFile.path
-                    return true
+                _fileSearchMode.value = false
+                path.value?.let { path ->
+                    File(path).parent?.let { parent ->
+                        val prevFile = File(parent)
+                        if (prevFile.canRead() && prevFile.path != "/") {
+                            _path.value = prevFile.path
+                            return true
+                        }
+                    }
                 }
             }
         } catch (err: Exception) {
             err.printStackTrace()
+            loge("onBackPressed $err")
         }
         return false
     }
 
-    fun setPath(path: String) {
+    fun setPath(path: String?) {
         _path.value = path
+        _fileSearchQuery.value = null
     }
 
-    fun getFileList(): List<FileModel> {
+    fun getFileList() {
         if (!path.value.isNullOrEmpty()) {
             try {
-                return directoryModel.getFileModelsFromFiles(path.value!!)
+                _loading.value = true
+                launch {
+                    path.value?.let { path ->
+                        val directory = directoryModel.getFileModelsFromFiles(path)
+                        _isEmptyDir.value = directory.isNullOrEmpty()
+                        _updateDirectoryList.value = directory
+                    }
+                    _loading.value = false
+                }
             } catch (err: IllegalStateException) {
                 _toastMessage.value = Event(R.string.unable_to_open_directory)
-                err.printStackTrace()
+                loge("getFileList $err")
             }
         }
-        return emptyList()
+    }
+
+    fun getSearchedFiles() {
+        _loading.value = true
+        fileSearchQuery.value?.let {
+            launch {
+                val fileList = directoryModel.getSearchedDeviceFiles(it)
+                _isEmptyDir.value = fileList.isNullOrEmpty()
+                _updateDirectoryList.value = fileList
+                _menuMode.value = false
+                _loading.value = false
+            }
+        }
     }
 
     fun compress() {
         _onCompress.value = Event(UIEventArgs.CompressDialogArgs)
     }
 
-    fun onFileCompressOkPressed(name: String) {
-        when {
-            directoryModel.compressFile(multipleSelection.value!!, name) -> {
-                _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
-                _toastMessage.value = Event(R.string.compressing_successful)
+    fun refreshFileList() {
+        launch {
+            fileSearchMode.value?.let { isFileSearchMode ->
+                if (isFileSearchMode) {
+                    fileSearchQuery.value?.let { fileSearchQuery ->
+                        if (isFileSearchMode)
+                            _updateDirectoryList.value = directoryModel.getSearchedDeviceFiles(fileSearchQuery)
+                    }
+                } else {
+                    path.value?.let { path ->
+                        _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path)
+                    }
+                }
             }
-            else -> _toastMessage.value = Event(R.string.error_while_compressing)
         }
-        turnOffOptionMode()
+    }
+
+    fun onFileCompressOkPressed(zipNameWithExtension: String) {
+        turnOffOptionPanel()
+        _toastMessage.value = Event(R.string.compressing)
+        logd("onFileCompressOkPressed")
+        launch {
+            try {
+                multipleSelection.value?.let { multipleSelection ->
+                    directoryModel.compressFiles(multipleSelection, zipNameWithExtension)
+                    refreshFileList()
+                    _toastMessage.value = Event(R.string.compressing_successful)
+                }
+            } catch (err: CancellationException) {
+                _toastMessage.value = Event(R.string.error_while_compressing)
+                loge("onFileCompressOkPressed $err")
+            } finally {
+                clearMultipleSelection()
+            }
+        }
     }
 
     fun extract() {
-        when {
-            directoryModel.extractFiles(multipleSelection.value!!) -> {
-                _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
-                _toastMessage.value = Event(R.string.extracting_successful)
+        turnOffOptionPanel()
+        multipleSelection.value?.let { multipleSelection ->
+            if (multipleSelection.first().extension == "zip") {
+                _toastMessage.value = Event(R.string.extracting)
+                logd("extract")
+                launch {
+                    try {
+                        directoryModel.extractFiles(multipleSelection)
+                        refreshFileList()
+                        _toastMessage.value = Event(R.string.extracting_successful)
+
+                    } catch (err: CancellationException) {
+                        _toastMessage.value = Event(R.string.error_while_extracting)
+                        loge("extract $err")
+                    } finally {
+                        clearMultipleSelection()
+                    }
+                }
+            } else {
+                _toastMessage.value = Event(R.string.invalid_extension)
+                clearMultipleSelection()
             }
-            else -> _toastMessage.value = Event(R.string.error_while_extracting)
         }
-        turnOffOptionMode()
     }
 
     fun showFileInformation() {
-        for (file in multipleSelection.value!!) {
-            _onInformation.value = Event(UIEventArgs.InformationDialogArgs(file))
+        multipleSelection.value?.let { multipleSelection ->
+            for (file in multipleSelection) {
+                _onInformation.value = Event(UIEventArgs.InformationDialogArgs(file))
+            }
         }
     }
 
     fun share() {
-        _onShare.value = Event(UIEventArgs.ShareActivityArgs(multipleSelection.value!!))
+        multipleSelection.value?.let { multipleSelection ->
+            _onShare.value = Event(UIEventArgs.ShareActivityArgs(multipleSelection))
+        }
     }
 
     fun showMoreOption() {
-        _moreOptionMode.value = !_moreOptionMode.value!!
+        _moreOptionMode.value?.let {
+            _moreOptionMode.value = !it
+        }
     }
 
     fun copy() {
-        Log.e("copy", "clicked")
         _copyMode.value = true
+        _moreOptionMode.value = false
         multiSelectionMode = false
     }
 
     fun move() {
-        Log.e("move", "clicked")
         _moveMode.value = true
+        _moreOptionMode.value = false
         multiSelectionMode = false
     }
 
     fun confirmAction() {
         when {
             copyMode.value!! -> {
-                when {
-                    directoryModel.copyFile(multipleSelection.value!!, path.value!!) -> {
-                        _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
-                        _toastMessage.value = Event(R.string.copy_successful)
+                _toastMessage.value = Event(R.string.copying)
+                logd("copy - copyMode")
+                launch {
+                    try {
+                        path.value?.let { path ->
+                            multipleSelection.value?.let { multipleSelection ->
+                                directoryModel.copyFile(multipleSelection, path)
+                                refreshFileList()
+                                _toastMessage.value = Event(R.string.copy_successful)
+                            }
+                        }
+                    } catch (err: CancellationException) {
+                        _toastMessage.value = Event(R.string.error_while_copying)
+                        loge("confirmAction-copyMode $err")
                     }
-                    directoryModel.copyFileWithSaf(multipleSelection.value!!, path.value!!) -> {
-                        _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
-                        _toastMessage.value = Event(R.string.copy_successful)
-                    }
-                    else -> _toastMessage.value = Event(R.string.error_while_copying)
                 }
             }
             moveMode.value!! -> {
-                when {
-                    directoryModel.moveFile(multipleSelection.value!!, path.value!!) -> {
-                        _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
-                        _toastMessage.value = Event(R.string.moving_successful)
+                turnOffOptionPanel()
+                _toastMessage.value = Event(R.string.moving)
+                logd("move - moveMode")
+                launch {
+                    try {
+                        multipleSelection.value?.let { multipleSelection ->
+                            path.value?.let { path ->
+                                directoryModel.moveFile(multipleSelection, path)
+                                refreshFileList()
+                                _toastMessage.value = Event(R.string.moving_successful)
+                            }
+                        }
+                    } catch (err: CancellationException) {
+                        _toastMessage.value = Event(R.string.error_while_moving)
+                        loge("confirmAction-moveMode $err")
+                    } finally {
+                        clearMultipleSelection()
                     }
-                    directoryModel.moveFileWithSaf(multipleSelection.value!!, path.value!!) -> {
-                        _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
-                        _toastMessage.value = Event(R.string.moving_successful)
-                    }
-                    else -> _toastMessage.value = Event(R.string.error_while_moving)
                 }
             }
         }
-        turnOffOptionMode()
     }
 
     fun onRenameOkPressed(fileName: String) {
-        when {
-            directoryModel.rename(multipleSelection.value!!, fileName) -> {
-                _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
-                _toastMessage.value = Event(R.string.renaming_successful)
+        turnOffOptionPanel()
+        _toastMessage.value = Event(R.string.renaming)
+        logd("onRenameOkPressed")
+        launch {
+            try {
+                multipleSelection.value?.let { multipleSelection ->
+                    directoryModel.rename(multipleSelection.last(), fileName)
+                    refreshFileList()
+                    _toastMessage.value = Event(R.string.renaming_successful)
+                }
+            } catch (err: CancellationException) {
+                _toastMessage.value = Event(R.string.error_while_renaming)
+                loge("onRenameOkPressed $err")
+            } finally {
+                clearMultipleSelection()
             }
-            directoryModel.renameWithSaf(multipleSelection.value!!, fileName) -> {
-                _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
-                _toastMessage.value = Event(R.string.renaming_successful)
-            }
-            else -> _toastMessage.value = Event(R.string.error_while_renaming)
         }
-        turnOffOptionMode()
     }
 
     fun rename() {
-        val file: FileModel? = if (multipleSelection.value!!.size == 1) multipleSelection.value!!.first()
-        else null
-        _onRename.value = Event(UIEventArgs.RenameDialogArgs(file?.name))
+        multipleSelection.value?.let { multipleSelection ->
+            _onRename.value = Event(UIEventArgs.RenameDialogArgs(multipleSelection.last().name))
+        }
     }
 
     fun delete() {
-        when {
-            directoryModel.delete(multipleSelection.value!!) -> {
-                _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
-                _toastMessage.value = Event(R.string.deleting_successful)
+        turnOffOptionPanel()
+        _toastMessage.value = Event(R.string.deleting)
+        logd("delete")
+        launch {
+            try {
+                multipleSelection.value?.let { multipleSelection ->
+                    directoryModel.delete(multipleSelection)
+                    refreshFileList()
+                    _toastMessage.value = Event(R.string.deleting_successful)
+                }
+            } catch (err: CancellationException) {
+                _toastMessage.value = Event(R.string.error_while_deleting)
+                loge("delete $err")
+            } finally {
+                clearMultipleSelection()
             }
-            directoryModel.deleteWithSaf(multipleSelection.value!!) -> {
-                _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
-                _toastMessage.value = Event(R.string.deleting_successful)
-            }
-            else -> _toastMessage.value = Event(R.string.error_while_deleting)
         }
-        turnOffOptionMode()
     }
 
     fun onCreate() {
-        _createMode.value = !createMode.value!!
+        menuMode.value?.let {
+            _menuMode.value = !it
+        }
     }
 
     fun createFolder() {
@@ -269,32 +421,63 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
 
     fun onFolderCreateOkPressed(folderName: String) {
-        when {
-            directoryModel.createFolder(path.value!!, folderName) -> {
-                _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
-                _toastMessage.value = Event(R.string.folder_creation_successful)
+        turnOffOptionPanel()
+        _toastMessage.value = Event(R.string.creating)
+        logd("onFolderCreateOkPressed")
+        launch {
+            try {
+                path.value?.let { path ->
+                    directoryModel.createFolder(path, folderName)
+                    refreshFileList()
+                    _toastMessage.value = Event(R.string.folder_creation_successful)
+                }
+            } catch (err: CancellationException) {
+                _toastMessage.value = Event(R.string.error_when_creating_folder)
+                loge("onFolderCreateOkPressed $err")
+            } finally {
+                clearMultipleSelection()
             }
-            directoryModel.createFolderWithSaf(path.value!!, folderName) -> {
-                _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
-                _toastMessage.value = Event(R.string.folder_creation_successful)
-            }
-            else -> _toastMessage.value = Event(R.string.error_when_creating_folder)
         }
-        turnOffOptionMode()
     }
 
     fun onFileCreateOkPressed(fileName: String) {
-        when {
-            directoryModel.createFile(path.value!!, fileName) -> {
-                _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
-                _toastMessage.value = Event(R.string.file_creation_successful)
+        turnOffOptionPanel()
+        _toastMessage.value = Event(R.string.creating)
+        logd("onFileCreateOkPressed")
+        launch {
+            try {
+                path.value?.let { path ->
+                    directoryModel.createFile(path, fileName)
+                    refreshFileList()
+                    _toastMessage.value = Event(R.string.file_creation_successful)
+                }
+            } catch (err: CancellationException) {
+                _toastMessage.value = Event(R.string.error_when_creating_file)
+                loge("onFileCreateOkPressed $err")
+            } finally {
+                clearMultipleSelection()
             }
-            directoryModel.createFileWithSaf(path.value!!, fileName) -> {
-                _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path.value!!)
-                _toastMessage.value = Event(R.string.file_creation_successful)
-            }
-            else -> _toastMessage.value = Event(R.string.error_when_creating_file)
         }
-        turnOffOptionMode()
     }
+
+    fun onFileSearchOkPressed(searchQuery: String) {
+        _fileSearchMode.value = true
+        _fileSearchQuery.value = searchQuery
+    }
+
+    fun deviceWideSearch() {
+        _onFileSearch.value = Event(UIEventArgs.FileSearchDialogArgs)
+    }
+
+    fun shortcutButton() {
+        logd("shortcutButton")
+        multipleSelection.value?.let {
+            val file = it.last()
+            _onAddShortcut.value = Event(UIEventArgs.ShortcutDialogArgs(file.path))
+        }
+    }
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + job
+    private val job = Job()
 }
