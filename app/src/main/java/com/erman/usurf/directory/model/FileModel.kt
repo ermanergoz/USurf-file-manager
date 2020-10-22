@@ -1,6 +1,6 @@
 package com.erman.usurf.directory.model
 
-data class FileModel(
+data class  FileModel(
     var path: String = "",
     var name: String = "",
     var nameWithoutExtension: String = "",
@@ -11,5 +11,6 @@ data class FileModel(
     var subFileCount: String = "",
     var permission: String = "",
     var isHidden: Boolean = false,
+    var isInRoot: Boolean = false,
     var isSelected: Boolean = false
 )

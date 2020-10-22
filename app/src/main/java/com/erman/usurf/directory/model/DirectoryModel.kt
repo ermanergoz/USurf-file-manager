@@ -25,24 +25,59 @@ class DirectoryModel {
 
     suspend fun getFileModelsFromFiles(path: String): List<FileModel> = withContext(Dispatchers.IO) {
         val showHidden = preferenceProvider.getShowHiddenPreference()
-        var fileList = File(path).listFiles().filter { !it.isHidden || showHidden }.sortedWith(compareBy({ !it.isDirectory }, { it.name })).toList()
 
-        when (preferenceProvider.getFileSortPreference()) {
-            "Sort by name" -> fileList = fileList.sortedWith(compareBy({ !it.isDirectory }, { it.name })).toList()
-            "Sort by size" -> fileList = fileList.sortedWith(compareBy({ !it.isDirectory }, { it.length() }, { getFolderSize(it) })).toList()
-            "Sort by last modified" -> fileList = fileList.sortedWith(compareBy({ !it.isDirectory }, { it.lastModified() })).toList()
-        }
+        File(path).listFiles()?.let { fileList ->
+            var filteredFileList =
+                fileList.filter { !it.isHidden || showHidden }.sortedWith(compareBy({ !it.isDirectory }, { it.name })).toList()
 
-        if (preferenceProvider.getDescendingOrderPreference())
-            fileList = fileList.sortedWith(compareBy { it.isDirectory }).reversed()
+            when (preferenceProvider.getFileSortPreference()) {
+                "Sort by name" -> filteredFileList = filteredFileList.sortedWith(compareBy({ !it.isDirectory }, { it.name })).toList()
+                "Sort by size" -> filteredFileList =
+                    filteredFileList.sortedWith(compareBy({ !it.isDirectory }, { it.length() }, { getFolderSize(it) })).toList()
+                "Sort by last modified" -> filteredFileList =
+                    filteredFileList.sortedWith(compareBy({ !it.isDirectory }, { it.lastModified() })).toList()
+            }
 
-        return@withContext fileList.map {
-            FileModel(it.path, it.name, it.nameWithoutExtension, getConvertedFileSize(it), it.isDirectory,
-                dateFormat.format(it.lastModified()), it.extension,
-                (it.listFiles()?.size.toString() + " files"), getPermissions(it), it.isHidden)
+            if (preferenceProvider.getDescendingOrderPreference())
+                filteredFileList = filteredFileList.sortedWith(compareBy { it.isDirectory }).reversed()
+
+            return@withContext filteredFileList.map {
+                FileModel(it.path, it.name, it.nameWithoutExtension, getConvertedFileSize(it), it.isDirectory,
+                    dateFormat.format(it.lastModified()), it.extension,
+                    (it.listFiles()?.size.toString() + " files"), getPermissions(it), it.isHidden, false)
+            }
+        } ?: let {
+            val rootHandler = RootHandler()
+            if (rootHandler.isRootAccessGiven()) {
+                rootHandler.getFileList(path).filter { it.first() != '.' || showHidden }.map {
+                    FileModel("$path/$it", it, it, "", it.last() == '/', "", "", "", "", it.first() == '.', true)
+                }
+            } else
+                emptyList()
         }
     }
 
+    //"mount -o rw,remount /","cd /data", "mkdir deneme", "ls"
+/*
+    fun getRootFilesList(path: String) {
+        var list: MutableList<String>? = Shell.SU.run("ls $path")
+
+        for (i in list!!) {
+            Log.e("root", i)
+        }
+
+        Shell.Pool.SU.run("mount -o rw,remount /")
+        Shell.Pool.SU.run("mkdir deneme")
+
+        Log.e("changed", "===================================")
+
+        list = Shell.SU.run("ls $path")
+
+        for (i in list!!) {
+            Log.e("root", i)
+        }
+    }
+*/
     private fun getPermissions(file: File): String {
         return when {
             file.canRead() && file.canWrite() -> "-RW"
@@ -75,16 +110,18 @@ class DirectoryModel {
     }
 
     private fun getFolderSize(file: File): Double {
-        if (file.exists() && file.listFiles() != null) {
-            var size = 0.0
-            val fileList = file.listFiles().toList()
+        if (file.exists() && file.parent != "/") {
+            file.listFiles()?.let {
+                var size = 0.0
+                val fileList = it.toList()
 
-            for (i in fileList.indices) {
-                if (fileList[i].isDirectory)
-                    size += getFolderSize(fileList[i])
-                else size += fileList[i].length()
+                for (i in fileList.indices) {
+                    if (fileList[i].isDirectory)
+                        size += getFolderSize(fileList[i])
+                    else size += fileList[i].length()
+                }
+                return size
             }
-            return size
         }
         return 0.0
     }
@@ -156,34 +193,44 @@ class DirectoryModel {
 
     suspend fun rename(selectedDirectory: FileModel, newFileName: String) = withContext(Dispatchers.IO) {
         val dirName = File(selectedDirectory.path).parent
-        logi("Attempt to rename " + selectedDirectory.path + " to " + newFileName)
-        if (selectedDirectory.name == newFileName)
-            cancel()
 
-        val prev = File(dirName, selectedDirectory.name)
-        val new = File(dirName, newFileName)
-        if (!prev.renameTo(new)) {
-            val documentFile = getDocumentFile(File(selectedDirectory.path), selectedDirectory.isDirectory)
-            documentFile?.renameTo(newFileName)
+        if (File(dirName).listFiles() == null) {
+            if (!RootHandler().renameFile(selectedDirectory, newFileName))
+                cancel()
+        } else {
+            logi("Attempt to rename " + selectedDirectory.path + " to " + newFileName)
+            if (selectedDirectory.name == newFileName)
+                cancel()
+
+            val prev = File(dirName, selectedDirectory.name)
+            val new = File(dirName, newFileName)
+            if (!prev.renameTo(new)) {
+                val documentFile = getDocumentFile(File(selectedDirectory.path), selectedDirectory.isDirectory)
+                documentFile?.renameTo(newFileName)
+            }
+            if (!File("$dirName/$newFileName").exists())
+                cancel()
         }
-
-        if (!File("$dirName/$newFileName").exists())
-            cancel()
     }
 
     suspend fun delete(selectedDirectories: List<FileModel>) = withContext(Dispatchers.IO) {
-        for (i in selectedDirectories.indices) {
-            logi("Attempt to delete " + selectedDirectories[i].path)
-            val isSuccess = if (selectedDirectories[i].isDirectory) {
-                File(selectedDirectories[i].path).deleteRecursively()
-            } else {
-                File(selectedDirectories[i].path).delete()
-            }
-            if (!isSuccess) {
-                val documentFileToDelete = getDocumentFile(File(selectedDirectories[i].path), selectedDirectories[i].isDirectory)
+        if (selectedDirectories.first().isInRoot) {
+            if (!RootHandler().delete(selectedDirectories))
+                cancel()
+        } else {
+            for (i in selectedDirectories.indices) {
+                logi("Attempt to delete " + selectedDirectories[i].path)
+                val isSuccess = if (selectedDirectories[i].isDirectory) {
+                    File(selectedDirectories[i].path).deleteRecursively()
+                } else {
+                    File(selectedDirectories[i].path).delete()
+                }
+                if (!isSuccess) {
+                    val documentFileToDelete = getDocumentFile(File(selectedDirectories[i].path), selectedDirectories[i].isDirectory)
 
-                if (documentFileToDelete != null && !deleteFolderRecursively(documentFileToDelete))
-                    cancel()
+                    if (documentFileToDelete != null && !deleteFolderRecursively(documentFileToDelete))
+                        cancel()
+                }
             }
         }
     }
@@ -201,32 +248,44 @@ class DirectoryModel {
     suspend fun createFolder(path: String, folderName: String) = withContext(Dispatchers.IO) {
         logi("Attempt to create folder: $path $folderName")
 
-        if (!File("$path/$folderName").exists()) {
-            if (!File("$path/$folderName").mkdir()) {
-                //try catch wont work here. Doesn't throw IOException
-                getDocumentFile(File(path), File(path).isDirectory)?.createDirectory(folderName)
-                if (!File("$path/$folderName").exists())
-                    cancel()
-            }
-        } else
-            cancel()
+        if (File(path).listFiles() == null) {
+            if (!RootHandler().createFolder(path, folderName))
+                cancel()
+        } else {
+            if (!File("$path/$folderName").exists()) {
+                if (!File("$path/$folderName").mkdir()) {
+                    //try catch wont work here. Doesn't throw IOException
+                    getDocumentFile(File(path), File(path).isDirectory)?.createDirectory(folderName)
+                    if (!File("$path/$folderName").exists())
+                        cancel()
+                }
+            } else
+                cancel()
+        }
     }
 
     suspend fun createFile(path: String, fileName: String) = withContext(Dispatchers.IO) {
         logi("Attempt to create file: $path $fileName")
-        if (!File("$path/$fileName").exists()) {
-            try {   //if wont work here. Throws IOException
-                File("$path/$fileName").createNewFile()
-            } catch (err: Exception) {
-                err.printStackTrace()
-                getDocumentFile(File(path), File(path).isDirectory)?.createFile("*/*", fileName)
-            }
-        } else
-            cancel()
 
-        if (!File("$path/$fileName").exists())
-            cancel()
+        if (File(path).listFiles() == null) {
+            if (!RootHandler().createFile(path, fileName))
+                cancel()
+        } else {
+            if (!File("$path/$fileName").exists()) {
+                try {   //if wont work here. Throws IOException
+                    File("$path/$fileName").createNewFile()
+                } catch (err: Exception) {
+                    err.printStackTrace()
+                    getDocumentFile(File(path), File(path).isDirectory)?.createFile("*/*", fileName)
+                }
+            } else
+                cancel()
+
+            if (!File("$path/$fileName").exists())
+                cancel()
+        }
     }
+
 
     private fun doesFileExist(fileModel: FileModel, copyOrMoveDestination: String): Boolean {
         for (file in File(copyOrMoveDestination).listFiles()) {
