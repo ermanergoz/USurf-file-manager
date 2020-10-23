@@ -10,13 +10,6 @@ class RootHandler {
         return parent.removeSuffix("/" + fileModel.name)
     }
 
-    private fun replaceWhiteSpace(name: String): String {
-        //Quotes around the path are not added by the library. So, if the file contains whitespace,
-        //multiple folders will be created with each sentence. Line below exists to avoid that.
-        //This solution has no side effect since there are no names with whitespace in root anyways.
-        return name.replace("\\s".toRegex(), "_")
-    }
-
     private fun waitForFinish(command: Command) {
         while (!command.isFinished) {
             //A workaround to wait for the command to finish since waitForFinish()
@@ -54,7 +47,7 @@ class RootHandler {
         val fileList: MutableList<String> = mutableListOf()
         //-p adds the trailing slash on directories to distinguish folders from files
         //-a is to display hidden files
-        val command: Command = object : Command(0, "cd $path", "ls -p -a") {
+        val command: Command = object : Command(0, "cd '$path'", "ls -p -a") {
             override fun commandOutput(id: Int, line: String) {
                 super.commandOutput(id, line)
                 fileList.add(line)
@@ -75,7 +68,7 @@ class RootHandler {
         var isSuccess = false
 
         for (source in selectedDirectories) {
-            val command: Command = object : Command(0, "rm -r ${source.path}") {
+            val command: Command = object : Command(0, "rm -r '${source.path}'") {
                 override fun commandCompleted(id: Int, exitcode: Int) {
                     super.commandCompleted(id, exitcode)
                     isSuccess = true
@@ -106,12 +99,11 @@ class RootHandler {
         return false
     }
 
-    fun createFolder(path: String, name: String): Boolean {
+    fun createFolder(path: String, folderName: String): Boolean {
         var isSuccess = false
 
-        val folderName = replaceWhiteSpace(name)
         if (!doesFileExist(path, folderName, true)) {
-            val command: Command = object : Command(0, "cd $path", "mkdir $folderName") {
+            val command: Command = object : Command(0, "cd '$path'", "mkdir '$folderName'") {
                 override fun commandCompleted(id: Int, exitcode: Int) {
                     super.commandCompleted(id, exitcode)
                     isSuccess = true
@@ -129,12 +121,11 @@ class RootHandler {
         return isSuccess
     }
 
-    fun createFile(path: String, name: String): Boolean {
+    fun createFile(path: String, fileName: String): Boolean {
         var isSuccess = false
-        val fileName = replaceWhiteSpace(name)
 
         if (!doesFileExist(path, fileName, false)) {
-            val command: Command = object : Command(0, "cd $path", "> $fileName") {
+            val command: Command = object : Command(0, "cd '$path'", "> '$fileName'") {
                 override fun commandCompleted(id: Int, exitcode: Int) {
                     super.commandCompleted(id, exitcode)
                     isSuccess = true
@@ -154,12 +145,11 @@ class RootHandler {
 
     fun renameFile(selectedFile: FileModel, newName: String): Boolean {
         var isSuccess = false
-        val newFileName = replaceWhiteSpace(newName)
         val parentDir = getParentPath(selectedFile)
 
-        if (!doesFileExist(parentDir, newFileName, true)) {
+        if (!doesFileExist(parentDir, newName, true)) {
             val command: Command =
-                object : Command(0, "cd $parentDir", "mv ${selectedFile.path} ${"$parentDir/$newFileName"}") {
+                object : Command(0, "cd $parentDir", "mv '${selectedFile.path}' '${"$parentDir/$newName"}'") {
                     override fun commandCompleted(id: Int, exitcode: Int) {
                         super.commandCompleted(id, exitcode)
                         isSuccess = true
@@ -171,6 +161,50 @@ class RootHandler {
                         loge("renameFile commandTerminated $reason")
                     }
                 }
+            RootTools.getShell(true).add(command)
+            waitForFinish(command)
+        }
+        return isSuccess
+    }
+
+    fun copyFile(selectedDirectories: List<FileModel>): Boolean {
+        var isSuccess = false
+
+        for (source in selectedDirectories) {
+            val command: Command = object : Command(0, "cp -r '${source.path}'") {
+                override fun commandCompleted(id: Int, exitcode: Int) {
+                    super.commandCompleted(id, exitcode)
+                    isSuccess = true
+                }
+
+                override fun commandTerminated(id: Int, reason: String) {
+                    super.commandTerminated(id, reason)
+                    isSuccess = false
+                    loge("copyFile commandTerminated $reason")
+                }
+            }
+            RootTools.getShell(true).add(command)
+            waitForFinish(command)
+        }
+        return isSuccess
+    }
+
+    fun moveFile(selectedDirectories: List<FileModel>, copyOrMoveDestination: String): Boolean {
+        var isSuccess = false
+
+        for (source in selectedDirectories) {
+            val command: Command = object : Command(0, "mv '${source.path}' '$copyOrMoveDestination'") {
+                override fun commandCompleted(id: Int, exitcode: Int) {
+                    super.commandCompleted(id, exitcode)
+                    isSuccess = true
+                }
+
+                override fun commandTerminated(id: Int, reason: String) {
+                    super.commandTerminated(id, reason)
+                    isSuccess = false
+                    loge("copyFile commandTerminated $reason")
+                }
+            }
             RootTools.getShell(true).add(command)
             waitForFinish(command)
         }
