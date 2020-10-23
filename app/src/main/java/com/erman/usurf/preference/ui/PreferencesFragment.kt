@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.preference.*
 import com.erman.usurf.app.MainApplication
 import com.erman.usurf.R
+import com.erman.usurf.directory.model.RootHandler
 import com.erman.usurf.preference.data.PreferenceProvider
 import com.erman.usurf.preference.utils.*
 import com.erman.usurf.utils.RefreshNavDrawer
@@ -20,10 +21,16 @@ class MainPreferencesFragment : PreferenceFragmentCompat() {
         setPreferencesFromResource(R.xml.preferences_main, rootKey)
         preferenceProvider = PreferenceProvider()
 
-        findPreference<SwitchPreference>("root_access")?.setOnPreferenceChangeListener { _, newValue ->
-            preferenceProvider.editRootAccessPreference(newValue as Boolean)
-            navDrawerRefreshListener.refreshStorageButtons()
-            true
+        val rootAccessPreference = findPreference<SwitchPreference>("root_access")
+        rootAccessPreference?.setOnPreferenceChangeListener { _, newValue ->
+            if(RootHandler().isDeviceRooted()) {
+                preferenceProvider.editRootAccessPreference(newValue as Boolean)
+                navDrawerRefreshListener.refreshStorageButtons()
+                true
+            } else {
+                Toast.makeText(context, getString(R.string.su_not_found), Toast.LENGTH_LONG).show()
+                false
+            }
         }
 
         findPreference<Preference>("clear_logs")?.setOnPreferenceClickListener {

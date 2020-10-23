@@ -492,38 +492,35 @@ class DirectoryModel {
         }
     }
 
-    suspend fun extractFiles(selectedDirectories: List<FileModel>) = withContext(Dispatchers.IO) {
+    suspend fun extractFiles(selectedDirectory: FileModel) = withContext(Dispatchers.IO) {
         val buffer = 6144
         val data = ByteArray(buffer)
-        var inputStream: InputStream?
 
         try {
-            for (i in selectedDirectories.indices) {
-                val baseFolderPath =
-                    File(selectedDirectories[0].path).parent + File.separator + File(selectedDirectories[0].path).nameWithoutExtension
-                createFolder(File(baseFolderPath).parent, File(baseFolderPath).nameWithoutExtension)
+            val baseFolderPath =
+                File(selectedDirectory.path).parent + File.separator + File(selectedDirectory.path).nameWithoutExtension
+            createFolder(File(baseFolderPath).parent, File(baseFolderPath).nameWithoutExtension)
 
-                inputStream = getInputStream(File(selectedDirectories[i].path))
-                val zipInput = ZipInputStream(BufferedInputStream(inputStream))
-                var zipContent: ZipEntry?
+            val inputStream = getInputStream(File(selectedDirectory.path))
+            val zipInput = ZipInputStream(BufferedInputStream(inputStream))
+            var zipContent: ZipEntry?
 
-                while (zipInput.nextEntry.also { zipContent = it } != null) {
-                    if (zipContent!!.name.contains(File.separator)) {    //if it contains directory
-                        //zipContent!!.name -> "someSubFolder/zipContentName.extension"
-                        createSubDirectories(zipContent!!.name, baseFolderPath) //create all the subdirectories
-                    }
-                    val fileOutput = getOutputStream(File(baseFolderPath + File.separator + zipContent!!.name))
-
-                    var counter: Int = zipInput.read(data, 0, buffer)
-                    while (counter != -1) {
-                        fileOutput?.write(data, 0, counter)
-                        counter = zipInput.read(data, 0, buffer)
-                    }
-                    zipInput.closeEntry()
-                    fileOutput?.close()
+            while (zipInput.nextEntry.also { zipContent = it } != null) {
+                if (zipContent!!.name.contains(File.separator)) {    //if it contains directory
+                    //zipContent!!.name -> "someSubFolder/zipContentName.extension"
+                    createSubDirectories(zipContent!!.name, baseFolderPath) //create all the subdirectories
                 }
-                zipInput.close()
+                val fileOutput = getOutputStream(File(baseFolderPath + File.separator + zipContent!!.name))
+
+                var counter: Int = zipInput.read(data, 0, buffer)
+                while (counter != -1) {
+                    fileOutput?.write(data, 0, counter)
+                    counter = zipInput.read(data, 0, buffer)
+                }
+                zipInput.closeEntry()
+                fileOutput?.close()
             }
+            zipInput.close()
         } catch (err: Exception) {
             loge("extractFiles $err")
             cancel()
