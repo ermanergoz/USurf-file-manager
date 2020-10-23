@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.erman.usurf.R
 import com.erman.usurf.dialog.model.UIEventArgs
 import com.erman.usurf.directory.model.*
+import com.erman.usurf.preference.data.PreferenceProvider
 import com.erman.usurf.utils.Event
 import com.erman.usurf.utils.logd
 import com.erman.usurf.utils.loge
@@ -106,6 +107,11 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
     val isEmptyDir: LiveData<Boolean> = _isEmptyDir
 
+    private val _isRootMode = MutableLiveData<Boolean>().apply {
+        value = false
+    }
+    val isRootMode: LiveData<Boolean> = _isRootMode
+
     fun onFileClick(file: FileModel) {
         if (multiSelectionMode) {
             _isSingleOperationMode.value = false
@@ -123,12 +129,14 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
             if (file.isDirectory) _path.value = file.path
             else _openFile.value = Event(UIEventArgs.OpenFileActivityArgs(file.path))
         }
+        _isRootMode.value = file.isInRoot
     }
 
     fun onFileLongClick(file: FileModel): Boolean {
         multipleSelection.value?.let { multipleSelection ->
             _multipleSelection.value = directoryModel.manageMultipleSelectionList(file, multipleSelection)
         }
+        _isRootMode.value = file.isInRoot
         _isSingleOperationMode.value = true
         _optionMode.value = true
         multiSelectionMode = true
@@ -166,7 +174,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                 path.value?.let { path ->
                     File(path).parent?.let { parent ->
                         val prevFile = File(parent)
-                        if (prevFile.canRead() && prevFile.path != "/") {
+                        if ((prevFile.canRead() && prevFile.path != "/") || PreferenceProvider().getRootAccessPreference()) {
                             _path.value = prevFile.path
                             return true
                         }
@@ -183,6 +191,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     fun setPath(path: String?) {
         _path.value = path
         _fileSearchQuery.value = null
+        _isRootMode.value = path == "/"
     }
 
     fun getFileList() {
