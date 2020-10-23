@@ -191,7 +191,6 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     fun setPath(path: String?) {
         _path.value = path
         _fileSearchQuery.value = null
-        _isRootMode.value = path == "/"
     }
 
     fun getFileList() {
@@ -230,13 +229,12 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
         _onCompress.value = Event(UIEventArgs.CompressDialogArgs)
     }
 
-    fun refreshFileList() {
+    private fun refreshFileList() {
         launch {
             fileSearchMode.value?.let { isFileSearchMode ->
                 if (isFileSearchMode) {
                     fileSearchQuery.value?.let { fileSearchQuery ->
-                        if (isFileSearchMode)
-                            _updateDirectoryList.value = directoryModel.getSearchedDeviceFiles(fileSearchQuery)
+                        _updateDirectoryList.value = directoryModel.getSearchedDeviceFiles(fileSearchQuery)
                     }
                 } else {
                     path.value?.let { path ->
@@ -275,7 +273,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                 logd("extract")
                 launch {
                     try {
-                        directoryModel.extractFiles(multipleSelection)
+                        directoryModel.extractFiles(multipleSelection.first())
                         refreshFileList()
                         _toastMessage.value = Event(R.string.extracting_successful)
 
