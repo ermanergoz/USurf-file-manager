@@ -22,6 +22,7 @@ class DirectoryModel {
     @SuppressLint("SimpleDateFormat")
     private val dateFormat = SimpleDateFormat(SIMPLE_DATE_FORMAT_PATTERN)
     private val preferenceProvider = PreferenceProvider()
+    private val rootHandler = RootHandler()
 
     suspend fun getFileModelsFromFiles(path: String): List<FileModel> = withContext(Dispatchers.IO) {
         val showHidden = preferenceProvider.getShowHiddenPreference()
@@ -48,7 +49,7 @@ class DirectoryModel {
             }
         } ?: let {
             val rootHandler = RootHandler()
-            if (rootHandler.isRootAccessGiven()) {
+            if (preferenceProvider.getRootAccessPreference() && rootHandler.isRootAccessGiven()) {
                 rootHandler.getFileList(path).filter { it.first() != '.' || showHidden }.map {
                     FileModel("$path/$it", it, it, "", it.last() == '/', "", "", "", "", it.first() == '.', true)
                 }
@@ -57,27 +58,6 @@ class DirectoryModel {
         }
     }
 
-    //"mount -o rw,remount /","cd /data", "mkdir deneme", "ls"
-/*
-    fun getRootFilesList(path: String) {
-        var list: MutableList<String>? = Shell.SU.run("ls $path")
-
-        for (i in list!!) {
-            Log.e("root", i)
-        }
-
-        Shell.Pool.SU.run("mount -o rw,remount /")
-        Shell.Pool.SU.run("mkdir deneme")
-
-        Log.e("changed", "===================================")
-
-        list = Shell.SU.run("ls $path")
-
-        for (i in list!!) {
-            Log.e("root", i)
-        }
-    }
-*/
     private fun getPermissions(file: File): String {
         return when {
             file.canRead() && file.canWrite() -> "-RW"
@@ -193,42 +173,52 @@ class DirectoryModel {
 
     suspend fun rename(selectedDirectory: FileModel, newFileName: String) = withContext(Dispatchers.IO) {
         val dirName = File(selectedDirectory.path).parent
+        logi("Attempt to rename " + selectedDirectory.path + " to " + newFileName)
+        if (selectedDirectory.name == newFileName)
+            cancel()
 
-        if (File(dirName).listFiles() == null) {
-            if (!RootHandler().renameFile(selectedDirectory, newFileName))
-                cancel()
-        } else {
-            logi("Attempt to rename " + selectedDirectory.path + " to " + newFileName)
-            if (selectedDirectory.name == newFileName)
-                cancel()
-
-            val prev = File(dirName, selectedDirectory.name)
-            val new = File(dirName, newFileName)
-            if (!prev.renameTo(new)) {
-                val documentFile = getDocumentFile(File(selectedDirectory.path), selectedDirectory.isDirectory)
-                documentFile?.renameTo(newFileName)
-            }
-            if (!File("$dirName/$newFileName").exists())
+        //normal way
+        val prev = File(dirName, selectedDirectory.name)
+        val new = File(dirName, newFileName)
+        if (!prev.renameTo(new)) {
+            val documentFile = getDocumentFile(File(selectedDirectory.path), selectedDirectory.isDirectory)
+            documentFile?.renameTo(newFileName)
+        }
+        if (!File("$dirName/$newFileName").exists()) {
+            //if the normal way doesn't work, try with SAF
+            if (preferenceProvider.getRootAccessPreference() && rootHandler.isRootAccessGiven()) {
+                //if nothing works, try with root access
+                rootHandler.remountRootDirAs("rw")
+                val isSuccess = rootHandler.renameFile(selectedDirectory, newFileName)
+                rootHandler.remountRootDirAs("ro")
+                if (!isSuccess)
+                    cancel()
+            } else
                 cancel()
         }
     }
 
     suspend fun delete(selectedDirectories: List<FileModel>) = withContext(Dispatchers.IO) {
-        if (selectedDirectories.first().isInRoot) {
-            if (!RootHandler().delete(selectedDirectories))
-                cancel()
-        } else {
-            for (i in selectedDirectories.indices) {
-                logi("Attempt to delete " + selectedDirectories[i].path)
-                val isSuccess = if (selectedDirectories[i].isDirectory) {
-                    File(selectedDirectories[i].path).deleteRecursively()
-                } else {
-                    File(selectedDirectories[i].path).delete()
-                }
-                if (!isSuccess) {
-                    val documentFileToDelete = getDocumentFile(File(selectedDirectories[i].path), selectedDirectories[i].isDirectory)
-
-                    if (documentFileToDelete != null && !deleteFolderRecursively(documentFileToDelete))
+        for (i in selectedDirectories.indices) {
+            logi("Attempt to delete " + selectedDirectories[i].path)
+            //normal way
+            var isSuccess = if (selectedDirectories[i].isDirectory) {
+                File(selectedDirectories[i].path).deleteRecursively()
+            } else {
+                File(selectedDirectories[i].path).delete()
+            }
+            if (!isSuccess) {
+                val documentFileToDelete = getDocumentFile(File(selectedDirectories[i].path), selectedDirectories[i].isDirectory)
+                //if the normal way doesn't work, try with SAF
+                if (documentFileToDelete != null && !deleteFolderRecursively(documentFileToDelete)) {
+                    if (preferenceProvider.getRootAccessPreference() && rootHandler.isRootAccessGiven()) {
+                        //if nothing works, try with root access
+                        rootHandler.remountRootDirAs("rw")
+                        isSuccess = rootHandler.delete(selectedDirectories)
+                        rootHandler.remountRootDirAs("ro")
+                        if (!isSuccess)
+                            cancel()
+                    } else
                         cancel()
                 }
             }
@@ -248,40 +238,52 @@ class DirectoryModel {
     suspend fun createFolder(path: String, folderName: String) = withContext(Dispatchers.IO) {
         logi("Attempt to create folder: $path $folderName")
 
-        if (File(path).listFiles() == null) {
-            if (!RootHandler().createFolder(path, folderName))
-                cancel()
-        } else {
-            if (!File("$path/$folderName").exists()) {
-                if (!File("$path/$folderName").mkdir()) {
-                    //try catch wont work here. Doesn't throw IOException
-                    getDocumentFile(File(path), File(path).isDirectory)?.createDirectory(folderName)
-                    if (!File("$path/$folderName").exists())
+        if (!File("$path/$folderName").exists()) {
+            //normal way
+            //try catch wont work here. Doesn't throw IOException
+            if (!File("$path/$folderName").mkdir()) {
+                //if the normal way doesn't work, try with SAF
+                getDocumentFile(File(path), File(path).isDirectory)?.createDirectory(folderName)
+                if (!File("$path/$folderName").exists()) {
+                    if (preferenceProvider.getRootAccessPreference() && rootHandler.isRootAccessGiven()) {
+                        //if nothing works, try with root access
+                        rootHandler.remountRootDirAs("rw")
+                        val isSuccess = rootHandler.createFolder(path, folderName)
+                        rootHandler.remountRootDirAs("ro")
+                        if (!isSuccess)
+                            cancel()
+                    } else
                         cancel()
                 }
-            } else
-                cancel()
-        }
+            }
+        } else
+            cancel()
     }
 
     suspend fun createFile(path: String, fileName: String) = withContext(Dispatchers.IO) {
         logi("Attempt to create file: $path $fileName")
 
-        if (File(path).listFiles() == null) {
-            if (!RootHandler().createFile(path, fileName))
-                cancel()
-        } else {
-            if (!File("$path/$fileName").exists()) {
-                try {   //if wont work here. Throws IOException
-                    File("$path/$fileName").createNewFile()
-                } catch (err: Exception) {
-                    err.printStackTrace()
-                    getDocumentFile(File(path), File(path).isDirectory)?.createFile("*/*", fileName)
-                }
-            } else
-                cancel()
+        if (!File("$path/$fileName").exists()) {
+            try {//if wont work here. Throws IOException
+                //normal way
+                File("$path/$fileName").createNewFile()
+            } catch (err: Exception) {
+                err.printStackTrace()
+                //if the normal way doesn't work, try with SAF
+                getDocumentFile(File(path), File(path).isDirectory)?.createFile("*/*", fileName)
+            }
+        } else
+            cancel()
 
-            if (!File("$path/$fileName").exists())
+        if (!File("$path/$fileName").exists()) {
+            if (preferenceProvider.getRootAccessPreference() && rootHandler.isRootAccessGiven()) {
+                //if nothing works, try with root access
+                rootHandler.remountRootDirAs("rw")
+                val isSuccess = rootHandler.createFile(path, fileName)
+                rootHandler.remountRootDirAs("ro")
+                if (!isSuccess)
+                    cancel()
+            } else
                 cancel()
         }
     }
@@ -298,24 +300,42 @@ class DirectoryModel {
     suspend fun copyFile(copyOrMoveSources: List<FileModel>, copyOrMoveDestination: String) = withContext(Dispatchers.IO) {
         for (i in copyOrMoveSources.indices) {
             logi("Attempt to copy: from " + copyOrMoveSources[i].path + " to " + copyOrMoveDestination)
-            if (!doesFileExist(copyOrMoveSources[i], copyOrMoveDestination)) {
-                if (copyOrMoveSources[i].isDirectory) {
-                    try {
-                        File(copyOrMoveSources[i].path).copyRecursively(File(copyOrMoveDestination + File.separator + copyOrMoveSources[i].name))
-                    } catch (err: Exception) {
-                        if (!copyToExtCard(File(copyOrMoveSources[i].path), copyOrMoveDestination))
-                            cancel()
-                    }
-                } else {
-                    try {
-                        File(copyOrMoveSources[i].path).copyTo(File(copyOrMoveDestination + File.separator + copyOrMoveSources[i].name))
-                    } catch (err: IOException) {
-                        if (!copyToExtCard(File(copyOrMoveSources[i].path), copyOrMoveDestination))
+            //if (!doesFileExist(copyOrMoveSources[i], copyOrMoveDestination)) {
+            if (copyOrMoveSources[i].isDirectory) {
+                try {
+                    File(copyOrMoveSources[i].path).copyRecursively(File(copyOrMoveDestination + File.separator + copyOrMoveSources[i].name))
+                } catch (err: Exception) {
+                    if (!copyToExtCard(File(copyOrMoveSources[i].path), copyOrMoveDestination)) {
+                        if (preferenceProvider.getRootAccessPreference() && rootHandler.isRootAccessGiven()) {
+                            //if nothing works, try with root access
+                            rootHandler.remountRootDirAs("rw")
+                            val isSuccess = rootHandler.copyFile(copyOrMoveSources)
+                            rootHandler.remountRootDirAs("ro")
+                            if (!isSuccess)
+                                cancel()
+                        } else
                             cancel()
                     }
                 }
-            } else
-                cancel()
+            } else {
+                try {
+                    File(copyOrMoveSources[i].path).copyTo(File(copyOrMoveDestination + File.separator + copyOrMoveSources[i].name))
+                } catch (err: IOException) {
+                    if (!copyToExtCard(File(copyOrMoveSources[i].path), copyOrMoveDestination)) {
+                        if (preferenceProvider.getRootAccessPreference() && rootHandler.isRootAccessGiven()) {
+                            //if nothing works, try with root access
+                            rootHandler.remountRootDirAs("rw")
+                            val isSuccess = rootHandler.copyFile(copyOrMoveSources)
+                            rootHandler.remountRootDirAs("ro")
+                            if (!isSuccess)
+                                cancel()
+                        } else
+                            cancel()
+                    }
+                }
+            }
+            //} else
+            //    cancel()
         }
     }
 
@@ -326,12 +346,12 @@ class DirectoryModel {
 
         if (sourceFile.isDirectory) {
             documentFileDestination?.createDirectory(sourceFile.name)
-            var isSUccess = false
+            var isSuccess = false
 
             for (i in sourceFile.listFiles()!!.indices) {
-                isSUccess = copyToExtCard(sourceFile.listFiles()!![i], copyOrMoveDestination + File.separator + sourceFile.name)
+                isSuccess = copyToExtCard(sourceFile.listFiles()!![i], copyOrMoveDestination + File.separator + sourceFile.name)
             }
-            return isSUccess
+            return isSuccess
         } else {
             documentFileDestination?.createFile(sourceFile.extension, sourceFile.name)?.let {
                 documentFileDestination = it
@@ -370,7 +390,6 @@ class DirectoryModel {
             }
             return false
         }
-        return false
     }
 
     suspend fun moveFile(copyOrMoveSources: List<FileModel>, copyOrMoveDestination: String) = withContext(Dispatchers.IO) {
@@ -379,9 +398,15 @@ class DirectoryModel {
             try {
                 copyFile(copyOrMoveSources, copyOrMoveDestination)
             } catch (err: CancellationException) {
-                cancel()
+                if (preferenceProvider.getRootAccessPreference() && rootHandler.isRootAccessGiven()) {
+                    //if nothing works, try with root access
+                    rootHandler.remountRootDirAs("rw")
+                    if (rootHandler.copyFile(copyOrMoveSources))
+                        rootHandler.delete(copyOrMoveSources)
+                    rootHandler.remountRootDirAs("ro")
+                } else
+                    cancel()
             }
-
             try {
                 delete(copyOrMoveSources)
             } catch (err: CancellationException) {
@@ -461,7 +486,8 @@ class DirectoryModel {
                 try {
                     createFolder(baseFolderPath, subPath)
                     subPath += '/'
-                } catch (err: Exception) {}
+                } catch (err: Exception) {
+                }
             }
         }
     }
