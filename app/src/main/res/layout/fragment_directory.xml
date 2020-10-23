@@ -211,6 +211,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:visibility="@{viewModel.isRootMode ? View.GONE : View.VISIBLE}"
                 android:background="?android:attr/selectableItemBackground"
                 android:onClick="@{() -> viewModel.showMoreOption()}"
                 android:text="@{viewModel.moreOptionMode ? @string/less : @string/more}"
