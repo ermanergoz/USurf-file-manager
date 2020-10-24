@@ -1,13 +1,13 @@
-package com.erman.usurf.app
+package com.erman.usurf.application
 
 import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.content.pm.ActivityInfo
 import android.os.Bundle
-import com.erman.usurf.app.data.ApplicationDao
-import com.erman.usurf.app.data.ApplicationPreferenceProvider
-import com.erman.usurf.utils.REALM_CONFIG_FILE_NAME
+import com.erman.usurf.application.data.ApplicationDao
+import com.erman.usurf.application.data.ApplicationPreferenceProvider
+import com.erman.usurf.application.utils.REALM_CONFIG_FILE_NAME
 import io.realm.Realm
 import io.realm.RealmConfiguration
 

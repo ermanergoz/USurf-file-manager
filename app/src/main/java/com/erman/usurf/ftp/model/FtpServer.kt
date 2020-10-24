@@ -11,11 +11,10 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.erman.usurf.MainActivity
+import com.erman.usurf.activity.MainActivity
 import com.erman.usurf.R
 import com.erman.usurf.ftp.data.FtpPreferenceProvider
 import com.erman.usurf.ftp.utils.*
-import com.erman.usurf.utils.KEY_INTENT_IS_FTP_NOTIFICATION_CLICKED
 import com.erman.usurf.utils.SHARED_PREF_FILE
 import com.erman.usurf.utils.logd
 import org.apache.ftpserver.ConnectionConfigFactory
