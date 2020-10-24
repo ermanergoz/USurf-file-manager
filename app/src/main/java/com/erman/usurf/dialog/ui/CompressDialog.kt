@@ -30,7 +30,7 @@ class CompressDialog : DialogFragment() {
             this.editText = dialogView.findViewById(R.id.editText)
             editText.setText(R.string.new_compressed)
 
-            builder.setMessage(getString(R.string.rename))
+            builder.setMessage(getString(R.string.compress))
                 .setPositiveButton(R.string.ok, DialogInterface.OnClickListener { _, _ ->
                     editDialogViewModel.onFileCompressOkPressed(editText.text.toString())
 
