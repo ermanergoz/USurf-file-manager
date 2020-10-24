@@ -12,7 +12,7 @@
 
 • Add support to copy–paste multiple files to multiple places multiple times. - [x]
 
-• Access to root files if the device is rooted.
+• Access to root files if the device is rooted. - [x]
 
 • Integrated zip/unzip files / folder feature. - [x]
 
