@@ -19,6 +19,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.erman.usurf.R
+import com.erman.usurf.activity.model.ShowDialog
 import com.erman.usurf.databinding.FragmentDirectoryBinding
 import com.erman.usurf.dialog.ui.*
 import com.erman.usurf.utils.*
@@ -199,7 +200,6 @@ class DirectoryFragment : Fragment() {
             directoryViewModel.turnOffOptionPanel()
             directoryViewModel.clearMultipleSelection()
         }
-
         directoryViewModel.getFileList()
         runRecyclerViewAnimation(fileListRecyclerView)
     }

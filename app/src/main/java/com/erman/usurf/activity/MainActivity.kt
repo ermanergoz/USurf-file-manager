@@ -1,4 +1,4 @@
-package com.erman.usurf
+package com.erman.usurf.activity
 
 import android.Manifest
 import android.app.Activity
@@ -22,8 +22,16 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
+import com.erman.usurf.R
+import com.erman.usurf.activity.data.StorageDirectoryPreferenceProvider
+import com.erman.usurf.activity.model.RefreshNavDrawer
+import com.erman.usurf.activity.model.ShowDialog
+import com.erman.usurf.activity.utils.INTENT_IS_FTP_NOTIFICATION_CLICKED_DEF_VAL
 import com.erman.usurf.directory.ui.DirectoryViewModel
+import com.erman.usurf.ftp.utils.KEY_INTENT_IS_FTP_NOTIFICATION_CLICKED
 import com.erman.usurf.home.model.FinishActivity
+import com.erman.usurf.home.model.HomeStorageButton
+import com.erman.usurf.home.model.StorageAccessFramework
 import com.erman.usurf.utils.*
 import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.app_bar_main.*
@@ -127,7 +135,7 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
         directoryViewModel.setPath(path)
         destination = R.id.global_action_nav_directory
         if (!File(path).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.P
-            && DirectoryPreferenceProvider().getChosenUri() == "") {
+            && StorageDirectoryPreferenceProvider().getChosenUri() == "") {
             launchSAF()
         }
     }
@@ -140,7 +148,7 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
                     this.contentResolver.takePersistableUriPermission(treeUri,
                         Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
                 }
-                DirectoryPreferenceProvider().editChosenUri(treeUri.toString())
+                StorageDirectoryPreferenceProvider().editChosenUri(treeUri.toString())
             }
         } else {
             return
