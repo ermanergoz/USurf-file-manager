@@ -75,6 +75,7 @@
     <string name="copy_file">Copy</string>
     <string name="move">Move</string>
     <string name="rename">Rename</string>
+    <string name="create_file">Create file</string>
     <string name="delete">Delete</string>
     <string name="compress">Compress</string>
     <string name="extract">Extract</string>

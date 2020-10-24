@@ -19,11 +19,14 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.erman.usurf.R
+import com.erman.usurf.activity.model.ShowDialog
 import com.erman.usurf.databinding.FragmentHomeBinding
 import com.erman.usurf.dialog.ui.RenameDialog
 import com.erman.usurf.dialog.ui.ShortcutOptionsDialog
 import com.erman.usurf.directory.ui.DirectoryViewModel
 import com.erman.usurf.home.model.FinishActivity
+import com.erman.usurf.home.model.HomeStorageButton
+import com.erman.usurf.home.model.StorageAccessFramework
 import com.erman.usurf.utils.*
 import kotlinx.android.synthetic.main.fragment_home.*
 import java.io.File

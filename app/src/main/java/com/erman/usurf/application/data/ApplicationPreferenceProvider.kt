@@ -1,10 +1,10 @@
-package com.erman.usurf.app.data
+package com.erman.usurf.application.data
 
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
-import com.erman.usurf.app.MainApplication
-import com.erman.usurf.app.utils.PREFERENCE_IS_FIRST_LAUNCH
+import com.erman.usurf.application.MainApplication
+import com.erman.usurf.application.utils.PREFERENCE_IS_FIRST_LAUNCH
 import com.erman.usurf.utils.SHARED_PREF_FILE
 import com.erman.usurf.utils.logd
 

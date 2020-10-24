@@ -4,12 +4,12 @@ import android.content.Context
 import android.os.Bundle
 import android.widget.Toast
 import androidx.preference.*
-import com.erman.usurf.app.MainApplication
+import com.erman.usurf.application.MainApplication
 import com.erman.usurf.R
 import com.erman.usurf.directory.model.RootHandler
 import com.erman.usurf.preference.data.PreferenceProvider
 import com.erman.usurf.preference.utils.*
-import com.erman.usurf.utils.RefreshNavDrawer
+import com.erman.usurf.activity.model.RefreshNavDrawer
 import com.erman.usurf.utils.loge
 import java.io.File
 
