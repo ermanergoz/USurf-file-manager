@@ -30,7 +30,7 @@ class CreateFileDialog : DialogFragment() {
             this.editText = dialogView.findViewById(R.id.editText)
             editText.setText(R.string.new_file)
 
-            builder.setMessage(getString(R.string.rename))
+            builder.setMessage(getString(R.string.create_file))
                 .setPositiveButton(R.string.ok, DialogInterface.OnClickListener { _, _ ->
                     editDialogViewModel.onFileCreateOkPressed(editText.text.toString())
 

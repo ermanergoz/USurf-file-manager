@@ -1,7 +1,7 @@
 package com.erman.usurf.utils
 
 import android.util.Log
-import com.erman.usurf.app.MainApplication.Companion.appContext
+import com.erman.usurf.application.MainApplication.Companion.appContext
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat

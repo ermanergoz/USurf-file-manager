@@ -1,6 +1,6 @@
-package com.erman.usurf.app.data
+package com.erman.usurf.application.data
 
-import com.erman.usurf.app.utils.INITIAL_SHORTCUT_LIST
+import com.erman.usurf.application.utils.INITIAL_SHORTCUT_LIST
 import com.erman.usurf.home.data.Shortcut
 import com.erman.usurf.utils.StoragePaths
 import com.erman.usurf.utils.loge
