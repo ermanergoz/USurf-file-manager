@@ -73,7 +73,7 @@
     <string name="last_modification_date">Last modification date:</string>
     <string name="extension">Extension:</string>
     <string name="hidden_file">Hidden</string>
-    <string name="empty_folder">Empty.</string>
+    <string name="empty_folder">Empty</string>
     <string name="copy_file">Copy</string>
     <string name="move">Move</string>
     <string name="rename">Rename</string>
@@ -104,7 +104,7 @@
     <string name="creating">Creating</string>
     <string name="search">Search</string>
     <string name="shortcut_created">Shortcut created</string>
-    <string name="unable_to_create_shortcut">Unable to create shortcut</string>
+    <string name="unable_to_create_shortcut">Shortcut already exists.</string>
     <string name="shortcut_deleted">Shortcut deleted</string>
     <string name="unable_to_delete_shortcut">Unable to delete shortcut</string>
     <string name="shortcut_renamed">Shortcut renamed</string>
@@ -112,10 +112,10 @@
     <string name="ftp_server_is_running">Ftp Server is running</string>
     <string name="free_up_space">Free up some space!</string>
     <string name="ftp_notification_channel_name">FTPNotificationChannel</string>
-    <string name="ftp_notification_channel_description" >FTP notification channel</string>
-    <string name="drawer_open" >Drawer open</string>
-    <string name="drawer_close" >Drawer close</string>
-    <string name="share_directory" >Operation not supported for following. Not a file </string>
-    <string name="push_notification_channel_description" >Push notification channel</string>
-    <string name="push_notification_title" >Free up some space!</string>
+    <string name="ftp_notification_channel_description">FTP notification channel</string>
+    <string name="drawer_open">Drawer open</string>
+    <string name="drawer_close">Drawer close</string>
+    <string name="share_directory">Operation not supported for following. Not a file </string>
+    <string name="push_notification_channel_description">Push notification channel</string>
+    <string name="push_notification_title">Free up some space!</string>
 </resources>
