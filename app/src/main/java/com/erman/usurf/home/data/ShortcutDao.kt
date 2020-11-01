@@ -1,6 +1,9 @@
 package com.erman.usurf.home.data
 
 import android.widget.TextView
+import android.widget.Toast
+import com.erman.usurf.R
+import com.erman.usurf.application.MainApplication.Companion.appContext
 import com.erman.usurf.home.utils.REALM_FIELD_NAME_PATH
 import com.erman.usurf.utils.logd
 import com.erman.usurf.utils.loge
@@ -24,10 +27,12 @@ class ShortcutDao(var realm: Realm) {
             shortcut.path = shortcutPath
         } catch (err: RealmPrimaryKeyConstraintException) {
             loge("addShortcut $err")
+            displayToast(R.string.unable_to_create_shortcut)
             return false
         } finally {
             realm.commitTransaction()
         }
+        displayToast(R.string.shortcut_created)
         return true
     }
 
@@ -40,8 +45,10 @@ class ShortcutDao(var realm: Realm) {
             }
         } catch (err: Error) {
             loge("removeShortcut $err")
+            displayToast(R.string.unable_to_delete_shortcut)
             return false
         }
+        displayToast(R.string.shortcut_deleted)
         return true
     }
 
@@ -53,10 +60,16 @@ class ShortcutDao(var realm: Realm) {
             shortcut?.let { it.name = newName }
         } catch (err: Error) {
             loge("renameShortcut $err")
+            displayToast(R.string.unable_to_rename_shortcut)
             return false
         } finally {
             realm.commitTransaction()
         }
+        displayToast(R.string.shortcut_renamed)
         return true
+    }
+
+    private fun displayToast(messageId: Int) {
+        Toast.makeText(appContext, appContext.getString(messageId), Toast.LENGTH_LONG).show()
     }
 }
