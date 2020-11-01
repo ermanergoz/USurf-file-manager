@@ -32,10 +32,8 @@
     <string name="icons_pix_perfect">Preferences icon and FTP icon by Pixel perfect from flaticon.com</string>
     <string name="icons">Icons:</string>
     <string name="xnimrodx_url">https://www.flaticon.com/authors/xnimrodx</string>
-    <string name="smalllikeart_url">https://www.flaticon.com/authors/smalllikeart</string>
     <string name="url">URL:</string>
     <string name="folder_icon">Folder icon and file icon by xnimrodx from flaticon.com</string>
-    <string name="clean_icon">Clean icon by smalllikeart from flaticon.com</string>
     <string name="wifi_status">WiFi Status:</string>
     <string name="port">Port:</string>
     <string name="connect">Connect</string>
@@ -89,7 +87,6 @@
     <string name="new_compressed">New.zip</string>
     <string name="more">More</string>
     <string name="less">Less</string>
-    <string name="cancel">Cancel</string>
     <string name="done">Done</string>
     <string name="ok">OK</string>
     <string name="shortcut">Shortcut</string>
@@ -110,7 +107,6 @@
     <string name="shortcut_renamed">Shortcut renamed</string>
     <string name="unable_to_rename_shortcut">Unable to rename shortcut</string>
     <string name="ftp_server_is_running">Ftp Server is running</string>
-    <string name="free_up_space">Free up some space!</string>
     <string name="ftp_notification_channel_name">FTPNotificationChannel</string>
     <string name="ftp_notification_channel_description">FTP notification channel</string>
     <string name="drawer_open">Drawer open</string>
