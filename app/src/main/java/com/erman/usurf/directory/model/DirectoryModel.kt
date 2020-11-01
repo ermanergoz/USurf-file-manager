@@ -3,21 +3,30 @@ package com.erman.usurf.directory.model
 import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Build
+import android.system.Os
+import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import com.erman.usurf.activity.data.StorageDirectoryPreferenceProvider
 import com.erman.usurf.application.MainApplication.Companion.appContext
 import com.erman.usurf.directory.utils.SIMPLE_DATE_FORMAT_PATTERN
 import com.erman.usurf.preference.data.PreferenceProvider
-import com.erman.usurf.utils.*
+import com.erman.usurf.utils.StoragePaths
+import com.erman.usurf.utils.logd
+import com.erman.usurf.utils.loge
+import com.erman.usurf.utils.logi
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.withContext
 import java.io.*
+import java.lang.reflect.Field
+import java.lang.reflect.Method
 import java.text.SimpleDateFormat
+import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
+
 
 class DirectoryModel {
     @SuppressLint("SimpleDateFormat")
@@ -449,13 +458,15 @@ class DirectoryModel {
 
     private fun getSubSearchedFiles(directory: File, searchQuery: String, res: MutableSet<File> = mutableSetOf<File>()): Set<File> {
         //Depth first search algorithm
-        for (file in directory.listFiles()!!.toSet()) {
-            if (file.isDirectory) {
-                getSubSearchedFiles(file, searchQuery, res)
-            } else {
-                res.add(file)
+        directory.listFiles()?.let { fileList ->
+            for (file in fileList.toSet()) {
+                if (file.isDirectory) {
+                    getSubSearchedFiles(file, searchQuery, res)
+                } else {
+                    res.add(file)
+                }
+                res.addAll(directory.listFiles()!!.toSet())
             }
-            res.addAll(directory.listFiles()!!.toSet())
         }
         return res
     }
@@ -599,5 +610,48 @@ class DirectoryModel {
                 compressFile(currentFile, path + File.separator + file.name, zipOutputStream)
             }
         }
+    }
+
+    private fun getLastAccessTime(file: FileModel): Long {
+        var lastAccessTime: Long = 0
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            lastAccessTime = Os.lstat(file.path).st_atime
+        } else {
+            var field: Field = Class.forName("libcore.io.Libcore").getDeclaredField("os")
+            if (!field.isAccessible) {
+                field.isAccessible = true
+            }
+            field.get(null)?.let { os ->
+                val method: Method = os.javaClass.getMethod("lstat", String::class.java)
+                method.invoke(os, file.path)?.let { lstat ->
+                    field = lstat.javaClass.getDeclaredField("st_atime")
+                    if (!field.isAccessible) {
+                        field.isAccessible = true
+                    }
+                    lastAccessTime = field.getLong(lstat)
+                }
+            }
+        }
+        return lastAccessTime
+    }
+
+    private fun isLastAccessTimeValid(lastAccessTime: Long): Boolean {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = lastAccessTime
+        return calendar.get(Calendar.YEAR) != 1970
+    }
+
+    suspend fun getFilesToClean(): List<FileModel> = withContext(Dispatchers.IO) {
+        val deviceFileList = getSearchedDeviceFiles("")
+
+        if (isLastAccessTimeValid(getLastAccessTime(deviceFileList.shuffled().first()))) {
+            //unused files first. This doesn't work on some devices.
+            return@withContext deviceFileList.sortedWith(compareBy({ !it.isDirectory }, { getLastAccessTime(it) })).toList()
+        } else {
+            //largest file first
+            return@withContext deviceFileList.sortedWith(compareBy({ !it.isDirectory }, { it.size })).reversed().toList()
+        }
+
     }
 }
