@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.DialogFragment
@@ -26,13 +27,18 @@ import com.erman.usurf.R
 import com.erman.usurf.activity.data.StorageDirectoryPreferenceProvider
 import com.erman.usurf.activity.model.RefreshNavDrawer
 import com.erman.usurf.activity.model.ShowDialog
+import com.erman.usurf.activity.utils.INTENT_IS_CLEANING_NOTIFICATION_CLICKED
 import com.erman.usurf.activity.utils.INTENT_IS_FTP_NOTIFICATION_CLICKED_DEF_VAL
+import com.erman.usurf.activity.utils.KEY_IS_CLEANING_MODE
 import com.erman.usurf.directory.ui.DirectoryViewModel
 import com.erman.usurf.ftp.utils.KEY_INTENT_IS_FTP_NOTIFICATION_CLICKED
 import com.erman.usurf.home.model.FinishActivity
 import com.erman.usurf.home.model.HomeStorageButton
 import com.erman.usurf.home.model.StorageAccessFramework
-import com.erman.usurf.utils.*
+import com.erman.usurf.pushNotification.utils.KEY_INTENT_IS_CLEANING_NOTIFICATION_CLICKED
+import com.erman.usurf.utils.StoragePaths
+import com.erman.usurf.utils.ViewModelFactory
+import com.erman.usurf.utils.logd
 import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.app_bar_main.*
 import java.io.File
@@ -71,6 +77,10 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
 
         if (intent.getBooleanExtra(KEY_INTENT_IS_FTP_NOTIFICATION_CLICKED, INTENT_IS_FTP_NOTIFICATION_CLICKED_DEF_VAL))
             navController.navigate(R.id.global_action_to_nav_ftp)
+        if (intent.getBooleanExtra(KEY_INTENT_IS_CLEANING_NOTIFICATION_CLICKED, INTENT_IS_CLEANING_NOTIFICATION_CLICKED)) {
+            val bundle = bundleOf(KEY_IS_CLEANING_MODE to true)
+            navController.navigate(R.id.global_action_nav_directory, bundle)
+        }
     }
 
     private fun setupNavDrawer(navView: NavigationView, navController: NavController, drawerLayout: DrawerLayout) {
@@ -198,10 +208,10 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
     override fun autoSizeButtonDimensions(storageButtonCount: Int, sideMargin: Int): Pair<Int, Int> {
         val displayMetrics = DisplayMetrics()
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-            this.display?.getRealMetrics(displayMetrics)
-        else
-            windowManager.defaultDisplay.getMetrics(displayMetrics)
+        //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+        //this.display?.getRealMetrics(displayMetrics)
+        //else
+        windowManager.defaultDisplay.getMetrics(displayMetrics)
 
         val screenWidth = displayMetrics.widthPixels
         val screenHeight = displayMetrics.heightPixels
