@@ -61,7 +61,7 @@
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:onClick="@{() -> viewModel.endCopyMode()}"
-                android:text="@string/cancel"
+                android:text="@string/done"
                 android:textColor="@color/textColorDark"
                 android:textSize="@dimen/text_size_12" />
 
