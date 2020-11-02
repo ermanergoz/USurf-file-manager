@@ -1,120 +1,117 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">DrawerFM</string>
-    <string name="create_shortcut">Kısayol ekle</string>
-    <string name="ok">Tamam</string>
-    <string name="cancel">İptal</string>
-    <string name="invalid_path">Geçersiz dosya yolu!</string>
-    <string name="duplicate_shortcut">Kısayol zaten mevcut!</string>
-
-    <!--toast notifications-->
-    <string name="unable_to_execute_search_query">Arama yapılırken bir hata oluştu</string>
-    <string name="file_unsupported_or_no_application">Dosya açılamıyor. Bu dosyayı açabilecek bir uygulama bulunamadı.</string>
-    <string name="error_while_renaming">"Yeniden adlandırırken hata: "</string>
-    <string name="renaming_successful">Yeniden adlandırıldı</string>
-    <string name="error_while_deleting">"Silerken hata: "</string>
-    <string name="deleting_successful">Silindi</string>
-    <string name="folder_creation_successful">"Yeni klasör oluşturuldu: "</string>
-    <string name="error_when_creating_folder">"Yeni klasör oluştururken hata: "</string>
-    <string name="file_creation_successful">"Yeni dosya oluşturuldu: "</string>
-    <string name="error_when_creating_file">"Yeni dosya oluştururken hata: "</string>
-    <string name="copy_successful">Kopyalandı</string>
-    <string name="error_while_copying">Kopyalarken hata</string>
-    <string name="moving_successful">Taşındı</string>
-    <string name="error_while_moving">Taşırken hata</string>
-    <string name="new_shortcut_instruction">Kısayol oluşturmak için, istediğiniz dosya/klasöre gidin ve üzerine basılı tutun. İptal etmek için, geri tuşuna basın.</string>
-    <string name="canceled">İptal edildi</string>
-    <string name="compressing_successful">Sıkıştırıldı</string>
-    <string name="error_while_compressing">Sıkıştırırken hata</string>
-    <string name="extracting_successful">Çıkarıldı</string>
-    <string name="error_while_extracting">Çıkarırken hata</string>
-
-    <!--create shortcut dialog-->
-    <string name="name">Ad:</string>
-    <string name="path">Dosya yolu:</string>
-    <string name="yes">Evet</string>
-    <string name="no">Hayır</string>
-    <string name="remove_shortcut_message">Bu kısayolu silmek istediğinizden emin misiniz??</string>
-
-    <!--about drawerFM dialog-->
-    <string name="app_version">Version: 1.0.0</string>
-    <string name="credit">Yusuf Erman ERGÖZ</string>
-    <string name="about">Hakkında</string>
-
-    <!--com.erman.drawerfm.utilities.rename file dialog-->
-    <string name="rename_file">Yeniden adlandır</string>
-    <string name="new_directory_name">Yeni klasör adı</string>
-    <string name="new_file_name">Yeni dosya adı</string>
-
-    <!--file information dialog-->
-    <string name="size">Boyut:</string>
-    <string name="permission">İzinler:</string>
-    <string name="last_modification_date">Son değiştirilme tarihi:</string>
-    <string name="folder">Klasör</string>
-    <string name="size_in_storage">Depolama alanına göre yüzde:</string>
-    <string name="storage">Depolama alanı kullanım yüzdesi:</string>
-    <string name="extension">Uzantı:</string>
-    <string name="this_file_is_hidden">Gizli dosya.</string>
-
-    <!--FTP stuff-->
-    <string name="status">Durum:</string>
-    <string name="URL">URL:</string>
-    <string name="port">Port:</string>
-    <string name="shared_path">Paylaşılan:</string>
-    <string name="connect">Bağlan</string>
-    <string name="edit">Düzenle</string>
-    <string name="disconnect">Durdur</string>
-    <string name="username">Kullanıcı Adı:</string>
-    <string name="password">Şifre:</string>
-    <string name="connected">Bağlandı</string>
-    <string name="disconnected">Bağlantı kesildi</string>
-    <string name="channel_name" >FTPNotificationChannel</string>
-    <string name="channel_description" >FTP notification channel</string>
-    <string name="ftp_is_running" >FTP sunucusu çalışıyor</string>
-    <string name="no_internet" >İnternet bağlantısı yok</string>
-    <string name="edit_username" >Kullanıcı adını düzenle</string>
-    <string name="edit_password" >Şifreyi düzenle</string>
-    <string name="edit_port" >Soketi düzenle</string>
-
-    <!--progress dialog-->
-    <string name="wait">Lütfen bekleyin</string>
-
-    <!--preferences_main-->
-    <string name="change_theme">Temayı değiştir</string>
-    <string name="enable_sliding_texts">Kayan yazıları etkinleştir</string>
-    <string name="sliding_texts_summary">If enabled, long file/folder names will slide</string>
-    <string name="root_explorer">Root explorer</string>
-    <string name="root_explorer_summary">Check this box to gain access to root directory</string>
-    <string name="grid_view">Tablo görünümü</string>
-    <string name="show_hidden_files">Gizli dosyaları göster</string>
-    <string name="show_folders_only">Sadece klasörleri göster</string>
-    <string name="show_files_only">Sadece dosyaları göster</string>
-    <string name="sort_by">Sırala</string>
+    <string name="app_name">USurf</string>
+    <string name="nav_header_title">USurf</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="empty" />
+    <string name="menu_home">Ana Sayfa</string>
+    <string name="menu_ftp">FTP</string>
+    <string name="menu_preferences">Secenekler</string>
+    <string name="menu_info">Bilgi</string>
+    <string name="root_explorer">Root Gezgini</string>
+    <string name="root_explorer_summary">Root dizinine ulasmak icin. Root erisimi olan cihazlar icin.</string>
+    <string name="show_hidden_files">Gizli dosyalari goster</string>
+    <string name="sort_by">Sirala</string>
     <string name="ascending_order">Artan</string>
     <string name="descending_order">Azalan</string>
-    <string name="show_files_on_top">Dosyaları en üstte göster</string>
-    <string name="show_folders_on_top">Klasörleri en üstte göster</string>
-
-    <!--broadcast receiver-->
-    <string name="file_broadcast_receiver">com.erman.drawerfm.fileBroadcastReceiver</string>
-    <string name="ftp_broadcast_receiver">com.erman.drawerfm.fileBroadcastReceiver</string>
-
-    <!--fragment stuff-->
-    <string name="empty_folder_size_text">Boş Klasör</string>
-    <string name="empty_folder">Burada hiçbir şey yok.</string>
-    <string name="files_num">Dosyalar</string>
-    <string name="copy">Kopyala</string>
-    <string name="move">Taşı</string>
-    <string name="rename">Yeniden adlandır</string>
+    <string name="applogo_description">appLogo</string>
+    <string name="developer">Gelistirici:</string>
+    <string name="yusuf_erman_ergoz">Yusuf Erman ERGÖZ</string>
+    <string name="version">Versiyon:</string>
+    <string name="app_version">1.2-rc3</string>
+    <string name="github">Github:</string>
+    <string name="github_link">https://github.com/ermanergoz/USurf</string>
+    <string name="icons_those_icons">Device-wide Search icon and Menu icon by Those Icons from flaticon.com</string>
+    <string name="those_icons_url">https://www.flaticon.com/authors/those-icons</string>
+    <string name="icons_smashicons">Home icon by Smashicons from flaticon.com</string>
+    <string name="smashicons_url">https://www.flaticon.com/authors/smashicons</string>
+    <string name="storage_icon">Storage icon by srip from flaticon.com</string>
+    <string name="srip_url">https://www.flaticon.com/authors/srip</string>
+    <string name="icons_freepic">Information icon by Freepic from flaticon.com</string>
+    <string name="freepic_url">https://www.flaticon.com/authors/freepik</string>
+    <string name="pix_perfect_link">https://www.flaticon.com/authors/pixel-perfect</string>
+    <string name="icons_pix_perfect">Preferences icon and FTP icon by Pixel perfect from flaticon.com</string>
+    <string name="icons">Icons:</string>
+    <string name="xnimrodx_url">https://www.flaticon.com/authors/xnimrodx</string>
+    <string name="url">URL:</string>
+    <string name="folder_icon">Folder icon and file icon by xnimrodx from flaticon.com</string>
+    <string name="wifi_status">WiFi Durumu:</string>
+    <string name="port">Port:</string>
+    <string name="connect">Baglan</string>
+    <string name="disconnect">Baglantiyi kes</string>
+    <string name="username">Kullanici adi:</string>
+    <string name="password">Sifre:</string>
+    <string name="connected">Baglandi</string>
+    <string name="no_connection">Baglanti yok</string>
+    <string name="port_error">Daha kucu bir rakam girin! Varsayilan deger ayarlandi.</string>
+    <string name="ftp_broadcast_receiver">com.erman.usurf.fileBroadcastReceiver</string>
+    <string name="unsupported_file">Bu dosyayi acabilecek uygulama bulunamadi.</string>
+    <string name="unable_to_open_directory">Dizin acilamiyor.</string>
+    <string name="error_while_renaming">"Yeniden adlandiriken hata: "</string>
+    <string name="renaming_successful">Yeniden adlandirildi</string>
+    <string name="error_while_deleting">"Silerken hata"</string>
+    <string name="deleting_successful">Silindi</string>
+    <string name="folder_creation_successful">"Yeni klasor olusturuldu"</string>
+    <string name="error_when_creating_folder">"Yeni klasor olusturuken hata"</string>
+    <string name="file_creation_successful">"Yeni dosya olusturuldu"</string>
+    <string name="error_when_creating_file">"Yeni dosya olustururken hata"</string>
+    <string name="copy_successful">Kopyalandi</string>
+    <string name="error_while_copying">Kopyalarken hata</string>
+    <string name="moving_successful">Tasindi</string>
+    <string name="error_while_moving">Tasirken hata</string>
+    <string name="compressing_successful">Sikistirildi</string>
+    <string name="error_while_compressing">Sikistirirken hata</string>
+    <string name="extracting_successful">Ayikla</string>
+    <string name="error_while_extracting">Ayiklarken hata</string>
+    <string name="cleared">Temizlendi</string>
+    <string name="su_not_found">Cihazda root erisimi yok.</string>
+    <string name="name">Ad:</string>
+    <string name="path">Yol:</string>
+    <string name="size">Boyut:</string>
+    <string name="permission">Izinler:</string>
+    <string name="last_modification_date">Son degistirilme tarihi:</string>
+    <string name="extension">Uzanti:</string>
+    <string name="hidden_file">Gizli</string>
+    <string name="empty_folder">Bos</string>
+    <string name="copy_file">Kopyala</string>
+    <string name="move">Tasi</string>
+    <string name="rename">Yeniden adlandir</string>
+    <string name="create_file">Dosya olustur</string>
     <string name="delete">Sil</string>
-    <string name="compress">Sıkıştır</string>
-    <string name="extract">Çıkart</string>
+    <string name="compress">Sikistir</string>
+    <string name="extract"></string>
     <string name="information">Bilgi</string>
-    <string name="share">Paylaş</string>
-    <string name="more">Daha fazla</string>
-    <string name="collapse">Daha az</string>
-
-    <!--search stuff-->
-    <string name="unsuccessful_search">Hiçbir şey bulunmadı.</string>
-    <string name="results_for">Sonuçlar: </string>
+    <string name="share">Paylas</string>
+    <string name="create_new_folder">Yeni klasor olustur</string>
+    <string name="new_folder">Yeni klasor</string>
+    <string name="new_file">New File.txt</string>
+    <string name="new_compressed">New.zip</string>
+    <string name="more">Daha</string>
+    <string name="less">Az</string>
+    <string name="done">Bitti</string>
+    <string name="ok">Tamam</string>
+    <string name="shortcut">Kisayol</string>
+    <string name="addShortcut">Kisayol Ekle</string>
+    <string name="compressing">Sikistiriliyor</string>
+    <string name="extracting">Ayiklaniyor</string>
+    <string name="invalid_extension">Gecersiz uzanti. Lutfen bir sikistirilmis dosya secin!</string>
+    <string name="deleting">Siliniyor</string>
+    <string name="copying">Kopyalaniyor</string>
+    <string name="moving">Tasiniyor</string>
+    <string name="renaming">Yeniden adlandiriliyor</string>
+    <string name="creating">Olusturuluyor</string>
+    <string name="search">Ara</string>
+    <string name="shortcut_created">Kisayol silindi</string>
+    <string name="unable_to_create_shortcut">Kisayol zaten mevcut</string>
+    <string name="shortcut_deleted">Kisayol silindi</string>
+    <string name="unable_to_delete_shortcut">Kisayol silinemiyor</string>
+    <string name="shortcut_renamed">Kisayol yeniden adlandirildi</string>
+    <string name="unable_to_rename_shortcut">Kisayolu yeniden adlandirirken hata</string>
+    <string name="ftp_server_is_running">Ftp Server calisiyor</string>
+    <string name="ftp_notification_channel_name">FTPNotificationChannel</string>
+    <string name="ftp_notification_channel_description">FTP notification channel</string>
+    <string name="drawer_open">Drawer open</string>
+    <string name="drawer_close">Drawer close</string>
+    <string name="share_directory">Operasyon sunlar icin desteklenmiyor. Dosya degil </string>
+    <string name="push_notification_channel_description">Push notification channel</string>
+    <string name="push_notification_title">Biraz alan acin!</string>
 </resources>
