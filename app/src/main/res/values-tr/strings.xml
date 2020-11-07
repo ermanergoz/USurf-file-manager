@@ -20,6 +20,8 @@
     <string name="app_version">1.2-rc3</string>
     <string name="github">Github:</string>
     <string name="github_link">https://github.com/ermanergoz/USurf</string>
+    <string name="icons_roundicons">Up and down arrow icons by Roundicons from flaticon.com</string>
+    <string name="round_icons_url">https://www.flaticon.com/authors/roundicons</string>
     <string name="icons_those_icons">Device-wide Search icon and Menu icon by Those Icons from flaticon.com</string>
     <string name="those_icons_url">https://www.flaticon.com/authors/those-icons</string>
     <string name="icons_smashicons">Home icon by Smashicons from flaticon.com</string>
