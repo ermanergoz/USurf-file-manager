@@ -78,7 +78,7 @@
     <string name="create_file">Dosya olustur</string>
     <string name="delete">Sil</string>
     <string name="compress">Sikistir</string>
-    <string name="extract"></string>
+    <string name="extract">Ayikla</string>
     <string name="information">Bilgi</string>
     <string name="share">Paylas</string>
     <string name="create_new_folder">Yeni klasor olustur</string>
@@ -99,6 +99,8 @@
     <string name="moving">Tasiniyor</string>
     <string name="renaming">Yeniden adlandiriliyor</string>
     <string name="creating">Olusturuluyor</string>
+    <string name="analyzing_files">Dosyalar analiz ediliyor. Lutfen bekleyin.</string>
+    <string name="searching">"Araniyor"</string>
     <string name="search">Ara</string>
     <string name="shortcut_created">Kisayol silindi</string>
     <string name="unable_to_create_shortcut">Kisayol zaten mevcut</string>
@@ -114,4 +116,5 @@
     <string name="share_directory">Operasyon sunlar icin desteklenmiyor. Dosya degil </string>
     <string name="push_notification_channel_description">Push notification channel</string>
     <string name="push_notification_title">Biraz alan acin!</string>
+    <string name="clear_logs">Gecmisi ve loglari temizle</string>
 </resources>
