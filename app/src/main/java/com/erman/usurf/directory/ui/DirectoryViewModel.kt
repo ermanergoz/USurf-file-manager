@@ -59,6 +59,11 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
     val loading: LiveData<Boolean> = _loading
 
+    private val _showLoadingMessage = MutableLiveData<Boolean>().apply {
+        value = false
+    }
+    val showLoadingMessage: LiveData<Boolean> = _showLoadingMessage
+
     private val _fileSearchMode = MutableLiveData<Boolean>().apply {
         value = false
     }
@@ -207,16 +212,19 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
             }
         } else {
             _loading.value = true
+            _showLoadingMessage.value = true
             launch {
                 _updateDirectoryList.value = directoryModel.getFilesToClean()
                 _loading.value = false
+                _showLoadingMessage.value = false
             }
         }
     }
 
     fun getSearchedFiles() {
-        _loading.value = true
         fileSearchQuery.value?.let {
+            _loading.value = true
+            _showLoadingMessage.value = true
             launch {
                 val fileList = directoryModel.getSearchedDeviceFiles(it)
                 if (fileList.isNullOrEmpty())
@@ -224,6 +232,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                 _updateDirectoryList.value = fileList
                 _menuMode.value = false
                 _loading.value = false
+                _showLoadingMessage.value = false
             }
         }
     }
