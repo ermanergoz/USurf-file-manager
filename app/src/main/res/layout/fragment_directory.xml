@@ -92,14 +92,14 @@
             app:layout_constraintVertical_bias="1.0">
 
             <Button
-                android:id="@+id/shortcutButton"
+                android:id="@+id/favoriteButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:enabled="@{viewModel.isSingleOperationMode}"
-                android:onClick="@{() -> viewModel.shortcutButton()}"
-                android:text="@string/shortcut"
+                android:onClick="@{() -> viewModel.favoriteButton()}"
+                android:text="@string/favorite"
                 android:textColor="@{viewModel.isSingleOperationMode ? @color/textColorDark : @color/textColorLight}"
                 android:textSize="@dimen/text_size_12" />
 

@@ -15,7 +15,7 @@ import com.erman.usurf.directory.ui.DirectoryViewModel
 import com.erman.usurf.home.ui.HomeViewModel
 import com.erman.usurf.utils.ViewModelFactory
 
-class AddShortcutDialog(val path: String) : DialogFragment() {
+class AddFavoriteDialog(val path: String) : DialogFragment() {
     private lateinit var viewModelFactory: ViewModelFactory
     private lateinit var homeViewModel: HomeViewModel
     private lateinit var directoryViewModel: DirectoryViewModel
@@ -35,9 +35,9 @@ class AddShortcutDialog(val path: String) : DialogFragment() {
             directoryViewModel.turnOffOptionPanel()
             directoryViewModel.clearMultipleSelection()
 
-            builder.setMessage(getString(R.string.addShortcut))
+            builder.setMessage(getString(R.string.addFavorite))
                 .setPositiveButton(R.string.ok, DialogInterface.OnClickListener { _, _ ->
-                    homeViewModel.onShortcutAdd(path, editText.text.toString())
+                    homeViewModel.onFavoriteAdd(path, editText.text.toString())
 
                     val inputMethodManager: InputMethodManager =
                         requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
