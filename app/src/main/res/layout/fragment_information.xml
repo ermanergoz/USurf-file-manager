@@ -195,6 +195,44 @@
             android:layout_marginStart="@dimen/layout_margin_8"
             android:layout_marginLeft="@dimen/layout_margin_8"
             android:layout_marginTop="@dimen/vertical_margin_16"
+            android:text="@string/icons_kiranshastry"
+            android:textSize="@dimen/text_size_18" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/layout_margin_8"
+            android:layout_marginLeft="@dimen/layout_margin_8"
+            android:autoLink="web"
+            android:singleLine="true"
+            android:text="@string/kiranshastry_url"
+            android:textSize="@dimen/text_size_18" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/layout_margin_8"
+            android:layout_marginLeft="@dimen/layout_margin_8"
+            android:layout_marginTop="@dimen/vertical_margin_16"
+            android:text="@string/icons_iconixar"
+            android:textSize="@dimen/text_size_18" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/layout_margin_8"
+            android:layout_marginLeft="@dimen/layout_margin_8"
+            android:autoLink="web"
+            android:singleLine="true"
+            android:text="@string/iconixar_url"
+            android:textSize="@dimen/text_size_18" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/layout_margin_8"
+            android:layout_marginLeft="@dimen/layout_margin_8"
+            android:layout_marginTop="@dimen/vertical_margin_16"
             android:text="@string/folder_icon"
             android:textSize="@dimen/text_size_18" />
 
