@@ -22,7 +22,7 @@ import com.erman.usurf.R
 import com.erman.usurf.activity.model.ShowDialog
 import com.erman.usurf.databinding.FragmentHomeBinding
 import com.erman.usurf.dialog.ui.RenameDialog
-import com.erman.usurf.dialog.ui.ShortcutOptionsDialog
+import com.erman.usurf.dialog.ui.FavoriteOptionsDialog
 import com.erman.usurf.directory.ui.DirectoryViewModel
 import com.erman.usurf.home.model.FinishActivity
 import com.erman.usurf.home.model.HomeStorageButton
@@ -35,7 +35,7 @@ class HomeFragment : Fragment() {
     private lateinit var homeViewModel: HomeViewModel
     private lateinit var viewModelFactory: ViewModelFactory
     private lateinit var directoryViewModel: DirectoryViewModel
-    private lateinit var shortcutRecyclerViewAdapter: ShortcutRecyclerViewAdapter
+    private lateinit var favoriteRecyclerViewAdapter: FavoriteRecyclerViewAdapter
     private lateinit var dialogListener: ShowDialog
     private lateinit var finishActivityListener: FinishActivity
     private lateinit var safListener: StorageAccessFramework
@@ -76,9 +76,9 @@ class HomeFragment : Fragment() {
             }
         })
 
-        homeViewModel.onShortcutOption.observe(viewLifecycleOwner, Observer {
+        homeViewModel.onFavoriteOption.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.let { args ->
-                dialogListener.showDialog(ShortcutOptionsDialog(args.view))
+                dialogListener.showDialog(FavoriteOptionsDialog(args.view))
             }
         })
 
@@ -90,7 +90,7 @@ class HomeFragment : Fragment() {
 
         homeViewModel.openFile.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.let { args ->
-                logd("Open a shortcut file")
+                logd("Open a favorite file")
                 val intent = Intent(Intent.ACTION_VIEW)
                 intent.data = FileProvider.getUriForFile(requireContext(), requireContext().packageName, File(args.path))
                 intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
@@ -125,14 +125,14 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        shortcutRecyclerViewAdapter = ShortcutRecyclerViewAdapter(homeViewModel)
-        shortcutRecyclerView.layoutManager = GridLayoutManager(context, 2)
-        shortcutRecyclerView.adapter = shortcutRecyclerViewAdapter
-        shortcutRecyclerView.itemAnimator?.let { it.changeDuration = 0 }//to avoid flickering
+        favoriteRecyclerViewAdapter = FavoriteRecyclerViewAdapter(homeViewModel)
+        favoriteRecyclerView.layoutManager = GridLayoutManager(context, 2)
+        favoriteRecyclerView.adapter = favoriteRecyclerViewAdapter
+        favoriteRecyclerView.itemAnimator?.let { it.changeDuration = 0 }//to avoid flickering
 
-        homeViewModel.shortcuts.observe(viewLifecycleOwner, Observer {
-            shortcutRecyclerViewAdapter.updateData(it)
-            runRecyclerViewAnimation(shortcutRecyclerView)
+        homeViewModel.favorites.observe(viewLifecycleOwner, Observer {
+            favoriteRecyclerViewAdapter.updateData(it)
+            runRecyclerViewAnimation(favoriteRecyclerView)
         })
     }
 
