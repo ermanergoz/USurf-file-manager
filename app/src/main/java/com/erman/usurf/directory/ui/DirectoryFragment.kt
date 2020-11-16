@@ -120,9 +120,9 @@ class DirectoryFragment : Fragment() {
             }
         })
 
-        directoryViewModel.onAddShortcut.observe(viewLifecycleOwner, Observer {
+        directoryViewModel.onAddFavorite.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.let { args ->
-                dialogListener.showDialog(AddShortcutDialog(args.path))
+                dialogListener.showDialog(AddFavoriteDialog(args.path))
             }
         })
 

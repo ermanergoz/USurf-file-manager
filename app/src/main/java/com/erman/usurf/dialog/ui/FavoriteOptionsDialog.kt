@@ -12,12 +12,11 @@ import androidx.databinding.library.baseAdapters.BR
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.erman.usurf.R
-import com.erman.usurf.databinding.DialogEditShortcutBinding
+import com.erman.usurf.databinding.DialogEditFavoriteBinding
 import com.erman.usurf.home.ui.HomeViewModel
 import com.erman.usurf.utils.ViewModelFactory
-import kotlinx.android.synthetic.main.dialog_edit_shortcut.*
 
-class ShortcutOptionsDialog(private val shortcutView: TextView) : DialogFragment() {
+class FavoriteOptionsDialog(private val favoriteView: TextView) : DialogFragment() {
     private lateinit var viewModelFactory: ViewModelFactory
     private lateinit var viewModel: HomeViewModel
     private lateinit var okButton: Button
@@ -31,9 +30,9 @@ class ShortcutOptionsDialog(private val shortcutView: TextView) : DialogFragment
             viewModelFactory = ViewModelFactory()
             viewModel = ViewModelProvider(requireActivity(), viewModelFactory).get(HomeViewModel::class.java)
 
-            val binding: DialogEditShortcutBinding =
-                DataBindingUtil.inflate(inflater, R.layout.dialog_edit_shortcut, null, false)
-            binding.setVariable(BR.shortcutView, shortcutView)
+            val binding: DialogEditFavoriteBinding =
+                DataBindingUtil.inflate(inflater, R.layout.dialog_edit_favorite, null, false)
+            binding.setVariable(BR.favoriteView, favoriteView)
             binding.lifecycleOwner = this
             binding.viewModel = viewModel
 
@@ -42,12 +41,12 @@ class ShortcutOptionsDialog(private val shortcutView: TextView) : DialogFragment
             this.deleteButton = binding.root.findViewById(R.id.deleteButton)
 
             okButton.setOnClickListener {
-                viewModel.onRenameShortcutOkPressed(shortcutView, renameEditText.text.toString())
+                viewModel.onRenameFavoriteOkPressed(favoriteView, renameEditText.text.toString())
                 dismiss()
             }
 
             deleteButton.setOnClickListener {
-                viewModel.deleteShortcut(shortcutView)
+                viewModel.deleteFavorites(favoriteView)
                 dismiss()
             }
 

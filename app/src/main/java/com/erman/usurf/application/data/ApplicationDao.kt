@@ -1,7 +1,7 @@
 package com.erman.usurf.application.data
 
-import com.erman.usurf.application.utils.INITIAL_SHORTCUT_LIST
-import com.erman.usurf.home.data.Shortcut
+import com.erman.usurf.application.utils.INITIAL_FAVORITES_LIST
+import com.erman.usurf.home.data.Favorite
 import com.erman.usurf.utils.StoragePaths
 import com.erman.usurf.utils.loge
 import io.realm.Realm
@@ -9,20 +9,20 @@ import io.realm.kotlin.createObject
 import java.io.File
 
 class ApplicationDao(val realm: Realm) {
-    fun addInitialShortcuts() {
+    fun addInitialFavorites() {
         val directory = StoragePaths().getStorageDirectories().first()
 
-        for (shortcutName in INITIAL_SHORTCUT_LIST) {
-            val shortcutPath = directory + File.separator + shortcutName
+        for (favoriteName in INITIAL_FAVORITES_LIST) {
+            val favoritePath = directory + File.separator + favoriteName
 
-            if (File(shortcutPath).exists()) {
+            if (File(favoritePath).exists()) {
                 realm.beginTransaction()
                 try {
-                    val shortcut: Shortcut = realm.createObject<Shortcut>(shortcutPath)
-                    shortcut.name = shortcutName
-                    shortcut.path = shortcutPath
+                    val favorite: Favorite = realm.createObject<Favorite>(favoritePath)
+                    favorite.name = favoriteName
+                    favorite.path = favoritePath
                 } catch (err: Error) {
-                    loge("addInitialShortcuts $err")
+                    loge("addInitialFavorites $err")
                 } finally {
                     realm.commitTransaction()
                 }

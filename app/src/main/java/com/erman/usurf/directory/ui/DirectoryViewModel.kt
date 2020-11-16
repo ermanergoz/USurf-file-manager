@@ -45,8 +45,8 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     private val _onInformation = MutableLiveData<Event<DialogArgs.InformationDialogArgs>>()
     val onInformation: LiveData<Event<DialogArgs.InformationDialogArgs>> = _onInformation
 
-    private val _onAddShortcut = MutableLiveData<Event<DialogArgs.ShortcutDialogArgs>>()
-    val onAddShortcut: LiveData<Event<DialogArgs.ShortcutDialogArgs>> = _onAddShortcut
+    private val _onAddFavorite = MutableLiveData<Event<DialogArgs.FavoriteDialogArgs>>()
+    val onAddFavorite: LiveData<Event<DialogArgs.FavoriteDialogArgs>> = _onAddFavorite
 
     private val _isSingleOperationMode = MutableLiveData<Boolean>()
     val isSingleOperationMode: LiveData<Boolean> = _isSingleOperationMode
@@ -488,11 +488,11 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
         _onFileSearch.value = Event(DialogArgs.FileSearchDialogArgs)
     }
 
-    fun shortcutButton() {
-        logd("shortcutButton")
+    fun favoriteButton() {
+        logd("favoriteButton")
         multipleSelection.value?.let {
             val file = it.last()
-            _onAddShortcut.value = Event(DialogArgs.ShortcutDialogArgs(file.path))
+            _onAddFavorite.value = Event(DialogArgs.FavoriteDialogArgs(file.path))
         }
     }
 
