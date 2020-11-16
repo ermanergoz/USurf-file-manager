@@ -17,7 +17,7 @@
         tools:context=".library.ui.LibraryFragment">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/shortcutRecyclerView"
+            android:id="@+id/favoriteRecyclerView"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginBottom="@dimen/layout_margin_8"
@@ -60,7 +60,7 @@
             android:layout_marginLeft="1dp"
             android:background="@color/separatorColor"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/shortcutRecyclerView"
+            app:layout_constraintEnd_toStartOf="@+id/favoriteRecyclerView"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/dividerTop" />
 
@@ -73,7 +73,7 @@
             android:background="@color/separatorColor"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/shortcutRecyclerView"
+            app:layout_constraintStart_toEndOf="@+id/favoriteRecyclerView"
             app:layout_constraintTop_toBottomOf="@+id/dividerTop" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
