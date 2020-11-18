@@ -11,6 +11,7 @@ import android.os.Bundle
 import com.erman.usurf.application.data.ApplicationDao
 import com.erman.usurf.application.data.ApplicationPreferenceProvider
 import com.erman.usurf.application.utils.REALM_CONFIG_FILE_NAME
+import com.erman.usurf.preference.data.PreferenceProvider
 import com.erman.usurf.pushNotification.model.PushNotificationBroadcastReceiver
 import com.erman.usurf.pushNotification.utils.INTERVAL_FIVE_MINUTES
 import io.realm.Realm
@@ -63,17 +64,25 @@ class MainApplication : Application() {
     }
 
     private fun schedulePushNotifications() {
-        val notifyIntent = Intent(this, PushNotificationBroadcastReceiver::class.java)
-        var pendingIntent = PendingIntent.getBroadcast(this, 2, notifyIntent, PendingIntent.FLAG_NO_CREATE)
+        if(PreferenceProvider().getCleanStorageReminderPreference()) {
+            val notifyIntent = Intent(this, PushNotificationBroadcastReceiver::class.java)
+            var pendingIntent =
+                PendingIntent.getBroadcast(this, 2, notifyIntent, PendingIntent.FLAG_NO_CREATE)
 
-        val alarmManager = this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        if (pendingIntent == null) {
-            pendingIntent = PendingIntent.getBroadcast(this, 2, notifyIntent, PendingIntent.FLAG_CANCEL_CURRENT)
-            // start it only it wasn't running already
-            alarmManager.setRepeating(
-                AlarmManager.RTC_WAKEUP, /*calendar.timeInMillis*/ System.currentTimeMillis(),
-                /*AlarmManager.INTERVAL_DAY*/INTERVAL_FIVE_MINUTES, pendingIntent
-            )
+            val alarmManager = this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            if (pendingIntent == null) {
+                pendingIntent = PendingIntent.getBroadcast(
+                    this,
+                    2,
+                    notifyIntent,
+                    PendingIntent.FLAG_CANCEL_CURRENT
+                )
+                // start it only it wasn't running already
+                alarmManager.setRepeating(
+                    AlarmManager.RTC_WAKEUP, /*calendar.timeInMillis*/ System.currentTimeMillis(),
+                    /*AlarmManager.INTERVAL_DAY*/INTERVAL_FIVE_MINUTES, pendingIntent
+                )
+            }
         }
     }
 }
