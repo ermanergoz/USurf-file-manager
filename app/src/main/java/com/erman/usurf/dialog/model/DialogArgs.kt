@@ -11,7 +11,7 @@ sealed class DialogArgs {
     object CompressDialogArgs : DialogArgs()
     data class OpenFileActivityArgs(val path: String)
     data class ShareActivityArgs(val multipleSelectionList: List<FileModel>)
-    data class ShortcutDialogArgs(val path: String)
-    data class ShortcutOptionsDialogArgs(val view: TextView) : DialogArgs()
+    data class FavoriteDialogArgs(val path: String)
+    data class FavoriteOptionsDialogArgs(val view: TextView) : DialogArgs()
     object FileSearchDialogArgs : DialogArgs()
 }

@@ -92,61 +92,71 @@
             app:layout_constraintVertical_bias="1.0">
 
             <Button
-                android:id="@+id/shortcutButton"
+                android:id="@+id/favoriteButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
+                android:drawableTop="@{viewModel.isSingleOperationMode ? @drawable/ic_favorite : @drawable/ic_favorite_disabled}"
                 android:enabled="@{viewModel.isSingleOperationMode}"
-                android:onClick="@{() -> viewModel.shortcutButton()}"
-                android:text="@string/shortcut"
+                android:onClick="@{() -> viewModel.favoriteButton()}"
+                android:text="@string/favorite"
                 android:textColor="@{viewModel.isSingleOperationMode ? @color/textColorDark : @color/textColorLight}"
-                android:textSize="@dimen/text_size_12" />
+                android:textSize="@dimen/text_size_10" />
 
             <Button
                 android:id="@+id/compressButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
+                android:drawableTop="@drawable/ic_zip"
                 android:onClick="@{() -> viewModel.compress()}"
                 android:text="@string/compress"
                 android:textColor="@color/textColorDark"
-                android:textSize="@dimen/text_size_12" />
+                android:textSize="@dimen/text_size_10" />
 
             <Button
                 android:id="@+id/extractButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
+                android:drawableTop="@{viewModel.isSingleOperationMode ? @drawable/ic_unzip : @drawable/ic_unzip_disabled}"
                 android:enabled="@{viewModel.isSingleOperationMode}"
                 android:onClick="@{() -> viewModel.extract()}"
                 android:text="@string/extract"
                 android:textColor="@{viewModel.isSingleOperationMode ? @color/textColorDark : @color/textColorLight}"
-                android:textSize="@dimen/text_size_12" />
+                android:textSize="@dimen/text_size_10" />
 
             <Button
                 android:id="@+id/informationButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
+                android:drawableTop="@drawable/ic_info_menu"
                 android:onClick="@{() -> viewModel.showFileInformation()}"
                 android:text="@string/information"
                 android:textColor="@color/textColorDark"
-                android:textSize="@dimen/text_size_12" />
+                android:textSize="@dimen/text_size_10" />
 
             <Button
                 android:id="@+id/shareButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
+                android:drawableTop="@drawable/ic_share"
                 android:onClick="@{() -> viewModel.share()}"
                 android:text="@string/share"
                 android:textColor="@color/textColorDark"
-                android:textSize="@dimen/text_size_12" />
+                android:textSize="@dimen/text_size_10" />
         </LinearLayout>
 
         <LinearLayout
@@ -165,58 +175,66 @@
                 android:id="@+id/copyButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
+                android:drawableTop="@drawable/ic_copy"
                 android:onClick="@{() -> viewModel.copy()}"
                 android:text="@string/copy_file"
                 android:textColor="@color/textColorDark"
-                android:textSize="@dimen/text_size_12" />
+                android:textSize="@dimen/text_size_10" />
 
             <Button
                 android:id="@+id/moveButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
+                android:drawableTop="@drawable/ic_move"
                 android:onClick="@{() -> viewModel.move()}"
                 android:text="@string/move"
                 android:textColor="@color/textColorDark"
-                android:textSize="@dimen/text_size_12" />
+                android:textSize="@dimen/text_size_10" />
 
             <Button
                 android:id="@+id/renameButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
+                android:drawableTop="@{viewModel.isSingleOperationMode ? @drawable/ic_rename : @drawable/ic_rename_disabled}"
                 android:enabled="@{viewModel.isSingleOperationMode}"
                 android:onClick="@{() -> viewModel.rename()}"
                 android:text="@string/rename"
                 android:textColor="@{viewModel.isSingleOperationMode ? @color/textColorDark : @color/textColorLight}"
-                android:textSize="@dimen/text_size_12" />
+                android:textSize="@dimen/text_size_10" />
 
             <Button
                 android:id="@+id/deleteButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
+                android:drawableTop="@drawable/ic_delete"
                 android:onClick="@{() -> viewModel.delete()}"
                 android:text="@string/delete"
                 android:textColor="@color/textColorDark"
-                android:textSize="@dimen/text_size_12" />
+                android:textSize="@dimen/text_size_10" />
 
-            <Button
+            <ImageButton
                 android:id="@+id/moreButton"
-                android:layout_width="wrap_content"
+                android:layout_width="60dp"
                 android:layout_height="match_parent"
+                android:layout_marginTop="4dp"
                 android:layout_weight="1"
-                android:visibility="@{viewModel.isRootMode ? View.GONE : View.VISIBLE}"
                 android:background="?android:attr/selectableItemBackground"
                 android:onClick="@{() -> viewModel.showMoreOption()}"
-                android:text="@{viewModel.moreOptionMode ? @string/less : @string/more}"
-                android:textColor="@color/textColorDark"
-                android:textSize="@dimen/text_size_12" />
+                android:src="@{viewModel.moreOptionMode ? @drawable/ic_down_arrow : @drawable/ic_up_arrow}"
+                android:visibility="@{viewModel.isRootMode ? View.GONE : View.VISIBLE}"
+                tools:ignore="ContentDescription" />
         </LinearLayout>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -327,45 +345,29 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/pathTextView" />
 
-
-        <LinearLayout
-            android:id="@+id/emptyFolderLayout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="@{viewModel.isEmptyDir ? View.VISIBLE : View.GONE}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:ignore="UseCompoundDrawables">
-
-            <ImageView
-                android:id="@+id/imageView2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:srcCompat="@drawable/ic_empty_folder"
-                tools:ignore="ContentDescription" />
-
-            <TextView
-                android:id="@+id/textView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/empty_folder" />
-        </LinearLayout>
-
         <ProgressBar
             android:id="@+id/loadingProgressBar"
             style="?android:attr/progressBarStyle"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="64dp"
+            android:visibility="@{viewModel.loading ? View.VISIBLE : View.GONE}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/loadingMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="@{viewModel.loading ? View.VISIBLE : View.GONE}"
+            android:visibility="@{viewModel.showLoadingMessage ? View.VISIBLE : View.GONE}"
+            android:layout_marginTop="16dp"
+            android:text="@{viewModel.fileSearchMode ? @string/searching : @string/analyzing_files}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.10" />
+            app:layout_constraintTop_toBottomOf="@+id/loadingProgressBar"
+            app:layout_constraintVertical_bias="0.0" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
