@@ -5,48 +5,48 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.erman.usurf.home.data.Shortcut
+import com.erman.usurf.home.data.Favorite
 import com.erman.usurf.R
-import com.erman.usurf.databinding.RecyclerShortcutLayoutBinding
+import com.erman.usurf.databinding.RecyclerFavoriteLayoutBinding
 import com.erman.usurf.directory.utils.MARQUEE_REPEAT_LIM
-import kotlinx.android.synthetic.main.recycler_shortcut_layout.view.*
+import kotlinx.android.synthetic.main.recycler_favorite_layout.view.*
 
-class ShortcutRecyclerViewAdapter(var viewModel: HomeViewModel) :
-    RecyclerView.Adapter<ShortcutRecyclerViewAdapter.ShortcutHolder>() {
-    var shortcuts = listOf<Shortcut>()
+class FavoriteRecyclerViewAdapter(var viewModel: HomeViewModel) :
+    RecyclerView.Adapter<FavoriteRecyclerViewAdapter.FavoriteHolder>() {
+    var favorites = listOf<Favorite>()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShortcutHolder {
-        val binding: RecyclerShortcutLayoutBinding =
-            DataBindingUtil.inflate(LayoutInflater.from(parent.context), R.layout.recycler_shortcut_layout, parent, false)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FavoriteHolder {
+        val binding: RecyclerFavoriteLayoutBinding =
+            DataBindingUtil.inflate(LayoutInflater.from(parent.context), R.layout.recycler_favorite_layout, parent, false)
 
         binding.viewModel = viewModel
-        return ShortcutHolder(binding)
+        return FavoriteHolder(binding)
     }
 
     override fun getItemCount(): Int {
-        return shortcuts.count()
+        return favorites.count()
     }
 
-    override fun onBindViewHolder(holder: ShortcutHolder, position: Int) {
-        holder.bindButtons(shortcuts.elementAt(position))
+    override fun onBindViewHolder(holder: FavoriteHolder, position: Int) {
+        holder.bindButtons(favorites.elementAt(position))
     }
 
-    inner class ShortcutHolder(var binding: RecyclerShortcutLayoutBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bindButtons(shortcut: Shortcut) {
-            itemView.shortcut.text = shortcut.name
-            itemView.shortcut.tag = shortcut.path
-            itemView.shortcut.isSingleLine = true
+    inner class FavoriteHolder(var binding: RecyclerFavoriteLayoutBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bindButtons(favorite: Favorite) {
+            itemView.favorite.text = favorite.name
+            itemView.favorite.tag = favorite.path
+            itemView.favorite.isSingleLine = true
             
-            itemView.shortcut.ellipsize = TextUtils.TruncateAt.MARQUEE
+            itemView.favorite.ellipsize = TextUtils.TruncateAt.MARQUEE
             //for sliding names if the length is longer than 1 line
-            itemView.shortcut.isSelected = true
-            itemView.shortcut.marqueeRepeatLimit = MARQUEE_REPEAT_LIM
+            itemView.favorite.isSelected = true
+            itemView.favorite.marqueeRepeatLimit = MARQUEE_REPEAT_LIM
             //-1 is for forever
         }
     }
 
-    fun updateData(shortcuts: List<Shortcut>) {
-        this.shortcuts = shortcuts
+    fun updateData(favorites: List<Favorite>) {
+        this.favorites = favorites
         notifyDataSetChanged()
     }
 }

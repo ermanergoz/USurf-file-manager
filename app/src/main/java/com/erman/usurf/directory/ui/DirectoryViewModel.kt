@@ -45,8 +45,8 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     private val _onInformation = MutableLiveData<Event<DialogArgs.InformationDialogArgs>>()
     val onInformation: LiveData<Event<DialogArgs.InformationDialogArgs>> = _onInformation
 
-    private val _onAddShortcut = MutableLiveData<Event<DialogArgs.ShortcutDialogArgs>>()
-    val onAddShortcut: LiveData<Event<DialogArgs.ShortcutDialogArgs>> = _onAddShortcut
+    private val _onAddFavorite = MutableLiveData<Event<DialogArgs.FavoriteDialogArgs>>()
+    val onAddFavorite: LiveData<Event<DialogArgs.FavoriteDialogArgs>> = _onAddFavorite
 
     private val _isSingleOperationMode = MutableLiveData<Boolean>()
     val isSingleOperationMode: LiveData<Boolean> = _isSingleOperationMode
@@ -58,6 +58,11 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
         value = false
     }
     val loading: LiveData<Boolean> = _loading
+
+    private val _showLoadingMessage = MutableLiveData<Boolean>().apply {
+        value = false
+    }
+    val showLoadingMessage: LiveData<Boolean> = _showLoadingMessage
 
     private val _fileSearchMode = MutableLiveData<Boolean>().apply {
         value = false
@@ -207,16 +212,19 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
             }
         } else {
             _loading.value = true
+            _showLoadingMessage.value = true
             launch {
                 _updateDirectoryList.value = directoryModel.getFilesToClean()
                 _loading.value = false
+                _showLoadingMessage.value = false
             }
         }
     }
 
     fun getSearchedFiles() {
-        _loading.value = true
         fileSearchQuery.value?.let {
+            _loading.value = true
+            _showLoadingMessage.value = true
             launch {
                 val fileList = directoryModel.getSearchedDeviceFiles(it)
                 if (fileList.isNullOrEmpty())
@@ -224,6 +232,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                 _updateDirectoryList.value = fileList
                 _menuMode.value = false
                 _loading.value = false
+                _showLoadingMessage.value = false
             }
         }
     }
@@ -479,11 +488,11 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
         _onFileSearch.value = Event(DialogArgs.FileSearchDialogArgs)
     }
 
-    fun shortcutButton() {
-        logd("shortcutButton")
+    fun favoriteButton() {
+        logd("favoriteButton")
         multipleSelection.value?.let {
             val file = it.last()
-            _onAddShortcut.value = Event(DialogArgs.ShortcutDialogArgs(file.path))
+            _onAddFavorite.value = Event(DialogArgs.FavoriteDialogArgs(file.path))
         }
     }
 
