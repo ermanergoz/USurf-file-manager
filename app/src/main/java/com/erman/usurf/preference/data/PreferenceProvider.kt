@@ -14,50 +14,61 @@ class PreferenceProvider {
 
     fun editRootAccessPreference(choice: Boolean) {
         logd("editRootAccessPreference")
-        preferences.edit().putBoolean(PREFERENCE_ROOT_ACCESS, choice).apply()
+        preferences.edit().putBoolean(KEY_PREFERENCE_ROOT_ACCESS, choice).apply()
     }
 
     fun getRootAccessPreference(): Boolean {
         logd("getRootAccessPreference")
         return MainApplication.appContext.getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE)
-            .getBoolean(PREFERENCE_ROOT_ACCESS, ROOT_ACCESS_PREF_DEF_VAL)
+            .getBoolean(KEY_PREFERENCE_ROOT_ACCESS, ROOT_ACCESS_PREF_DEF_VAL)
     }
 
     fun editFileSortPreference(choice: String) {
         logd("editFileSortPreference")
-        preferences.edit().putString(PREFERENCE_FILE_SORT, choice).apply()
+        preferences.edit().putString(KEY_PREFERENCE_FILE_SORT, choice).apply()
     }
 
     fun getFileSortPreference(): String? {
         logd("getFileSortPreference")
         return MainApplication.appContext.getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE)
-            .getString(PREFERENCE_FILE_SORT, DEFAULT_FILE_SORT_MODE)
+            .getString(KEY_PREFERENCE_FILE_SORT, FILE_SORT_MODE_DEF_VAL)
     }
 
     fun editShowHiddenPreference(choice: Boolean) {
         logd("editShowHiddenPreference")
-        preferences.edit().putBoolean(PREFERENCE_SHOW_HIDDEN, choice).apply()
+        preferences.edit().putBoolean(KEY_PREFERENCE_SHOW_HIDDEN, choice).apply()
     }
 
     fun getShowHiddenPreference(): Boolean {
         logd("getShowHiddenPreference")
         return MainApplication.appContext.getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE)
-            .getBoolean(PREFERENCE_SHOW_HIDDEN, SHOW_HIDDEN_PREF_DEF_VAL)
+            .getBoolean(KEY_PREFERENCE_SHOW_HIDDEN, SHOW_HIDDEN_PREF_DEF_VAL)
     }
 
     fun editAscendingOrderPreference(choice: Boolean) {
         logd("editAscendingOrderPreference")
-        preferences.edit().putBoolean(PREFERENCE_DESCENDING_ORDER, false).putBoolean(PREFERENCE_ASCENDING_ORDER, choice).apply()
+        preferences.edit().putBoolean(KEY_PREFERENCE_DESCENDING_ORDER, false).putBoolean(KEY_PREFERENCE_ASCENDING_ORDER, choice).apply()
     }
 
     fun editDescendingOrderPreference(choice: Boolean) {
         logd("editDescendingOrderPreference")
-        preferences.edit().putBoolean(PREFERENCE_ASCENDING_ORDER, false).putBoolean(PREFERENCE_DESCENDING_ORDER, choice).apply()
+        preferences.edit().putBoolean(KEY_PREFERENCE_ASCENDING_ORDER, false).putBoolean(KEY_PREFERENCE_DESCENDING_ORDER, choice).apply()
     }
 
     fun getDescendingOrderPreference(): Boolean {
         logd("getAscendingOrderPreference")
         return MainApplication.appContext.getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE)
-            .getBoolean(PREFERENCE_DESCENDING_ORDER, DESSCENDING_ORDER_PREF_DEF_VAL)
+            .getBoolean(KEY_PREFERENCE_DESCENDING_ORDER, DESSCENDING_ORDER_PREF_DEF_VAL)
+    }
+
+    fun editCleanStorageReminderPreference(choice: Boolean) {
+        logd("editCleanStorageReminderPreference")
+        preferences.edit().putBoolean(KEY_CLEAN_STORAGE_REMINDER, choice).apply()
+    }
+
+    fun getCleanStorageReminderPreference(): Boolean {
+        logd("getCleanStorageReminderPreference")
+        return MainApplication.appContext.getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE)
+            .getBoolean(KEY_CLEAN_STORAGE_REMINDER, CLEAN_STORAGE_REMINDER_PREF_DEF_VAL)
     }
 }

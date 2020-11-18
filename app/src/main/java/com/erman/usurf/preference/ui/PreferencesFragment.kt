@@ -33,6 +33,12 @@ class MainPreferencesFragment : PreferenceFragmentCompat() {
             }
         }
 
+        val cleanStorageReminderPreference = findPreference<SwitchPreference>("cleanStorageReminderSwitch")
+        cleanStorageReminderPreference?.setOnPreferenceChangeListener { _, newValue ->
+                preferenceProvider.editCleanStorageReminderPreference(newValue as Boolean)
+                true
+        }
+
         findPreference<Preference>("clear_logs")?.setOnPreferenceClickListener {
             if (File(MainApplication.appContext.getExternalFilesDir(null)?.absolutePath + File.separator + "logs").deleteRecursively())
                 Toast.makeText(context, getString(R.string.cleared), Toast.LENGTH_LONG).show()
