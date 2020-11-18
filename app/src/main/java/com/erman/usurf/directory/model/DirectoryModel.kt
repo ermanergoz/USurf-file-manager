@@ -516,6 +516,16 @@ class DirectoryModel {
         }
     }
 
+    private suspend fun cleanLeftover(baseFolderPath: String) {
+        var selectedDirectories: MutableList<FileModel> = mutableListOf()
+
+        for (file in File(baseFolderPath).listFiles()) {
+            if(file.isDirectory && file.name[0]=='_')
+                selectedDirectories.add(FileModel(file.path, "", "", "", true, "", "", "", "", false, false, false))
+        }
+        delete(selectedDirectories)
+    }
+
     suspend fun extractFiles(selectedDirectory: FileModel) = withContext(Dispatchers.IO) {
         val buffer = 6144
         val data = ByteArray(buffer)
@@ -547,6 +557,7 @@ class DirectoryModel {
                         fileOutput?.close()
                     }
                     zipInput.close()
+                    cleanLeftover(baseFolderPath)
                 }
             }
         } catch (err: Exception) {
