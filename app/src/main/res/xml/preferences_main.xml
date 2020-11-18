@@ -23,6 +23,10 @@
         android:title="@string/show_hidden_files" />
     <SwitchPreference
         android:defaultValue="false"
+        android:key="cleanStorageReminderSwitch"
+        android:title="@string/clean_storage_reminder" />
+    <SwitchPreference
+        android:defaultValue="false"
         android:key="root_access"
         android:summary="@string/root_explorer_summary"
         android:title="@string/root_explorer" />
