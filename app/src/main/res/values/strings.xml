@@ -95,6 +95,7 @@
     <string name="create_new_folder">Create new folder</string>
     <string name="new_folder">New Folder</string>
     <string name="new_file">New File.txt</string>
+    <string name="new_favorite">New Favorite</string>
     <string name="new_compressed">New.zip</string>
     <string name="done">Done</string>
     <string name="ok">OK</string>
@@ -111,10 +112,12 @@
     <string name="search">Search</string>
     <string name="favorite_created">Added to favorites</string>
     <string name="unable_to_create_favorite">Unable to add to favorites</string>
+    <string name="unable_to_create_favorite_no_name">Unable to add to favorites. Name is not provided!</string>
     <string name="favorite_deleted">Favorite deleted</string>
     <string name="unable_to_delete_favorite">Unable to delete the favorite</string>
     <string name="favorite_renamed">Favorite renamed</string>
     <string name="unable_to_rename_favorite">Unable to rename the favorite</string>
+    <string name="invalid_favorite">Invalid favorite. Try removing it!</string>
     <string name="ftp_server_is_running">Ftp Server is running</string>
     <string name="ftp_notification_channel_name">FTPNotificationChannel</string>
     <string name="ftp_notification_channel_description">FTP notification channel</string>
