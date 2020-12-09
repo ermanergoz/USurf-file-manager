@@ -133,6 +133,12 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
 
     fun onFileLongClick(file: FileModel): Boolean {
+        copyMode.value?.let {
+            if(it) return false
+        }
+        moveMode.value?.let {
+            if(it) return false
+        }
         multipleSelection.value?.let { multipleSelection ->
             _multipleSelection.value = directoryModel.manageMultipleSelectionList(file, multipleSelection)
         }
