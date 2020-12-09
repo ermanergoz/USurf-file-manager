@@ -62,7 +62,7 @@ class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
         _path.value = view.tag.toString()
         _navigateToDirectory.value = Event(R.id.global_action_nav_directory)
         path.value?.let { path ->
-            if (!File(path).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.P
+            if (path != "/" && !File(path).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.P
                 && StorageDirectoryPreferenceProvider().getChosenUri() == "")
                 _saf.value = Event(StorageAccessArgs.SAFActivityArgs)
         }
