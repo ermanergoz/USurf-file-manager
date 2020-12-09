@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
 import android.widget.Toast
+import androidx.core.view.isGone
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -49,8 +50,13 @@ class FTPFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        //a workaround to fix the problem of button text not updating on resume
-        if(fTPViewModel.getServerStatus())
+        //a workaround to fix the problem of button text not updating on resume with data binding
+        if(fTPViewModel.getServerStatus()) {
             connectButton.text = getString(R.string.disconnect)
+            editUserNameTextView.isEnabled = false
+            editPasswordTextView.isEnabled = false
+            editPortTextView.isEnabled = false
+            radioButtonGroup.isGone = true
+        }
     }
 }
