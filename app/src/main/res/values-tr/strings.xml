@@ -94,6 +94,7 @@
     <string name="create_new_folder">Yeni klasör oluştur</string>
     <string name="new_folder">Yeni Klasör</string>
     <string name="new_file">Yeni Dosya.txt</string>
+    <string name="new_favorite">Yeni Favori</string>
     <string name="new_compressed">Yeni.zip</string>
     <string name="done">Bitti</string>
     <string name="ok">Tamam</string>
@@ -114,6 +115,8 @@
     <string name="unable_to_delete_favorite">Favoriyi silerken hata</string>
     <string name="favorite_renamed">Favori yeniden isimlendirildi</string>
     <string name="unable_to_rename_favorite">Favoriyi yeniden isimlendirirken hata</string>
+    <string name="invalid_favorite">Favori gecersiz. Kaldirmayi deneyin!</string>
+    <string name="unable_to_create_favorite_no_name">Favorilere eklerken hata. Isim girilmedi!</string>
     <string name="ftp_server_is_running">Ftp Sunucusu çalışıyor</string>
     <string name="ftp_notification_channel_name">FTPNotificationChannel</string>
     <string name="ftp_notification_channel_description">FTP notification channel</string>
