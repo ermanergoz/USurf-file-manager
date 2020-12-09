@@ -63,7 +63,8 @@ class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
         _navigateToDirectory.value = Event(R.id.global_action_nav_directory)
         path.value?.let { path ->
             if (!File(path).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.P
-                && StorageDirectoryPreferenceProvider().getChosenUri() == "")
+                && StorageDirectoryPreferenceProvider().getChosenUri() == ""
+            )
                 _saf.value = Event(StorageAccessArgs.SAFActivityArgs)
         }
     }
@@ -83,11 +84,13 @@ class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
     fun onFavoriteClick(view: View) {
         val favoritePath = view.tag.toString()
 
-        if (File(favoritePath).isDirectory) {
-            logd("Open a favorite directory")
-            _path.value = favoritePath
-            _navigateToDirectory.value = Event(R.id.global_action_nav_directory)
-        } else _openFile.value = Event(DialogArgs.OpenFileActivityArgs(favoritePath))
+        if (File(favoritePath).exists()) {
+            if (File(favoritePath).isDirectory) {
+                logd("Open a favorite directory")
+                _path.value = favoritePath
+                _navigateToDirectory.value = Event(R.id.global_action_nav_directory)
+            } else _openFile.value = Event(DialogArgs.OpenFileActivityArgs(favoritePath))
+        } else _toastMessage.value = Event(R.string.invalid_favorite)
     }
 
     fun onFavoriteLongClick(view: TextView): Boolean {
