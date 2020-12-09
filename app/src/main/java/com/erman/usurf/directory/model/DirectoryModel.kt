@@ -212,7 +212,8 @@ class DirectoryModel {
                 deleteFolderRecursively(it)
             }
         } else if (isRoot) {
-            delete(getSearchedDeviceFiles("usurfIsRootCheck"))
+            val toDelete = getSearchedDeviceFiles("usurfIsRootCheck")
+            if(toDelete.isNotEmpty()) delete(toDelete)
         }
         Log.e("isRoot", isRoot.toString())
         return isRoot
