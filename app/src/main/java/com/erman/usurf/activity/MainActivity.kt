@@ -144,7 +144,7 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
     private fun onStorageButtonClick(path: String, navController: NavController) {
         directoryViewModel.setPath(path)
         destination = R.id.global_action_nav_directory
-        if (!File(path).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.P
+        if (path !=  "/" && !File(path).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.P
             && StorageDirectoryPreferenceProvider().getChosenUri() == "") {
             launchSAF()
         }
@@ -197,7 +197,6 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
     }
 
     override fun launchSAF() {
-        //https://developer.android.com/reference/android/support/v4/provider/DocumentFile
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
             //If you really do need full access to an entire subtree of documents,
@@ -207,10 +206,6 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
 
     override fun autoSizeButtonDimensions(storageButtonCount: Int, sideMargin: Int): Pair<Int, Int> {
         val displayMetrics = DisplayMetrics()
-
-        //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-        //this.display?.getRealMetrics(displayMetrics)
-        //else
         windowManager.defaultDisplay.getMetrics(displayMetrics)
 
         val screenWidth = displayMetrics.widthPixels

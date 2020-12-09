@@ -39,10 +39,13 @@ class FtpServer : Service() {
         // Let it continue running until it is stopped.
         val listenerFactory = ListenerFactory()
         val connectionConfigFactory = ConnectionConfigFactory()
-        //connectionConfigFactory.isAnonymousLoginEnabled = true
+        connectionConfigFactory.isAnonymousLoginEnabled = true
         serverFactory.connectionConfig = connectionConfigFactory.createConnectionConfig()
-        listenerFactory.port = DEFAULT_PORT
-
+        getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE).getInt(
+            PORT_KEY, DEFAULT_PORT)?.let {
+            listenerFactory.port = it
+        }
+        
         val user = BaseUser()
         getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE).getString(
             USERNAME_KEY, DEFAULT_USER_NAME)?.let {
