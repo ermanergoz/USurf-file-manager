@@ -25,8 +25,6 @@ inline fun <reified T> T.logi(message: String) {
     logToFile("Info", message)
 }
 
-//https://stackoverflow.com/questions/7959263/android-log-v-log-d-log-i-log-w-log-e-when-to-use-each-one
-
 fun logToFile(type: String, message: String) {
     try {
         val direct = File(appContext.getExternalFilesDir(null)?.absolutePath + "/logs")
