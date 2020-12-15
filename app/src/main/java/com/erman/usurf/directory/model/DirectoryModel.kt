@@ -590,7 +590,6 @@ class DirectoryModel {
 
                     while (zipInput.nextEntry.also { zipContent = it } != null) {
                         if (zipContent!!.name.contains(File.separator)) {    //if it contains directory
-                            //zipContent!!.name -> "someSubFolder/zipContentName.extension"
                             createSubDirectories(zipContent!!.name, baseFolderPath) //create all the subdirectories
                         }
                         val fileOutput = getOutputStream(File(baseFolderPath + File.separator + zipContent!!.name))
@@ -604,7 +603,10 @@ class DirectoryModel {
                         fileOutput?.close()
                     }
                     zipInput.close()
-                    cleanLeftover(baseFolderPath)
+                    try {
+                        cleanLeftover(baseFolderPath)
+                    } catch (err: Exception) {
+                    }
                 }
             }
         } catch (err: Exception) {
