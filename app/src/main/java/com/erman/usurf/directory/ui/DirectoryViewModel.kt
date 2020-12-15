@@ -494,7 +494,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
         _onFileSearch.value = Event(DialogArgs.FileSearchDialogArgs)
     }
 
-    fun favoriteButton() {
+    fun onFavoriteButtonPressed() {
         logd("favoriteButton")
         multipleSelection.value?.let {
             val file = it.last()

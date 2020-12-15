@@ -17,7 +17,7 @@ class FtpModel {
 
         return "ftps://" + String.format("%d.%d.%d.%d",
             ip and 0xff, ip shr 8 and 0xff, ip shr 16 and 0xff, ip shr 24 and 0xff)
-        //Formatter.formatIpAddress is deprecated beacuse it doesnt work with ipv6
+        //Formatter.formatIpAddress is deprecated because it doesn't work with ipv6
     }
 
     fun startFTPServer() {
