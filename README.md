@@ -1,5 +1,7 @@
 # USurf File Manager
 
+[<img src="https://github.com/ermanergoz/USurf/blob/master/resources/google-play-badge.png" width="200">](https://play.google.com/store/apps/details?id=com.erman.usurf)
+
 USurf File Manager is a simple open sourced Android file manager application that lets users browse their files, find their downloads, manage their storage space, move things around,and a lot more. The goal of this application is to provide trustable service to the users without any shady background operations and advertisement-free user experience.
 
 <p float="center">
