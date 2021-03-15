@@ -26,12 +26,11 @@ class MainApplication : Application() {
         super.onCreate()
         appContext = this.applicationContext
 
-        //Documentation: https://realm.io/docs/kotlin/latest/#realms
         Realm.init(this)
         val config = RealmConfiguration.Builder()
-            .name(REALM_CONFIG_FILE_NAME)
-            .deleteRealmIfMigrationNeeded()
-            .build()
+                .name(REALM_CONFIG_FILE_NAME)
+                .deleteRealmIfMigrationNeeded()
+                .build()
 
         Realm.setDefaultConfiguration(config)
         val realm = Realm.getDefaultInstance()
@@ -64,24 +63,16 @@ class MainApplication : Application() {
     }
 
     private fun schedulePushNotifications() {
-        if(PreferenceProvider().getCleanStorageReminderPreference()) {
+        if (PreferenceProvider().getCleanStorageReminderPreference()) {
             val notifyIntent = Intent(this, PushNotificationBroadcastReceiver::class.java)
             var pendingIntent =
-                PendingIntent.getBroadcast(this, 2, notifyIntent, PendingIntent.FLAG_NO_CREATE)
+                    PendingIntent.getBroadcast(this, 2, notifyIntent, PendingIntent.FLAG_NO_CREATE)
 
             val alarmManager = this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             if (pendingIntent == null) {
-                pendingIntent = PendingIntent.getBroadcast(
-                    this,
-                    2,
-                    notifyIntent,
-                    PendingIntent.FLAG_CANCEL_CURRENT
-                )
+                pendingIntent = PendingIntent.getBroadcast(this, 2, notifyIntent, PendingIntent.FLAG_CANCEL_CURRENT)
                 // start it only it wasn't running already
-                alarmManager.setRepeating(
-                    AlarmManager.RTC_WAKEUP, /*calendar.timeInMillis*/ System.currentTimeMillis(),
-                    /*AlarmManager.INTERVAL_DAY*/INTERVAL_FIVE_MINUTES, pendingIntent
-                )
+                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), AlarmManager.INTERVAL_DAY, pendingIntent)
             }
         }
     }
