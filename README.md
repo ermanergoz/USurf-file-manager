@@ -29,7 +29,7 @@ USurf File Manager is a simple open sourced Android file manager application tha
 - Clone git repository:
 
 	```sh
-	git clone https://github.com/ermanergoz/USurf.git
+	git clone https://github.com/ermanergoz/USurf-file-manager.git
 	```
 
 - Import the project into Android Studio:
