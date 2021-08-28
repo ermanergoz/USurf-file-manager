@@ -56,7 +56,8 @@
             android:hint="@string/name"
             android:inputType="textPersonName"
             android:text="@{favoriteView.text.toString()}"
-            android:visibility="@{viewModel.isRenameMode ? View.VISIBLE : View.GONE}" />
+            android:visibility="@{viewModel.isRenameMode ? View.VISIBLE : View.GONE}"
+            android:importantForAutofill="no" />
 
         <Button
             android:id="@+id/okButton"

@@ -244,7 +244,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:srcCompat="@drawable/ic_menu" />
+            app:srcCompat="@drawable/ic_menu"
+            android:contentDescription="@string/create_new" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/newFileFloatingButton"
@@ -263,7 +264,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:srcCompat="@drawable/ic_file_white" />
+            app:srcCompat="@drawable/ic_file_white"
+            android:contentDescription="@string/new_file" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/deviceWideSearchFloatingButton"
@@ -283,7 +285,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0"
-            app:srcCompat="@drawable/ic_search" />
+            app:srcCompat="@drawable/ic_search"
+            android:contentDescription="@string/device_wide_search" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/newFolderFloatingButton"
@@ -304,7 +307,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0"
-            app:srcCompat="@drawable/ic_folder_white" />
+            app:srcCompat="@drawable/ic_folder_white"
+            android:contentDescription="@string/new_folder" />
 
         <TextView
             android:id="@+id/pathTextView"
