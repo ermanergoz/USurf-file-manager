@@ -123,7 +123,7 @@
     <string name="drawer_open">Drawer open</string>
     <string name="drawer_close">Drawer close</string>
     <string name="share_directory">Şunlar için işlem yapılamıyor. Dosya değil </string>
-    <string name="push_notification_channel_description">Push notification channel</string>
-    <string name="push_notification_title">Biraz yer açın!</string>
     <string name="clear_logs">Günlükleri ve geçmişi temizle</string>
+    <string name="create_new">Create new</string>
+    <string name="device_wide_search">Device-wide search</string>
 </resources>
