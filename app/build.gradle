@@ -21,9 +21,10 @@ android {
         applicationId "com.erman.usurf"
         minSdkVersion 14
         targetSdkVersion 30
-        versionCode 1
-        versionName "1.2.2.3"
-        //https://en.wikipedia.org/wiki/Software_versioning
+        versionCode 4
+        versionName "1.2.3"
+        //https://semver.org/spec/v2.0.0.html
+        //major.minor.patch
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
