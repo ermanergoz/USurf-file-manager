@@ -18,10 +18,12 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
+import androidx.navigation.NavDirections
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
+import com.erman.usurf.MobileNavigationDirections
 import com.erman.usurf.R
 import com.erman.usurf.activity.data.StorageDirectoryPreferenceProvider
 import com.erman.usurf.activity.model.RefreshNavDrawer
@@ -43,7 +45,7 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var directoryViewModel: DirectoryViewModel
     private lateinit var viewModelFactory: ViewModelFactory
-    var destination: Int? = null
+    var destination: NavDirections? = null
 
     private fun requestPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -89,10 +91,10 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
 
         navView.setNavigationItemSelectedListener {
             when (it.itemId) {
-                R.id.nav_home -> destination = R.id.global_action_nav_home
-                R.id.nav_preferences -> destination = R.id.global_action_nav_preferences
-                R.id.nav_ftp -> destination = R.id.global_action_to_nav_ftp
-                R.id.nav_info -> destination = R.id.global_action_nav_info
+                R.id.nav_home -> destination = MobileNavigationDirections.globalActionNavHome()
+                R.id.nav_preferences -> destination = MobileNavigationDirections.globalActionNavPreferences()
+                R.id.nav_ftp -> destination = MobileNavigationDirections.globalActionToNavFtp()
+                R.id.nav_info -> destination = MobileNavigationDirections.globalActionNavInfo()
             }
             drawerLayout.closeDrawers()
             true
@@ -107,6 +109,7 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
                         destination?.let { navController.navigate(it) }
                     }
                 }
+
         drawerToggle.isDrawerIndicatorEnabled = true
         drawerLayout.addDrawerListener(drawerToggle)
         drawerToggle.syncState()
@@ -135,7 +138,7 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
 
     private fun onStorageButtonClick(path: String, navController: NavController) {
         directoryViewModel.setPath(path)
-        destination = R.id.global_action_nav_directory
+        destination = MobileNavigationDirections.globalActionNavDirectory()
         if (path != "/" && !File(path).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.P
                 && StorageDirectoryPreferenceProvider().getChosenUri() == "") {
             launchSAF()
