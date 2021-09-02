@@ -23,6 +23,7 @@ import com.erman.usurf.activity.model.ShowDialog
 import com.erman.usurf.databinding.FragmentHomeBinding
 import com.erman.usurf.dialog.ui.RenameDialog
 import com.erman.usurf.dialog.ui.FavoriteOptionsDialog
+import com.erman.usurf.dialog.ui.KitkatRemovableStorageWarningDialog
 import com.erman.usurf.directory.ui.DirectoryViewModel
 import com.erman.usurf.home.model.FinishActivity
 import com.erman.usurf.home.model.HomeStorageButton
@@ -102,6 +103,12 @@ class HomeFragment : Fragment() {
         homeViewModel.toastMessage.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.let { messageId ->
                 Toast.makeText(context, getString(messageId), Toast.LENGTH_LONG).show()
+            }
+        })
+
+        homeViewModel.isKitkatRemovableStorage.observeOnce(viewLifecycleOwner, Observer {
+            it?.let {
+                dialogListener.showDialog(KitkatRemovableStorageWarningDialog())
             }
         })
 
