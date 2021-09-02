@@ -126,4 +126,6 @@
     <string name="clear_logs">Günlükleri ve geçmişi temizle</string>
     <string name="create_new">Create new</string>
     <string name="device_wide_search">Device-wide search</string>
+    <string name="i_understand">Anladım</string>
+    <string name="kitkat_removable_storage_warning">Google\'ın Android 4.4 KitKat ile ilgili aldığı kararlar nedeniyle, çıkarılabilir depolama alanındaki dosya işlemleri çoğu cihazda çalışmayabilir.</string>
 </resources>

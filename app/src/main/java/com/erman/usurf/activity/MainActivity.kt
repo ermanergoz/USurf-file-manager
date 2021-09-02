@@ -45,7 +45,8 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var directoryViewModel: DirectoryViewModel
     private lateinit var viewModelFactory: ViewModelFactory
-    var destination: NavDirections? = null
+    private lateinit var storageDirectoryPreferenceProvider: StorageDirectoryPreferenceProvider
+    private var destination: NavDirections? = null
 
     private fun requestPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -64,6 +65,7 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
 
         viewModelFactory = ViewModelFactory()
         directoryViewModel = ViewModelProvider(this, viewModelFactory).get(DirectoryViewModel::class.java)
+        storageDirectoryPreferenceProvider = StorageDirectoryPreferenceProvider()
 
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         val navView: NavigationView = findViewById(R.id.nav_view)
@@ -140,7 +142,7 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
         directoryViewModel.setPath(path)
         destination = MobileNavigationDirections.globalActionNavDirectory()
         if (path != "/" && !File(path).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.P
-                && StorageDirectoryPreferenceProvider().getChosenUri() == "") {
+                && storageDirectoryPreferenceProvider.getChosenUri() == "") {
             launchSAF()
         }
     }
@@ -153,7 +155,7 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
                     this.contentResolver.takePersistableUriPermission(treeUri,
                             Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
                 }
-                StorageDirectoryPreferenceProvider().editChosenUri(treeUri.toString())
+                storageDirectoryPreferenceProvider.editChosenUri(treeUri.toString())
             }
         } else {
             return

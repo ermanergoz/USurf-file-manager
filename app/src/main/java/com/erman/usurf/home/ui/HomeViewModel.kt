@@ -13,9 +13,11 @@ import com.erman.usurf.dialog.model.DialogArgs
 import com.erman.usurf.home.data.Favorite
 import com.erman.usurf.home.data.FavoriteDao
 import com.erman.usurf.activity.data.StorageDirectoryPreferenceProvider
+import com.erman.usurf.home.data.HomePreferenceProvider
 import com.erman.usurf.home.model.HomeModel
 import com.erman.usurf.home.model.StorageAccessArgs
 import com.erman.usurf.utils.Event
+import com.erman.usurf.utils.StoragePaths
 import com.erman.usurf.utils.logd
 import com.erman.usurf.utils.logi
 import io.realm.Realm
@@ -58,6 +60,9 @@ class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
     private val _toastMessage = MutableLiveData<Event<Int>>()
     val toastMessage: LiveData<Event<Int>> = _toastMessage
 
+    private val _isKitkatRemovableStorage = MutableLiveData<Boolean>()
+    val isKitkatRemovableStorage: LiveData<Boolean> = _isKitkatRemovableStorage
+
     fun onStorageButtonClick(view: View) {
         _path.value = view.tag.toString()
         _navigateToDirectory.value = Event(R.id.global_action_nav_directory)
@@ -65,6 +70,15 @@ class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
             if (path != "/" && !File(path).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.P
                 && StorageDirectoryPreferenceProvider().getChosenUri() == "")
                 _saf.value = Event(StorageAccessArgs.SAFActivityArgs)
+        }
+
+        val isKitkatRemovableStorage = (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT &&
+                StoragePaths().getStorageDirectories().size > 1 &&
+                path.value == StoragePaths().getStorageDirectories()[1])
+
+        if (isKitkatRemovableStorage && !HomePreferenceProvider().getIsKitkatRemovableStorageWarningDisplayedPreference()) {
+            _isKitkatRemovableStorage.value = isKitkatRemovableStorage
+            HomePreferenceProvider().editIsKitkatRemovableStorageWarningDisplayedPreference(true)
         }
     }
 
