@@ -25,10 +25,8 @@
     <string name="those_icons_url">https://www.flaticon.com/authors/those-icons</string>
     <string name="icons_kiranshastry">Delete icon by Kiranshastry from flaticon.com</string>
     <string name="kiranshastry_url">https://www.flaticon.com/authors/kiranshastry</string>
-
     <string name="icons_iconixar">Move icon and zip icon by iconixar from flaticon.com</string>
     <string name="iconixar_url">https://www.flaticon.com/authors/iconixar</string>
-
     <string name="icons_smashicons">Home icon by Smashicons from flaticon.com</string>
     <string name="smashicons_url">https://www.flaticon.com/authors/smashicons</string>
     <string name="storage_icon">Storage icon by srip from flaticon.com</string>
@@ -127,4 +125,6 @@
     <string name="clear_logs">Clear logs and history</string>
     <string name="create_new">Create new</string>
     <string name="device_wide_search">Device-wide search</string>
+    <string name="i_understand">I understand</string>
+    <string name="kitkat_removable_storage_warning">Due to the decisions made by Google regarding Android 4.4 KitKat, file operations in the removable storage may not work on most of the devices.</string>
 </resources>
