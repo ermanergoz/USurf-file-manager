@@ -8,6 +8,7 @@ import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import com.erman.usurf.activity.data.StorageDirectoryPreferenceProvider
 import com.erman.usurf.application.MainApplication.Companion.appContext
+import com.erman.usurf.directory.utils.ROOT_DIRECTORY
 import com.erman.usurf.directory.utils.SIMPLE_DATE_FORMAT_PATTERN
 import com.erman.usurf.preference.data.PreferenceProvider
 import com.erman.usurf.utils.*
@@ -99,7 +100,7 @@ class DirectoryModel {
     }
 
     private fun getFolderSize(file: File): Double {
-        if (file.exists() && file.parent != "/") {
+        if (file.exists() && file.parent != ROOT_DIRECTORY) {
             file.listFiles()?.let {
                 var size = 0.0
                 val fileList = it.toList()
