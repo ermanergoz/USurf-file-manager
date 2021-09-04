@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.erman.usurf.R
 import com.erman.usurf.dialog.model.DialogArgs
 import com.erman.usurf.directory.model.*
+import com.erman.usurf.directory.utils.ROOT_DIRECTORY
 import com.erman.usurf.preference.data.PreferenceProvider
 import com.erman.usurf.utils.Event
 import com.erman.usurf.utils.logd
@@ -180,7 +181,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                 path.value?.let { path ->
                     File(path).parent?.let { parent ->
                         val prevFile = File(parent)
-                        if ((prevFile.canRead() && prevFile.path != "/") || PreferenceProvider().getRootAccessPreference()) {
+                        if ((prevFile.canRead() && prevFile.path != ROOT_DIRECTORY) || PreferenceProvider().getRootAccessPreference()) {
                             _path.value = prevFile.path
                             return true
                         }

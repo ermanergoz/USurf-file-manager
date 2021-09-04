@@ -109,6 +109,7 @@
     <string name="renaming">Yeniden isimlendiriliyor</string>
     <string name="creating">Oluşturuluyor</string>
     <string name="search">Ara</string>
+    <string name="cancel">İptal</string>
     <string name="favorite_created">Favorilere eklendi</string>
     <string name="unable_to_create_favorite">Favorilere eklerken hata</string>
     <string name="favorite_deleted">Favori silindi</string>
@@ -128,4 +129,6 @@
     <string name="device_wide_search">Device-wide search</string>
     <string name="i_understand">Anladım</string>
     <string name="kitkat_removable_storage_warning">Google\'ın Android 4.4 KitKat ile ilgili aldığı kararlar nedeniyle, çıkarılabilir depolama alanındaki dosya işlemleri çoğu cihazda çalışmayabilir.</string>
+    <string name="manage_all_files_message">Bu uygulamanın çalışması için "Tüm dosyaları yönetme erişimine izin ver" ayarının açık olması gerekir.</string>
+    <string name="saf_access_message">Uygulamaya yazma izni vermek için lütfen çıkarılabilir depolamanın kök dizinini seçin.</string>
 </resources>
