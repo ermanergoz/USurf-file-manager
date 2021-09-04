@@ -16,6 +16,7 @@ import com.erman.usurf.activity.data.StorageDirectoryPreferenceProvider
 import com.erman.usurf.home.data.HomePreferenceProvider
 import com.erman.usurf.home.model.HomeModel
 import com.erman.usurf.home.model.StorageAccessArgs
+import com.erman.usurf.home.utils.ROOT_DIRECTORY
 import com.erman.usurf.utils.Event
 import com.erman.usurf.utils.StoragePaths
 import com.erman.usurf.utils.logd
@@ -67,7 +68,7 @@ class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
         _path.value = view.tag.toString()
         _navigateToDirectory.value = Event(R.id.global_action_nav_directory)
         path.value?.let { path ->
-            if (path != "/" && !File(path).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.P
+            if (path != ROOT_DIRECTORY && !File(path).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q
                 && StorageDirectoryPreferenceProvider().getChosenUri() == "")
                 _saf.value = Event(StorageAccessArgs.SAFActivityArgs)
         }
