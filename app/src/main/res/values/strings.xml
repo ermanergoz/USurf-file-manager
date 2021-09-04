@@ -108,6 +108,7 @@
     <string name="renaming">Renaming</string>
     <string name="creating">Creating</string>
     <string name="search">Search</string>
+    <string name="cancel">Cancel</string>
     <string name="favorite_created">Added to favorites</string>
     <string name="unable_to_create_favorite">Unable to add to favorites</string>
     <string name="unable_to_create_favorite_no_name">Unable to add to favorites. Name is not provided!</string>
@@ -127,4 +128,6 @@
     <string name="device_wide_search">Device-wide search</string>
     <string name="i_understand">I understand</string>
     <string name="kitkat_removable_storage_warning">Due to the decisions made by Google regarding Android 4.4 KitKat, file operations in the removable storage may not work on most of the devices.</string>
+    <string name="manage_all_files_message">In order this application to work, "Allow access to manage all files" setting needs to be turned on.</string>
+    <string name="saf_access_message">Please choose the root directory of the removable storage to grant write permission to operate.</string>
 </resources>

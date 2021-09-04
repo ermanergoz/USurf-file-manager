@@ -7,6 +7,7 @@ import androidx.databinding.DataBindingUtil
 import com.erman.usurf.application.MainApplication.Companion.appContext
 import com.erman.usurf.R
 import com.erman.usurf.databinding.StorageButtonBinding
+import com.erman.usurf.home.utils.ROOT_DIRECTORY
 import com.erman.usurf.utils.StoragePaths
 import kotlinx.android.synthetic.main.storage_button.view.*
 
@@ -46,7 +47,7 @@ class HomeModel() {
     }
 
     fun getUsedStoragePercentage(path: String): Int {
-        if (path != "/" && (getTotalStorage(path)).toInt() != 0) return ((getUsedStorage(
+        if (path != ROOT_DIRECTORY && (getTotalStorage(path)).toInt() != 0) return ((getUsedStorage(
             path
         ) * 100 / getTotalStorage(path))).toInt()
         return 0
