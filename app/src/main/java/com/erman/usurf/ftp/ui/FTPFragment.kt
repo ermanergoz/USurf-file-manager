@@ -15,18 +15,17 @@ import com.erman.usurf.utils.EventObserver
 import com.erman.usurf.R
 import com.erman.usurf.databinding.FragmentFtpBinding
 import com.erman.usurf.utils.ViewModelFactory
-import kotlinx.android.synthetic.main.fragment_ftp.*
 
 class FTPFragment : Fragment() {
     private lateinit var fTPViewModel: FTPViewModel
     private lateinit var viewModelFactory: ViewModelFactory
+    private lateinit var binding: FragmentFtpBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         viewModelFactory = ViewModelFactory()
 
         fTPViewModel = ViewModelProvider(this, viewModelFactory).get(FTPViewModel::class.java)
-        val binding: FragmentFtpBinding =
-            DataBindingUtil.inflate(inflater, R.layout.fragment_ftp, container, false)
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_ftp, container, false)
 
         fTPViewModel.toastMessage.observe(viewLifecycleOwner, EventObserver {
             Toast.makeText(context, getString(it), Toast.LENGTH_LONG).show()
@@ -39,7 +38,7 @@ class FTPFragment : Fragment() {
                 radioButton.id = it.indexOf(storagePath)
                 if (storagePath == fTPViewModel.getFtpSelectedPath())
                     radioButton.isChecked = true
-                radioButtonGroup.addView(radioButton)
+                binding.radioButtonGroup.addView(radioButton)
             }
         })
 
@@ -52,11 +51,11 @@ class FTPFragment : Fragment() {
         super.onResume()
         //a workaround to fix the problem of button text not updating on resume with data binding
         if (fTPViewModel.getServerStatus()) {
-            editUserNameTextView.isEnabled = false
-            editPasswordTextView.isEnabled = false
-            editPortTextView.isEnabled = false
-            radioButtonGroup.isGone = true
-            connectButton.text = getString(R.string.disconnect)
+            binding.editUserNameTextView.isEnabled = false
+            binding.editPasswordTextView.isEnabled = false
+            binding.editPortTextView.isEnabled = false
+            binding.radioButtonGroup.isGone = true
+            binding.connectButton.text = getString(R.string.disconnect)
         }
     }
 }
