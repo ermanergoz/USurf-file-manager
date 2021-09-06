@@ -23,7 +23,6 @@ import com.erman.usurf.activity.model.ShowDialog
 import com.erman.usurf.databinding.FragmentDirectoryBinding
 import com.erman.usurf.dialog.ui.*
 import com.erman.usurf.utils.*
-import kotlinx.android.synthetic.main.fragment_directory.*
 import java.io.File
 
 class DirectoryFragment : Fragment() {
@@ -31,12 +30,12 @@ class DirectoryFragment : Fragment() {
     private lateinit var directoryViewModel: DirectoryViewModel
     private lateinit var directoryRecyclerViewAdapter: DirectoryRecyclerViewAdapter
     private lateinit var dialogListener: ShowDialog
+    private lateinit var binding: FragmentDirectoryBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         viewModelFactory = ViewModelFactory()
         directoryViewModel = ViewModelProvider(requireActivity(), viewModelFactory).get(DirectoryViewModel::class.java)
-        val binding: FragmentDirectoryBinding =
-            DataBindingUtil.inflate(inflater, R.layout.fragment_directory, container, false)
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_directory, container, false)
         binding.lifecycleOwner = this
         binding.viewModel = directoryViewModel
 
@@ -134,7 +133,7 @@ class DirectoryFragment : Fragment() {
 
         directoryViewModel.updateDirectoryList.observe(viewLifecycleOwner, Observer {
             directoryRecyclerViewAdapter.updateData(it)
-            runRecyclerViewAnimation(fileListRecyclerView)
+            runRecyclerViewAnimation(binding.fileListRecyclerView)
         })
 
         requireActivity().onBackPressedDispatcher.addCallback(this) {
@@ -157,18 +156,18 @@ class DirectoryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        fileListRecyclerView.layoutManager = GridLayoutManager(context, 1)
+        binding.fileListRecyclerView.layoutManager = GridLayoutManager(context, 1)
         directoryRecyclerViewAdapter = DirectoryRecyclerViewAdapter(directoryViewModel)
-        fileListRecyclerView.adapter = directoryRecyclerViewAdapter
+        binding.fileListRecyclerView.adapter = directoryRecyclerViewAdapter
 
         directoryViewModel.path.observe(viewLifecycleOwner, Observer {
             directoryViewModel.getFileList()
-            runRecyclerViewAnimation(fileListRecyclerView)
+            runRecyclerViewAnimation(binding.fileListRecyclerView)
         })
 
         directoryViewModel.fileSearchQuery.observe(viewLifecycleOwner, Observer {
             directoryViewModel.getSearchedFiles()
-            runRecyclerViewAnimation(fileListRecyclerView)
+            runRecyclerViewAnimation(binding.fileListRecyclerView)
         })
     }
 
@@ -201,6 +200,6 @@ class DirectoryFragment : Fragment() {
             directoryViewModel.clearMultipleSelection()
         }
         directoryViewModel.getFileList()
-        runRecyclerViewAnimation(fileListRecyclerView)
+        runRecyclerViewAnimation(binding.fileListRecyclerView)
     }
 }

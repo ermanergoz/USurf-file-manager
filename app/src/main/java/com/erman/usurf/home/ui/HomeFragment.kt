@@ -29,7 +29,6 @@ import com.erman.usurf.home.model.FinishActivity
 import com.erman.usurf.home.model.HomeStorageButton
 import com.erman.usurf.home.model.StorageAccessFramework
 import com.erman.usurf.utils.*
-import kotlinx.android.synthetic.main.fragment_home.*
 import java.io.File
 
 class HomeFragment : Fragment() {
@@ -41,12 +40,12 @@ class HomeFragment : Fragment() {
     private lateinit var finishActivityListener: FinishActivity
     private lateinit var safListener: StorageAccessFramework
     private lateinit var storageButtonDimensions: HomeStorageButton
+    private lateinit var binding: FragmentHomeBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         viewModelFactory = ViewModelFactory()
         homeViewModel = ViewModelProvider(this, viewModelFactory).get(HomeViewModel::class.java)
-        val binding: FragmentHomeBinding =
-            DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false)
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false)
 
         directoryViewModel =
             ViewModelProvider(requireActivity(), viewModelFactory).get(DirectoryViewModel::class.java)
@@ -73,7 +72,7 @@ class HomeFragment : Fragment() {
             it.forEach {button ->
                 button.lifecycleOwner = this
                 button.viewModel = homeViewModel
-                storageUsageBarLayout.addView(button.root, buttonLayoutParams)
+                binding.storageUsageBarLayout.addView(button.root, buttonLayoutParams)
             }
         })
 
@@ -133,18 +132,18 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         favoriteRecyclerViewAdapter = FavoriteRecyclerViewAdapter(homeViewModel)
-        favoriteRecyclerView.layoutManager = GridLayoutManager(context, 2)
-        favoriteRecyclerView.adapter = favoriteRecyclerViewAdapter
-        favoriteRecyclerView.itemAnimator?.let { it.changeDuration = 0 }//to avoid flickering
+        binding.favoriteRecyclerView.layoutManager = GridLayoutManager(context, 2)
+        binding.favoriteRecyclerView.adapter = favoriteRecyclerViewAdapter
+        binding.favoriteRecyclerView.itemAnimator?.let { it.changeDuration = 0 }//to avoid flickering
 
         homeViewModel.favorites.observe(viewLifecycleOwner, Observer {
             favoriteRecyclerViewAdapter.updateData(it)
-            runRecyclerViewAnimation(favoriteRecyclerView)
+            runRecyclerViewAnimation(binding.favoriteRecyclerView)
         })
     }
 
     private fun refreshStorageButtons() {
-        storageUsageBarLayout.removeAllViews()
+        binding.storageUsageBarLayout.removeAllViews()
         homeViewModel.createStorageButtons()
     }
 
@@ -159,7 +158,7 @@ class HomeFragment : Fragment() {
         super.onPause()
         //To avoid java.lang.IllegalStateException: The specified child already has a parent.
         // You must call removeView() on the child's parent first.
-        storageUsageBarLayout.removeAllViews()
+        binding.storageUsageBarLayout.removeAllViews()
     }
 
     override fun onAttach(context: Context) {
