@@ -9,7 +9,6 @@ import com.erman.usurf.R
 import com.erman.usurf.databinding.StorageButtonBinding
 import com.erman.usurf.home.utils.ROOT_DIRECTORY
 import com.erman.usurf.utils.StoragePaths
-import kotlinx.android.synthetic.main.storage_button.view.*
 
 class HomeModel() {
     fun createStorageButtons(): MutableList<StorageButtonBinding> {
@@ -20,8 +19,8 @@ class HomeModel() {
             val binding: StorageButtonBinding = DataBindingUtil.inflate(LayoutInflater.from(appContext), R.layout.storage_button, null, false)
             storageButtons.add(binding)
             storageButtons[i].root.tag = storageDirectories.elementAt(i)
-            storageButtons[i].root.buttonText.text =storageDirectories.elementAt(i)
-            storageButtons[i].root.progressBar?.scaleY=20f
+            storageButtons[i].buttonText.text =storageDirectories.elementAt(i)
+            storageButtons[i].progressBar?.scaleY=20f
             //It is null on older versions of android because I removed it from the layout
         }
         return storageButtons
