@@ -19,6 +19,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
+import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
@@ -34,6 +35,7 @@ import com.erman.usurf.activity.data.StorageDirectoryPreferenceProvider
 import com.erman.usurf.activity.model.RefreshNavDrawer
 import com.erman.usurf.activity.model.ShowDialog
 import com.erman.usurf.activity.utils.*
+import com.erman.usurf.databinding.ActivityMainBinding
 import com.erman.usurf.dialog.model.DialogListener
 import com.erman.usurf.dialog.ui.ManageAllFilesRequestDialog
 import com.erman.usurf.dialog.ui.SafAccessRequestDialog
@@ -46,7 +48,6 @@ import com.erman.usurf.utils.StoragePaths
 import com.erman.usurf.utils.ViewModelFactory
 import com.erman.usurf.utils.logd
 import com.google.android.material.navigation.NavigationView
-import kotlinx.android.synthetic.main.app_bar_main.*
 import java.io.File
 
 class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNavDrawer, StorageAccessFramework, HomeStorageButton, DialogListener {
@@ -55,8 +56,10 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
     private lateinit var viewModelFactory: ViewModelFactory
     private lateinit var storageDirectoryPreferenceProvider: StorageDirectoryPreferenceProvider
     private lateinit var resultLauncher: ActivityResultLauncher<Intent>
+    private lateinit var binding: ActivityMainBinding
     private var destination: NavDirections? = null
 
+    @SuppressLint("ObsoleteSdkInt")
     private fun requestPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN &&
             Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
@@ -76,9 +79,9 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        val toolbar: Toolbar = findViewById(R.id.toolbar)
-        setSupportActionBar(toolbar)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        setContentView(binding.root)
+        setSupportActionBar(binding.incAppBarMain.toolbar)
 
         viewModelFactory = ViewModelFactory()
         directoryViewModel = ViewModelProvider(this, viewModelFactory).get(DirectoryViewModel::class.java)
@@ -131,7 +134,7 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
         }
 
         val drawerToggle: ActionBarDrawerToggle =
-            object : ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close) {
+            object : ActionBarDrawerToggle(this, drawerLayout, binding.incAppBarMain.toolbar, R.string.drawer_open, R.string.drawer_close) {
                 override fun onDrawerClosed(view: View) {
                     super.onDrawerClosed(view)
                     //This whole thing is a workaround to fix nav drawer lag issue.
