@@ -135,10 +135,10 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
 
     fun onFileLongClick(file: FileModel): Boolean {
         copyMode.value?.let {
-            if(it) return false
+            if (it) return false
         }
         moveMode.value?.let {
-            if(it) return false
+            if (it) return false
         }
         multipleSelection.value?.let { multipleSelection ->
             _multipleSelection.value = directoryModel.manageMultipleSelectionList(file, multipleSelection)
@@ -201,30 +201,20 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
 
     fun getFileList() {
-        if (!path.value.isNullOrEmpty()) {
-            try {
-                _loading.value = true
-                launch {
-                    path.value?.let { path ->
-                        val directory = directoryModel.getFileModelsFromFiles(path)
-                        if (directory.isNullOrEmpty())
-                            _toastMessage.value = Event(R.string.empty_folder)
-                        _updateDirectoryList.value = directory
-                    }
-                    _loading.value = false
-                }
-            } catch (err: IllegalStateException) {
-                _toastMessage.value = Event(R.string.unable_to_open_directory)
-                loge("getFileList $err")
-            }
-        } else {
+        try {
             _loading.value = true
-            _showLoadingMessage.value = true
             launch {
-                _updateDirectoryList.value = directoryModel.getFilesToClean()
+                path.value?.let { path ->
+                    val directory = directoryModel.getFileModelsFromFiles(path)
+                    if (directory.isNullOrEmpty())
+                        _toastMessage.value = Event(R.string.empty_folder)
+                    _updateDirectoryList.value = directory
+                }
                 _loading.value = false
-                _showLoadingMessage.value = false
             }
+        } catch (err: IllegalStateException) {
+            _toastMessage.value = Event(R.string.unable_to_open_directory)
+            loge("getFileList $err")
         }
     }
 
