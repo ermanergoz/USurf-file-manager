@@ -58,17 +58,6 @@ class PreferenceProvider {
     fun getDescendingOrderPreference(): Boolean {
         logd("getAscendingOrderPreference")
         return MainApplication.appContext.getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE)
-            .getBoolean(KEY_PREFERENCE_DESCENDING_ORDER, DESSCENDING_ORDER_PREF_DEF_VAL)
-    }
-
-    fun editCleanStorageReminderPreference(choice: Boolean) {
-        logd("editCleanStorageReminderPreference")
-        preferences.edit().putBoolean(KEY_CLEAN_STORAGE_REMINDER, choice).apply()
-    }
-
-    fun getCleanStorageReminderPreference(): Boolean {
-        logd("getCleanStorageReminderPreference")
-        return MainApplication.appContext.getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE)
-            .getBoolean(KEY_CLEAN_STORAGE_REMINDER, CLEAN_STORAGE_REMINDER_PREF_DEF_VAL)
+            .getBoolean(KEY_PREFERENCE_DESCENDING_ORDER, DESCENDING_ORDER_PREF_DEF_VAL)
     }
 }
