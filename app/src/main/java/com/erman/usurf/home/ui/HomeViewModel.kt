@@ -46,17 +46,11 @@ class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
     private val _saf = MutableLiveData<Event<StorageAccessArgs.SAFActivityArgs>>()
     val saf: MutableLiveData<Event<StorageAccessArgs.SAFActivityArgs>> = _saf
 
-    private val _onFavoriteOption = MutableLiveData<Event<DialogArgs.FavoriteOptionsDialogArgs>>()
-    val onFavoriteOption: LiveData<Event<DialogArgs.FavoriteOptionsDialogArgs>> = _onFavoriteOption
-
-    private val _onRename = MutableLiveData<Event<DialogArgs.RenameDialogArgs>>()
-    val onRename: LiveData<Event<DialogArgs.RenameDialogArgs>> = _onRename
+    private val _dialog = MutableLiveData<Event<DialogArgs>>()
+    val dialog: LiveData<Event<DialogArgs>> = _dialog
 
     private val _isRenameMode = MutableLiveData<Boolean>()
     val isRenameMode: LiveData<Boolean> = _isRenameMode
-
-    private val _openFile = MutableLiveData<Event<DialogArgs.OpenFileActivityArgs>>()
-    val openFile: LiveData<Event<DialogArgs.OpenFileActivityArgs>> = _openFile
 
     private val _toastMessage = MutableLiveData<Event<Int>>()
     val toastMessage: LiveData<Event<Int>> = _toastMessage
@@ -103,12 +97,12 @@ class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
                 logd("Open a favorite directory")
                 _path.value = favoritePath
                 _navigateToDirectory.value = Event(R.id.global_action_nav_directory)
-            } else _openFile.value = Event(DialogArgs.OpenFileActivityArgs(favoritePath))
+            } else _dialog.value = Event(DialogArgs.OpenFileActivityArgs(favoritePath))
         } else _toastMessage.value = Event(R.string.invalid_favorite)
     }
 
     fun onFavoriteLongClick(view: TextView): Boolean {
-        _onFavoriteOption.value = Event(DialogArgs.FavoriteOptionsDialogArgs(view))
+        _dialog.value = Event(DialogArgs.FavoriteOptionsDialogArgs(view))
         return true
     }
 
@@ -122,7 +116,7 @@ class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
 
     fun renameFavorite(oldName: String) {
         _isRenameMode.value = true
-        _onRename.value = Event(DialogArgs.RenameDialogArgs(oldName))
+        _dialog.value = Event(DialogArgs.RenameDialogArgs(oldName))
     }
 
     fun turnOffRenameMode() {

@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.erman.usurf.R
 import com.erman.usurf.activity.model.ShowDialog
 import com.erman.usurf.databinding.FragmentHomeBinding
+import com.erman.usurf.dialog.model.DialogArgs
 import com.erman.usurf.dialog.ui.RenameDialog
 import com.erman.usurf.dialog.ui.FavoriteOptionsDialog
 import com.erman.usurf.dialog.ui.KitkatRemovableStorageWarningDialog
@@ -76,26 +77,22 @@ class HomeFragment : Fragment() {
             }
         })
 
-        homeViewModel.onFavoriteOption.observe(viewLifecycleOwner, Observer {
+        homeViewModel.dialog.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.let { args ->
-                dialogListener.showDialog(FavoriteOptionsDialog(args.view))
-            }
-        })
+                when (args) {
+                    is DialogArgs.RenameDialogArgs -> dialogListener.showDialog(RenameDialog(args.name))
+                    is DialogArgs.OpenFileActivityArgs -> {
+                        logd("Open a favorite file")
+                        val intent = Intent(Intent.ACTION_VIEW)
+                        intent.data = FileProvider.getUriForFile(requireContext(), requireContext().packageName, File(args.path))
+                        intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                        intent.resolveActivity(requireContext().packageManager)?.let { startActivity(intent) }
+                            ?: let { Toast.makeText(context, getString(R.string.unsupported_file), Toast.LENGTH_LONG).show() }
+                    }
+                    is DialogArgs.FavoriteOptionsDialogArgs -> dialogListener.showDialog(FavoriteOptionsDialog(args.view))
+                    else -> loge("HomeFragment $args")
+                }
 
-        homeViewModel.onRename.observe(viewLifecycleOwner, Observer {
-            it.getContentIfNotHandled()?.let { args ->
-                dialogListener.showDialog(RenameDialog(args.name))
-            }
-        })
-
-        homeViewModel.openFile.observe(viewLifecycleOwner, Observer {
-            it.getContentIfNotHandled()?.let { args ->
-                logd("Open a favorite file")
-                val intent = Intent(Intent.ACTION_VIEW)
-                intent.data = FileProvider.getUriForFile(requireContext(), requireContext().packageName, File(args.path))
-                intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-                intent.resolveActivity(requireContext().packageManager)?.let { startActivity(intent) }
-                    ?: let { Toast.makeText(context, getString(R.string.unsupported_file), Toast.LENGTH_LONG).show() }
             }
         })
 
