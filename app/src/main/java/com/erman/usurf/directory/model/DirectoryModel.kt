@@ -696,23 +696,4 @@ class DirectoryModel {
         }
         return lastAccessTime
     }
-
-    private fun isLastAccessTimeValid(lastAccessTime: Long): Boolean {
-        //most of the devices don't keep track of last accessed time
-        val calendar = Calendar.getInstance()
-        calendar.timeInMillis = lastAccessTime
-        return calendar.get(Calendar.YEAR) != 1970
-    }
-
-    suspend fun getFilesToClean(): List<FileModel> = withContext(Dispatchers.IO) {
-        val deviceFileList = getSearchedDeviceFiles("")
-
-        if (isLastAccessTimeValid(getLastAccessTime(deviceFileList.shuffled().first()))) {
-            //unused files first. This doesn't work on some devices.
-            return@withContext deviceFileList.sortedWith(compareBy({ !it.isDirectory }, { getLastAccessTime(it) })).toList()
-        } else {
-            //largest file first
-            return@withContext deviceFileList.sortedWith(compareBy({ !it.isDirectory }, { it.size })).reversed().toList()
-        }
-    }
 }
