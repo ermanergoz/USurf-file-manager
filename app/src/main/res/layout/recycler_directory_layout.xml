@@ -82,13 +82,10 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:contentDescription="@string/folder_icon"
-            android:src="@{@drawable/ic_folder}"
-            app:isDirectory="@{file.isDirectory}"
             app:filePath="@{file.path}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:placeHolder="@{@drawable/ic_file}" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/extensionTextView"
