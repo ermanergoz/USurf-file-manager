@@ -1,5 +1,6 @@
 package com.erman.usurf.directory.ui
 
+import android.annotation.SuppressLint
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -45,6 +46,7 @@ class DirectoryRecyclerViewAdapter(var viewModel: DirectoryViewModel) :
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun updateData(filesList: List<FileModel>) {
         this.directoryList = filesList
         notifyDataSetChanged()
