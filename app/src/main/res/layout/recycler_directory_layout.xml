@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:tools="http://schemas.android.com/tools"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -26,48 +26,54 @@
 
         <TextView
             android:id="@+id/nameTextView"
-            android:textColor="@{file.isSelected ? @color/textColorLight : @color/daynnightTextColor}"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/vertical_margin_4"
-            android:layout_marginLeft="@dimen/horizontal_margin_4"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
             android:gravity="center_vertical"
             android:singleLine="true"
             android:text="@{file.isDirectory ? file.name : file.nameWithoutExtension}"
+            android:textColor="@{file.isSelected ? @color/textColorLight : @color/daynnightTextColor}"
             android:textSize="@dimen/text_size_18"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/lastModifiedTextView"
+            app:layout_constraintEnd_toStartOf="@id/extensionTextView"
             app:layout_constraintStart_toEndOf="@+id/imageView"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="@+id/imageView" />
 
         <TextView
             android:id="@+id/totalSizeTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@{file.isSelected ? @color/textColorLight : @color/daynnightTextColor}"
-            android:layout_marginStart="@dimen/vertical_margin_4"
-            android:layout_marginLeft="@dimen/horizontal_margin_4"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
             android:gravity="start"
             android:singleLine="true"
             android:text="@{file.isDirectory() ? file.subFileCount : file.size}"
+            android:textColor="@{file.isSelected ? @color/textColorLight : @color/daynnightTextColor}"
             android:textSize="@dimen/text_size_10"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/imageView"
-            app:layout_constraintTop_toBottomOf="@+id/nameTextView"
+            app:layout_constraintBottom_toBottomOf="@+id/extensionTextView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/extensionTextView"
             tools:ignore="SmallSp" />
 
         <TextView
             android:id="@+id/lastModifiedTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
             android:gravity="end"
             android:singleLine="true"
-            android:textColor="@{file.isSelected ? @color/textColorLight : @color/daynnightTextColor}"
             android:text="@{file.lastModified}"
+            android:textColor="@{file.isSelected ? @color/textColorLight : @color/daynnightTextColor}"
             android:textSize="@dimen/text_size_10"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toBottomOf="@+id/imageView"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@+id/totalSizeTextView"
+            app:layout_constraintStart_toEndOf="@+id/imageView"
             app:layout_constraintTop_toBottomOf="@+id/nameTextView"
             tools:ignore="SmallSp" />
 
@@ -75,30 +81,31 @@
             android:id="@+id/imageView"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:src="@{file.isDirectory ? @drawable/ic_folder : @drawable/ic_file}"
+            android:contentDescription="@string/folder_icon"
+            android:src="@{@drawable/ic_folder}"
+            app:isDirectory="@{file.isDirectory}"
+            app:filePath="@{file.path}"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:contentDescription="@string/folder_icon" />
+            app:placeHolder="@{@drawable/ic_file}" />
 
         <TextView
             android:id="@+id/extensionTextView"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/vertical_margin_8"
-            android:layout_marginLeft="@dimen/horizontal_margin_8"
-            android:layout_marginEnd="@dimen/vertical_margin_8"
-            android:layout_marginRight="@dimen/horizontal_margin_8"
-            android:gravity="center"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
             android:singleLine="true"
             android:text="@{file.isDirectory ? @string/empty : file.extension}"
             android:textAllCaps="true"
-            android:textSize="@dimen/text_size_9"
+            android:textSize="@dimen/text_size_10"
             android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="@+id/imageView"
-            app:layout_constraintEnd_toEndOf="@+id/imageView"
-            app:layout_constraintStart_toStartOf="@+id/imageView"
-            app:layout_constraintTop_toTopOf="@+id/imageView"
-            tools:ignore="SmallSp" />
+            app:layout_constraintBottom_toBottomOf="@+id/nameTextView"
+            app:layout_constraintEnd_toStartOf="@+id/totalSizeTextView"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toEndOf="@+id/nameTextView"
+            app:layout_constraintTop_toTopOf="@+id/nameTextView" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

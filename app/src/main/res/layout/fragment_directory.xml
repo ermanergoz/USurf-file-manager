@@ -33,6 +33,9 @@
             android:id="@+id/fileListRecyclerView"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:clipToPadding="false"
+            android:paddingBottom="128dp"
+            android:scrollbarStyle="outsideOverlay"
             android:visibility="@{viewModel.loading ? View.GONE : View.VISIBLE}"
             app:layout_constraintBottom_toTopOf="@+id/confirmationButtonBar"
             app:layout_constraintEnd_toEndOf="parent"
@@ -236,6 +239,7 @@
             android:layout_marginRight="16dp"
             android:layout_marginBottom="16dp"
             android:clickable="true"
+            android:contentDescription="@string/create_new"
             android:focusable="true"
             android:onClick="@{() -> viewModel.onCreate()}"
             android:visibility="@{viewModel.optionMode || viewModel.loading ? View.GONE : View.VISIBLE}"
@@ -244,8 +248,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:srcCompat="@drawable/ic_menu"
-            android:contentDescription="@string/create_new" />
+            app:srcCompat="@drawable/ic_menu" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/newFileFloatingButton"
@@ -255,6 +258,7 @@
             android:layout_marginRight="16dp"
             android:layout_marginBottom="16dp"
             android:clickable="true"
+            android:contentDescription="@string/new_file"
             android:enabled="@{!viewModel.fileSearchMode}"
             android:focusable="true"
             android:onClick="@{() -> viewModel.createFile()}"
@@ -264,8 +268,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:srcCompat="@drawable/ic_file_white"
-            android:contentDescription="@string/new_file" />
+            app:srcCompat="@drawable/ic_file_white" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/deviceWideSearchFloatingButton"
@@ -275,6 +278,7 @@
             android:layout_marginRight="16dp"
             android:layout_marginBottom="16dp"
             android:clickable="true"
+            android:contentDescription="@string/device_wide_search"
             android:focusable="true"
             android:onClick="@{() -> viewModel.deviceWideSearch()}"
             android:visibility="@{((viewModel.menuMode &amp;&amp; (viewModel.optionMode==false &amp;&amp; viewModel.loading == false))) ? View.VISIBLE : View.GONE}"
@@ -285,8 +289,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0"
-            app:srcCompat="@drawable/ic_search"
-            android:contentDescription="@string/device_wide_search" />
+            app:srcCompat="@drawable/ic_search" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/newFolderFloatingButton"
@@ -296,6 +299,7 @@
             android:layout_marginRight="16dp"
             android:layout_marginBottom="16dp"
             android:clickable="true"
+            android:contentDescription="@string/new_folder"
             android:enabled="@{!viewModel.fileSearchMode}"
             android:focusable="true"
             android:onClick="@{() -> viewModel.createFolder()}"
@@ -307,8 +311,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0"
-            app:srcCompat="@drawable/ic_folder_white"
-            android:contentDescription="@string/new_folder" />
+            app:srcCompat="@drawable/ic_folder_white" />
 
         <TextView
             android:id="@+id/pathTextView"
