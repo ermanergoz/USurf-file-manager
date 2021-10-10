@@ -2,7 +2,6 @@ package com.erman.usurf.dialog.ui
 
 import android.app.AlertDialog
 import android.app.Dialog
-import android.content.DialogInterface
 import android.os.Bundle
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.library.baseAdapters.BR
@@ -23,8 +22,8 @@ class FileInformationDialog(var file: FileModel) : DialogFragment() {
             binding.lifecycleOwner = this
 
             builder.setMessage(file.name + " " + getString(R.string.information))
-                .setPositiveButton(R.string.ok, DialogInterface.OnClickListener { _, _ ->
-                })
+                .setPositiveButton(R.string.ok) { _, _ ->
+                }
 
             builder.setView(binding.root)
             builder.create()

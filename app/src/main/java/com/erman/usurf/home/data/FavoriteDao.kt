@@ -23,7 +23,7 @@ class FavoriteDao(var realm: Realm) {
         realm.beginTransaction()
         try {
             if(favoriteName.isNotEmpty()) {
-                val favorite: Favorite = realm.createObject<Favorite>(favoritePath)
+                val favorite: Favorite = realm.createObject(favoritePath)
                 favorite.name = favoriteName
                 favorite.path = favoritePath
             } else {
@@ -60,9 +60,9 @@ class FavoriteDao(var realm: Realm) {
     fun renameFavorite(favorite: TextView, newName: String): Boolean {
         logd("Rename favorite")
         try {
-            val favorite = realm.where<Favorite>().equalTo(REALM_FIELD_NAME_PATH, favorite.tag.toString()).findFirst()
+            val favoriteToRename = realm.where<Favorite>().equalTo(REALM_FIELD_NAME_PATH, favorite.tag.toString()).findFirst()
             realm.beginTransaction()
-            favorite?.let { it.name = newName }
+            favoriteToRename?.let { it.name = newName }
         } catch (err: Error) {
             loge("renameFavorite $err")
             displayToast(R.string.unable_to_rename_favorite)
