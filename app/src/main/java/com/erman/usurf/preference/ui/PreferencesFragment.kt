@@ -14,8 +14,8 @@ import com.erman.usurf.utils.loge
 import java.io.File
 
 class MainPreferencesFragment : PreferenceFragmentCompat() {
-    lateinit var preferenceProvider: PreferenceProvider
-    lateinit var navDrawerRefreshListener: RefreshNavDrawer
+    private lateinit var preferenceProvider: PreferenceProvider
+    private lateinit var navDrawerRefreshListener: RefreshNavDrawer
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences_main, rootKey)
