@@ -15,7 +15,6 @@ import com.erman.usurf.home.data.FavoriteDao
 import com.erman.usurf.activity.data.StorageDirectoryPreferenceProvider
 import com.erman.usurf.home.data.HomePreferenceProvider
 import com.erman.usurf.home.model.HomeModel
-import com.erman.usurf.home.model.StorageAccessArgs
 import com.erman.usurf.home.utils.ROOT_DIRECTORY
 import com.erman.usurf.utils.Event
 import com.erman.usurf.utils.StoragePaths
@@ -43,9 +42,6 @@ class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
     private val _path = MutableLiveData<String>()
     val path: MutableLiveData<String> = _path
 
-    private val _saf = MutableLiveData<Event<StorageAccessArgs.SAFActivityArgs>>()
-    val saf: MutableLiveData<Event<StorageAccessArgs.SAFActivityArgs>> = _saf
-
     private val _dialog = MutableLiveData<Event<DialogArgs>>()
     val dialog: LiveData<Event<DialogArgs>> = _dialog
 
@@ -55,24 +51,21 @@ class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
     private val _toastMessage = MutableLiveData<Event<Int>>()
     val toastMessage: LiveData<Event<Int>> = _toastMessage
 
-    private val _isKitkatRemovableStorage = MutableLiveData<Boolean>()
-    val isKitkatRemovableStorage: LiveData<Boolean> = _isKitkatRemovableStorage
-
     fun onStorageButtonClick(view: View) {
         _path.value = view.tag.toString()
         _navigateToDirectory.value = Event(R.id.global_action_nav_directory)
         path.value?.let { path ->
             if (path != ROOT_DIRECTORY && !File(path).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q
                 && StorageDirectoryPreferenceProvider().getChosenUri() == "")
-                _saf.value = Event(StorageAccessArgs.SAFActivityArgs)
+                _dialog.value = Event(DialogArgs.SAFActivityArgs)
         }
 
         val isKitkatRemovableStorage = (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT &&
                 StoragePaths().getStorageDirectories().size > 1 &&
-                path.value == StoragePaths().getStorageDirectories()[1])
+                path.value == StoragePaths().getStorageDirectories().elementAt(1))
 
         if (isKitkatRemovableStorage && !HomePreferenceProvider().getIsKitkatRemovableStorageWarningDisplayedPreference()) {
-            _isKitkatRemovableStorage.value = isKitkatRemovableStorage
+            _dialog.value = Event(DialogArgs.KitkatRemovableStorageDialogArgs(isKitkatRemovableStorage))
             HomePreferenceProvider().editIsKitkatRemovableStorageWarningDisplayedPreference(true)
         }
     }
