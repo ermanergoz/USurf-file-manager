@@ -81,12 +81,12 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/moreOptionButtonBar"
+            android:id="@+id/moreMenuButtonBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@color/colorAccent"
             android:orientation="vertical"
-            android:visibility="@{viewModel.moreOptionMode ? View.VISIBLE : View.GONE}"
+            android:visibility="@{viewModel.moreMenuMode ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="@+id/fileListRecyclerView"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
@@ -226,7 +226,7 @@
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:onClick="@{() -> viewModel.showMoreOption()}"
-                android:src="@{viewModel.moreOptionMode ? @drawable/ic_down_arrow : @drawable/ic_up_arrow}"
+                android:src="@{viewModel.moreMenuMode ? @drawable/ic_down_arrow : @drawable/ic_up_arrow}"
                 android:visibility="@{viewModel.isRootMode ? View.GONE : View.VISIBLE}"
                 tools:ignore="ContentDescription" />
         </LinearLayout>
@@ -244,7 +244,7 @@
             android:onClick="@{() -> viewModel.onCreate()}"
             android:visibility="@{viewModel.optionMode || viewModel.loading ? View.GONE : View.VISIBLE}"
             app:backgroundTint="@color/colorAccent"
-            app:layout_constraintBottom_toTopOf="@+id/moreOptionButtonBar"
+            app:layout_constraintBottom_toTopOf="@+id/moreMenuButtonBar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
