@@ -9,7 +9,6 @@ import android.widget.Toast
 import androidx.core.view.isGone
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.erman.usurf.utils.EventObserver
 import com.erman.usurf.R
@@ -21,7 +20,7 @@ class FTPFragment : Fragment() {
     private lateinit var viewModelFactory: ViewModelFactory
     private lateinit var binding: FragmentFtpBinding
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         viewModelFactory = ViewModelFactory()
 
         fTPViewModel = ViewModelProvider(this, viewModelFactory).get(FTPViewModel::class.java)
@@ -31,7 +30,7 @@ class FTPFragment : Fragment() {
             Toast.makeText(context, getString(it), Toast.LENGTH_LONG).show()
         })
 
-        fTPViewModel.storagePaths.observe(viewLifecycleOwner, Observer {
+        fTPViewModel.storagePaths.observe(viewLifecycleOwner, {
             for (storagePath in it) {
                 val radioButton = RadioButton(context)
                 radioButton.text = storagePath
