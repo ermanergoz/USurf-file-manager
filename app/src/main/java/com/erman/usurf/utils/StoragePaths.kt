@@ -10,8 +10,8 @@ import java.io.IOException
 class StoragePaths {
     private val preferenceProvider = PreferenceProvider()
 
-    fun getStorageDirectories(): ArrayList<String> {
-        val paths = arrayListOf<String>()
+    fun getStorageDirectories(): Set<String> {
+        val paths = mutableSetOf<String>()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             for (file in MainApplication.appContext.getExternalFilesDirs("external")) {
