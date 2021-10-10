@@ -10,7 +10,7 @@ import com.erman.usurf.utils.logd
 
 class PreferenceProvider {
     private var preferences: SharedPreferences = MainApplication.appContext
-        .getSharedPreferences(SHARED_PREF_FILE, AppCompatActivity.MODE_PRIVATE)
+            .getSharedPreferences(SHARED_PREF_FILE, AppCompatActivity.MODE_PRIVATE)
 
     fun editRootAccessPreference(choice: Boolean) {
         logd("editRootAccessPreference")
@@ -20,7 +20,7 @@ class PreferenceProvider {
     fun getRootAccessPreference(): Boolean {
         logd("getRootAccessPreference")
         return MainApplication.appContext.getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE)
-            .getBoolean(KEY_PREFERENCE_ROOT_ACCESS, ROOT_ACCESS_PREF_DEF_VAL)
+                .getBoolean(KEY_PREFERENCE_ROOT_ACCESS, ROOT_ACCESS_PREF_DEF_VAL)
     }
 
     fun editFileSortPreference(choice: String) {
@@ -31,7 +31,7 @@ class PreferenceProvider {
     fun getFileSortPreference(): String? {
         logd("getFileSortPreference")
         return MainApplication.appContext.getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE)
-            .getString(KEY_PREFERENCE_FILE_SORT, FILE_SORT_MODE_DEF_VAL)
+                .getString(KEY_PREFERENCE_FILE_SORT, FILE_SORT_MODE_DEF_VAL)
     }
 
     fun editShowHiddenPreference(choice: Boolean) {
@@ -42,7 +42,18 @@ class PreferenceProvider {
     fun getShowHiddenPreference(): Boolean {
         logd("getShowHiddenPreference")
         return MainApplication.appContext.getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE)
-            .getBoolean(KEY_PREFERENCE_SHOW_HIDDEN, SHOW_HIDDEN_PREF_DEF_VAL)
+                .getBoolean(KEY_PREFERENCE_SHOW_HIDDEN, SHOW_HIDDEN_PREF_DEF_VAL)
+    }
+
+    fun editShowThumbnailsPreference(choice: Boolean) {
+        logd("editShowThumbnailsPreference")
+        preferences.edit().putBoolean(KEY_PREFERENCE_SHOW_THUMBNAILS, choice).apply()
+    }
+
+    fun getShowThumbnailsPreference(): Boolean {
+        logd("getShowThumbnailsPreference")
+        return MainApplication.appContext.getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE)
+                .getBoolean(KEY_PREFERENCE_SHOW_THUMBNAILS, SHOW_THUMBNAILS_PREF_DEF_VAL)
     }
 
     fun editAscendingOrderPreference(choice: Boolean) {
@@ -58,6 +69,6 @@ class PreferenceProvider {
     fun getDescendingOrderPreference(): Boolean {
         logd("getAscendingOrderPreference")
         return MainApplication.appContext.getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE)
-            .getBoolean(KEY_PREFERENCE_DESCENDING_ORDER, DESCENDING_ORDER_PREF_DEF_VAL)
+                .getBoolean(KEY_PREFERENCE_DESCENDING_ORDER, DESCENDING_ORDER_PREF_DEF_VAL)
     }
 }

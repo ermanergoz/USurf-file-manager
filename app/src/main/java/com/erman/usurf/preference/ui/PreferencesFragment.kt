@@ -52,6 +52,11 @@ class MainPreferencesFragment : PreferenceFragmentCompat() {
             true
         }
 
+        findPreference<SwitchPreference>(KEY_SHOW_THUMBNAILS_SWITCH)?.setOnPreferenceChangeListener { _, newValue ->
+            preferenceProvider.editShowThumbnailsPreference(newValue as Boolean)
+            true
+        }
+
         val ascendingOrderPreference = findPreference<CheckBoxPreference>(KEY_ASCENDING_ORDER_CHECKBOX)
         val descendingOrderPreference = findPreference<CheckBoxPreference>(KEY_DESCENDING_ORDER_CHECKBOX)
 
