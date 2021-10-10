@@ -41,10 +41,10 @@ class FTPViewModel(private val ftpModel: FtpModel) : ViewModel() {
         value = FTPLiveData()
     }
 
-    private val _storagePaths = MutableLiveData<List<String>>().apply {
+    private val _storagePaths = MutableLiveData<Set<String>>().apply {
         value = StoragePaths().getStorageDirectories()
     }
-    val storagePaths: MutableLiveData<List<String>> = _storagePaths
+    val storagePaths: MutableLiveData<Set<String>> = _storagePaths
 
     fun onConnectClicked() {
         if (!FtpServer.isFtpServerRunning) ftpModel.startFTPServer()
@@ -80,7 +80,7 @@ class FTPViewModel(private val ftpModel: FtpModel) : ViewModel() {
     }
 
     fun onFtpPathSelected(radioGroup :RadioGroup, id: Int) {
-        preferenceProvider.editFtpPath(_storagePaths.value?.let { it[id] })
+        preferenceProvider.editFtpPath(_storagePaths.value?.elementAt(id))
     }
 
     fun getFtpSelectedPath(): String? {

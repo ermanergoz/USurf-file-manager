@@ -14,4 +14,6 @@ sealed class DialogArgs {
     data class AddFavoriteDialogArgs(val path: String) : DialogArgs()
     data class FavoriteOptionsDialogArgs(val view: TextView) : DialogArgs()
     object FileSearchDialogArgs : DialogArgs()
+    data class KitkatRemovableStorageDialogArgs(val isKitkatRemovableStorage: Boolean) : DialogArgs()
+    object SAFActivityArgs : DialogArgs()
 }

@@ -61,10 +61,6 @@ class HomeFragment : Fragment() {
             directoryViewModel.setPath(it)
         })
 
-        homeViewModel.saf.observe(viewLifecycleOwner, Observer {
-            safListener.launchSAF()
-        })
-
         homeViewModel.storageButtons.observe(viewLifecycleOwner, Observer {
             val sideMargin = 8
             val dimensions = storageButtonDimensions.autoSizeButtonDimensions(it.size, sideMargin)
@@ -90,6 +86,8 @@ class HomeFragment : Fragment() {
                             ?: let { Toast.makeText(context, getString(R.string.unsupported_file), Toast.LENGTH_LONG).show() }
                     }
                     is DialogArgs.FavoriteOptionsDialogArgs -> dialogListener.showDialog(FavoriteOptionsDialog(args.view))
+                    is DialogArgs.KitkatRemovableStorageDialogArgs -> dialogListener.showDialog(KitkatRemovableStorageWarningDialog())
+                    is DialogArgs.SAFActivityArgs -> safListener.launchSAF()
                     else -> loge("HomeFragment $args")
                 }
             }
@@ -98,12 +96,6 @@ class HomeFragment : Fragment() {
         homeViewModel.toastMessage.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.let { messageId ->
                 Toast.makeText(context, getString(messageId), Toast.LENGTH_LONG).show()
-            }
-        })
-
-        homeViewModel.isKitkatRemovableStorage.observeOnce(viewLifecycleOwner, Observer {
-            it?.let {
-                dialogListener.showDialog(KitkatRemovableStorageWarningDialog())
             }
         })
 
