@@ -1,17 +1,18 @@
 package com.erman.usurf.application
 
+import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.Application
 import android.content.Context
 import android.content.pm.ActivityInfo
 import android.os.Bundle
+import androidx.multidex.MultiDexApplication
 import com.erman.usurf.application.data.ApplicationDao
 import com.erman.usurf.application.data.ApplicationPreferenceProvider
 import com.erman.usurf.application.utils.REALM_CONFIG_FILE_NAME
 import io.realm.Realm
 import io.realm.RealmConfiguration
 
-class MainApplication : Application() {
+class MainApplication : MultiDexApplication() {
     companion object {
         lateinit var appContext: Context
     }
@@ -36,6 +37,7 @@ class MainApplication : Application() {
         }
 
         registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
+            @SuppressLint("SourceLockedOrientationActivity")
             override fun onActivityCreated(p0: Activity, p1: Bundle?) {
                 p0.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
             }
