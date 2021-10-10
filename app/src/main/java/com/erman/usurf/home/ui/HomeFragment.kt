@@ -13,7 +13,6 @@ import androidx.activity.addCallback
 import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
@@ -43,7 +42,7 @@ class HomeFragment : Fragment() {
     private lateinit var storageButtonDimensions: HomeStorageButton
     private lateinit var binding: FragmentHomeBinding
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         viewModelFactory = ViewModelFactory()
         homeViewModel = ViewModelProvider(this, viewModelFactory).get(HomeViewModel::class.java)
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false)
@@ -51,17 +50,17 @@ class HomeFragment : Fragment() {
         directoryViewModel =
             ViewModelProvider(requireActivity(), viewModelFactory).get(DirectoryViewModel::class.java)
 
-        homeViewModel.navigateToDirectory.observe(viewLifecycleOwner, Observer {
+        homeViewModel.navigateToDirectory.observe(viewLifecycleOwner, {
             it.getContentIfNotHandled()?.let { navId ->
                 findNavController().navigate(navId)
             }
         })
 
-        homeViewModel.path.observe(viewLifecycleOwner, Observer {
+        homeViewModel.path.observe(viewLifecycleOwner, {
             directoryViewModel.setPath(it)
         })
 
-        homeViewModel.storageButtons.observe(viewLifecycleOwner, Observer {
+        homeViewModel.storageButtons.observe(viewLifecycleOwner, {
             val sideMargin = 8
             val dimensions = storageButtonDimensions.autoSizeButtonDimensions(it.size, sideMargin)
             val buttonLayoutParams = FrameLayout.LayoutParams(dimensions.first, dimensions.second)
@@ -73,7 +72,7 @@ class HomeFragment : Fragment() {
             }
         })
 
-        homeViewModel.dialog.observe(viewLifecycleOwner, Observer {
+        homeViewModel.dialog.observe(viewLifecycleOwner, {
             it.getContentIfNotHandled()?.let { args ->
                 when (args) {
                     is DialogArgs.RenameDialogArgs -> dialogListener.showDialog(RenameDialog(args.name))
@@ -93,7 +92,7 @@ class HomeFragment : Fragment() {
             }
         })
 
-        homeViewModel.toastMessage.observe(viewLifecycleOwner, Observer {
+        homeViewModel.toastMessage.observe(viewLifecycleOwner, {
             it.getContentIfNotHandled()?.let { messageId ->
                 Toast.makeText(context, getString(messageId), Toast.LENGTH_LONG).show()
             }
@@ -124,7 +123,7 @@ class HomeFragment : Fragment() {
         binding.favoriteRecyclerView.adapter = favoriteRecyclerViewAdapter
         binding.favoriteRecyclerView.itemAnimator?.let { it.changeDuration = 0 }//to avoid flickering
 
-        homeViewModel.favorites.observe(viewLifecycleOwner, Observer {
+        homeViewModel.favorites.observe(viewLifecycleOwner, {
             favoriteRecyclerViewAdapter.updateData(it)
             runRecyclerViewAnimation(binding.favoriteRecyclerView)
         })

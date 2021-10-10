@@ -3,7 +3,6 @@ package com.erman.usurf.dialog.ui
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -30,14 +29,14 @@ class SearchDialog : DialogFragment() {
             this.editText = dialogView.findViewById(R.id.editText)
 
             builder.setMessage(getString(R.string.search))
-                .setPositiveButton(R.string.ok, DialogInterface.OnClickListener { _, _ ->
+                .setPositiveButton(R.string.ok) { _, _ ->
                     editDialogViewModel.onFileSearchOkPressed(editText.text.toString())
 
                     val inputMethodManager: InputMethodManager =
                         requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                     if (inputMethodManager.isActive)
                         inputMethodManager.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS)
-                })
+                }
             builder.setView(dialogView)
             builder.create()
         } ?: throw IllegalStateException("Activity cannot be null")
