@@ -45,12 +45,13 @@ import com.erman.usurf.home.model.StorageAccessFramework
 import com.erman.usurf.utils.StoragePaths
 import com.erman.usurf.utils.logd
 import com.google.android.material.navigation.NavigationView
+import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
 import java.io.File
 
 class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNavDrawer, StorageAccessFramework, HomeStorageButton, DialogListener {
     private lateinit var appBarConfiguration: AppBarConfiguration
-    private lateinit var storageDirectoryPreferenceProvider: StorageDirectoryPreferenceProvider
+    private val storageDirectoryPreferenceProvider: StorageDirectoryPreferenceProvider by inject()
     private lateinit var resultLauncher: ActivityResultLauncher<Intent>
     private lateinit var binding: ActivityMainBinding
     private var destination: NavDirections? = null
@@ -79,7 +80,6 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         setContentView(binding.root)
         setSupportActionBar(binding.incAppBarMain.toolbar)
-        storageDirectoryPreferenceProvider = StorageDirectoryPreferenceProvider()
 
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         val navView: NavigationView = findViewById(R.id.nav_view)

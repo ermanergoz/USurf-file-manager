@@ -31,9 +31,10 @@ class MainApplication : MultiDexApplication() {
 
         Realm.init(this)
         val config = RealmConfiguration.Builder()
-                .name(REALM_CONFIG_FILE_NAME)
-                .deleteRealmIfMigrationNeeded()
-                .build()
+            .name(REALM_CONFIG_FILE_NAME)
+            .deleteRealmIfMigrationNeeded()
+            .allowWritesOnUiThread(true)
+            .build()
 
         Realm.setDefaultConfiguration(config)
         val realm = Realm.getDefaultInstance()
