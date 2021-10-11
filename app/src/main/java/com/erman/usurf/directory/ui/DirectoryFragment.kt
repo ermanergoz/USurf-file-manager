@@ -13,7 +13,6 @@ import androidx.activity.addCallback
 import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -23,18 +22,16 @@ import com.erman.usurf.databinding.FragmentDirectoryBinding
 import com.erman.usurf.dialog.model.DialogArgs
 import com.erman.usurf.dialog.ui.*
 import com.erman.usurf.utils.*
+import org.koin.android.viewmodel.ext.android.sharedViewModel
 import java.io.File
 
 class DirectoryFragment : Fragment() {
-    private lateinit var viewModelFactory: ViewModelFactory
-    private lateinit var directoryViewModel: DirectoryViewModel
+    private val directoryViewModel by sharedViewModel<DirectoryViewModel>()
     private lateinit var directoryRecyclerViewAdapter: DirectoryRecyclerViewAdapter
     private lateinit var dialogListener: ShowDialog
     private lateinit var binding: FragmentDirectoryBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        viewModelFactory = ViewModelFactory()
-        directoryViewModel = ViewModelProvider(requireActivity(), viewModelFactory).get(DirectoryViewModel::class.java)
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_directory, container, false)
         binding.lifecycleOwner = this
         binding.viewModel = directoryViewModel
@@ -99,8 +96,7 @@ class DirectoryFragment : Fragment() {
         })
 
         directoryViewModel.updateDirectoryList.observe(viewLifecycleOwner, {
-            directoryRecyclerViewAdapter.updateData(it)
-            runRecyclerViewAnimation(binding.fileListRecyclerView)
+            directoryRecyclerViewAdapter.updateData(it) //3 6
         })
 
         requireActivity().onBackPressedDispatcher.addCallback(this) {
