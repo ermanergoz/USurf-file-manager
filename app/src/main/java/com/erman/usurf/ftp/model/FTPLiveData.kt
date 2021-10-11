@@ -12,7 +12,6 @@ import com.erman.usurf.utils.logd
 import com.erman.usurf.utils.loge
 
 class FTPLiveData : LiveData<Boolean>() {
-
     private val ftpServiceReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             postValue(isServiceRunning)

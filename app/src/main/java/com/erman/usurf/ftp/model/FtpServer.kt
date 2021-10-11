@@ -22,10 +22,12 @@ import org.apache.ftpserver.FtpServer
 import org.apache.ftpserver.FtpServerFactory
 import org.apache.ftpserver.listener.ListenerFactory
 import org.apache.ftpserver.usermanager.impl.BaseUser
+import org.koin.android.ext.android.inject
 
 class FtpServer : Service() {
     private val serverFactory = FtpServerFactory()
     private val server: FtpServer? = serverFactory.createServer()
+    private val ftpPreferenceProvider: FtpPreferenceProvider by inject()
 
     companion object {
         var isFtpServerRunning: Boolean = false
@@ -45,13 +47,9 @@ class FtpServer : Service() {
         listenerFactory.port = getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE).getInt(PORT_KEY, DEFAULT_PORT)
 
         val user = BaseUser()
-        getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE).getString(USERNAME_KEY, DEFAULT_USER_NAME)?.let {
-            user.name = it
-        }
-        getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE).getString(PASSWORD_KEY, PASSWORD_DEF_VAL)?.let {
-            user.password = it
-        }
-        user.homeDirectory = FtpPreferenceProvider().getFtpPath()
+        user.name = ftpPreferenceProvider.getUsername()
+        user.password = ftpPreferenceProvider.getPassword()
+        user.homeDirectory = ftpPreferenceProvider.getFtpPath()
 
         serverFactory.userManager.save(user)
         serverFactory.addListener("default", listenerFactory.createListener())

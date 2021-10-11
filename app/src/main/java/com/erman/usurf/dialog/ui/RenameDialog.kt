@@ -11,7 +11,6 @@ import androidx.fragment.app.DialogFragment
 import com.erman.usurf.R
 import com.erman.usurf.directory.ui.DirectoryViewModel
 import org.koin.android.viewmodel.ext.android.sharedViewModel
-import org.koin.android.viewmodel.ext.android.viewModel
 
 class RenameDialog(val name: String?) : DialogFragment() {
     private val editDialogViewModel by sharedViewModel<DirectoryViewModel>()

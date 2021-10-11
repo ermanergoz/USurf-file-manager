@@ -24,11 +24,11 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
-class DirectoryModel {
+class DirectoryModel(private val preferenceProvider: PreferenceProvider,
+                     private val storageDirectoryPreferenceProvider: StorageDirectoryPreferenceProvider,
+                     private val rootHandler: RootHandler) {
     @SuppressLint("SimpleDateFormat")
     private val dateFormat = SimpleDateFormat(SIMPLE_DATE_FORMAT_PATTERN)
-    private val preferenceProvider = PreferenceProvider()
-    private val rootHandler = RootHandler()
 
     suspend fun getFileModelsFromFiles(path: String): List<FileModel> = withContext(Dispatchers.IO) {
         val showHidden = preferenceProvider.getShowHiddenPreference()
@@ -154,7 +154,7 @@ class DirectoryModel {
             originalDirectory = true
         }
 
-        val extSdCardChosenUri = StorageDirectoryPreferenceProvider().getChosenUri()
+        val extSdCardChosenUri = storageDirectoryPreferenceProvider.getChosenUri()
         var treeUri: Uri? = null
         if (extSdCardChosenUri != null) treeUri = Uri.parse(extSdCardChosenUri)
         if (treeUri == null) {
