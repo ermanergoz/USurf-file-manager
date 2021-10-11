@@ -10,25 +10,21 @@ import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.library.baseAdapters.BR
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.ViewModelProvider
 import com.erman.usurf.R
 import com.erman.usurf.databinding.DialogEditFavoriteBinding
 import com.erman.usurf.home.ui.HomeViewModel
-import com.erman.usurf.utils.ViewModelFactory
+import org.koin.android.viewmodel.ext.android.viewModel
 
 class FavoriteOptionsDialog(private val favoriteView: TextView) : DialogFragment() {
-    private lateinit var viewModelFactory: ViewModelFactory
-    private lateinit var viewModel: HomeViewModel
     private lateinit var okButton: Button
     private lateinit var deleteButton: Button
     private lateinit var renameEditText: EditText
+    private val viewModel by viewModel<HomeViewModel>()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
             val builder = AlertDialog.Builder(it)
             val inflater = requireActivity().layoutInflater
-            viewModelFactory = ViewModelFactory()
-            viewModel = ViewModelProvider(requireActivity(), viewModelFactory).get(HomeViewModel::class.java)
 
             val binding: DialogEditFavoriteBinding =
                 DataBindingUtil.inflate(inflater, R.layout.dialog_edit_favorite, null, false)

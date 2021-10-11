@@ -29,26 +29,22 @@ import com.erman.usurf.home.model.FinishActivity
 import com.erman.usurf.home.model.HomeStorageButton
 import com.erman.usurf.home.model.StorageAccessFramework
 import com.erman.usurf.utils.*
+import org.koin.android.viewmodel.ext.android.sharedViewModel
+import org.koin.android.viewmodel.ext.android.viewModel
 import java.io.File
 
 class HomeFragment : Fragment() {
-    private lateinit var homeViewModel: HomeViewModel
-    private lateinit var viewModelFactory: ViewModelFactory
-    private lateinit var directoryViewModel: DirectoryViewModel
+    private val homeViewModel by viewModel<HomeViewModel>()
     private lateinit var favoriteRecyclerViewAdapter: FavoriteRecyclerViewAdapter
     private lateinit var dialogListener: ShowDialog
     private lateinit var finishActivityListener: FinishActivity
     private lateinit var safListener: StorageAccessFramework
     private lateinit var storageButtonDimensions: HomeStorageButton
     private lateinit var binding: FragmentHomeBinding
+    private val directoryViewModel by sharedViewModel<DirectoryViewModel>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        viewModelFactory = ViewModelFactory()
-        homeViewModel = ViewModelProvider(this, viewModelFactory).get(HomeViewModel::class.java)
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false)
-
-        directoryViewModel =
-            ViewModelProvider(requireActivity(), viewModelFactory).get(DirectoryViewModel::class.java)
 
         homeViewModel.navigateToDirectory.observe(viewLifecycleOwner, {
             it.getContentIfNotHandled()?.let { navId ->
