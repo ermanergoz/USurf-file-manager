@@ -8,26 +8,22 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.ViewModelProvider
 import com.erman.usurf.R
 import com.erman.usurf.directory.ui.DirectoryViewModel
 import com.erman.usurf.home.ui.HomeViewModel
-import com.erman.usurf.utils.ViewModelFactory
+import org.koin.android.viewmodel.ext.android.sharedViewModel
+import org.koin.android.viewmodel.ext.android.viewModel
 
 class AddFavoriteDialog(val path: String) : DialogFragment() {
-    private lateinit var viewModelFactory: ViewModelFactory
-    private lateinit var homeViewModel: HomeViewModel
-    private lateinit var directoryViewModel: DirectoryViewModel
     private lateinit var editText: EditText
+    private val directoryViewModel by sharedViewModel<DirectoryViewModel>()
+    private val homeViewModel by viewModel<HomeViewModel>()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
             val builder = AlertDialog.Builder(it)
             val inflater = requireActivity().layoutInflater
             val dialogView: View = inflater.inflate(R.layout.dialog_edit, null)
-            viewModelFactory = ViewModelFactory()
-            homeViewModel = ViewModelProvider(requireActivity(), viewModelFactory).get(HomeViewModel::class.java)
-            directoryViewModel = ViewModelProvider(requireActivity(), viewModelFactory).get(DirectoryViewModel::class.java)
 
             this.editText = dialogView.findViewById(R.id.editText)
 

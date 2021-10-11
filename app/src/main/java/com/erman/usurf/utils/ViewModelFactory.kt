@@ -10,18 +10,18 @@ import com.erman.usurf.home.model.HomeModel
 import com.erman.usurf.home.ui.HomeViewModel
 
 //This is to create models with arguments
-class ViewModelFactory : ViewModelProvider.Factory {
-    override fun <T : ViewModel?> create(modelClass: Class<T>): T /*T is the view model class*/ =
-        with(modelClass) {
-            when {
-                isAssignableFrom(FTPViewModel::class.java) ->
-                    FTPViewModel(FtpModel())
-                isAssignableFrom(HomeViewModel::class.java) ->
-                    HomeViewModel(HomeModel())
-                isAssignableFrom(DirectoryViewModel::class.java) ->
-                    DirectoryViewModel(DirectoryModel())
-                else ->
-                    throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
-            }
-        } as T
-}
+//class ViewModelFactory : ViewModelProvider.Factory {
+//    override fun <T : ViewModel?> create(modelClass: Class<T>): T /*T is the view model class*/ =
+//        with(modelClass) {
+//            when {
+//                isAssignableFrom(FTPViewModel::class.java) ->
+//                    FTPViewModel(FtpModel())
+//                isAssignableFrom(HomeViewModel::class.java) ->
+//                    HomeViewModel(HomeModel())
+//                isAssignableFrom(DirectoryViewModel::class.java) ->
+//                    DirectoryViewModel(DirectoryModel())
+//                else ->
+//                    throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
+//            }
+//        } as T
+//}
