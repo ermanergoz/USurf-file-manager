@@ -176,10 +176,10 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
             _loading.value = true
             launch {
                 path.value?.let { path ->
-                    val directory = directoryModel.getFileModelsFromFiles(path)
+                    val directory = directoryModel.getFileModelsFromFiles(path) //2 7   8
                     if (directory.isNullOrEmpty())
                         _toastMessage.value = Event(R.string.empty_folder)
-                    _updateDirectoryList.value = directory
+                    _updateDirectoryList.value = directory  //5
                 }
                 _loading.value = false
             }
