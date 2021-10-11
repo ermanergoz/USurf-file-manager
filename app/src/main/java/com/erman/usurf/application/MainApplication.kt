@@ -8,9 +8,12 @@ import android.os.Bundle
 import androidx.multidex.MultiDexApplication
 import com.erman.usurf.application.data.ApplicationDao
 import com.erman.usurf.application.data.ApplicationPreferenceProvider
+import com.erman.usurf.application.di.AppModule
 import com.erman.usurf.application.utils.REALM_CONFIG_FILE_NAME
 import io.realm.Realm
 import io.realm.RealmConfiguration
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.GlobalContext.startKoin
 
 class MainApplication : MultiDexApplication() {
     companion object {
@@ -21,11 +24,17 @@ class MainApplication : MultiDexApplication() {
         super.onCreate()
         appContext = this.applicationContext
 
+        startKoin {
+            androidContext(this@MainApplication)
+            modules(AppModule)
+        }
+
         Realm.init(this)
         val config = RealmConfiguration.Builder()
-                .name(REALM_CONFIG_FILE_NAME)
-                .deleteRealmIfMigrationNeeded()
-                .build()
+            .name(REALM_CONFIG_FILE_NAME)
+            .deleteRealmIfMigrationNeeded()
+            .allowWritesOnUiThread(true)
+            .build()
 
         Realm.setDefaultConfiguration(config)
         val realm = Realm.getDefaultInstance()

@@ -13,7 +13,6 @@ import com.erman.usurf.utils.logd
 import com.erman.usurf.utils.loge
 
 class ConnectionLiveData : LiveData<Boolean>() {
-
     private val networkReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             postValue(context.isConnected)

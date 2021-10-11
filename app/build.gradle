@@ -80,4 +80,6 @@ dependencies {
     implementation 'com.android.support:multidex:1.0.3'
     implementation 'com.github.bumptech.glide:glide:4.11.0'
     kapt 'com.github.bumptech.glide:compiler:4.11.0'
+    implementation "io.insert-koin:koin-core:3.0.1"
+    implementation "io.insert-koin:koin-android-viewmodel:2.2.3"
 }

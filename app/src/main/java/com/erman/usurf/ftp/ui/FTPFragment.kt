@@ -9,21 +9,16 @@ import android.widget.Toast
 import androidx.core.view.isGone
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import com.erman.usurf.utils.EventObserver
 import com.erman.usurf.R
 import com.erman.usurf.databinding.FragmentFtpBinding
-import com.erman.usurf.utils.ViewModelFactory
+import org.koin.android.viewmodel.ext.android.viewModel
 
 class FTPFragment : Fragment() {
-    private lateinit var fTPViewModel: FTPViewModel
-    private lateinit var viewModelFactory: ViewModelFactory
+    private val fTPViewModel by viewModel<FTPViewModel>()
     private lateinit var binding: FragmentFtpBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        viewModelFactory = ViewModelFactory()
-
-        fTPViewModel = ViewModelProvider(this, viewModelFactory).get(FTPViewModel::class.java)
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_ftp, container, false)
 
         fTPViewModel.toastMessage.observe(viewLifecycleOwner, EventObserver {

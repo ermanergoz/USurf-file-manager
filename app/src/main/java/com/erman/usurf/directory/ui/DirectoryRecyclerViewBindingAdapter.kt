@@ -11,13 +11,15 @@ import com.erman.usurf.directory.utils.THUMBNAIL_IMAGE_HEIGHT
 import com.erman.usurf.directory.utils.THUMBNAIL_IMAGE_WIDTH
 import com.erman.usurf.directory.utils.THUMBNAIL_SIZE_MULTIPLIER
 import com.erman.usurf.preference.data.PreferenceProvider
+import org.koin.java.KoinJavaComponent.getKoin
 import java.io.File
 
 @BindingAdapter("filePath")
 fun setImage(imageView: ImageView, filePath: String) {
+    val preferenceProvider: PreferenceProvider = getKoin().get()
     val file = File(filePath)
     
-    if (file.isFile && PreferenceProvider().getShowThumbnailsPreference()) {
+    if (file.isFile && preferenceProvider.getShowThumbnailsPreference()) {
         val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.NONE)
             .format(DecodeFormat.PREFER_RGB_565) //uses less memory than default ARGB_8888
             .override(THUMBNAIL_IMAGE_WIDTH, THUMBNAIL_IMAGE_HEIGHT)
