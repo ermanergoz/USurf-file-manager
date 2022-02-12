@@ -33,12 +33,6 @@ class MainPreferencesFragment : PreferenceFragmentCompat() {
             }
         }
 
-        findPreference<Preference>(KEY_PREFERENCE_CLEAR_LOGS)?.setOnPreferenceClickListener {
-            if (File(MainApplication.appContext.getExternalFilesDir(null)?.absolutePath + File.separator + "logs").deleteRecursively())
-                Toast.makeText(context, getString(R.string.cleared), Toast.LENGTH_LONG).show()
-            true
-        }
-
         val sortListPreference = findPreference<ListPreference>(KEY_SORT_FILES_LIST_PREFERENCE)
 
         sortListPreference?.setOnPreferenceChangeListener { _, newValue ->
