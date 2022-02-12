@@ -31,7 +31,4 @@
         android:summary="@string/root_explorer_summary"
         android:title="@string/root_explorer" />
 
-    <Preference android:title="@string/clear_logs"
-        android:key="clearLogs" />
-
 </PreferenceScreen>

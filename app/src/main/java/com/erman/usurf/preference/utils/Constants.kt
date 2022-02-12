@@ -11,7 +11,6 @@ const val KEY_PREFERENCE_SHOW_THUMBNAILS: String = "showThumbnails"
 const val KEY_PREFERENCE_ASCENDING_ORDER: String = "ascendingOrder"
 const val KEY_PREFERENCE_DESCENDING_ORDER: String = "descendingOrder"
 const val KEY_PREFERENCE_ROOT_ACCESS: String = "rootAccess"
-const val KEY_PREFERENCE_CLEAR_LOGS: String = "clearLogs"
 const val ROOT_ACCESS_PREF_DEF_VAL: Boolean = false
 const val FILE_SORT_MODE_DEF_VAL: String = "Sort by name"
 const val SHOW_HIDDEN_PREF_DEF_VAL: Boolean = false
