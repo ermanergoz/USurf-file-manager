@@ -22,12 +22,13 @@
         android:key="showHiddenFileSwitch"
         android:title="@string/show_hidden_files" />
     <SwitchPreference
+        android:defaultValue="true"
+        android:key="showThumbnails"
+        android:title="Show thumbnails" />
+    <SwitchPreference
         android:defaultValue="false"
-        android:key="root_access"
+        android:key="rootAccess"
         android:summary="@string/root_explorer_summary"
         android:title="@string/root_explorer" />
-
-    <Preference android:title="Clear logs and history"
-        android:key="clear_logs" />
 
 </PreferenceScreen>
