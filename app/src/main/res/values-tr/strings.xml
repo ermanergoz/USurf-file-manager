@@ -19,7 +19,7 @@
     <string name="developer">Geliştirici:</string>
     <string name="yusuf_erman_ergoz">Yusuf Erman ERGÖZ</string>
     <string name="version">Versiyon:</string>
-    <string name="app_version">1.2-rc3</string>
+    <string name="app_version">1.2.4</string>
     <string name="github">Github:</string>
     <string name="github_link">https://github.com/ermanergoz/USurf</string>
     <string name="icons_those_icons">Device-wide Search icon and Menu icon by Those Icons from flaticon.com</string>
@@ -109,6 +109,7 @@
     <string name="renaming">Yeniden isimlendiriliyor</string>
     <string name="creating">Oluşturuluyor</string>
     <string name="search">Ara</string>
+    <string name="cancel">İptal</string>
     <string name="favorite_created">Favorilere eklendi</string>
     <string name="unable_to_create_favorite">Favorilere eklerken hata</string>
     <string name="favorite_deleted">Favori silindi</string>
@@ -123,7 +124,11 @@
     <string name="drawer_open">Drawer open</string>
     <string name="drawer_close">Drawer close</string>
     <string name="share_directory">Şunlar için işlem yapılamıyor. Dosya değil </string>
-    <string name="push_notification_channel_description">Push notification channel</string>
-    <string name="push_notification_title">Biraz yer açın!</string>
     <string name="clear_logs">Günlükleri ve geçmişi temizle</string>
+    <string name="create_new">Create new</string>
+    <string name="device_wide_search">Device-wide search</string>
+    <string name="i_understand">Anladım</string>
+    <string name="kitkat_removable_storage_warning">Google\'ın Android 4.4 KitKat ile ilgili aldığı kararlar nedeniyle, çıkarılabilir depolama alanındaki dosya işlemleri çoğu cihazda çalışmayabilir.</string>
+    <string name="manage_all_files_message">Bu uygulamanın çalışması için \"Tüm dosyaları yönetme erişimine izin ver\" ayarının açık olması gerekir.</string>
+    <string name="saf_access_message">Uygulamaya yazma izni vermek için lütfen çıkarılabilir depolamanın kök dizinini seçin.</string>
 </resources>
