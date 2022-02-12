@@ -14,13 +14,13 @@ android {
         checkReleaseBuilds false
     }
 
-    compileSdkVersion 30
+    compileSdkVersion 32
     buildToolsVersion "30.0.3"
 
     defaultConfig {
         applicationId "com.erman.usurf"
         minSdkVersion 16
-        targetSdkVersion 30
+        targetSdkVersion 32
         versionCode 5
         versionName "1.2.4"
         //https://semver.org/spec/v2.0.0.html
