@@ -82,4 +82,5 @@ dependencies {
     kapt 'com.github.bumptech.glide:compiler:4.11.0'
     implementation "io.insert-koin:koin-core:3.0.1"
     implementation "io.insert-koin:koin-android-viewmodel:2.2.3"
+    implementation('com.github.hzy3774:AndroidP7zip:1.7.2') { transitive = false }
 }
