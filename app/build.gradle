@@ -21,8 +21,8 @@ android {
         applicationId "com.erman.usurf"
         minSdkVersion 16
         targetSdkVersion 32
-        versionCode 7
-        versionName "1.2.4"
+        versionCode 9
+        versionName "1.2.6"
         //https://semver.org/spec/v2.0.0.html
         //major.minor.patch
         vectorDrawables.useSupportLibrary = true
@@ -82,4 +82,5 @@ dependencies {
     kapt 'com.github.bumptech.glide:compiler:4.11.0'
     implementation "io.insert-koin:koin-core:3.0.1"
     implementation "io.insert-koin:koin-android-viewmodel:2.2.3"
+    implementation('com.github.hzy3774:AndroidP7zip:1.7.2') { transitive = false }
 }
