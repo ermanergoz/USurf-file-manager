@@ -13,16 +13,16 @@ import com.hzy.libp7zip.P7ZipApi
 */
 
 class FileCompressionHandler {
-    fun compress(archiveDirectory: String, sourceDirectory: String): Boolean {
-        val res = P7ZipApi.executeCommand("7z a -mx=9 $archiveDirectory $sourceDirectory")
+    fun compress(compressedFileDirectory: String, sourceDirectory: String, archiveType: String): Boolean {
+        val res = P7ZipApi.executeCommand("7z a -t$archiveType -mx=9 $compressedFileDirectory $sourceDirectory")
 
         if (res == 0 || res == 1)
             return true
         return false
     }
 
-    fun extract(archiveDirectory: String): Boolean {
-        val res = P7ZipApi.executeCommand("7z x $archiveDirectory") //TODO: Returns 2. Extract files to a specific location
+    fun extract(compressedFileDirectory: String, outputDirectory: String): Boolean {
+        val res = P7ZipApi.executeCommand("7z x $compressedFileDirectory -o$outputDirectory")
 
         if (res == 0 || res == 1)
             return true
