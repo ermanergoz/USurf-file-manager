@@ -578,24 +578,28 @@ class DirectoryModel(
         return res
     }
 
-    suspend fun compressFiles(multipleSelection: MutableList<FileModel>, compressedFileWithExtension: String) =
+    suspend fun compressFiles(multipleSelection: MutableList<FileModel>, compressedFileNameWithExtension: String) =
         withContext(Dispatchers.IO) {
-            val parentPath = File(multipleSelection.first().path).parent
-            val compressedFileWithoutExtension =
-                compressedFileWithExtension.substring(0, compressedFileWithExtension.lastIndexOf('.'))
-            val tempFolderPath = "$parentPath/$compressedFileWithoutExtension"
+            val parentPath: String = File(multipleSelection.first().path).parent ?: ""
+            val compressedFileNameWithoutExtension =
+                compressedFileNameWithExtension.substring(0, compressedFileNameWithExtension.lastIndexOf('.'))
+            val archiveType: String =
+                compressedFileNameWithExtension.substring(compressedFileNameWithExtension.lastIndexOf(".")).drop(1)
+            val tempFolderPath = "$parentPath/$compressedFileNameWithoutExtension"
 
-            File(tempFolderPath).mkdir()
+            createFolder(parentPath, compressedFileNameWithoutExtension)
             copyFile(multipleSelection, tempFolderPath)
 
-            val isSuccess = FileCompressionHandler().compress("$parentPath/$compressedFileWithExtension", tempFolderPath)
+            val isSuccess =
+                FileCompressionHandler().compress("$parentPath/$compressedFileNameWithExtension", tempFolderPath, archiveType)
             File(tempFolderPath).deleteRecursively()
 
             if (!isSuccess) cancel()
         }
 
     suspend fun extractFiles(selectedDirectory: FileModel) = withContext(Dispatchers.IO) {
-        if (!FileCompressionHandler().extract(selectedDirectory.path))
+        val parentPath: String = File(selectedDirectory.path).parent ?: ""
+        if (!FileCompressionHandler().extract(selectedDirectory.path, parentPath))
             cancel()
     }
 }
