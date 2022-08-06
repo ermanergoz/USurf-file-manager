@@ -24,7 +24,7 @@ class CompressDialog : DialogFragment() {
             editText.setText(R.string.new_compressed)
 
             builder.setTitle(getString(R.string.compress))
-                //.setMessage(getString(R.string.supported_compression_formats))
+                .setMessage(getString(R.string.supported_compression_formats))
                 .setPositiveButton(R.string.ok) { _, _ ->
                     editDialogViewModel.onFileCompressOkPressed(editText.text.toString())
                 }
