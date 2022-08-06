@@ -26,7 +26,7 @@
     <string name="those_icons_url">https://www.flaticon.com/authors/those-icons</string>
     <string name="icons_kiranshastry">Delete icon by Kiranshastry from flaticon.com</string>
     <string name="kiranshastry_url">https://www.flaticon.com/authors/kiranshastry</string>
-    <string name="icons_iconixar">Move icon and zip icon by iconixar from flaticon.com</string>
+    <string name="icons_iconixar">Move icon and compress icon by iconixar from flaticon.com</string>
     <string name="iconixar_url">https://www.flaticon.com/authors/iconixar</string>
     <string name="icons_smashicons">Home icon by Smashicons from flaticon.com</string>
     <string name="smashicons_url">https://www.flaticon.com/authors/smashicons</string>
@@ -34,7 +34,7 @@
     <string name="srip_url">https://www.flaticon.com/authors/srip</string>
     <string name="icons_roundicons">Up and down arrow icons by Roundicons from flaticon.com</string>
     <string name="round_icons_url">https://www.flaticon.com/authors/roundicons</string>
-    <string name="icons_freepic">Information icon, rename icon, share icon and unzip icon by Freepic from flaticon.com</string>
+    <string name="icons_freepic">Information icon, rename icon, share icon and extract icon by Freepic from flaticon.com</string>
     <string name="freepic_url">https://www.flaticon.com/authors/freepik</string>
     <string name="pix_perfect_link">https://www.flaticon.com/authors/pixel-perfect</string>
     <string name="icons_pix_perfect">Preferences icon, copy icon, favorite icon and FTP icon by Pixel perfect from flaticon.com</string>
@@ -68,10 +68,10 @@
     <string name="error_while_copying">Kopyalarken hata</string>
     <string name="moving_successful">Taşındı</string>
     <string name="error_while_moving">Taşırken hata</string>
-    <string name="compressing_successful">Ziplendi</string>
-    <string name="error_while_compressing">Ziplerken hata</string>
-    <string name="extracting_successful">Zip açıldı</string>
-    <string name="error_while_extracting">Zip açılırken hata</string>
+    <string name="compressing_successful">Sıkıştırıldı</string>
+    <string name="error_while_compressing">Sıkıştırırken hata</string>
+    <string name="extracting_successful">Çıkartıldı</string>
+    <string name="error_while_extracting">Çıkartılırken hata</string>
     <string name="cleared">Temizlendi</string>
     <string name="su_not_found">Cihazın root erişimi yok.</string>
     <string name="name">İsim:</string>
@@ -87,8 +87,8 @@
     <string name="rename">Yeniden isimlendir</string>
     <string name="create_file">Yeni dosya oluştur</string>
     <string name="delete">Sil</string>
-    <string name="compress">Ziple</string>
-    <string name="extract">Zip aç</string>
+    <string name="compress">Sıkıştır</string>
+    <string name="extract">Çıkart</string>
     <string name="information">Bilgi</string>
     <string name="share">Paylaş</string>
     <string name="create_new_folder">Yeni klasör oluştur</string>
@@ -100,9 +100,8 @@
     <string name="ok">Tamam</string>
     <string name="favorite">Favori</string>
     <string name="addFavorite">Favorilere ekle</string>
-    <string name="compressing">Zipleniyor</string>
-    <string name="extracting">Zip açılıyor</string>
-    <string name="invalid_extension">Geçersiz uzantı. Lütfen bir zip dosyası seçin!</string>
+    <string name="compressing">Sıkıştırılıyor</string>
+    <string name="extracting">Çıkartılıyor</string>
     <string name="deleting">Siliniyor</string>
     <string name="copying">Kopyalanıyor</string>
     <string name="moving">Taşınıyor</string>
@@ -131,4 +130,5 @@
     <string name="kitkat_removable_storage_warning">Google\'ın Android 4.4 KitKat ile ilgili aldığı kararlar nedeniyle, çıkarılabilir depolama alanındaki dosya işlemleri çoğu cihazda çalışmayabilir.</string>
     <string name="manage_all_files_message">Bu uygulamanın çalışması için \"Tüm dosyaları yönetme erişimine izin ver\" ayarının açık olması gerekir.</string>
     <string name="saf_access_message">Uygulamaya yazma izni vermek için lütfen çıkarılabilir depolamanın kök dizinini seçin.</string>
+    <string name="supported_compression_formats">Desteklenen dosya biçimleri: 7z bz2 bzip2 tbz2 tbz gz gzip tgz tar wim swm xz txz zip zipx jar xpi odt ods docx xlsx epub</string>
 </resources>
