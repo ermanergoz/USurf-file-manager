@@ -581,25 +581,19 @@ class DirectoryModel(
     suspend fun compressFiles(multipleSelection: MutableList<FileModel>, compressedFileNameWithExtension: String) =
         withContext(Dispatchers.IO) {
             val parentPath: String = File(multipleSelection.first().path).parent ?: ""
-            val compressedFileNameWithoutExtension =
-                compressedFileNameWithExtension.substring(0, compressedFileNameWithExtension.lastIndexOf('.'))
             val archiveType: String =
                 compressedFileNameWithExtension.substring(compressedFileNameWithExtension.lastIndexOf(".")).drop(1)
-            val tempFolderPath = "$parentPath/$compressedFileNameWithoutExtension"
 
-            createFolder(parentPath, compressedFileNameWithoutExtension)
-            copyFile(multipleSelection, tempFolderPath)
-
-            val isSuccess =
-                FileCompressionHandler().compress("$parentPath/$compressedFileNameWithExtension", tempFolderPath, archiveType)
-            File(tempFolderPath).deleteRecursively()
-
-            if (!isSuccess) cancel()
+            if (!FileCompressionHandler().compress("$parentPath/$compressedFileNameWithExtension",
+                    multipleSelection, archiveType))
+                cancel()
         }
 
     suspend fun extractFiles(selectedDirectory: FileModel) = withContext(Dispatchers.IO) {
         val parentPath: String = File(selectedDirectory.path).parent ?: ""
-        if (!FileCompressionHandler().extract(selectedDirectory.path, parentPath))
+        val extractedFolderName = selectedDirectory.nameWithoutExtension + EXTRACTED_FOLDER_NAME_SUFFIX
+        createFolder(parentPath, extractedFolderName)
+        if (!FileCompressionHandler().extract(selectedDirectory.path, "$parentPath/$extractedFolderName"))
             cancel()
     }
 }
