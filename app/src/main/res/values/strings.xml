@@ -129,5 +129,5 @@
     <string name="kitkat_removable_storage_warning">Due to the decisions made by Google regarding Android 4.4 KitKat, file operations in the removable storage may not work on most of the devices.</string>
     <string name="manage_all_files_message">In order this application to work, \"Allow access to manage all files\" setting needs to be turned on.</string>
     <string name="saf_access_message">Please choose the root directory of the removable storage to grant write permission to operate.</string>
-    <string name="supported_compression_formats">Supported extensions are: 7z bz2 bzip2 tbz2 tbz gz gzip tgz tar wim swm xz txz zip zipx jar xpi odt ods docx xlsx epub</string>
+    <string name="supported_compression_formats">Supported formats are: 7z bzip2 gzip tar wim xz zip</string>
 </resources>

@@ -130,5 +130,5 @@
     <string name="kitkat_removable_storage_warning">Google\'ın Android 4.4 KitKat ile ilgili aldığı kararlar nedeniyle, çıkarılabilir depolama alanındaki dosya işlemleri çoğu cihazda çalışmayabilir.</string>
     <string name="manage_all_files_message">Bu uygulamanın çalışması için \"Tüm dosyaları yönetme erişimine izin ver\" ayarının açık olması gerekir.</string>
     <string name="saf_access_message">Uygulamaya yazma izni vermek için lütfen çıkarılabilir depolamanın kök dizinini seçin.</string>
-    <string name="supported_compression_formats">Desteklenen dosya biçimleri: 7z bz2 bzip2 tbz2 tbz gz gzip tgz tar wim swm xz txz zip zipx jar xpi odt ods docx xlsx epub</string>
+    <string name="supported_compression_formats">Desteklenen dosya biçimleri: 7z bzip2 gzip tar wim xz zip</string>
 </resources>
