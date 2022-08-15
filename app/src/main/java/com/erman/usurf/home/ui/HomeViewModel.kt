@@ -13,17 +13,21 @@ import com.erman.usurf.dialog.model.DialogArgs
 import com.erman.usurf.home.data.Favorite
 import com.erman.usurf.home.data.FavoriteDao
 import com.erman.usurf.activity.data.StorageDirectoryPreferenceProvider
+import com.erman.usurf.home.data.HomePreferenceProvider
 import com.erman.usurf.home.model.HomeModel
-import com.erman.usurf.home.model.StorageAccessArgs
+import com.erman.usurf.home.utils.ROOT_DIRECTORY
 import com.erman.usurf.utils.Event
+import com.erman.usurf.utils.StoragePaths
 import com.erman.usurf.utils.logd
 import com.erman.usurf.utils.logi
 import io.realm.Realm
 import java.io.File
 
-class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
-    private var realm = Realm.getDefaultInstance()
-    private var favoriteDao = FavoriteDao(realm)
+class HomeViewModel(private val homeModel: HomeModel,
+                    private val storageDirectoryPreferenceProvider: StorageDirectoryPreferenceProvider,
+                    private val homePreferenceProvider: HomePreferenceProvider,
+                    private val realm: Realm,
+                    private val favoriteDao: FavoriteDao) : ViewModel() {
 
     private val _storageButtons = MutableLiveData<MutableList<StorageButtonBinding>>().apply {
         value = homeModel.createStorageButtons()
@@ -40,20 +44,11 @@ class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
     private val _path = MutableLiveData<String>()
     val path: MutableLiveData<String> = _path
 
-    private val _saf = MutableLiveData<Event<StorageAccessArgs.SAFActivityArgs>>()
-    val saf: MutableLiveData<Event<StorageAccessArgs.SAFActivityArgs>> = _saf
-
-    private val _onFavoriteOption = MutableLiveData<Event<DialogArgs.FavoriteOptionsDialogArgs>>()
-    val onFavoriteOption: LiveData<Event<DialogArgs.FavoriteOptionsDialogArgs>> = _onFavoriteOption
-
-    private val _onRename = MutableLiveData<Event<DialogArgs.RenameDialogArgs>>()
-    val onRename: LiveData<Event<DialogArgs.RenameDialogArgs>> = _onRename
+    private val _dialog = MutableLiveData<Event<DialogArgs>>()
+    val dialog: LiveData<Event<DialogArgs>> = _dialog
 
     private val _isRenameMode = MutableLiveData<Boolean>()
     val isRenameMode: LiveData<Boolean> = _isRenameMode
-
-    private val _openFile = MutableLiveData<Event<DialogArgs.OpenFileActivityArgs>>()
-    val openFile: LiveData<Event<DialogArgs.OpenFileActivityArgs>> = _openFile
 
     private val _toastMessage = MutableLiveData<Event<Int>>()
     val toastMessage: LiveData<Event<Int>> = _toastMessage
@@ -62,9 +57,18 @@ class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
         _path.value = view.tag.toString()
         _navigateToDirectory.value = Event(R.id.global_action_nav_directory)
         path.value?.let { path ->
-            if (path != "/" && !File(path).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.P
-                && StorageDirectoryPreferenceProvider().getChosenUri() == "")
-                _saf.value = Event(StorageAccessArgs.SAFActivityArgs)
+            if (path != ROOT_DIRECTORY && !File(path).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q
+                && storageDirectoryPreferenceProvider.getChosenUri() == "")
+                _dialog.value = Event(DialogArgs.SAFActivityArgs)
+        }
+
+        val isKitkatRemovableStorage = (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT &&
+                StoragePaths().getStorageDirectories().size > 1 &&
+                path.value == StoragePaths().getStorageDirectories().elementAt(1))
+
+        if (isKitkatRemovableStorage && !homePreferenceProvider.getIsKitkatRemovableStorageWarningDisplayedPreference()) {
+            _dialog.value = Event(DialogArgs.KitkatRemovableStorageDialogArgs(isKitkatRemovableStorage))
+            homePreferenceProvider.editIsKitkatRemovableStorageWarningDisplayedPreference(true)
         }
     }
 
@@ -88,12 +92,12 @@ class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
                 logd("Open a favorite directory")
                 _path.value = favoritePath
                 _navigateToDirectory.value = Event(R.id.global_action_nav_directory)
-            } else _openFile.value = Event(DialogArgs.OpenFileActivityArgs(favoritePath))
+            } else _dialog.value = Event(DialogArgs.OpenFileActivityArgs(favoritePath))
         } else _toastMessage.value = Event(R.string.invalid_favorite)
     }
 
     fun onFavoriteLongClick(view: TextView): Boolean {
-        _onFavoriteOption.value = Event(DialogArgs.FavoriteOptionsDialogArgs(view))
+        _dialog.value = Event(DialogArgs.FavoriteOptionsDialogArgs(view))
         return true
     }
 
@@ -107,7 +111,7 @@ class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
 
     fun renameFavorite(oldName: String) {
         _isRenameMode.value = true
-        _onRename.value = Event(DialogArgs.RenameDialogArgs(oldName))
+        _dialog.value = Event(DialogArgs.RenameDialogArgs(oldName))
     }
 
     fun turnOffRenameMode() {

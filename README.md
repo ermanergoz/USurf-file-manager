@@ -13,16 +13,15 @@ USurf File Manager is a simple open sourced Android file manager application tha
 ## Features
 
 - Basic features like cut, copy, delete etc.
-- File transfer over WI-FI using FTP
-- Support for Bluetooth file transfer
-- Device-wide, keyword based file search
-- Support to copy–paste multiple files to multiple places multiple times
-- Access to root files if the device is rooted
-- Integrated zip/unzip files / folder feature
-- Support to add / remove shortcuts to home screen
-- Navigation drawer for easy navigation
-- Dark theme support
-- No ads or In-app purchases
+- File transfer over WI-FI using FTP.
+- Device-wide, keyword based file search.
+- Support to copy–paste multiple files to multiple places multiple times.
+- Access to root files if the device is rooted.
+- Integrated file compression feature. Supported formats are: 7z, BZIP2, GZIP, TAR, WIM, XZ, ZIP. (Can extract RAR format but can't create)
+- Support to add / remove shortcuts to home screen.
+- Navigation drawer for easy navigation.
+- Dark theme support.
+- No ads or In-app purchases.
 
 ## Build & Run
 
@@ -48,6 +47,7 @@ USurf File Manager is a simple open sourced Android file manager application tha
 - [Apache MINA](https://mina.apache.org/)
 - [Realm](https://realm.io/)
 - [RootTools](https://github.com/Stericson/RootTools)
+- [AndroidP7zip](https://github.com/hzy3774/AndroidP7zip)
 
 ## Meta
 

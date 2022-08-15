@@ -1,23 +1,21 @@
 package com.erman.usurf.application
 
+import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.AlarmManager
-import android.app.Application
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
+import androidx.multidex.MultiDexApplication
 import com.erman.usurf.application.data.ApplicationDao
 import com.erman.usurf.application.data.ApplicationPreferenceProvider
+import com.erman.usurf.application.di.AppModule
 import com.erman.usurf.application.utils.REALM_CONFIG_FILE_NAME
-import com.erman.usurf.preference.data.PreferenceProvider
-import com.erman.usurf.pushNotification.model.PushNotificationBroadcastReceiver
-import com.erman.usurf.pushNotification.utils.INTERVAL_FIVE_MINUTES
 import io.realm.Realm
 import io.realm.RealmConfiguration
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.GlobalContext.startKoin
 
-class MainApplication : Application() {
+class MainApplication : MultiDexApplication() {
     companion object {
         lateinit var appContext: Context
     }
@@ -26,11 +24,17 @@ class MainApplication : Application() {
         super.onCreate()
         appContext = this.applicationContext
 
+        startKoin {
+            androidContext(this@MainApplication)
+            modules(AppModule)
+        }
+
         Realm.init(this)
         val config = RealmConfiguration.Builder()
-                .name(REALM_CONFIG_FILE_NAME)
-                .deleteRealmIfMigrationNeeded()
-                .build()
+            .name(REALM_CONFIG_FILE_NAME)
+            .deleteRealmIfMigrationNeeded()
+            .allowWritesOnUiThread(true)
+            .build()
 
         Realm.setDefaultConfiguration(config)
         val realm = Realm.getDefaultInstance()
@@ -41,9 +45,8 @@ class MainApplication : Application() {
             preferenceProvider.editIsFirstLaunch(false)
         }
 
-        schedulePushNotifications()
-
         registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
+            @SuppressLint("SourceLockedOrientationActivity")
             override fun onActivityCreated(p0: Activity, p1: Bundle?) {
                 p0.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
             }
@@ -60,20 +63,5 @@ class MainApplication : Application() {
 
             override fun onActivityDestroyed(p0: Activity) = Unit
         })
-    }
-
-    private fun schedulePushNotifications() {
-        if (PreferenceProvider().getCleanStorageReminderPreference()) {
-            val notifyIntent = Intent(this, PushNotificationBroadcastReceiver::class.java)
-            var pendingIntent =
-                    PendingIntent.getBroadcast(this, 2, notifyIntent, PendingIntent.FLAG_NO_CREATE)
-
-            val alarmManager = this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            if (pendingIntent == null) {
-                pendingIntent = PendingIntent.getBroadcast(this, 2, notifyIntent, PendingIntent.FLAG_CANCEL_CURRENT)
-                // start it only it wasn't running already
-                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), AlarmManager.INTERVAL_DAY, pendingIntent)
-            }
-        }
     }
 }

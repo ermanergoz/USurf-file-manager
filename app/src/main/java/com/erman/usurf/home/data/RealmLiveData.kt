@@ -19,4 +19,4 @@ class RealmLiveData<T : RealmModel>(private val results: RealmResults<T>) : Live
     }
 }
 
-fun <T : RealmModel> RealmResults<T>.asLiveData() = RealmLiveData<T>(this)
+fun <T : RealmModel> RealmResults<T>.asLiveData() = RealmLiveData(this)
