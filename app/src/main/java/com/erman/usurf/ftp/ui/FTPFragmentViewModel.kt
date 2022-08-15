@@ -58,14 +58,17 @@ class FTPViewModel(private val ftpModel: FtpModel, private val preferenceProvide
     private val _toastMessage = MutableLiveData<Event<Int>>()
     val toastMessage: MutableLiveData<Event<Int>> = _toastMessage
 
+    @Suppress("UNUSED_PARAMETER")
     fun onUsernameChanged(username: CharSequence, start: Int, before: Int, count: Int) {
         preferenceProvider.editUsername(username.toString())
     }
 
+    @Suppress("UNUSED_PARAMETER")
     fun onPasswordChanged(password: CharSequence, start: Int, before: Int, count: Int) {
         preferenceProvider.editPassword(password.toString())
     }
 
+    @Suppress("UNUSED_PARAMETER")
     fun onPortChanged(port: CharSequence, start: Int, before: Int, count: Int) {
         var newPort: Int
         try {
@@ -78,6 +81,7 @@ class FTPViewModel(private val ftpModel: FtpModel, private val preferenceProvide
         preferenceProvider.editPort(newPort)
     }
 
+    @Suppress("UNUSED_PARAMETER")
     fun onFtpPathSelected(radioGroup: RadioGroup, id: Int) {
         preferenceProvider.editFtpPath(_storagePaths.value?.elementAt(id))
     }

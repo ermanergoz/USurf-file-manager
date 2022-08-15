@@ -25,7 +25,7 @@ class FTPFragment : Fragment() {
             Toast.makeText(context, getString(it), Toast.LENGTH_LONG).show()
         })
 
-        fTPViewModel.storagePaths.observe(viewLifecycleOwner, {
+        fTPViewModel.storagePaths.observe(viewLifecycleOwner) {
             for (storagePath in it) {
                 val radioButton = RadioButton(context)
                 radioButton.text = storagePath
@@ -34,7 +34,7 @@ class FTPFragment : Fragment() {
                     radioButton.isChecked = true
                 binding.radioButtonGroup.addView(radioButton)
             }
-        })
+        }
 
         binding.lifecycleOwner = this
         binding.viewModel = fTPViewModel
