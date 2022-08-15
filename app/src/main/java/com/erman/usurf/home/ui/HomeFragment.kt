@@ -13,7 +13,6 @@ import androidx.activity.addCallback
 import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -46,17 +45,17 @@ class HomeFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false)
 
-        homeViewModel.navigateToDirectory.observe(viewLifecycleOwner, {
+        homeViewModel.navigateToDirectory.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let { navId ->
                 findNavController().navigate(navId)
             }
-        })
+        }
 
-        homeViewModel.path.observe(viewLifecycleOwner, {
+        homeViewModel.path.observe(viewLifecycleOwner) {
             directoryViewModel.setPath(it)
-        })
+        }
 
-        homeViewModel.storageButtons.observe(viewLifecycleOwner, {
+        homeViewModel.storageButtons.observe(viewLifecycleOwner) {
             val sideMargin = 8
             val dimensions = storageButtonDimensions.autoSizeButtonDimensions(it.size, sideMargin)
             val buttonLayoutParams = FrameLayout.LayoutParams(dimensions.first, dimensions.second)
@@ -66,9 +65,9 @@ class HomeFragment : Fragment() {
                 button.viewModel = homeViewModel
                 binding.storageUsageBarLayout.addView(button.root, buttonLayoutParams)
             }
-        })
+        }
 
-        homeViewModel.dialog.observe(viewLifecycleOwner, {
+        homeViewModel.dialog.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let { args ->
                 when (args) {
                     is DialogArgs.RenameDialogArgs -> dialogListener.showDialog(RenameDialog(args.name))
@@ -81,18 +80,20 @@ class HomeFragment : Fragment() {
                             ?: let { Toast.makeText(context, getString(R.string.unsupported_file), Toast.LENGTH_LONG).show() }
                     }
                     is DialogArgs.FavoriteOptionsDialogArgs -> dialogListener.showDialog(FavoriteOptionsDialog(args.view))
-                    is DialogArgs.KitkatRemovableStorageDialogArgs -> dialogListener.showDialog(KitkatRemovableStorageWarningDialog())
+                    is DialogArgs.KitkatRemovableStorageDialogArgs -> dialogListener.showDialog(
+                        KitkatRemovableStorageWarningDialog()
+                    )
                     is DialogArgs.SAFActivityArgs -> safListener.launchSAF()
                     else -> loge("HomeFragment $args")
                 }
             }
-        })
+        }
 
-        homeViewModel.toastMessage.observe(viewLifecycleOwner, {
+        homeViewModel.toastMessage.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let { messageId ->
                 Toast.makeText(context, getString(messageId), Toast.LENGTH_LONG).show()
             }
-        })
+        }
 
         requireActivity().onBackPressedDispatcher.addCallback(this) {
             //workaround for displaying home fragment repeatedly until back stack is empty
@@ -119,10 +120,10 @@ class HomeFragment : Fragment() {
         binding.favoriteRecyclerView.adapter = favoriteRecyclerViewAdapter
         binding.favoriteRecyclerView.itemAnimator?.let { it.changeDuration = 0 }//to avoid flickering
 
-        homeViewModel.favorites.observe(viewLifecycleOwner, {
+        homeViewModel.favorites.observe(viewLifecycleOwner) {
             favoriteRecyclerViewAdapter.updateData(it)
             runRecyclerViewAnimation(binding.favoriteRecyclerView)
-        })
+        }
     }
 
     private fun refreshStorageButtons() {
