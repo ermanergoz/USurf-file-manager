@@ -44,7 +44,6 @@ class FileCompressionHandler {
             8 -> loge("Not enough memory for operation")
             255 -> loge("The process has been stopped")
         }
-
         return false
     }
 }
