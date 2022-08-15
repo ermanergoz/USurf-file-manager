@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Bundle
 import android.widget.Toast
 import androidx.preference.*
-import com.erman.usurf.application.MainApplication
 import com.erman.usurf.R
 import com.erman.usurf.directory.model.RootHandler
 import com.erman.usurf.preference.data.PreferenceProvider
@@ -12,7 +11,6 @@ import com.erman.usurf.preference.utils.*
 import com.erman.usurf.activity.model.RefreshNavDrawer
 import com.erman.usurf.utils.loge
 import org.koin.android.ext.android.inject
-import java.io.File
 
 class MainPreferencesFragment : PreferenceFragmentCompat() {
     private lateinit var navDrawerRefreshListener: RefreshNavDrawer
@@ -23,7 +21,7 @@ class MainPreferencesFragment : PreferenceFragmentCompat() {
 
         val rootAccessPreference = findPreference<SwitchPreference>(KEY_PREFERENCE_ROOT_ACCESS)
         rootAccessPreference?.setOnPreferenceChangeListener { _, newValue ->
-            if(RootHandler().isDeviceRooted()) {
+            if (RootHandler().isDeviceRooted()) {
                 preferenceProvider.editRootAccessPreference(newValue as Boolean)
                 navDrawerRefreshListener.refreshStorageButtons()
                 true

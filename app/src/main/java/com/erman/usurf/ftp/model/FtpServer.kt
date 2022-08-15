@@ -100,12 +100,17 @@ class FtpServer : Service() {
         intent.putExtra(KEY_INTENT_IS_FTP_NOTIFICATION_CLICKED, true)
 
         val pendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            PendingIntent.getActivity(this, PENDING_INTENT_REQUEST_CODE, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+            PendingIntent.getActivity(
+                this,
+                PENDING_INTENT_REQUEST_CODE,
+                intent,
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            )
         } else {
             PendingIntent.getActivity(this, PENDING_INTENT_REQUEST_CODE, intent, PendingIntent.FLAG_IMMUTABLE)
         }
 
-        val builder = NotificationCompat.Builder(this, FTP_NOTIFICATION_CHANNEL_ID).setSmallIcon(R.drawable.ic_notification)
+        val builder = NotificationCompat.Builder(this, FTP_NOTIFICATION_CHANNEL_ID).setSmallIcon(R.drawable.ic_folder)
             .setContentTitle(getString(R.string.ftp_server_is_running)).setContentIntent(pendingIntent)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT).setOngoing(true)
 

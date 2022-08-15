@@ -36,7 +36,7 @@ class FavoriteRecyclerViewAdapter(var viewModel: HomeViewModel) :
             binding.favorite.text = favorite.name
             binding.favorite.tag = favorite.path
             binding.favorite.isSingleLine = true
-            
+
             binding.favorite.ellipsize = TextUtils.TruncateAt.MARQUEE
             //for sliding names if the length is longer than 1 line
             binding.favorite.isSelected = true
