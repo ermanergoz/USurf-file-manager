@@ -537,8 +537,8 @@ class DirectoryModel(
                     )
                 }
                 return@withContext fileList.filter { file ->
-                    searchQuery.decapitalize().toRegex()
-                        .containsMatchIn(file.nameWithoutExtension.decapitalize())
+                    searchQuery.lowercase().toRegex()
+                        .containsMatchIn(file.nameWithoutExtension.lowercase())
                 }.map {
                     FileModel(
                         it.path,
@@ -584,8 +584,11 @@ class DirectoryModel(
             val archiveType: String =
                 compressedFileNameWithExtension.substring(compressedFileNameWithExtension.lastIndexOf(".")).drop(1)
 
-            if (!FileCompressionHandler().compress("$parentPath/$compressedFileNameWithExtension",
-                    multipleSelection, archiveType))
+            if (!FileCompressionHandler().compress(
+                    "$parentPath/$compressedFileNameWithExtension",
+                    multipleSelection,
+                    archiveType
+                ))
                 cancel()
         }
 
