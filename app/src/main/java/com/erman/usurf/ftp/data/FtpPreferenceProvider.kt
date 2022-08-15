@@ -5,7 +5,7 @@ import com.erman.usurf.ftp.utils.*
 import com.erman.usurf.utils.StoragePaths
 import com.erman.usurf.utils.logd
 
-class FtpPreferenceProvider (private val preferences: SharedPreferences) {
+class FtpPreferenceProvider(private val preferences: SharedPreferences) {
     fun getUsername(): String? {
         logd("getUsername")
         return preferences.getString(USERNAME_KEY, DEFAULT_USER_NAME)
