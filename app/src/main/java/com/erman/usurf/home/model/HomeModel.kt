@@ -16,11 +16,12 @@ class HomeModel {
         val storageDirectories = StoragePaths().getStorageDirectories()
 
         for (i in storageDirectories.indices) {
-            val binding: StorageButtonBinding = DataBindingUtil.inflate(LayoutInflater.from(appContext), R.layout.storage_button, null, false)
+            val binding: StorageButtonBinding =
+                DataBindingUtil.inflate(LayoutInflater.from(appContext), R.layout.storage_button, null, false)
             storageButtons.add(binding)
             storageButtons[i].root.tag = storageDirectories.elementAt(i)
-            storageButtons[i].buttonText.text =storageDirectories.elementAt(i)
-            storageButtons[i].progressBar?.scaleY=20f
+            storageButtons[i].buttonText.text = storageDirectories.elementAt(i)
+            storageButtons[i].progressBar?.scaleY = 20f
             //It is null on older versions of android because I removed it from the layout
         }
         return storageButtons

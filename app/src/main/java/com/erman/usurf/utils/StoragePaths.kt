@@ -24,7 +24,7 @@ class StoragePaths {
                     try {
                         path = File(path).canonicalPath
                     } catch (err: IOException) {
-                        loge(""+err.localizedMessage)
+                        loge("" + err.localizedMessage)
                     }
                     paths.add(path)
                 }

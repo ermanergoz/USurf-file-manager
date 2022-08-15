@@ -47,12 +47,14 @@ class PreferenceProvider(private val preferences: SharedPreferences) {
 
     fun editAscendingOrderPreference(choice: Boolean) {
         logd("editAscendingOrderPreference")
-        preferences.edit().putBoolean(KEY_PREFERENCE_DESCENDING_ORDER, false).putBoolean(KEY_PREFERENCE_ASCENDING_ORDER, choice).apply()
+        preferences.edit().putBoolean(KEY_PREFERENCE_DESCENDING_ORDER, false).putBoolean(KEY_PREFERENCE_ASCENDING_ORDER, choice)
+            .apply()
     }
 
     fun editDescendingOrderPreference(choice: Boolean) {
         logd("editDescendingOrderPreference")
-        preferences.edit().putBoolean(KEY_PREFERENCE_ASCENDING_ORDER, false).putBoolean(KEY_PREFERENCE_DESCENDING_ORDER, choice).apply()
+        preferences.edit().putBoolean(KEY_PREFERENCE_ASCENDING_ORDER, false).putBoolean(KEY_PREFERENCE_DESCENDING_ORDER, choice)
+            .apply()
     }
 
     fun getDescendingOrderPreference(): Boolean {
