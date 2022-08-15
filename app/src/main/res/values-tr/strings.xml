@@ -10,7 +10,6 @@
     <string name="menu_info">Bilgi</string>
     <string name="root_explorer">Root gezgini</string>
     <string name="root_explorer_summary">Root dosyalarına erişim için bu kutuyu işaretleyin. Sadece root erişimi olan cihazlar için.</string>
-    <string name="clean_storage_reminder">Alan açma hatırlatıcıları</string>
     <string name="show_hidden_files">Gizli dosyaları göster</string>
     <string name="sort_by">Sırala</string>
     <string name="ascending_order">Artan</string>
@@ -54,13 +53,11 @@
     <string name="ftp_broadcast_receiver">com.erman.usurf.fileBroadcastReceiver</string>
     <string name="unsupported_file">Bu dosyayı destekleyen bir uygulama bulunamadı.</string>
     <string name="unable_to_open_directory">Dosya açılamıyor.</string>
-    <string name="analyzing_files">Dosyalar analiz ediliyor. Lütfen bekleyin.</string>
     <string name="error_while_renaming">"Yeniden adlandırırken hata"</string>
     <string name="renaming_successful">Yeniden adlandırıldı</string>
     <string name="error_while_deleting">"Silerken hata"</string>
     <string name="deleting_successful">Silindi</string>
     <string name="folder_creation_successful">"Yeni klasör oluşturuldu"</string>
-    <string name="searching">"Arıyor"</string>
     <string name="error_when_creating_folder">"Yeni klasör oluşturulurken hata"</string>
     <string name="file_creation_successful">"Yeni dosya oluşturuldu"</string>
     <string name="error_when_creating_file">"Yeni dosya oluştururken hata"</string>
@@ -72,7 +69,6 @@
     <string name="error_while_compressing">Sıkıştırırken hata</string>
     <string name="extracting_successful">Çıkartıldı</string>
     <string name="error_while_extracting">Çıkartılırken hata</string>
-    <string name="cleared">Temizlendi</string>
     <string name="su_not_found">Cihazın root erişimi yok.</string>
     <string name="name">İsim:</string>
     <string name="path">Yol:</string>
@@ -123,12 +119,11 @@
     <string name="drawer_open">Drawer open</string>
     <string name="drawer_close">Drawer close</string>
     <string name="share_directory">Şunlar için işlem yapılamıyor. Dosya değil </string>
-    <string name="clear_logs">Günlükleri ve geçmişi temizle</string>
     <string name="create_new">Create new</string>
     <string name="device_wide_search">Device-wide search</string>
     <string name="i_understand">Anladım</string>
     <string name="kitkat_removable_storage_warning">Google\'ın Android 4.4 KitKat ile ilgili aldığı kararlar nedeniyle, çıkarılabilir depolama alanındaki dosya işlemleri çoğu cihazda çalışmayabilir.</string>
     <string name="manage_all_files_message">Bu uygulamanın çalışması için \"Tüm dosyaları yönetme erişimine izin ver\" ayarının açık olması gerekir.</string>
     <string name="saf_access_message">Uygulamaya yazma izni vermek için lütfen çıkarılabilir depolamanın kök dizinini seçin.</string>
-    <string name="supported_compression_formats">Desteklenen dosya biçimleri: 7z bz2 bzip2 tbz2 tbz gz gzip tgz tar wim swm xz txz zip zipx jar xpi odt ods docx xlsx epub</string>
+    <string name="supported_compression_formats">Desteklenen dosya biçimleri: 7z bzip2 gzip tar wim xz zip</string>
 </resources>
