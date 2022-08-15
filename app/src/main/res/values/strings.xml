@@ -8,7 +8,6 @@
     <string name="menu_preferences">Preferences</string>
     <string name="menu_info">Information</string>
     <string name="root_explorer">Root explorer</string>
-    <string name="clean_storage_reminder">Clean storage reminders</string>
     <string name="root_explorer_summary">Check this box to gain access to root directory. For rooted devices only.</string>
     <string name="show_hidden_files">Show hidden files</string>
     <string name="sort_by">Sort by</string>
@@ -53,13 +52,11 @@
     <string name="ftp_broadcast_receiver">com.erman.usurf.fileBroadcastReceiver</string>
     <string name="unsupported_file">There is no application that supports the file.</string>
     <string name="unable_to_open_directory">Unable to open the directory.</string>
-    <string name="analyzing_files">Files are being analyzed. Please wait.</string>
     <string name="error_while_renaming">"Error while renaming: "</string>
     <string name="renaming_successful">Renamed</string>
     <string name="error_while_deleting">"Error while deleting"</string>
     <string name="deleting_successful">Deleted</string>
     <string name="folder_creation_successful">"New folder created"</string>
-    <string name="searching">"Searching"</string>
     <string name="error_when_creating_folder">"Error while creating new folder"</string>
     <string name="file_creation_successful">"New file created"</string>
     <string name="error_when_creating_file">"Error while creating new file"</string>
@@ -71,7 +68,6 @@
     <string name="error_while_compressing">Error while compressing</string>
     <string name="extracting_successful">Extracted</string>
     <string name="error_while_extracting">Error while extracting</string>
-    <string name="cleared">Cleared</string>
     <string name="su_not_found">Device is not rooted.</string>
     <string name="name">Name:</string>
     <string name="path">Path:</string>
@@ -122,12 +118,11 @@
     <string name="drawer_open">Drawer open</string>
     <string name="drawer_close">Drawer close</string>
     <string name="share_directory">Operation not supported for following. Not a file </string>
-    <string name="clear_logs">Clear logs and history</string>
     <string name="create_new">Create new</string>
     <string name="device_wide_search">Device-wide search</string>
     <string name="i_understand">I understand</string>
     <string name="kitkat_removable_storage_warning">Due to the decisions made by Google regarding Android 4.4 KitKat, file operations in the removable storage may not work on most of the devices.</string>
     <string name="manage_all_files_message">In order this application to work, \"Allow access to manage all files\" setting needs to be turned on.</string>
     <string name="saf_access_message">Please choose the root directory of the removable storage to grant write permission to operate.</string>
-    <string name="supported_compression_formats">Supported extensions are: 7z bz2 bzip2 tbz2 tbz gz gzip tgz tar wim swm xz txz zip zipx jar xpi odt ods docx xlsx epub</string>
+    <string name="supported_compression_formats">Supported formats are: 7z bzip2 gzip tar wim xz zip</string>
 </resources>
