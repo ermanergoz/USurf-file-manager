@@ -72,6 +72,24 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/vertical_margin_16"
+            android:text="@string/privacy_policy"
+            android:textSize="@dimen/text_size_24"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/layout_margin_8"
+            android:layout_marginLeft="@dimen/layout_margin_8"
+            android:autoLink="web"
+            android:singleLine="true"
+            android:text="@string/privacy_policy_url"
+            android:textSize="@dimen/text_size_18" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/vertical_margin_16"
             android:text="@string/icons"
             android:textSize="@dimen/text_size_24"
             android:textStyle="bold" />
