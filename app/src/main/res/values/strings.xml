@@ -125,4 +125,6 @@
     <string name="manage_all_files_message">In order this application to work, \"Allow access to manage all files\" setting needs to be turned on.</string>
     <string name="saf_access_message">Please choose the root directory of the removable storage to grant write permission to operate.</string>
     <string name="supported_compression_formats">Supported formats are: 7z bzip2 gzip tar wim xz zip</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="privacy_policy_url">https://www.ermanergoz.com/usurf-privacy-policy.html</string>
 </resources>
