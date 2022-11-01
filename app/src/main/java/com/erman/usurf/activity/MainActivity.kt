@@ -8,9 +8,9 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
-import android.util.DisplayMetrics
 import android.view.Menu
 import android.view.View
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -110,6 +110,14 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
                 storageDirectoryPreferenceProvider.editChosenUri(treeUri.toString())
             }
         }
+
+        onBackPressedDispatcher.addCallback(this /* lifecycle owner */, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (drawerLayout.isDrawerOpen(GravityCompat.START))
+                    drawerLayout.closeDrawers()
+                else finish()
+            }
+        })
     }
 
     private fun setupNavDrawer(navView: NavigationView, navController: NavController, drawerLayout: DrawerLayout) {
@@ -193,13 +201,6 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
     override fun showDialog(dialog: DialogFragment) {
         logd("Show a dialog")
         dialog.show(supportFragmentManager, EMPTY_STR)
-    }
-
-    override fun onBackPressed() {
-        val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
-        if (drawerLayout.isDrawerOpen(GravityCompat.START))
-            drawerLayout.closeDrawers()
-        else super.onBackPressed()
     }
 
     override fun finishActivity() {
