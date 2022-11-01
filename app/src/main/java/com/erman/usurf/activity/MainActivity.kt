@@ -8,9 +8,9 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
-import android.util.DisplayMetrics
 import android.view.Menu
 import android.view.View
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -40,7 +40,6 @@ import com.erman.usurf.dialog.ui.ManageAllFilesRequestDialog
 import com.erman.usurf.dialog.ui.SafAccessRequestDialog
 import com.erman.usurf.directory.ui.DirectoryViewModel
 import com.erman.usurf.ftp.utils.KEY_INTENT_IS_FTP_NOTIFICATION_CLICKED
-import com.erman.usurf.home.model.FinishActivity
 import com.erman.usurf.home.model.HomeStorageButton
 import com.erman.usurf.home.model.StorageAccessFramework
 import com.erman.usurf.utils.StoragePaths
@@ -50,7 +49,7 @@ import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
 import java.io.File
 
-class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNavDrawer, StorageAccessFramework, HomeStorageButton,
+class MainActivity : AppCompatActivity(), ShowDialog, RefreshNavDrawer, StorageAccessFramework, HomeStorageButton,
     DialogListener {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private val storageDirectoryPreferenceProvider: StorageDirectoryPreferenceProvider by inject()
@@ -110,6 +109,14 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
                 storageDirectoryPreferenceProvider.editChosenUri(treeUri.toString())
             }
         }
+
+        onBackPressedDispatcher.addCallback(this /* lifecycle owner */, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (drawerLayout.isDrawerOpen(GravityCompat.START))
+                    drawerLayout.closeDrawers()
+                else finish()
+            }
+        })
     }
 
     private fun setupNavDrawer(navView: NavigationView, navController: NavController, drawerLayout: DrawerLayout) {
@@ -193,17 +200,6 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
     override fun showDialog(dialog: DialogFragment) {
         logd("Show a dialog")
         dialog.show(supportFragmentManager, EMPTY_STR)
-    }
-
-    override fun onBackPressed() {
-        val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
-        if (drawerLayout.isDrawerOpen(GravityCompat.START))
-            drawerLayout.closeDrawers()
-        else super.onBackPressed()
-    }
-
-    override fun finishActivity() {
-        finish()
     }
 
     override fun refreshStorageButtons() {
