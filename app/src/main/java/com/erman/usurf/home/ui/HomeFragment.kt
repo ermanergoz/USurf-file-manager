@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.FrameLayout
 import android.widget.Toast
-import androidx.activity.addCallback
 import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -24,7 +23,6 @@ import com.erman.usurf.dialog.ui.RenameDialog
 import com.erman.usurf.dialog.ui.FavoriteOptionsDialog
 import com.erman.usurf.dialog.ui.KitkatRemovableStorageWarningDialog
 import com.erman.usurf.directory.ui.DirectoryViewModel
-import com.erman.usurf.home.model.FinishActivity
 import com.erman.usurf.home.model.HomeStorageButton
 import com.erman.usurf.home.model.StorageAccessFramework
 import com.erman.usurf.utils.*
@@ -36,7 +34,6 @@ class HomeFragment : Fragment() {
     private val homeViewModel by viewModel<HomeViewModel>()
     private lateinit var favoriteRecyclerViewAdapter: FavoriteRecyclerViewAdapter
     private lateinit var dialogListener: ShowDialog
-    private lateinit var finishActivityListener: FinishActivity
     private lateinit var safListener: StorageAccessFramework
     private lateinit var storageButtonDimensions: HomeStorageButton
     private lateinit var binding: FragmentHomeBinding
@@ -95,11 +92,6 @@ class HomeFragment : Fragment() {
             }
         }
 
-        requireActivity().onBackPressedDispatcher.addCallback(this) {
-            //workaround for displaying home fragment repeatedly until back stack is empty
-            finishActivityListener.finishActivity()
-        }
-
         binding.lifecycleOwner = this
         binding.viewModel = homeViewModel
         return binding.root
@@ -150,7 +142,6 @@ class HomeFragment : Fragment() {
 
         try {
             dialogListener = context as ShowDialog
-            finishActivityListener = context as FinishActivity
             safListener = context as StorageAccessFramework
             storageButtonDimensions = context as HomeStorageButton
         } catch (err: ClassCastException) {
