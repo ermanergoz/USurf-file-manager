@@ -105,8 +105,6 @@ class DirectoryFragment : Fragment() {
 
         requireActivity().onBackPressedDispatcher.addCallback(this) {
             if (!directoryViewModel.onBackPressed()) {
-                //goes to home fragment because it is annoying to navigate to the
-                //last opened fragment after directory fragment
                 findNavController().navigate(R.id.global_action_nav_home)
             }
         }
