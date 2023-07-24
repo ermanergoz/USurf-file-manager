@@ -9,6 +9,7 @@ import com.erman.usurf.R
 import com.erman.usurf.databinding.StorageButtonBinding
 import com.erman.usurf.home.utils.ROOT_DIRECTORY
 import com.erman.usurf.utils.StoragePaths
+import com.erman.usurf.utils.loge
 
 class HomeModel {
     fun createStorageButtons(): MutableList<StorageButtonBinding> {
@@ -28,12 +29,17 @@ class HomeModel {
     }
 
     private fun getTotalStorage(path: String): Long {
-        val stat = StatFs(path)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            return stat.totalBytes
+        try {
+            val stat = StatFs(path)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                return stat.totalBytes
+            }
+        } catch (err: RuntimeException) {
+            loge("getTotalStorage Error calculating total storage $err")
         }
         return 0
     }
+
 
     private fun getUsedStorage(path: String): Long {
         val stat = StatFs(path)
