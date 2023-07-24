@@ -163,7 +163,7 @@ class MainActivity : AppCompatActivity(), ShowDialog, RefreshNavDrawer, StorageA
     }
 
     private fun addStoragesToDrawer(navView: NavigationView, drawerLayout: DrawerLayout) {
-        val storageDirectories = StoragePaths().getStorageDirectories()
+        val storageDirectories = StoragePaths.getStorageDirectories()
 
         for (path in storageDirectories) {
             val storage = navView.menu.add(R.id.storage, Menu.NONE, 0, path)

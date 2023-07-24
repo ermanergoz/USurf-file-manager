@@ -63,8 +63,8 @@ class HomeViewModel(private val homeModel: HomeModel,
         }
 
         val isKitkatRemovableStorage = (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT &&
-                StoragePaths().getStorageDirectories().size > 1 &&
-                path.value == StoragePaths().getStorageDirectories().elementAt(1))
+                StoragePaths.getStorageDirectories().size > 1 &&
+                path.value == StoragePaths.getStorageDirectories().elementAt(1))
 
         if (isKitkatRemovableStorage && !homePreferenceProvider.getIsKitkatRemovableStorageWarningDisplayedPreference()) {
             _dialog.value = Event(DialogArgs.KitkatRemovableStorageDialogArgs(isKitkatRemovableStorage))
