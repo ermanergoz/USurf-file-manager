@@ -14,7 +14,7 @@ import com.erman.usurf.utils.loge
 class HomeModel {
     fun createStorageButtons(): MutableList<StorageButtonBinding> {
         val storageButtons: MutableList<StorageButtonBinding> = mutableListOf()
-        val storageDirectories = StoragePaths().getStorageDirectories()
+        val storageDirectories = StoragePaths.getStorageDirectories()
 
         for (i in storageDirectories.indices) {
             val binding: StorageButtonBinding =

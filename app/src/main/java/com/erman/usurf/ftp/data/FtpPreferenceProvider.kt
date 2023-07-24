@@ -38,7 +38,7 @@ class FtpPreferenceProvider(private val preferences: SharedPreferences) {
 
     fun getFtpPath(): String? {
         logd("getFtpPath")
-        return preferences.getString(KEY_INTENT_CHOSEN_PATH, StoragePaths().getStorageDirectories().first())
+        return preferences.getString(KEY_INTENT_CHOSEN_PATH, StoragePaths.getStorageDirectories().first())
     }
 
     fun editFtpPath(path: String?) {
