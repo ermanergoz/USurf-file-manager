@@ -166,7 +166,7 @@ class DirectoryModel(
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) return DocumentFile.fromFile(file)
         val getExtSdCardBaseFolder: String
         try {
-            getExtSdCardBaseFolder = StoragePaths().getStorageDirectories().elementAt(1)
+            getExtSdCardBaseFolder = StoragePaths.getStorageDirectories().elementAt(1)
         } catch (err: IndexOutOfBoundsException) {
             loge("getDocumentFile $err")
             return null
@@ -527,7 +527,7 @@ class DirectoryModel(
         withContext(Dispatchers.IO) {
             val fileList = mutableListOf<File>()
             try {
-                val storagePaths = StoragePaths().getStorageDirectories()
+                val storagePaths = StoragePaths.getStorageDirectories()
                 for (storagePath in storagePaths) {
                     if (storagePath != "/") fileList.addAll(
                         getSubSearchedFiles(
