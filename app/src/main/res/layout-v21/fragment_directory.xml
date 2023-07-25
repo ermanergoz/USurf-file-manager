@@ -227,6 +227,7 @@
                 android:textSize="@dimen/text_size_10" />
 
             <ImageButton
+                android:contentDescription="@string/more"
                 android:id="@+id/moreButton"
                 android:layout_width="60dp"
                 android:layout_height="match_parent"

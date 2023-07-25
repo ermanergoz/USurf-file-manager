@@ -5,8 +5,8 @@ import android.view.View
 import android.widget.TextView
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.map
 import com.erman.usurf.R
 import com.erman.usurf.databinding.StorageButtonBinding
 import com.erman.usurf.dialog.model.DialogArgs
@@ -30,8 +30,8 @@ class HomeViewModel(private val homeModel: HomeModel,
     }
     val storageButtons: LiveData<MutableList<StorageButtonBinding>> = _storageButtons
 
-    var favorites: LiveData<List<Favorite>> = Transformations.map(favoriteDao.getFavorites()) { realmResult ->
-        realm.copyFromRealm(realmResult)
+    var favorites: LiveData<List<Favorite>> = favoriteDao.getFavorites().map { realmResults ->
+        realm.copyFromRealm(realmResults)
     }
 
     private val _navigateToDirectory = MutableLiveData<Event<Int>>()

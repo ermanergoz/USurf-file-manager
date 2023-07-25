@@ -33,7 +33,10 @@ import com.erman.usurf.R
 import com.erman.usurf.activity.data.StorageDirectoryPreferenceProvider
 import com.erman.usurf.activity.model.RefreshNavDrawer
 import com.erman.usurf.activity.model.ShowDialog
-import com.erman.usurf.activity.utils.*
+import com.erman.usurf.activity.utils.EMPTY_STR
+import com.erman.usurf.activity.utils.INTENT_IS_FTP_NOTIFICATION_CLICKED_DEF_VAL
+import com.erman.usurf.activity.utils.READ_AND_WRITE_PERMISSION_REQUEST_CODE
+import com.erman.usurf.activity.utils.URI_SCHEME
 import com.erman.usurf.databinding.ActivityMainBinding
 import com.erman.usurf.dialog.model.DialogListener
 import com.erman.usurf.dialog.ui.ManageAllFilesRequestDialog
@@ -46,11 +49,12 @@ import com.erman.usurf.utils.ROOT_DIRECTORY
 import com.erman.usurf.utils.StoragePaths
 import com.erman.usurf.utils.logd
 import com.google.android.material.navigation.NavigationView
+import java.io.File
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
-import java.io.File
 
-class MainActivity : AppCompatActivity(), ShowDialog, RefreshNavDrawer, StorageAccessFramework, HomeStorageButton,
+class MainActivity : AppCompatActivity(), ShowDialog, RefreshNavDrawer, StorageAccessFramework,
+    HomeStorageButton,
     DialogListener {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private val storageDirectoryPreferenceProvider: StorageDirectoryPreferenceProvider by inject()
@@ -62,7 +66,8 @@ class MainActivity : AppCompatActivity(), ShowDialog, RefreshNavDrawer, StorageA
     @SuppressLint("ObsoleteSdkInt")
     private fun requestPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN &&
-            Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+            Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q
+        ) {
             logd("Request read and write permissions")
             ActivityCompat.requestPermissions(
                 this,
@@ -95,21 +100,24 @@ class MainActivity : AppCompatActivity(), ShowDialog, RefreshNavDrawer, StorageA
         addStoragesToDrawer(navView, drawerLayout)
         requestPermissions()
 
-        if (intent.getBooleanExtra(KEY_INTENT_IS_FTP_NOTIFICATION_CLICKED, INTENT_IS_FTP_NOTIFICATION_CLICKED_DEF_VAL))
+        if (intent.getBooleanExtra(
+                KEY_INTENT_IS_FTP_NOTIFICATION_CLICKED,
+                INTENT_IS_FTP_NOTIFICATION_CLICKED_DEF_VAL
+            )
+        )
             navController.navigate(R.id.global_action_to_nav_ftp)
 
-        resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            val data: Intent? = result.data
-            data?.data?.let { treeUri ->
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        resultLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                val data: Intent? = result.data
+                data?.data?.let { treeUri ->
                     this.contentResolver.takePersistableUriPermission(
                         treeUri,
                         Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                     )
+                    storageDirectoryPreferenceProvider.editChosenUri(treeUri.toString())
                 }
-                storageDirectoryPreferenceProvider.editChosenUri(treeUri.toString())
             }
-        }
 
         onBackPressedDispatcher.addCallback(this /* lifecycle owner */, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -120,7 +128,11 @@ class MainActivity : AppCompatActivity(), ShowDialog, RefreshNavDrawer, StorageA
         })
     }
 
-    private fun setupNavDrawer(navView: NavigationView, navController: NavController, drawerLayout: DrawerLayout) {
+    private fun setupNavDrawer(
+        navView: NavigationView,
+        navController: NavController,
+        drawerLayout: DrawerLayout
+    ) {
         appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.nav_home,
@@ -188,7 +200,8 @@ class MainActivity : AppCompatActivity(), ShowDialog, RefreshNavDrawer, StorageA
         directoryViewModel.setPath(path)
         destination = MobileNavigationDirections.globalActionNavDirectory()
         if (path != ROOT_DIRECTORY && !File(path).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q
-            && storageDirectoryPreferenceProvider.getChosenUri() == EMPTY_STR) {
+            && storageDirectoryPreferenceProvider.getChosenUri() == EMPTY_STR
+        ) {
             launchSAF()
         }
     }

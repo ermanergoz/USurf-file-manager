@@ -1,12 +1,11 @@
 package com.erman.usurf.utils
 
 import android.annotation.SuppressLint
-import android.os.Build
 import com.erman.usurf.application.MainApplication
 import com.erman.usurf.preference.data.PreferenceProvider
-import org.koin.java.KoinJavaComponent.getKoin
 import java.io.File
 import java.io.IOException
+import org.koin.java.KoinJavaComponent.getKoin
 
 object StoragePaths {
     private val preferenceProvider: PreferenceProvider = getKoin().get()
@@ -37,18 +36,16 @@ object StoragePaths {
             "/mnt/sdcard"
         )
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            for (file in MainApplication.appContext.getExternalFilesDirs(DIR_TYPE_EXTERNAL)) {
-                file?.let {
-                    val index = it.absolutePath.lastIndexOf(EXTERNAL_DIR_SUFFIX)
-                    var path = it.absolutePath.substring(0, index)
-                    try {
-                        path = File(path).canonicalPath
-                    } catch (err: IOException) {
-                        loge("" + err.localizedMessage)
-                    }
-                    paths.add(path)
+        for (file in MainApplication.appContext.getExternalFilesDirs(DIR_TYPE_EXTERNAL)) {
+            file?.let {
+                val index = it.absolutePath.lastIndexOf(EXTERNAL_DIR_SUFFIX)
+                var path = it.absolutePath.substring(0, index)
+                try {
+                    path = File(path).canonicalPath
+                } catch (err: IOException) {
+                    loge("" + err.localizedMessage)
                 }
+                paths.add(path)
             }
         }
         if (paths.isEmpty() || paths.size == 1) {

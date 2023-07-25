@@ -218,6 +218,7 @@
                 android:textSize="@dimen/text_size_10" />
 
             <ImageButton
+                android:contentDescription="@string/more"
                 android:id="@+id/moreButton"
                 android:layout_width="60dp"
                 android:layout_height="match_parent"
@@ -235,7 +236,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
             android:layout_marginBottom="16dp"
             android:clickable="true"
             android:contentDescription="@string/create_new"
@@ -254,7 +254,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
             android:layout_marginBottom="16dp"
             android:clickable="true"
             android:contentDescription="@string/new_file"
@@ -274,7 +273,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
             android:layout_marginBottom="16dp"
             android:clickable="true"
             android:contentDescription="@string/device_wide_search"
@@ -295,7 +293,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
             android:layout_marginBottom="16dp"
             android:clickable="true"
             android:contentDescription="@string/new_folder"

@@ -10,8 +10,7 @@
         app:destination="@id/nav_home"
         app:enterAnim="@anim/layout_animation_fadein"
         app:exitAnim="@anim/layout_animation_fadeout"
-        app:popUpTo='@+id/nav_home'
-        app:popUpToInclusive="true" />
+        app:popUpTo='@+id/nav_home' />
     <action
         android:id="@+id/global_action_nav_directory"
         app:destination="@id/nav_directory"
