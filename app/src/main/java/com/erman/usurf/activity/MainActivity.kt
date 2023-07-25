@@ -39,9 +39,10 @@ import com.erman.usurf.dialog.model.DialogListener
 import com.erman.usurf.dialog.ui.ManageAllFilesRequestDialog
 import com.erman.usurf.dialog.ui.SafAccessRequestDialog
 import com.erman.usurf.directory.ui.DirectoryViewModel
-import com.erman.usurf.ftp.utils.KEY_INTENT_IS_FTP_NOTIFICATION_CLICKED
 import com.erman.usurf.home.model.HomeStorageButton
 import com.erman.usurf.home.model.StorageAccessFramework
+import com.erman.usurf.utils.KEY_INTENT_IS_FTP_NOTIFICATION_CLICKED
+import com.erman.usurf.utils.ROOT_DIRECTORY
 import com.erman.usurf.utils.StoragePaths
 import com.erman.usurf.utils.logd
 import com.google.android.material.navigation.NavigationView
@@ -163,7 +164,7 @@ class MainActivity : AppCompatActivity(), ShowDialog, RefreshNavDrawer, StorageA
     }
 
     private fun addStoragesToDrawer(navView: NavigationView, drawerLayout: DrawerLayout) {
-        val storageDirectories = StoragePaths().getStorageDirectories()
+        val storageDirectories = StoragePaths.getStorageDirectories()
 
         for (path in storageDirectories) {
             val storage = navView.menu.add(R.id.storage, Menu.NONE, 0, path)
