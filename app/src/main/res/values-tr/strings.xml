@@ -130,4 +130,8 @@
     <string name="privacy_policy_url">https://www.ermanergoz.com/usurf-privacy-policy.html</string>
     <string name="bytes">Bayt</string>
     <string name="file_count">Tane dosyalar</string>
+    <string name="more">Daha fazla</string>
+    <string name="hint_port">Port</string>
+    <string name="hint_password">Şifre</string>
+    <string name="hint_username">Kullanıcı adı</string>
 </resources>

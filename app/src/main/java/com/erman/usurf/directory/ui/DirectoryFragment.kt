@@ -106,7 +106,7 @@ class DirectoryFragment : Fragment() {
 
         requireActivity().onBackPressedDispatcher.addCallback(this) {
             if (!directoryViewModel.onBackPressed()) {
-                findNavController().navigate(R.id.global_action_nav_home)
+                findNavController().popBackStack()
             }
         }
         return binding.root
