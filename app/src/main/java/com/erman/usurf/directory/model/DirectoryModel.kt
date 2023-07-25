@@ -38,13 +38,15 @@ class DirectoryModel(
                         filteredFileList.sortedWith(compareBy({ !it.isDirectory }, { it.name }))
                             .toList()
                     FileSortMethod.BY_SIZE.sort -> filteredFileList =
-                        filteredFileList.sortedWith(compareBy({ !it.isDirectory },
-                            { it.length() },
-                            { getFolderSize(it) })
+                        filteredFileList.sortedWith(
+                            compareBy({ !it.isDirectory },
+                                { it.length() },
+                                { getFolderSize(it) })
                         ).toList()
                     FileSortMethod.BY_LAST_MODIFIED.sort -> filteredFileList =
-                        filteredFileList.sortedWith(compareBy({ !it.isDirectory },
-                            { it.lastModified() })
+                        filteredFileList.sortedWith(
+                            compareBy({ !it.isDirectory },
+                                { it.lastModified() })
                         ).toList()
                 }
 
@@ -99,7 +101,6 @@ class DirectoryModel(
 
     private fun Double.round(): Double = "%.2f".format(this).toDouble()
 
-    //TODO: Simplfy getConvertedFileSize()
     private fun getConvertedFileSize(file: File): String {
         val size: Long = if (file.isFile) file.length()
         else getFolderSize(file).toLong()
@@ -432,11 +433,10 @@ class DirectoryModel(
             getDocumentFile(File(copyOrMoveDestination), File(copyOrMoveDestination).isDirectory)
         var fileInputStream: FileInputStream? = null
         var outputStream: OutputStream? = null
+        var isSuccess = true
 
         if (sourceFile.isDirectory) {
             documentFileDestination?.createDirectory(sourceFile.name)
-            var isSuccess = false
-
             sourceFile.listFiles()?.let { sourceFiles ->
                 for (i in sourceFiles.indices) {
                     isSuccess = copyToExtCard(
@@ -454,7 +454,7 @@ class DirectoryModel(
                 outputStream = documentFileDestination?.uri?.let {
                     appContext.contentResolver.openOutputStream(it)
                 }
-                val byteArray = ByteArray(BUFFER_SIZE)   // TODO: Test this
+                val byteArray = ByteArray(BUFFER_SIZE)
                 var bytesRead: Int
                 try {
                     while (fileInputStream.read(byteArray).also { bytesRead = it } != -1) {
@@ -462,25 +462,29 @@ class DirectoryModel(
                     }
                 } catch (err: Exception) {
                     loge("copyToExtCard $err")
+                    isSuccess = false
                 } finally {
                     try {
                         fileInputStream.close()
                         outputStream?.close()
                     } catch (err: Exception) {
                         loge("copyToExtCard $err")
+                        isSuccess = false
                     }
                 }
             } catch (err: Exception) {
                 loge("copyToExtCard $err")
+                isSuccess = false
             } finally {
                 try {
                     fileInputStream?.close()
                     outputStream?.close()
                 } catch (err: Exception) {
                     loge("copyToExtCard $err")
+                    isSuccess = false
                 }
             }
-            return false
+            return isSuccess
         }
     }
 
@@ -569,9 +573,7 @@ class DirectoryModel(
     ) = withContext(Dispatchers.IO) {
         val parentPath: String = File(multipleSelection.first().path).parent ?: ""
         val archiveType: String = compressedFileNameWithExtension.substring(
-            compressedFileNameWithExtension.lastIndexOf(
-                "."
-            )
+            compressedFileNameWithExtension.lastIndexOf(FILE_EXTENSION_SEPARATOR)
         ).drop(1)
 
         if (!FileCompressionHandler().compress(

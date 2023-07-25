@@ -12,3 +12,4 @@ const val FOLDER_SUFFIX: Char = '/'
 const val HIDDEN_FILE_PREFIX: Char = '.'
 const val MIME_TYPE_ALL: String = "*/*"
 const val BUFFER_SIZE: Int = 131072 //Ideal for most devices also considering the old devices
+const val FILE_EXTENSION_SEPARATOR: String = "."

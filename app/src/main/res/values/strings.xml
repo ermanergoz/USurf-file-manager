@@ -133,4 +133,8 @@
     <string name="kb" translatable="false">KB</string>
     <string name="bytes">Bytes</string>
     <string name="file_count">Files</string>
+    <string name="more">More</string>
+    <string name="hint_port">Port</string>
+    <string name="hint_password">Password</string>
+    <string name="hint_username">Username</string>
 </resources>
