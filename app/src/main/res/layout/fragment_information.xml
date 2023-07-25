@@ -30,7 +30,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
             android:text="@string/yusuf_erman_ergoz"
             android:textSize="@dimen/text_size_18" />
 
@@ -46,7 +45,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
             android:text="@string/app_version"
             android:textSize="@dimen/text_size_18" />
 
@@ -62,7 +60,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
             android:autoLink="web"
             android:singleLine="true"
             android:text="@string/github_link"
@@ -80,7 +77,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
             android:autoLink="web"
             android:singleLine="true"
             android:text="@string/privacy_policy_url"
@@ -98,7 +94,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
             android:text="@string/icons_pix_perfect"
             android:textSize="@dimen/text_size_18" />
 
@@ -106,7 +101,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
             android:autoLink="web"
             android:singleLine="true"
             android:text="@string/pix_perfect_link"
@@ -116,7 +110,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
             android:layout_marginTop="@dimen/vertical_margin_16"
             android:text="@string/icons_freepic"
             android:textSize="@dimen/text_size_18" />
@@ -125,7 +118,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
             android:autoLink="web"
             android:singleLine="true"
             android:text="@string/freepic_url"
@@ -135,7 +127,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
             android:layout_marginTop="@dimen/vertical_margin_16"
             android:text="@string/icons_those_icons"
             android:textSize="@dimen/text_size_18" />
@@ -144,7 +135,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
             android:autoLink="web"
             android:singleLine="true"
             android:text="@string/those_icons_url"
@@ -154,7 +144,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
             android:layout_marginTop="@dimen/vertical_margin_16"
             android:text="@string/icons_smashicons"
             android:textSize="@dimen/text_size_18" />
@@ -163,7 +152,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
             android:autoLink="web"
             android:singleLine="true"
             android:text="@string/smashicons_url"
@@ -173,7 +161,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
             android:layout_marginTop="@dimen/vertical_margin_16"
             android:text="@string/storage_icon"
             android:textSize="@dimen/text_size_18" />
@@ -182,7 +169,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
             android:autoLink="web"
             android:singleLine="true"
             android:text="@string/srip_url"
@@ -192,7 +178,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
             android:layout_marginTop="@dimen/vertical_margin_16"
             android:text="@string/icons_roundicons"
             android:textSize="@dimen/text_size_18" />
@@ -201,7 +186,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
             android:autoLink="web"
             android:singleLine="true"
             android:text="@string/round_icons_url"
@@ -211,7 +195,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
             android:layout_marginTop="@dimen/vertical_margin_16"
             android:text="@string/icons_kiranshastry"
             android:textSize="@dimen/text_size_18" />
@@ -220,7 +203,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
             android:autoLink="web"
             android:singleLine="true"
             android:text="@string/kiranshastry_url"
@@ -230,7 +212,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
             android:layout_marginTop="@dimen/vertical_margin_16"
             android:text="@string/icons_iconixar"
             android:textSize="@dimen/text_size_18" />
@@ -239,7 +220,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
             android:autoLink="web"
             android:singleLine="true"
             android:text="@string/iconixar_url"
@@ -249,7 +229,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
             android:layout_marginTop="@dimen/vertical_margin_16"
             android:text="@string/folder_icon"
             android:textSize="@dimen/text_size_18" />
@@ -258,7 +237,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
             android:text="@string/xnimrodx_url"
             android:autoLink="web"
             android:singleLine="true"
