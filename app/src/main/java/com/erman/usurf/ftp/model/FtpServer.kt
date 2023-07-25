@@ -14,6 +14,7 @@ import com.erman.usurf.R
 import com.erman.usurf.application.MainApplication
 import com.erman.usurf.ftp.data.FtpPreferenceProvider
 import com.erman.usurf.ftp.utils.*
+import com.erman.usurf.utils.KEY_INTENT_IS_FTP_NOTIFICATION_CLICKED
 import com.erman.usurf.utils.SHARED_PREF_FILE
 import com.erman.usurf.utils.logd
 import com.erman.usurf.utils.loge

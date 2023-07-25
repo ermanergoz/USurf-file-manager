@@ -3,7 +3,6 @@ package com.erman.usurf.utils
 import android.annotation.SuppressLint
 import android.os.Build
 import com.erman.usurf.application.MainApplication
-import com.erman.usurf.directory.utils.ROOT_DIRECTORY
 import com.erman.usurf.preference.data.PreferenceProvider
 import org.koin.java.KoinJavaComponent.getKoin
 import java.io.File

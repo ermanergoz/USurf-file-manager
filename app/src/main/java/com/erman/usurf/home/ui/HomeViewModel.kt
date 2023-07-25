@@ -15,11 +15,7 @@ import com.erman.usurf.home.data.FavoriteDao
 import com.erman.usurf.activity.data.StorageDirectoryPreferenceProvider
 import com.erman.usurf.home.data.HomePreferenceProvider
 import com.erman.usurf.home.model.HomeModel
-import com.erman.usurf.home.utils.ROOT_DIRECTORY
-import com.erman.usurf.utils.Event
-import com.erman.usurf.utils.StoragePaths
-import com.erman.usurf.utils.logd
-import com.erman.usurf.utils.logi
+import com.erman.usurf.utils.*
 import io.realm.Realm
 import java.io.File
 

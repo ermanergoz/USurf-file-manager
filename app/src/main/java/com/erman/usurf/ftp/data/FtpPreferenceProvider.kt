@@ -28,7 +28,7 @@ class FtpPreferenceProvider(private val preferences: SharedPreferences) {
 
     fun getPort(): Int {
         logd("getPort")
-        return preferences.getInt(PORT_KEY, 2221)
+        return preferences.getInt(PORT_KEY, DEFAULT_PORT)
     }
 
     fun editPort(port: Int) {

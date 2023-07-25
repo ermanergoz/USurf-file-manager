@@ -1,5 +1,6 @@
 package com.erman.usurf.directory.model
 
+import com.erman.usurf.directory.utils.FOLDER_SUFFIX
 import com.erman.usurf.utils.loge
 import com.stericson.RootShell.execution.Command
 import com.stericson.RootTools.RootTools
@@ -34,8 +35,8 @@ class RootHandler {
         var mntCommand = ""
 
         when (mountMode) {
-            "rw" -> mntCommand = "mount -o rw,remount /"
-            "ro" -> mntCommand = "mount -o ro,remount /"
+            MountOption.READ_WRITE.option -> mntCommand = "mount -o rw,remount /"
+            MountOption.READ.option -> mntCommand = "mount -o ro,remount /"
         }
 
         val command: Command = object : Command(0, mntCommand) {
@@ -94,7 +95,7 @@ class RootHandler {
         var fileName = name
 
         if (isDirectory)
-            fileName = "$name/"
+            fileName = "$name$FOLDER_SUFFIX"
 
         for (file in getFileList(path)) {
             if (file == fileName)
@@ -202,7 +203,7 @@ class RootHandler {
         var isSuccess = false
 
         for (source in selectedDirectories) {
-            val sourcePath = if (source.path.last() == '/')
+            val sourcePath = if (source.path.last() == FOLDER_SUFFIX)
                 source.path.dropLast(1)
             else
                 source.path
