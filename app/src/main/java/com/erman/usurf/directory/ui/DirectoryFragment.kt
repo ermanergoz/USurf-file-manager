@@ -21,6 +21,7 @@ import com.erman.usurf.activity.model.ShowDialog
 import com.erman.usurf.databinding.FragmentDirectoryBinding
 import com.erman.usurf.dialog.model.DialogArgs
 import com.erman.usurf.dialog.ui.*
+import com.erman.usurf.directory.utils.MIME_TYPE_ALL
 import com.erman.usurf.utils.*
 import org.koin.android.viewmodel.ext.android.sharedViewModel
 import java.io.File
@@ -88,7 +89,7 @@ class DirectoryFragment : Fragment() {
                             logd("Start share activity")
                             action = Intent.ACTION_SEND_MULTIPLE
                             putParcelableArrayListExtra(Intent.EXTRA_STREAM, fileUris)
-                            type = "*/*"
+                            type = MIME_TYPE_ALL
                         }
                         startActivity(Intent.createChooser(shareIntent, requireContext().getString(R.string.share)))
                     }

@@ -19,13 +19,16 @@ import com.erman.usurf.R
 import com.erman.usurf.activity.model.ShowDialog
 import com.erman.usurf.databinding.FragmentHomeBinding
 import com.erman.usurf.dialog.model.DialogArgs
-import com.erman.usurf.dialog.ui.RenameDialog
 import com.erman.usurf.dialog.ui.FavoriteOptionsDialog
 import com.erman.usurf.dialog.ui.KitkatRemovableStorageWarningDialog
+import com.erman.usurf.dialog.ui.RenameDialog
 import com.erman.usurf.directory.ui.DirectoryViewModel
 import com.erman.usurf.home.model.HomeStorageButton
 import com.erman.usurf.home.model.StorageAccessFramework
-import com.erman.usurf.utils.*
+import com.erman.usurf.home.utils.STORAGE_BUTTON_HORIZONTAL_MARGIN
+import com.erman.usurf.home.utils.STORAGE_BUTTON_VERTICAL_MARGIN
+import com.erman.usurf.utils.logd
+import com.erman.usurf.utils.loge
 import org.koin.android.viewmodel.ext.android.sharedViewModel
 import org.koin.android.viewmodel.ext.android.viewModel
 import java.io.File
@@ -39,7 +42,11 @@ class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
     private val directoryViewModel by sharedViewModel<DirectoryViewModel>()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false)
 
         homeViewModel.navigateToDirectory.observe(viewLifecycleOwner) {
@@ -53,10 +60,17 @@ class HomeFragment : Fragment() {
         }
 
         homeViewModel.storageButtons.observe(viewLifecycleOwner) {
-            val sideMargin = 8
-            val dimensions = storageButtonDimensions.autoSizeButtonDimensions(it.size, sideMargin)
+            val dimensions = storageButtonDimensions.autoSizeButtonDimensions(
+                it.size,
+                STORAGE_BUTTON_HORIZONTAL_MARGIN
+            )
             val buttonLayoutParams = FrameLayout.LayoutParams(dimensions.first, dimensions.second)
-            buttonLayoutParams.setMargins(sideMargin, 0, sideMargin, 0)
+            buttonLayoutParams.setMargins(
+                STORAGE_BUTTON_HORIZONTAL_MARGIN,
+                STORAGE_BUTTON_VERTICAL_MARGIN,
+                STORAGE_BUTTON_HORIZONTAL_MARGIN,
+                STORAGE_BUTTON_VERTICAL_MARGIN
+            )
             it.forEach { button ->
                 button.lifecycleOwner = this
                 button.viewModel = homeViewModel
@@ -71,12 +85,26 @@ class HomeFragment : Fragment() {
                     is DialogArgs.OpenFileActivityArgs -> {
                         logd("Open a favorite file")
                         val intent = Intent(Intent.ACTION_VIEW)
-                        intent.data = FileProvider.getUriForFile(requireContext(), requireContext().packageName, File(args.path))
-                        intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-                        intent.resolveActivity(requireContext().packageManager)?.let { startActivity(intent) }
-                            ?: let { Toast.makeText(context, getString(R.string.unsupported_file), Toast.LENGTH_LONG).show() }
+                        intent.data = FileProvider.getUriForFile(
+                            requireContext(),
+                            requireContext().packageName,
+                            File(args.path)
+                        )
+                        intent.flags =
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                        intent.resolveActivity(requireContext().packageManager)
+                            ?.let { startActivity(intent) }
+                            ?: let {
+                                Toast.makeText(
+                                    context,
+                                    getString(R.string.unsupported_file),
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
                     }
-                    is DialogArgs.FavoriteOptionsDialogArgs -> dialogListener.showDialog(FavoriteOptionsDialog(args.view))
+                    is DialogArgs.FavoriteOptionsDialogArgs -> dialogListener.showDialog(
+                        FavoriteOptionsDialog(args.view)
+                    )
                     is DialogArgs.KitkatRemovableStorageDialogArgs -> dialogListener.showDialog(
                         KitkatRemovableStorageWarningDialog()
                     )
@@ -99,7 +127,8 @@ class HomeFragment : Fragment() {
 
     private fun runRecyclerViewAnimation(recyclerView: RecyclerView) {
         val context = recyclerView.context
-        val controller = AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_move_up)
+        val controller =
+            AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_move_up)
         recyclerView.layoutAnimation = controller
         recyclerView.scheduleLayoutAnimation()
     }
@@ -110,7 +139,9 @@ class HomeFragment : Fragment() {
         favoriteRecyclerViewAdapter = FavoriteRecyclerViewAdapter(homeViewModel)
         binding.favoriteRecyclerView.layoutManager = GridLayoutManager(context, 2)
         binding.favoriteRecyclerView.adapter = favoriteRecyclerViewAdapter
-        binding.favoriteRecyclerView.itemAnimator?.let { it.changeDuration = 0 }//to avoid flickering
+        binding.favoriteRecyclerView.itemAnimator?.let {
+            it.changeDuration = 0
+        }//to avoid flickering
 
         homeViewModel.favorites.observe(viewLifecycleOwner) {
             favoriteRecyclerViewAdapter.updateData(it)
