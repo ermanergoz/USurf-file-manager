@@ -12,7 +12,7 @@ import androidx.databinding.library.baseAdapters.BR
 import com.erman.usurf.databinding.RecyclerDirectoryLayoutBinding
 import com.erman.usurf.directory.model.FileModel
 
-class DirectoryRecyclerViewAdapter(var viewModel: DirectoryViewModel) :
+class DirectoryRecyclerViewAdapter(var viewModel: DirectoryViewModel) : //TODO: Callbacks instead of viewmodel and ListAdapter
     RecyclerView.Adapter<DirectoryRecyclerViewAdapter.ViewHolder>() {
     private var directoryList = listOf<FileModel>()
 
