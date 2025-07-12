@@ -1,14 +1,17 @@
 package com.erman.usurf.utils
 
 import android.annotation.SuppressLint
+import android.content.Context
 import com.erman.usurf.application.MainApplication
 import com.erman.usurf.preference.data.PreferenceProvider
 import org.koin.java.KoinJavaComponent.getKoin
+import org.koin.java.KoinJavaComponent.inject
 import java.io.File
 import java.io.IOException
 
 object StoragePaths {
     private val preferenceProvider: PreferenceProvider = getKoin().get()
+    private val context: Context by inject(Context::class.java)
 
     @SuppressLint("SdCardPath")
     fun getStorageDirectories(): Set<String> {
@@ -37,7 +40,7 @@ object StoragePaths {
                 "/mnt/sdcard",
             )
 
-        for (file in MainApplication.appContext.getExternalFilesDirs(DIR_TYPE_EXTERNAL)) {
+        for (file in context.getExternalFilesDirs(DIR_TYPE_EXTERNAL)) {
             file?.let {
                 val index = it.absolutePath.lastIndexOf(EXTERNAL_DIR_SUFFIX)
                 var path = it.absolutePath.substring(0, index)
