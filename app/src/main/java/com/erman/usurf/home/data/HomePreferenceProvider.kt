@@ -9,7 +9,7 @@ import com.erman.usurf.home.utils.KEY_IS_KITKAT_REMOVABLE_STORAGE_WARNING_DISPLA
 import com.erman.usurf.utils.SHARED_PREF_FILE
 import com.erman.usurf.utils.logd
 
-class HomePreferenceProvider(private val preferences: SharedPreferences) {
+class HomePreferenceProvider(private val preferences: SharedPreferences, private val context: Context) {
     fun editIsKitkatRemovableStorageWarningDisplayedPreference(choice: Boolean) {
         logd("editIsKitkatRemovableStorageWarningDisplayedPreference")
         preferences.edit { putBoolean(KEY_IS_KITKAT_REMOVABLE_STORAGE_WARNING_DISPLAYED, choice) }
@@ -17,7 +17,7 @@ class HomePreferenceProvider(private val preferences: SharedPreferences) {
 
     fun getIsKitkatRemovableStorageWarningDisplayedPreference(): Boolean {
         logd("getIsKitkatRemovableStorageWarningDisplayedPreference")
-        return MainApplication.appContext.getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE)
+        return context.getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE)
             .getBoolean(KEY_IS_KITKAT_REMOVABLE_STORAGE_WARNING_DISPLAYED, IS_KITKAT_REMOVABLE_STORAGE_WARNING_DISPLAYED_DEF_VAL)
     }
 }
