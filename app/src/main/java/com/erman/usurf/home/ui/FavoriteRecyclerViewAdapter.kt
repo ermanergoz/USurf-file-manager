@@ -6,17 +6,20 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.erman.usurf.home.data.Favorite
 import com.erman.usurf.R
 import com.erman.usurf.databinding.RecyclerFavoriteLayoutBinding
 import com.erman.usurf.directory.utils.MARQUEE_REPEAT_LIM
+import com.erman.usurf.home.data.Favorite
 
 class FavoriteRecyclerViewAdapter(var viewModel: HomeViewModel) :
     RecyclerView.Adapter<FavoriteRecyclerViewAdapter.FavoriteHolder>() {
     private lateinit var binding: RecyclerFavoriteLayoutBinding
     var favorites = listOf<Favorite>()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FavoriteHolder {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int,
+    ): FavoriteHolder {
         binding = DataBindingUtil.inflate(LayoutInflater.from(parent.context), R.layout.recycler_favorite_layout, parent, false)
 
         binding.viewModel = viewModel
@@ -27,7 +30,10 @@ class FavoriteRecyclerViewAdapter(var viewModel: HomeViewModel) :
         return favorites.count()
     }
 
-    override fun onBindViewHolder(holder: FavoriteHolder, position: Int) {
+    override fun onBindViewHolder(
+        holder: FavoriteHolder,
+        position: Int,
+    ) {
         holder.bindButtons(favorites.elementAt(position))
     }
 
@@ -38,10 +44,10 @@ class FavoriteRecyclerViewAdapter(var viewModel: HomeViewModel) :
             binding.favorite.isSingleLine = true
 
             binding.favorite.ellipsize = TextUtils.TruncateAt.MARQUEE
-            //for sliding names if the length is longer than 1 line
+            // for sliding names if the length is longer than 1 line
             binding.favorite.isSelected = true
             binding.favorite.marqueeRepeatLimit = MARQUEE_REPEAT_LIM
-            //-1 is for forever
+            // -1 is for forever
         }
     }
 

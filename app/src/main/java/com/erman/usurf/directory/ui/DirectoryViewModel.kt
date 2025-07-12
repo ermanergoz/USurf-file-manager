@@ -5,16 +5,21 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.erman.usurf.R
 import com.erman.usurf.dialog.model.DialogArgs
-import com.erman.usurf.directory.model.*
+import com.erman.usurf.directory.model.DirectoryModel
+import com.erman.usurf.directory.model.FileModel
 import com.erman.usurf.preference.data.PreferenceProvider
 import com.erman.usurf.utils.Event
 import com.erman.usurf.utils.ROOT_DIRECTORY
 import com.erman.usurf.utils.logd
 import com.erman.usurf.utils.loge
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import java.io.File
 import java.lang.Exception
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.cancellation.CancellationException
 
 class DirectoryViewModel(private val directoryModel: DirectoryModel, private val preferenceProvider: PreferenceProvider) :
     ViewModel(), CoroutineScope {
@@ -35,54 +40,64 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel, private val
     private val _fileSearchQuery = MutableLiveData<String>()
     val fileSearchQuery: LiveData<String> = _fileSearchQuery
 
-    private val _loading = MutableLiveData<Boolean>().apply {
-        value = false
-    }
+    private val _loading =
+        MutableLiveData<Boolean>().apply {
+            value = false
+        }
     val loading: LiveData<Boolean> = _loading
 
-    private val _fileSearchMode = MutableLiveData<Boolean>().apply {
-        value = false
-    }
+    private val _fileSearchMode =
+        MutableLiveData<Boolean>().apply {
+            value = false
+        }
     val fileSearchMode: LiveData<Boolean> = _fileSearchMode
 
-    private val _copyMode = MutableLiveData<Boolean>().apply {
-        value = false
-    }
+    private val _copyMode =
+        MutableLiveData<Boolean>().apply {
+            value = false
+        }
     val copyMode: LiveData<Boolean> = _copyMode
 
-    private val _moveMode = MutableLiveData<Boolean>().apply {
-        value = false
-    }
+    private val _moveMode =
+        MutableLiveData<Boolean>().apply {
+            value = false
+        }
     val moveMode: LiveData<Boolean> = _moveMode
 
-    private val _optionMode = MutableLiveData<Boolean>().apply {
-        value = false
-    }
+    private val _optionMode =
+        MutableLiveData<Boolean>().apply {
+            value = false
+        }
     val optionMode: LiveData<Boolean> = _optionMode
 
-    private val _menuMode = MutableLiveData<Boolean>().apply {
-        value = false
-    }
+    private val _menuMode =
+        MutableLiveData<Boolean>().apply {
+            value = false
+        }
     val menuMode: LiveData<Boolean> = _menuMode
 
-    private val _multipleSelection = MutableLiveData<MutableList<FileModel>>().apply {
-        value = mutableListOf()
-    }
+    private val _multipleSelection =
+        MutableLiveData<MutableList<FileModel>>().apply {
+            value = mutableListOf()
+        }
     val multipleSelection: LiveData<MutableList<FileModel>> = _multipleSelection
 
-    private val _updateDirectoryList = MutableLiveData<List<FileModel>>().apply {
-        value = mutableListOf()
-    }
+    private val _updateDirectoryList =
+        MutableLiveData<List<FileModel>>().apply {
+            value = mutableListOf()
+        }
     val updateDirectoryList: LiveData<List<FileModel>> = _updateDirectoryList
 
-    private val _moreMenuMode = MutableLiveData<Boolean>().apply {
-        value = false
-    }
+    private val _moreMenuMode =
+        MutableLiveData<Boolean>().apply {
+            value = false
+        }
     val moreMenuMode: LiveData<Boolean> = _moreMenuMode
 
-    private val _isRootMode = MutableLiveData<Boolean>().apply {
-        value = false
-    }
+    private val _isRootMode =
+        MutableLiveData<Boolean>().apply {
+            value = false
+        }
     val isRootMode: LiveData<Boolean> = _isRootMode
 
     fun onFileClick(file: FileModel) {
@@ -90,17 +105,20 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel, private val
             _isSingleOperationMode.value = false
             multipleSelection.value?.let { multipleSelection ->
                 _multipleSelection.value = directoryModel.manageMultipleSelectionList(file, multipleSelection)
-                if (multipleSelection.size == 1)
+                if (multipleSelection.size == 1) {
                     _isSingleOperationMode.value = true
-                else if (multipleSelection.size == 0) {
+                } else if (multipleSelection.size == 0) {
                     turnOffOptionPanel()
                     clearMultipleSelection()
                 }
             }
         } else {
             _fileSearchMode.value = false
-            if (file.isDirectory) _path.value = file.path
-            else _dialog.value = Event(DialogArgs.OpenFileActivityArgs(file.path))
+            if (file.isDirectory) {
+                _path.value = file.path
+            } else {
+                _dialog.value = Event(DialogArgs.OpenFileActivityArgs(file.path))
+            }
         }
         _isRootMode.value = file.isInRoot
     }
@@ -177,8 +195,9 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel, private val
             launch {
                 path.value?.let { path ->
                     val directory = directoryModel.getFileModelsFromFiles(path)
-                    if (directory.isEmpty())
+                    if (directory.isEmpty()) {
                         _toastMessage.value = Event(R.string.empty_folder)
+                    }
                     _updateDirectoryList.value = directory
                 }
                 _loading.value = false
@@ -194,8 +213,9 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel, private val
             _loading.value = true
             launch {
                 val fileList = directoryModel.getSearchedDeviceFiles(it)
-                if (fileList.isEmpty())
+                if (fileList.isEmpty()) {
                     _toastMessage.value = Event(R.string.empty_folder)
+                }
                 _updateDirectoryList.value = fileList
                 _menuMode.value = false
                 _loading.value = false
@@ -210,11 +230,14 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel, private val
     private fun refreshFileList() {
         launch {
             fileSearchMode.value?.let { isFileSearchMode ->
-                if (isFileSearchMode) fileSearchQuery.value?.let { fileSearchQuery ->
-                    _updateDirectoryList.value = directoryModel.getSearchedDeviceFiles(fileSearchQuery)
-                }
-                else path.value?.let { path ->
-                    _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path)
+                if (isFileSearchMode) {
+                    fileSearchQuery.value?.let { fileSearchQuery ->
+                        _updateDirectoryList.value = directoryModel.getSearchedDeviceFiles(fileSearchQuery)
+                    }
+                } else {
+                    path.value?.let { path ->
+                        _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path)
+                    }
                 }
             }
         }
@@ -250,7 +273,6 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel, private val
                     directoryModel.extractFiles(multipleSelection.first())
                     refreshFileList()
                     _toastMessage.value = Event(R.string.extracting_successful)
-
                 } catch (err: CancellationException) {
                     _toastMessage.value = Event(R.string.error_while_extracting)
                     loge("extract $err")

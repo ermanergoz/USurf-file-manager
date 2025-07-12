@@ -49,11 +49,15 @@ import com.erman.usurf.utils.ROOT_DIRECTORY
 import com.erman.usurf.utils.StoragePaths
 import com.erman.usurf.utils.logd
 import com.google.android.material.navigation.NavigationView
-import java.io.File
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
+import java.io.File
 
-class MainActivity : AppCompatActivity(), ShowDialog, RefreshNavDrawer, StorageAccessFramework,
+class MainActivity :
+    AppCompatActivity(),
+    ShowDialog,
+    RefreshNavDrawer,
+    StorageAccessFramework,
     HomeStorageButton,
     DialogListener {
     private lateinit var appBarConfiguration: AppBarConfiguration
@@ -73,11 +77,10 @@ class MainActivity : AppCompatActivity(), ShowDialog, RefreshNavDrawer, StorageA
                 this,
                 arrayOf(
                     Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 ),
-                READ_AND_WRITE_PERMISSION_REQUEST_CODE
+                READ_AND_WRITE_PERMISSION_REQUEST_CODE,
             )
-
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             logd("Request access to manage all files")
             if (!Environment.isExternalStorageManager()) {
@@ -102,10 +105,11 @@ class MainActivity : AppCompatActivity(), ShowDialog, RefreshNavDrawer, StorageA
 
         if (intent.getBooleanExtra(
                 KEY_INTENT_IS_FTP_NOTIFICATION_CLICKED,
-                INTENT_IS_FTP_NOTIFICATION_CLICKED_DEF_VAL
+                INTENT_IS_FTP_NOTIFICATION_CLICKED_DEF_VAL,
             )
-        )
+        ) {
             navController.navigate(R.id.global_action_to_nav_ftp)
+        }
 
         resultLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -113,35 +117,42 @@ class MainActivity : AppCompatActivity(), ShowDialog, RefreshNavDrawer, StorageA
                 data?.data?.let { treeUri ->
                     this.contentResolver.takePersistableUriPermission(
                         treeUri,
-                        Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
                     )
                     storageDirectoryPreferenceProvider.editChosenUri(treeUri.toString())
                 }
             }
 
-        onBackPressedDispatcher.addCallback(this /* lifecycle owner */, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (drawerLayout.isDrawerOpen(GravityCompat.START))
-                    drawerLayout.closeDrawers()
-                else finish()
-            }
-        })
+        onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                        drawerLayout.closeDrawers()
+                    } else {
+                        finish()
+                    }
+                }
+            },
+        )
     }
 
     private fun setupNavDrawer(
         navView: NavigationView,
         navController: NavController,
-        drawerLayout: DrawerLayout
+        drawerLayout: DrawerLayout,
     ) {
-        appBarConfiguration = AppBarConfiguration(
-            setOf(
-                R.id.nav_home,
-                R.id.nav_directory,
-                R.id.nav_preferences,
-                R.id.nav_ftp,
-                R.id.nav_info
-            ), drawerLayout
-        )
+        appBarConfiguration =
+            AppBarConfiguration(
+                setOf(
+                    R.id.nav_home,
+                    R.id.nav_directory,
+                    R.id.nav_preferences,
+                    R.id.nav_ftp,
+                    R.id.nav_info,
+                ),
+                drawerLayout,
+            )
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         navView.setNavigationItemSelectedListener {
@@ -161,12 +172,12 @@ class MainActivity : AppCompatActivity(), ShowDialog, RefreshNavDrawer, StorageA
                 drawerLayout,
                 binding.incAppBarMain.toolbar,
                 R.string.drawer_open,
-                R.string.drawer_close
+                R.string.drawer_close,
             ) {
                 override fun onDrawerClosed(view: View) {
                     super.onDrawerClosed(view)
-                    //This whole thing is a workaround to fix nav drawer lag issue.
-                    //Goes to the destination after it closes instead of right after the click.
+                    // This whole thing is a workaround to fix nav drawer lag issue.
+                    // Goes to the destination after it closes instead of right after the click.
                     destination?.let { navController.navigate(it) }
                 }
             }
@@ -175,7 +186,10 @@ class MainActivity : AppCompatActivity(), ShowDialog, RefreshNavDrawer, StorageA
         drawerToggle.syncState()
     }
 
-    private fun addStoragesToDrawer(navView: NavigationView, drawerLayout: DrawerLayout) {
+    private fun addStoragesToDrawer(
+        navView: NavigationView,
+        drawerLayout: DrawerLayout,
+    ) {
         val storageDirectories = StoragePaths.getStorageDirectories()
 
         for (path in storageDirectories) {
@@ -191,7 +205,10 @@ class MainActivity : AppCompatActivity(), ShowDialog, RefreshNavDrawer, StorageA
         }
     }
 
-    private fun refreshNavDrawer(navView: NavigationView, drawerLayout: DrawerLayout) {
+    private fun refreshNavDrawer(
+        navView: NavigationView,
+        drawerLayout: DrawerLayout,
+    ) {
         navView.menu.removeGroup(R.id.storage)
         addStoragesToDrawer(navView, drawerLayout)
     }
@@ -199,8 +216,8 @@ class MainActivity : AppCompatActivity(), ShowDialog, RefreshNavDrawer, StorageA
     private fun onStorageButtonClick(path: String) {
         directoryViewModel.setPath(path)
         destination = MobileNavigationDirections.globalActionNavDirectory()
-        if (path != ROOT_DIRECTORY && !File(path).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q
-            && storageDirectoryPreferenceProvider.getChosenUri() == EMPTY_STR
+        if (path != ROOT_DIRECTORY && !File(path).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q &&
+            storageDirectoryPreferenceProvider.getChosenUri() == EMPTY_STR
         ) {
             launchSAF()
         }
@@ -228,8 +245,11 @@ class MainActivity : AppCompatActivity(), ShowDialog, RefreshNavDrawer, StorageA
         }
     }
 
-    override fun autoSizeButtonDimensions(storageButtonCount: Int, sideMargin: Int): Pair<Int, Int> {
-        //to calculate the storage buttons so that they will fill the screen vertically
+    override fun autoSizeButtonDimensions(
+        storageButtonCount: Int,
+        sideMargin: Int,
+    ): Pair<Int, Int> {
+        // to calculate the storage buttons so that they will fill the screen vertically
         val windowMetrics = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(this)
         val currentBounds = windowMetrics.bounds // E.g. [0 0 1350 1800]
         val screenWidth = currentBounds.width()
@@ -237,11 +257,11 @@ class MainActivity : AppCompatActivity(), ShowDialog, RefreshNavDrawer, StorageA
 
         return Pair(
             ((screenWidth - ((sideMargin * 2) * storageButtonCount)) / storageButtonCount),
-            (screenHeight / (8 + storageButtonCount))
+            (screenHeight / (8 + storageButtonCount)),
         )
     }
 
-    @SuppressLint("InlinedApi") //Version check already exists
+    @SuppressLint("InlinedApi") // Version check already exists
     override fun manageAllFilesRequestListener() {
         val intent = Intent()
         intent.action = Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
@@ -250,7 +270,7 @@ class MainActivity : AppCompatActivity(), ShowDialog, RefreshNavDrawer, StorageA
         startActivity(intent)
     }
 
-    @SuppressLint("InlinedApi") //Version check already exists
+    @SuppressLint("InlinedApi") // Version check already exists
     override fun safAccessRequestListener() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
         resultLauncher.launch(intent)
