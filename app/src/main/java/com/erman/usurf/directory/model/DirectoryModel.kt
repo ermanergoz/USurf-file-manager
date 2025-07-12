@@ -1,13 +1,13 @@
 package com.erman.usurf.directory.model
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.net.Uri
 import android.os.Build
 import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import com.erman.usurf.R
 import com.erman.usurf.activity.data.StorageDirectoryPreferenceProvider
-import com.erman.usurf.application.MainApplication.Companion.appContext
 import com.erman.usurf.directory.utils.BUFFER_SIZE
 import com.erman.usurf.directory.utils.DUMMY_FILE_NAME
 import com.erman.usurf.directory.utils.DUMMY_FILE_NAME_WO_EXTENSION
@@ -41,6 +41,7 @@ class DirectoryModel(
     private val preferenceProvider: PreferenceProvider,
     private val storageDirectoryPreferenceProvider: StorageDirectoryPreferenceProvider,
     private val rootHandler: RootHandler,
+    private val context: Context
 ) {
     @SuppressLint("SimpleDateFormat")
     private val dateFormat = SimpleDateFormat(SIMPLE_DATE_FORMAT_PATTERN)
@@ -92,7 +93,7 @@ class DirectoryModel(
                         it.isDirectory,
                         dateFormat.format(it.lastModified()),
                         it.extension,
-                        ("${it.listFiles()?.size} ${appContext.getString(R.string.file_count)}"),
+                        ("${it.listFiles()?.size} ${context.getString(R.string.file_count)}"),
                         getPermissions(it),
                         it.isHidden,
                         false,
@@ -151,11 +152,11 @@ class DirectoryModel(
         val terabyte = size / TERABYTE_DIVISOR
 
         return when {
-            terabyte > 1 -> "${terabyte.round()} ${appContext.getString(R.string.tb)}"
-            gigabyte > 1 -> "${gigabyte.round()} ${appContext.getString(R.string.gb)}"
-            megabyte > 1 -> "${megabyte.round()} ${appContext.getString(R.string.mb)}"
-            kilobyte > 1 -> "${kilobyte.round()} ${appContext.getString(R.string.kb)}"
-            else -> "$size ${appContext.getString(R.string.bytes)}"
+            terabyte > 1 -> "${terabyte.round()} ${context.getString(R.string.tb)}"
+            gigabyte > 1 -> "${gigabyte.round()} ${context.getString(R.string.gb)}"
+            megabyte > 1 -> "${megabyte.round()} ${context.getString(R.string.mb)}"
+            kilobyte > 1 -> "${kilobyte.round()} ${context.getString(R.string.kb)}"
+            else -> "$size ${context.getString(R.string.bytes)}"
         }
     }
 
@@ -238,7 +239,7 @@ class DirectoryModel(
         // start with root of SD card and then parse through document tree.
         var document: DocumentFile?
         try {
-            document = DocumentFile.fromTreeUri(appContext, treeUri)
+            document = DocumentFile.fromTreeUri(context, treeUri)
         } catch (err: Exception) {
             return null
         }
@@ -566,7 +567,7 @@ class DirectoryModel(
                 fileInputStream = FileInputStream(sourceFile)
                 outputStream =
                     documentFileDestination?.uri?.let {
-                        appContext.contentResolver.openOutputStream(it)
+                        context.contentResolver.openOutputStream(it)
                     }
                 val byteArray = ByteArray(BUFFER_SIZE)
                 var bytesRead: Int
@@ -661,7 +662,7 @@ class DirectoryModel(
                         it.isDirectory,
                         dateFormat.format(it.lastModified()),
                         it.extension,
-                        ("${it.listFiles()?.size} ${appContext.getString(R.string.file_count)}"),
+                        ("${it.listFiles()?.size} ${context.getString(R.string.file_count)}"),
                         getPermissions(it),
                         it.isHidden,
                     )
