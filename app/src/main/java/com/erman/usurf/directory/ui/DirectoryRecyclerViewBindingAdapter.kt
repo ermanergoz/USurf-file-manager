@@ -10,18 +10,24 @@ import com.erman.usurf.preference.data.PreferenceProvider
 import org.koin.java.KoinJavaComponent.getKoin
 import java.io.File
 
-
 @BindingAdapter("filePath")
-fun setImage(imageView: ImageView, filePath: String) {
+fun setImage(
+    imageView: ImageView,
+    filePath: String,
+) {
     val preferenceProvider: PreferenceProvider = getKoin().get()
     val file = File(filePath)
 
     if (file.isFile && preferenceProvider.getShowThumbnailsPreference()) {
-        val requestBuilder: RequestBuilder<Drawable> = GlideApp.with(imageView.context)
-            .asDrawable().sizeMultiplier(THUMBNAIL_SIZE_MULTIPLIER)
+        val requestBuilder: RequestBuilder<Drawable> =
+            GlideApp.with(imageView.context)
+                .asDrawable().sizeMultiplier(THUMBNAIL_SIZE_MULTIPLIER)
 
         GlideApp.with(imageView.context).load(filePath).thumbnail(requestBuilder)
             .into(imageView)
-    } else if (file.isFile) imageView.setImageResource(R.drawable.ic_file)
-    else imageView.setImageResource(R.drawable.ic_folder)
+    } else if (file.isFile) {
+        imageView.setImageResource(R.drawable.ic_file)
+    } else {
+        imageView.setImageResource(R.drawable.ic_folder)
+    }
 }

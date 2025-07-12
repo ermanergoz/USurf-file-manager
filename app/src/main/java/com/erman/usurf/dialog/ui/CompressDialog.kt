@@ -12,7 +12,7 @@ import org.koin.android.viewmodel.ext.android.sharedViewModel
 
 class CompressDialog : DialogFragment() {
     private lateinit var editText: EditText
-    private val editDialogViewModel by sharedViewModel<DirectoryViewModel>()    //TODO: Don't pass a viewmodel, use callbacks instead
+    private val editDialogViewModel by sharedViewModel<DirectoryViewModel>() // TODO: Don't pass a viewmodel, use callbacks instead
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
