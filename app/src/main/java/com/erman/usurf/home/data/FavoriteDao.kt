@@ -18,7 +18,10 @@ class FavoriteDao(var realm: Realm) {
         return realm.where(Favorite::class.java).findAllAsync().asLiveData()
     }
 
-    fun addFavorite(favoritePath: String, favoriteName: String): Boolean {
+    fun addFavorite(
+        favoritePath: String,
+        favoriteName: String,
+    ): Boolean {
         logd("Add favorite")
         realm.beginTransaction()
         try {
@@ -57,7 +60,10 @@ class FavoriteDao(var realm: Realm) {
         return true
     }
 
-    fun renameFavorite(favorite: TextView, newName: String): Boolean {
+    fun renameFavorite(
+        favorite: TextView,
+        newName: String,
+    ): Boolean {
         logd("Rename favorite")
         try {
             val favoriteToRename = realm.where<Favorite>().equalTo(REALM_FIELD_NAME_PATH, favorite.tag.toString()).findFirst()
