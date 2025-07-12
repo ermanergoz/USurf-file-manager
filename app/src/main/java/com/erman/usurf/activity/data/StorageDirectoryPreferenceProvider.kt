@@ -1,6 +1,7 @@
 package com.erman.usurf.activity.data
 
 import android.content.SharedPreferences
+import androidx.core.content.edit
 import com.erman.usurf.activity.utils.KEY_INTENT_EXTCARD_CHOSEN_URI
 import com.erman.usurf.utils.logd
 
@@ -12,6 +13,6 @@ class StorageDirectoryPreferenceProvider(private val preferences: SharedPreferen
 
     fun editChosenUri(treeUri: String) {
         logd("editChosenUri")
-        preferences.edit().putString(KEY_INTENT_EXTCARD_CHOSEN_URI, treeUri).apply()
+        preferences.edit { putString(KEY_INTENT_EXTCARD_CHOSEN_URI, treeUri) }
     }
 }
