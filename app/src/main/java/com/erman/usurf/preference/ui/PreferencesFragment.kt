@@ -3,20 +3,31 @@ package com.erman.usurf.preference.ui
 import android.content.Context
 import android.os.Bundle
 import android.widget.Toast
-import androidx.preference.*
+import androidx.preference.CheckBoxPreference
+import androidx.preference.ListPreference
+import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.SwitchPreference
 import com.erman.usurf.R
+import com.erman.usurf.activity.model.RefreshNavDrawer
 import com.erman.usurf.directory.model.RootHandler
 import com.erman.usurf.preference.data.PreferenceProvider
-import com.erman.usurf.preference.utils.*
-import com.erman.usurf.activity.model.RefreshNavDrawer
+import com.erman.usurf.preference.utils.KEY_ASCENDING_ORDER_CHECKBOX
+import com.erman.usurf.preference.utils.KEY_DESCENDING_ORDER_CHECKBOX
+import com.erman.usurf.preference.utils.KEY_PREFERENCE_ROOT_ACCESS
+import com.erman.usurf.preference.utils.KEY_SHOW_HIDDEN_SWITCH
+import com.erman.usurf.preference.utils.KEY_SHOW_THUMBNAILS_SWITCH
+import com.erman.usurf.preference.utils.KEY_SORT_FILES_LIST_PREFERENCE
 import com.erman.usurf.utils.loge
 import org.koin.android.ext.android.inject
 
-class MainPreferencesFragment : PreferenceFragmentCompat() {
+class PreferencesFragment : PreferenceFragmentCompat() {
     private lateinit var navDrawerRefreshListener: RefreshNavDrawer
     private val preferenceProvider: PreferenceProvider by inject()
 
-    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+    override fun onCreatePreferences(
+        savedInstanceState: Bundle?,
+        rootKey: String?,
+    ) {
         setPreferencesFromResource(R.xml.preferences_main, rootKey)
 
         val rootAccessPreference = findPreference<SwitchPreference>(KEY_PREFERENCE_ROOT_ACCESS)
@@ -57,7 +68,9 @@ class MainPreferencesFragment : PreferenceFragmentCompat() {
                 descendingOrderPreference.isChecked = false
                 preferenceProvider.editAscendingOrderPreference(newValue as Boolean)
                 true
-            } else false
+            } else {
+                false
+            }
         }
 
         descendingOrderPreference?.setOnPreferenceChangeListener { _, newValue ->
@@ -65,7 +78,9 @@ class MainPreferencesFragment : PreferenceFragmentCompat() {
                 ascendingOrderPreference.isChecked = false
                 preferenceProvider.editDescendingOrderPreference(newValue as Boolean)
                 true
-            } else false
+            } else {
+                false
+            }
         }
     }
 
