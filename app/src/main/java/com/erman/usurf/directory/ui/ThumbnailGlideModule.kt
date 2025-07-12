@@ -14,13 +14,17 @@ import com.erman.usurf.directory.utils.THUMBNAIL_IMAGE_WIDTH
 
 @GlideModule
 class ThumbnailGlideModule : AppGlideModule() {
-    override fun applyOptions(context: Context, builder: GlideBuilder) {
-        val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.NONE)
-            .format(DecodeFormat.PREFER_RGB_565) //uses less memory than default ARGB_8888
-            .override(THUMBNAIL_IMAGE_WIDTH, THUMBNAIL_IMAGE_HEIGHT)
-            .placeholder(R.drawable.ic_file)
+    override fun applyOptions(
+        context: Context,
+        builder: GlideBuilder,
+    ) {
+        val requestOptions =
+            RequestOptions().diskCacheStrategy(DiskCacheStrategy.NONE)
+                .format(DecodeFormat.PREFER_RGB_565) // uses less memory than default ARGB_8888
+                .override(THUMBNAIL_IMAGE_WIDTH, THUMBNAIL_IMAGE_HEIGHT)
+                .placeholder(R.drawable.ic_file)
 
         builder.setDefaultRequestOptions(requestOptions)
-            .setLogLevel(Log.ERROR) //Info and Warn are too annoying
+            .setLogLevel(Log.ERROR) // Info and Warn are too annoying
     }
 }

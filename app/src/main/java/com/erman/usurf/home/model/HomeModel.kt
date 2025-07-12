@@ -24,7 +24,7 @@ class HomeModel {
             storageButtons[i].root.tag = storageDirectories.elementAt(i)
             storageButtons[i].buttonText.text = storageDirectories.elementAt(i)
             storageButtons[i].progressBar?.scaleY = STORAGE_PROGRESS_BAR_SCALE
-            //It is null on older versions of android because I removed it from the layout
+            // It is null on older versions of android because I removed it from the layout
         }
         return storageButtons
     }
@@ -38,7 +38,6 @@ class HomeModel {
         return 0
     }
 
-
     private fun getUsedStorage(path: String): Long {
         val stat = StatFs(path)
         val free = stat.availableBlocksLong
@@ -48,9 +47,15 @@ class HomeModel {
     }
 
     fun getUsedStoragePercentage(path: String): Int {
-        if (path != ROOT_DIRECTORY && (getTotalStorage(path)).toInt() != 0) return ((getUsedStorage(
-            path
-        ) * PERCENTAGE_BASE / getTotalStorage(path))).toInt()
+        if (path != ROOT_DIRECTORY && (getTotalStorage(path)).toInt() != 0) {
+            return (
+                (
+                    getUsedStorage(
+                        path,
+                    ) * PERCENTAGE_BASE / getTotalStorage(path)
+                )
+            ).toInt()
+        }
         return 0
     }
 }
