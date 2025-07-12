@@ -1,10 +1,10 @@
 package com.erman.usurf.home.model
 
+import android.content.Context
 import android.os.StatFs
 import android.view.LayoutInflater
 import androidx.databinding.DataBindingUtil
 import com.erman.usurf.R
-import com.erman.usurf.application.MainApplication.Companion.appContext
 import com.erman.usurf.databinding.StorageButtonBinding
 import com.erman.usurf.home.utils.PERCENTAGE_BASE
 import com.erman.usurf.home.utils.STORAGE_PROGRESS_BAR_SCALE
@@ -12,14 +12,14 @@ import com.erman.usurf.utils.ROOT_DIRECTORY
 import com.erman.usurf.utils.StoragePaths
 import com.erman.usurf.utils.loge
 
-class HomeModel {
+class HomeModel(private val context: Context) {
     fun createStorageButtons(): MutableList<StorageButtonBinding> {
         val storageButtons: MutableList<StorageButtonBinding> = mutableListOf()
         val storageDirectories = StoragePaths.getStorageDirectories()
 
         for (i in storageDirectories.indices) {
             val binding: StorageButtonBinding =
-                DataBindingUtil.inflate(LayoutInflater.from(appContext), R.layout.storage_button, null, false)
+                DataBindingUtil.inflate(LayoutInflater.from(context), R.layout.storage_button, null, false)
             storageButtons.add(binding)
             storageButtons[i].root.tag = storageDirectories.elementAt(i)
             storageButtons[i].buttonText.text = storageDirectories.elementAt(i)

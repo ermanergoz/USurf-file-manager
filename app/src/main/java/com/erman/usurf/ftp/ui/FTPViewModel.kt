@@ -15,7 +15,12 @@ import com.erman.usurf.utils.Event
 import com.erman.usurf.utils.StoragePaths
 import com.erman.usurf.utils.loge
 
-class FTPViewModel(private val ftpModel: FtpModel, private val preferenceProvider: FtpPreferenceProvider) : ViewModel() {
+class FTPViewModel(
+    private val ftpModel: FtpModel,
+    private val preferenceProvider: FtpPreferenceProvider,
+    private val connectionLiveData: ConnectionLiveData,
+    private val ftpLiveData: FTPLiveData
+) : ViewModel() {
     val url =
         MutableLiveData<String>().apply {
             value = ftpModel.getIpAddress()
@@ -38,12 +43,12 @@ class FTPViewModel(private val ftpModel: FtpModel, private val preferenceProvide
 
     val isConnectedToWifi =
         MutableLiveData<ConnectionLiveData>().apply {
-            value = ConnectionLiveData()
+            value = connectionLiveData
         }
 
     val isServiceRunning =
         MutableLiveData<FTPLiveData>().apply {
-            value = FTPLiveData()
+            value = ftpLiveData
         }
 
     private val _storagePaths =

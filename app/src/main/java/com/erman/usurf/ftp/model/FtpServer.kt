@@ -172,7 +172,7 @@ class FtpServer : Service() {
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
 
-        Intent(MainApplication.appContext, FtpServer()::class.java).also { intent ->
+        Intent(this, FtpServer()::class.java).also { intent ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     startForeground(
@@ -203,7 +203,7 @@ class FtpServer : Service() {
     override fun onCreate() {
         super.onCreate()
 
-        Intent(MainApplication.appContext, FtpServer()::class.java).also { intent ->
+        Intent(this, FtpServer()::class.java).also { intent ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     startForeground(
