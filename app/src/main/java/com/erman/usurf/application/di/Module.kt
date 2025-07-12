@@ -2,6 +2,8 @@ package com.erman.usurf.application.di
 
 import android.content.Context
 import com.erman.usurf.activity.data.StorageDirectoryPreferenceProvider
+import com.erman.usurf.application.data.ApplicationDao
+import com.erman.usurf.application.data.ApplicationPreferenceProvider
 import com.erman.usurf.directory.model.DirectoryModel
 import com.erman.usurf.directory.model.RootHandler
 import com.erman.usurf.directory.ui.DirectoryViewModel
@@ -18,16 +20,19 @@ import io.realm.Realm
 import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
-val AppModule =
+val appModule =
     module {
-        single { DirectoryModel(get(), get(), get()) }
+        single { ApplicationPreferenceProvider(get()) }
+        single { ApplicationDao(get()) }
+
+        single { DirectoryModel(get(), get(), get(), get()) }
         viewModel { DirectoryViewModel(get(), get()) }
 
-        single { HomeModel() }
+        single { HomeModel(get()) }
         viewModel { HomeViewModel(get(), get(), get(), get(), get()) }
 
-        single { FtpModel() }
-        viewModel { FTPViewModel(get(), get()) }
+        single { FtpModel(get()) }
+        viewModel { FTPViewModel(get(), get(), get(), get()) }
 
         single {
             val context: Context = get()
@@ -45,6 +50,6 @@ val AppModule =
         single { StorageDirectoryPreferenceProvider(get()) }
         single { FtpPreferenceProvider(get()) }
         single { RootHandler() }
-        single { HomePreferenceProvider(get()) }
-        single { FavoriteDao(get()) }
+        single { HomePreferenceProvider(get(), get()) }
+        single { FavoriteDao(get(), get()) }
     }

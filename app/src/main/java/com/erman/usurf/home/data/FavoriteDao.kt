@@ -1,9 +1,9 @@
 package com.erman.usurf.home.data
 
+import android.content.Context
 import android.widget.TextView
 import android.widget.Toast
 import com.erman.usurf.R
-import com.erman.usurf.application.MainApplication.Companion.appContext
 import com.erman.usurf.home.utils.REALM_FIELD_NAME_PATH
 import com.erman.usurf.utils.logd
 import com.erman.usurf.utils.loge
@@ -12,7 +12,7 @@ import io.realm.exceptions.RealmPrimaryKeyConstraintException
 import io.realm.kotlin.createObject
 import io.realm.kotlin.where
 
-class FavoriteDao(var realm: Realm) {
+class FavoriteDao(private val realm: Realm, private val context: Context) {
     fun getFavorites(): RealmLiveData<Favorite> {
         logd("Get favorites")
         return realm.where(Favorite::class.java).findAllAsync().asLiveData()
@@ -81,6 +81,6 @@ class FavoriteDao(var realm: Realm) {
     }
 
     private fun displayToast(messageId: Int) {
-        Toast.makeText(appContext, appContext.getString(messageId), Toast.LENGTH_LONG).show()
+        Toast.makeText(context, context.getString(messageId), Toast.LENGTH_LONG).show()
     }
 }
