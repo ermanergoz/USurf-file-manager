@@ -3,53 +3,49 @@ package com.erman.usurf.ftp.data
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.erman.usurf.ftp.utils.DEFAULT_PORT
-import com.erman.usurf.ftp.utils.DEFAULT_USER_NAME
-import com.erman.usurf.ftp.utils.KEY_INTENT_CHOSEN_PATH
-import com.erman.usurf.ftp.utils.PASSWORD_DEF_VAL
-import com.erman.usurf.ftp.utils.PASSWORD_KEY
 import com.erman.usurf.ftp.utils.PORT_KEY
-import com.erman.usurf.ftp.utils.USERNAME_KEY
-import com.erman.usurf.utils.StoragePaths
-import com.erman.usurf.utils.logd
+import com.erman.usurf.storage.domain.StoragePathsProvider
 
-class FtpPreferenceProvider(private val preferences: SharedPreferences) {
+private const val PASSWORD_KEY: String = "password"
+private const val USERNAME_KEY: String = "username"
+private const val PASSWORD_DEF_VAL: String = ""
+private const val KEY_INTENT_CHOSEN_PATH: String = "ftpChosenPath"
+private const val DEFAULT_USER_NAME: String = "anonymous"
+
+class FtpPreferenceProvider(
+    private val preferences: SharedPreferences,
+    private val storagePathsProvider: StoragePathsProvider,
+) {
     fun getUsername(): String? {
-        logd("getUsername")
         return preferences.getString(USERNAME_KEY, DEFAULT_USER_NAME)
     }
 
     fun editUsername(username: String) {
-        logd("editUsername")
         preferences.edit { putString(USERNAME_KEY, username) }
     }
 
     fun getPassword(): String? {
-        logd("getPassword")
         return preferences.getString(PASSWORD_KEY, PASSWORD_DEF_VAL)
     }
 
     fun editPassword(password: String) {
-        logd("editPassword")
         preferences.edit { putString(PASSWORD_KEY, password) }
     }
 
     fun getPort(): Int {
-        logd("getPort")
         return preferences.getInt(PORT_KEY, DEFAULT_PORT)
     }
 
     fun editPort(port: Int) {
-        logd("editPort")
         preferences.edit { putInt(PORT_KEY, port) }
     }
 
     fun getFtpPath(): String? {
-        logd("getFtpPath")
-        return preferences.getString(KEY_INTENT_CHOSEN_PATH, StoragePaths.getStorageDirectories().first())
+        val defaultPath: String? = storagePathsProvider.getStorageDirectories().firstOrNull()
+        return preferences.getString(KEY_INTENT_CHOSEN_PATH, defaultPath)
     }
 
     fun editFtpPath(path: String?) {
-        logd("editPort")
         preferences.edit { putString(KEY_INTENT_CHOSEN_PATH, path) }
     }
 }
