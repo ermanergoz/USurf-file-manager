@@ -19,7 +19,6 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.erman.usurf.R
 import com.erman.usurf.activity.MainActivity
-import com.erman.usurf.application.MainApplication
 import com.erman.usurf.ftp.data.FtpPreferenceProvider
 import com.erman.usurf.ftp.utils.DEFAULT_PORT
 import com.erman.usurf.ftp.utils.FTP_NOTIFICATION_CHANNEL_ID

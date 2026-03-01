@@ -25,7 +25,6 @@ class DirectoryViewModel(
     private val directoryModel: DirectoryModel,
     private val preferenceProvider: PreferenceProvider,
 ) : ViewModel(), CoroutineScope {
-
     private var multiSelectionMode: Boolean = false
 
     private val _uiState = MutableLiveData<DirectoryUIState>(DirectoryUIState.Browsing())
@@ -38,8 +37,7 @@ class DirectoryViewModel(
         _uiState.value = transform(requireCurrentState())
     }
 
-    private fun requireCurrentState(): DirectoryUIState =
-        _uiState.value ?: DirectoryUIState.Browsing()
+    private fun requireCurrentState(): DirectoryUIState = _uiState.value ?: DirectoryUIState.Browsing()
 
     private fun updateCommon(transform: (CommonUi) -> CommonUi) {
         updateState { state ->
@@ -93,12 +91,13 @@ class DirectoryViewModel(
 
     fun turnOffOptionPanel() {
         updateState { state ->
-            val cleared = state.common.copy(
-                isOptionsPanelVisible = false,
-                isMoreMenuVisible = false,
-                selectedFiles = emptyList(),
-                canRename = false,
-            )
+            val cleared =
+                state.common.copy(
+                    isOptionsPanelVisible = false,
+                    isMoreMenuVisible = false,
+                    selectedFiles = emptyList(),
+                    canRename = false,
+                )
             when (state) {
                 is DirectoryUIState.Browsing -> state.copy(common = cleared)
                 is DirectoryUIState.Searching -> state.copy(common = cleared)
@@ -128,11 +127,17 @@ class DirectoryViewModel(
     fun onBackPressed(): Boolean {
         try {
             val state = requireCurrentState()
-            val c = state.common
-            val inOptionOrMenu = (c.isOptionsPanelVisible && !state.isInCopyOrMoveMode) || c.isCreateMenuExpanded
-            if (inOptionOrMenu) {
-                turnOffOptionPanel()
-                clearMultipleSelection()
+            if (state.isInCopyOrMoveMode) {
+                val currentPath = state.currentPathForNavigation
+                File(currentPath).parent?.let { parent ->
+                    val prevFile = File(parent)
+                    val canNavigate =
+                        (prevFile.canRead() && prevFile.path != ROOT_DIRECTORY) ||
+                            preferenceProvider.getRootAccessPreference()
+                    if (canNavigate) {
+                        setPath(prevFile.path)
+                    }
+                }
                 return true
             }
             if (state.isSearchMode) {
@@ -143,15 +148,22 @@ class DirectoryViewModel(
             val currentPath = state.currentPathForNavigation
             File(currentPath).parent?.let { parent ->
                 val prevFile = File(parent)
-                val canNavigate = (prevFile.canRead() && prevFile.path != ROOT_DIRECTORY) ||
-                    preferenceProvider.getRootAccessPreference()
+                val canNavigate =
+                    (prevFile.canRead() && prevFile.path != ROOT_DIRECTORY) ||
+                        preferenceProvider.getRootAccessPreference()
                 if (canNavigate) {
                     setPath(prevFile.path)
                     return true
                 }
             }
+            val c = state.common
+            val inOptionOrMenu = c.isOptionsPanelVisible || c.isCreateMenuExpanded
+            if (inOptionOrMenu) {
+                turnOffOptionPanel()
+                clearMultipleSelection()
+                return true
+            }
         } catch (err: Exception) {
-            err.printStackTrace()
             loge("onBackPressed $err")
         }
         return false
@@ -162,7 +174,8 @@ class DirectoryViewModel(
             when (it) {
                 is DirectoryUIState.Browsing -> it.copy(currentPath = path, files = emptyList())
                 is DirectoryUIState.Searching -> DirectoryUIState.Browsing(it.common, path, emptyList())
-                is DirectoryUIState.ExecutingOperation.FileAction -> DirectoryUIState.Browsing(it.common, path, emptyList())
+                is DirectoryUIState.ExecutingOperation.FileAction ->
+                    it.copy(currentPath = path, files = emptyList())
             }
         }
         getFileList()
@@ -184,9 +197,6 @@ class DirectoryViewModel(
                     val path = state.currentPathForNavigation
                     if (path.isEmpty()) return@launch
                     val directory = directoryModel.getFileModelsFromFiles(path)
-                    if (directory.isEmpty()) {
-                        _uiEvents.value = Event(DirectoryUiEvent.ShowToast(R.string.empty_folder))
-                    }
                     updateState { current ->
                         val doneCommon = current.common.copy(isLoading = false)
                         when (current) {
@@ -261,12 +271,13 @@ class DirectoryViewModel(
     }
 
     fun onFileCompressOkPressed(zipNameWithExtension: String) {
+        val selection = requireCurrentState().common.selectedFiles
+        if (selection.isEmpty()) return
         turnOffOptionPanel()
         _uiEvents.value = Event(DirectoryUiEvent.ShowToast(R.string.compressing))
         logd("onFileCompressOkPressed")
         launch {
             try {
-                val selection = requireCurrentState().common.selectedFiles
                 directoryModel.compressFiles(selection.toMutableList(), zipNameWithExtension)
                 refreshFileList()
                 _uiEvents.value = Event(DirectoryUiEvent.ShowToast(R.string.compressing_successful))
@@ -280,9 +291,9 @@ class DirectoryViewModel(
     }
 
     fun extract() {
-        turnOffOptionPanel()
         val selection = requireCurrentState().common.selectedFiles
         if (selection.isEmpty()) return
+        turnOffOptionPanel()
         _uiEvents.value = Event(DirectoryUiEvent.ShowToast(R.string.extracting))
         logd("extract")
         launch {
@@ -300,13 +311,16 @@ class DirectoryViewModel(
     }
 
     fun showFileInformation() {
-        requireCurrentState().common.selectedFiles.forEach { file ->
+        val selection = requireCurrentState().common.selectedFiles
+        if (selection.isEmpty()) return
+        selection.forEach { file ->
             _uiEvents.value = Event(DirectoryUiEvent.ShowDialog(DialogArgs.InformationDialogArgs(file)))
         }
     }
 
     fun share() {
         val selection = requireCurrentState().common.selectedFiles
+        if (selection.isEmpty()) return
         _uiEvents.value = Event(DirectoryUiEvent.ShowDialog(DialogArgs.ShareActivityArgs(selection)))
     }
 
@@ -317,26 +331,30 @@ class DirectoryViewModel(
     fun copy() {
         when (val state = requireCurrentState()) {
             is DirectoryUIState.Browsing -> {
-                _uiState.value = DirectoryUIState.ExecutingOperation.FileAction(
-                    common = state.common.copy(
-                        isOptionsPanelVisible = false,
-                        isMoreMenuVisible = false,
-                    ),
-                    actionType = ActionType.COPY,
-                    currentPath = state.currentPath,
-                    files = state.files,
-                )
+                _uiState.value =
+                    DirectoryUIState.ExecutingOperation.FileAction(
+                        common =
+                            state.common.copy(
+                                isOptionsPanelVisible = false,
+                                isMoreMenuVisible = false,
+                            ),
+                        actionType = ActionType.COPY,
+                        currentPath = state.currentPath,
+                        files = state.files,
+                    )
             }
             is DirectoryUIState.Searching -> {
-                _uiState.value = DirectoryUIState.ExecutingOperation.FileAction(
-                    common = state.common.copy(
-                        isOptionsPanelVisible = false,
-                        isMoreMenuVisible = false,
-                    ),
-                    actionType = ActionType.COPY,
-                    currentPath = state.previousPath,
-                    files = emptyList(),
-                )
+                _uiState.value =
+                    DirectoryUIState.ExecutingOperation.FileAction(
+                        common =
+                            state.common.copy(
+                                isOptionsPanelVisible = false,
+                                isMoreMenuVisible = false,
+                            ),
+                        actionType = ActionType.COPY,
+                        currentPath = state.previousPath,
+                        files = emptyList(),
+                    )
                 getFileList()
             }
             is DirectoryUIState.ExecutingOperation.FileAction -> { }
@@ -347,26 +365,30 @@ class DirectoryViewModel(
     fun move() {
         when (val state = requireCurrentState()) {
             is DirectoryUIState.Browsing -> {
-                _uiState.value = DirectoryUIState.ExecutingOperation.FileAction(
-                    common = state.common.copy(
-                        isOptionsPanelVisible = false,
-                        isMoreMenuVisible = false,
-                    ),
-                    actionType = ActionType.MOVE,
-                    currentPath = state.currentPath,
-                    files = state.files,
-                )
+                _uiState.value =
+                    DirectoryUIState.ExecutingOperation.FileAction(
+                        common =
+                            state.common.copy(
+                                isOptionsPanelVisible = false,
+                                isMoreMenuVisible = false,
+                            ),
+                        actionType = ActionType.MOVE,
+                        currentPath = state.currentPath,
+                        files = state.files,
+                    )
             }
             is DirectoryUIState.Searching -> {
-                _uiState.value = DirectoryUIState.ExecutingOperation.FileAction(
-                    common = state.common.copy(
-                        isOptionsPanelVisible = false,
-                        isMoreMenuVisible = false,
-                    ),
-                    actionType = ActionType.MOVE,
-                    currentPath = state.previousPath,
-                    files = emptyList(),
-                )
+                _uiState.value =
+                    DirectoryUIState.ExecutingOperation.FileAction(
+                        common =
+                            state.common.copy(
+                                isOptionsPanelVisible = false,
+                                isMoreMenuVisible = false,
+                            ),
+                        actionType = ActionType.MOVE,
+                        currentPath = state.previousPath,
+                        files = emptyList(),
+                    )
                 getFileList()
             }
             is DirectoryUIState.ExecutingOperation.FileAction -> { }
@@ -374,19 +396,21 @@ class DirectoryViewModel(
         multiSelectionMode = false
     }
 
-    private fun launchCopy() {
+    private fun launchCopy(
+        selection: List<FileModel>,
+        path: String,
+    ) {
+        if (selection.isEmpty()) {
+            _uiEvents.value = Event(DirectoryUiEvent.ShowToast(R.string.error_while_copying))
+            return
+        }
         _uiEvents.value = Event(DirectoryUiEvent.ShowToast(R.string.copying))
         logd("copy - copyMode")
         launch {
             try {
-                val state = requireCurrentState()
-                if (state is DirectoryUIState.ExecutingOperation.FileAction) {
-                    val path = state.currentPath
-                    val selection = state.common.selectedFiles
-                    directoryModel.copyFile(selection.toMutableList(), path)
-                    refreshFileList()
-                    _uiEvents.value = Event(DirectoryUiEvent.ShowToast(R.string.copy_successful))
-                }
+                directoryModel.copyFile(selection.toMutableList(), path)
+                refreshFileList()
+                _uiEvents.value = Event(DirectoryUiEvent.ShowToast(R.string.copy_successful))
             } catch (err: CancellationException) {
                 _uiEvents.value = Event(DirectoryUiEvent.ShowToast(R.string.error_while_copying))
                 loge("confirmAction-copyMode $err")
@@ -394,24 +418,26 @@ class DirectoryViewModel(
         }
     }
 
-    private fun launchMove() {
+    private fun launchMove(
+        selection: List<FileModel>,
+        path: String,
+    ) {
+        if (selection.isEmpty()) {
+            _uiEvents.value = Event(DirectoryUiEvent.ShowToast(R.string.error_while_moving))
+            return
+        }
         _uiEvents.value = Event(DirectoryUiEvent.ShowToast(R.string.moving))
         logd("move - moveMode")
         launch {
             try {
-                val state = requireCurrentState()
-                if (state is DirectoryUIState.ExecutingOperation.FileAction) {
-                    val selection = state.common.selectedFiles
-                    val path = state.currentPath
-                    directoryModel.moveFile(selection.toMutableList(), path)
-                    refreshFileList()
-                    _uiEvents.value = Event(DirectoryUiEvent.ShowToast(R.string.moving_successful))
-                }
+                directoryModel.moveFile(selection.toMutableList(), path)
+                refreshFileList()
+                _uiEvents.value = Event(DirectoryUiEvent.ShowToast(R.string.moving_successful))
             } catch (err: CancellationException) {
                 _uiEvents.value = Event(DirectoryUiEvent.ShowToast(R.string.error_while_moving))
                 loge("confirmAction-moveMode $err")
             } finally {
-                clearMultipleSelection()
+                endCopyMode()
             }
         }
     }
@@ -419,12 +445,11 @@ class DirectoryViewModel(
     fun confirmAction() {
         when (val state = requireCurrentState()) {
             is DirectoryUIState.ExecutingOperation.FileAction -> {
+                val selection = state.common.selectedFiles
+                val path = state.currentPath
                 when (state.actionType) {
-                    ActionType.COPY -> launchCopy()
-                    ActionType.MOVE -> {
-                        turnOffOptionPanel()
-                        launchMove()
-                    }
+                    ActionType.COPY -> launchCopy(selection, path)
+                    ActionType.MOVE -> launchMove(selection, path)
                 }
             }
             else -> { }
@@ -432,13 +457,15 @@ class DirectoryViewModel(
     }
 
     fun onRenameOkPressed(fileName: String) {
+        val selection = requireCurrentState().common.selectedFiles
+        if (selection.isEmpty()) return
+        val fileToRename = selection.last()
         turnOffOptionPanel()
         _uiEvents.value = Event(DirectoryUiEvent.ShowToast(R.string.renaming))
         logd("onRenameOkPressed")
         launch {
             try {
-                val selection = requireCurrentState().common.selectedFiles
-                directoryModel.rename(selection.last(), fileName)
+                directoryModel.rename(fileToRename, fileName)
                 refreshFileList()
                 _uiEvents.value = Event(DirectoryUiEvent.ShowToast(R.string.renaming_successful))
             } catch (err: CancellationException) {
@@ -452,16 +479,18 @@ class DirectoryViewModel(
 
     fun rename() {
         val selection = requireCurrentState().common.selectedFiles
+        if (selection.isEmpty()) return
         _uiEvents.value = Event(DirectoryUiEvent.ShowDialog(DialogArgs.RenameDialogArgs(selection.last().name)))
     }
 
     fun delete() {
+        val selection = requireCurrentState().common.selectedFiles
+        if (selection.isEmpty()) return
         turnOffOptionPanel()
         _uiEvents.value = Event(DirectoryUiEvent.ShowToast(R.string.deleting))
         logd("delete")
         launch {
             try {
-                val selection = requireCurrentState().common.selectedFiles
                 directoryModel.delete(selection.toMutableList())
                 refreshFileList()
                 _uiEvents.value = Event(DirectoryUiEvent.ShowToast(R.string.deleting_successful))
@@ -500,6 +529,7 @@ class DirectoryViewModel(
                 _uiEvents.value = Event(DirectoryUiEvent.ShowToast(R.string.error_when_creating_folder))
                 loge("onFolderCreateOkPressed $err")
             } finally {
+                updateCommon { it.copy(isCreateMenuExpanded = false) }
                 clearMultipleSelection()
             }
         }
@@ -519,6 +549,7 @@ class DirectoryViewModel(
                 _uiEvents.value = Event(DirectoryUiEvent.ShowToast(R.string.error_when_creating_file))
                 loge("onFileCreateOkPressed $err")
             } finally {
+                updateCommon { it.copy(isCreateMenuExpanded = false) }
                 clearMultipleSelection()
             }
         }
@@ -526,17 +557,19 @@ class DirectoryViewModel(
 
     fun onFileSearchOkPressed(searchQuery: String) {
         val state = requireCurrentState()
-        val (baseCommon, previousPath) = when (state) {
-            is DirectoryUIState.Browsing -> state.common to state.currentPath
-            is DirectoryUIState.Searching -> state.common to state.previousPath
-            is DirectoryUIState.ExecutingOperation.FileAction -> state.common to state.currentPath
-        }
-        _uiState.value = DirectoryUIState.Searching(
-            common = baseCommon,
-            query = searchQuery,
-            results = emptyList(),
-            previousPath = previousPath,
-        )
+        val (baseCommon, previousPath) =
+            when (state) {
+                is DirectoryUIState.Browsing -> state.common to state.currentPath
+                is DirectoryUIState.Searching -> state.common to state.previousPath
+                is DirectoryUIState.ExecutingOperation.FileAction -> state.common to state.currentPath
+            }
+        _uiState.value =
+            DirectoryUIState.Searching(
+                common = baseCommon,
+                query = searchQuery,
+                results = emptyList(),
+                previousPath = previousPath,
+            )
         getSearchedFiles()
     }
 
@@ -547,6 +580,7 @@ class DirectoryViewModel(
     fun onFavoriteButtonPressed() {
         logd("favoriteButton")
         val selection = requireCurrentState().common.selectedFiles
+        if (selection.isEmpty()) return
         val file = selection.last()
         _uiEvents.value = Event(DirectoryUiEvent.ShowDialog(DialogArgs.AddFavoriteDialogArgs(file.path)))
     }
@@ -561,7 +595,7 @@ class DirectoryViewModel(
     }
 
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO + job
+        get() = Dispatchers.Main + job
 
     private val job = Job()
 }

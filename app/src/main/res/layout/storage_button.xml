@@ -6,6 +6,10 @@
         <variable
             name="viewModel"
             type="com.erman.usurf.home.ui.HomeViewModel" />
+
+        <variable
+            name="storageItem"
+            type="com.erman.usurf.home.model.StorageItem" />
     </data>
 
     <RelativeLayout
@@ -15,7 +19,7 @@
         android:background="@drawable/button_selectable_background"
         android:clickable="true"
         android:focusable="true"
-        android:onClick="@{() -> viewModel.onStorageButtonClick(storageButton)}">
+        android:onClick="@{() -> viewModel.onStorageButtonClick(storageItem.path)}">
 
         <TextView
             android:id="@+id/buttonText"
@@ -26,6 +30,7 @@
             android:ellipsize="start"
             android:gravity="center"
             android:singleLine="true"
+            android:text="@{storageItem.path}"
             android:textColor="@color/daynnightTextColor"
             android:textSize="@dimen/text_size_18" />
     </RelativeLayout>

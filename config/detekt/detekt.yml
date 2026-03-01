@@ -1,0 +1,40 @@
+# Detekt 1.23 - builds on default config (buildUponDefaultConfig = true)
+# See https://github.com/detekt/detekt/blob/v1.23.1/detekt-core/src/main/resources/default-detekt-config.yml
+
+build:
+  excludeCorrectable: false
+
+complexity:
+  LongMethod:
+    threshold: 75
+  LongParameterList:
+    functionThreshold: 6
+    constructorThreshold: 7
+  CyclomaticComplexMethod:
+    threshold: 20
+  NestedBlockDepth:
+    threshold: 5
+  TooManyFunctions:
+    thresholdInFiles: 40
+    thresholdInClasses: 40
+    thresholdInInterfaces: 40
+    thresholdInObjects: 40
+    thresholdInEnums: 40
+  LargeClass:
+    threshold: 800
+
+style:
+  MaxLineLength:
+    maxLineLength: 120
+  MagicNumber:
+    active: false
+  ReturnCount:
+    max: 6
+  ForbiddenComment:
+    active: false
+
+exceptions:
+  TooGenericExceptionCaught:
+    active: false
+  SwallowedException:
+    active: false

@@ -5,12 +5,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
-import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import com.erman.usurf.R
 import com.erman.usurf.databinding.FragmentFtpBinding
 import com.erman.usurf.utils.EventObserver
+import com.google.android.material.snackbar.Snackbar
 import org.koin.android.viewmodel.ext.android.viewModel
 
 class FTPFragment : Fragment() {
@@ -41,12 +41,15 @@ class FTPFragment : Fragment() {
                 }
             }
         }
-        ftpViewModel.uiEvents.observe(viewLifecycleOwner, EventObserver { event ->
-            when (event) {
-                is FtpUiEvent.ShowToast ->
-                    Toast.makeText(context, getString(event.messageResId), Toast.LENGTH_LONG).show()
-            }
-        })
+        ftpViewModel.uiEvents.observe(
+            viewLifecycleOwner,
+            EventObserver { event ->
+                when (event) {
+                    is FtpUiEvent.ShowToast ->
+                        Snackbar.make(binding.root, getString(event.messageResId), Snackbar.LENGTH_LONG).show()
+                }
+            },
+        )
         return binding.root
     }
 }

@@ -1,11 +1,10 @@
 package com.erman.usurf.ftp.ui
 
 import android.util.Log
-import android.widget.RadioGroup
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.MediatorLiveData
 import com.erman.usurf.R
 import com.erman.usurf.ftp.data.FtpPreferenceProvider
 import com.erman.usurf.ftp.model.ConnectionLiveData
@@ -23,24 +22,25 @@ class FTPViewModel(
     private val connectionLiveData: ConnectionLiveData,
     private val ftpLiveData: FTPLiveData,
 ) : ViewModel() {
-
-    private val _uiState = MediatorLiveData<FtpUiState>().apply {
-        value = FtpUiState(
-            url = ftpModel.getIpAddress(),
-            username = preferenceProvider.getUsername().orEmpty(),
-            password = preferenceProvider.getPassword().orEmpty(),
-            port = preferenceProvider.getPort().toString(),
-            storagePaths = StoragePaths.getStorageDirectories().toList(),
-            isConnectedToWifi = connectionLiveData.value == true,
-            isServiceRunning = ftpLiveData.value == true,
-        )
-        addSource(connectionLiveData) { connected ->
-            value = (value ?: FtpUiState()).copy(isConnectedToWifi = connected == true)
+    private val _uiState =
+        MediatorLiveData<FtpUiState>().apply {
+            value =
+                FtpUiState(
+                    url = ftpModel.getIpAddress(),
+                    username = preferenceProvider.getUsername().orEmpty(),
+                    password = preferenceProvider.getPassword().orEmpty(),
+                    port = preferenceProvider.getPort().toString(),
+                    storagePaths = StoragePaths.getStorageDirectories().toList(),
+                    isConnectedToWifi = connectionLiveData.value == true,
+                    isServiceRunning = ftpLiveData.value == true,
+                )
+            addSource(connectionLiveData) { connected ->
+                value = (value ?: FtpUiState()).copy(isConnectedToWifi = connected == true)
+            }
+            addSource(ftpLiveData) { running ->
+                value = (value ?: FtpUiState()).copy(isServiceRunning = running == true)
+            }
         }
-        addSource(ftpLiveData) { running ->
-            value = (value ?: FtpUiState()).copy(isServiceRunning = running == true)
-        }
-    }
     val uiState: LiveData<FtpUiState> = _uiState
 
     private val _uiEvents = MutableLiveData<Event<FtpUiEvent>>()
@@ -104,13 +104,9 @@ class FTPViewModel(
         updateState { it.copy(port = port.toString()) }
     }
 
-    @Suppress("UNUSED_PARAMETER")
-    fun onFtpPathSelected(
-        radioGroup: RadioGroup,
-        id: Int,
-    ) {
+    fun onFtpPathSelected(checkedId: Int) {
         val paths = _uiState.value?.storagePaths ?: emptyList()
-        preferenceProvider.editFtpPath(paths.elementAtOrNull(id))
+        preferenceProvider.editFtpPath(paths.elementAtOrNull(checkedId))
     }
 
     fun getFtpSelectedPath(): String? = preferenceProvider.getFtpPath()

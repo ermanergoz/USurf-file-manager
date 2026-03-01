@@ -41,7 +41,7 @@ class DirectoryModel(
     private val preferenceProvider: PreferenceProvider,
     private val storageDirectoryPreferenceProvider: StorageDirectoryPreferenceProvider,
     private val rootHandler: RootHandler,
-    private val context: Context
+    private val context: Context,
 ) {
     @SuppressLint("SimpleDateFormat")
     private val dateFormat = SimpleDateFormat(SIMPLE_DATE_FORMAT_PATTERN)
@@ -200,6 +200,7 @@ class DirectoryModel(
         return multipleSelection
     }
 
+    @Suppress("NestedBlockDepth", "ReturnCount")
     private fun getDocumentFile(
         file: File,
         isDirectory: Boolean,
@@ -337,6 +338,7 @@ class DirectoryModel(
 
     suspend fun delete(selectedDirectories: List<FileModel>) =
         withContext(Dispatchers.IO) {
+            if (selectedDirectories.isEmpty()) return@withContext
             if (isRootDirectory(selectedDirectories.first().path)) {
                 // do it with root permissions
                 if (preferenceProvider.getRootAccessPreference() && rootHandler.isRootAccessGiven()) {
@@ -484,6 +486,7 @@ class DirectoryModel(
         copyOrMoveSources: List<FileModel>,
         copyOrMoveDestination: String,
     ) = withContext(Dispatchers.IO) {
+        if (copyOrMoveSources.isEmpty()) return@withContext
         if (isRootDirectory(copyOrMoveDestination)) {
             // do it with root permissions
             if (preferenceProvider.getRootAccessPreference() && rootHandler.isRootAccessGiven()) {
@@ -607,6 +610,7 @@ class DirectoryModel(
         copyOrMoveSources: List<FileModel>,
         copyOrMoveDestination: String,
     ) = withContext(Dispatchers.IO) {
+        if (copyOrMoveSources.isEmpty()) return@withContext
         if (isRootDirectory(copyOrMoveDestination)) {
             // do it with root permissions
             if (preferenceProvider.getRootAccessPreference() && rootHandler.isRootAccessGiven()) {
@@ -696,6 +700,7 @@ class DirectoryModel(
         multipleSelection: MutableList<FileModel>,
         compressedFileNameWithExtension: String,
     ) = withContext(Dispatchers.IO) {
+        if (multipleSelection.isEmpty()) return@withContext
         val parentPath: String = File(multipleSelection.first().path).parent ?: ""
         val archiveType: String =
             compressedFileNameWithExtension.substring(

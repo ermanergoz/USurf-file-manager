@@ -6,12 +6,8 @@
         <import type="android.view.View" />
 
         <variable
-            name="favoriteView"
-            type="android.widget.TextView" />
-
-        <variable
-            name="viewModel"
-            type="com.erman.usurf.home.ui.HomeViewModel" />
+            name="favoriteName"
+            type="String" />
 
         <variable
             name="uiState"
@@ -32,7 +28,6 @@
             android:layout_marginRight="@dimen/horizontal_margin_16"
             android:layout_marginBottom="@dimen/vertical_margin_8"
             android:background="@drawable/button_selectable_background"
-            android:onClick="@{() -> viewModel.renameFavorite(favoriteView.text.toString())}"
             android:text="@string/rename"
             android:visibility="@{uiState.isRenameMode ? View.GONE : View.VISIBLE}" />
 
@@ -60,7 +55,7 @@
             android:ems="10"
             android:hint="@string/name"
             android:inputType="textPersonName"
-            android:text="@{favoriteView.text.toString()}"
+            android:text="@{favoriteName}"
             android:visibility="@{uiState.isRenameMode ? View.VISIBLE : View.GONE}"
             android:importantForAutofill="no" />
 

@@ -73,5 +73,6 @@ enum class ActionType { COPY, MOVE }
 
 sealed class DirectoryUiEvent {
     data class ShowToast(val messageResId: Int) : DirectoryUiEvent()
+
     data class ShowDialog(val dialogArgs: DialogArgs) : DirectoryUiEvent()
 }

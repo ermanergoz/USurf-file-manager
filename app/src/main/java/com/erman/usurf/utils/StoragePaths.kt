@@ -2,7 +2,6 @@ package com.erman.usurf.utils
 
 import android.annotation.SuppressLint
 import android.content.Context
-import com.erman.usurf.application.MainApplication
 import com.erman.usurf.preference.data.PreferenceProvider
 import org.koin.java.KoinJavaComponent.getKoin
 import org.koin.java.KoinJavaComponent.inject
@@ -60,7 +59,11 @@ object StoragePaths {
             }
         }
 
-        if (File(ROOT_DIRECTORY).exists() && File(ROOT_DIRECTORY).canRead() && preferenceProvider.getRootAccessPreference()) {
+        val rootExistsAndReadable =
+            File(ROOT_DIRECTORY).exists() &&
+                File(ROOT_DIRECTORY).canRead() &&
+                preferenceProvider.getRootAccessPreference()
+        if (rootExistsAndReadable) {
             paths.add(ROOT_DIRECTORY)
         }
         return paths

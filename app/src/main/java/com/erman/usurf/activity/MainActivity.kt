@@ -38,33 +38,31 @@ import com.erman.usurf.activity.utils.INTENT_IS_FTP_NOTIFICATION_CLICKED_DEF_VAL
 import com.erman.usurf.activity.utils.READ_AND_WRITE_PERMISSION_REQUEST_CODE
 import com.erman.usurf.activity.utils.URI_SCHEME
 import com.erman.usurf.databinding.ActivityMainBinding
-import com.erman.usurf.dialog.model.DialogListener
+import com.erman.usurf.dialog.model.ManageAllFilesRequestCallbacks
+import com.erman.usurf.dialog.model.SafAccessRequestCallbacks
 import com.erman.usurf.dialog.ui.ManageAllFilesRequestDialog
 import com.erman.usurf.dialog.ui.SafAccessRequestDialog
 import com.erman.usurf.directory.ui.DirectoryViewModel
 import com.erman.usurf.home.model.HomeStorageButton
 import com.erman.usurf.home.model.StorageAccessFramework
 import com.erman.usurf.utils.KEY_INTENT_IS_FTP_NOTIFICATION_CLICKED
-import com.erman.usurf.utils.ROOT_DIRECTORY
-import com.erman.usurf.utils.StoragePaths
 import com.erman.usurf.utils.logd
 import com.google.android.material.navigation.NavigationView
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
-import java.io.File
 
 class MainActivity :
     AppCompatActivity(),
     ShowDialog,
     RefreshNavDrawer,
     StorageAccessFramework,
-    HomeStorageButton,
-    DialogListener {
+    HomeStorageButton {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private val storageDirectoryPreferenceProvider: StorageDirectoryPreferenceProvider by inject()
     private lateinit var resultLauncher: ActivityResultLauncher<Intent>
     private lateinit var binding: ActivityMainBinding
     private var destination: NavDirections? = null
+    private val mainViewModel by viewModel<MainViewModel>()
     private val directoryViewModel by viewModel<DirectoryViewModel>()
 
     @SuppressLint("ObsoleteSdkInt")
@@ -84,7 +82,9 @@ class MainActivity :
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             logd("Request access to manage all files")
             if (!Environment.isExternalStorageManager()) {
-                showDialog(ManageAllFilesRequestDialog())
+                val dialog: ManageAllFilesRequestDialog = ManageAllFilesRequestDialog()
+                dialog.callbacks = ManageAllFilesRequestCallbacks { manageAllFilesRequest() }
+                showDialog(dialog)
             }
         }
     }
@@ -100,7 +100,9 @@ class MainActivity :
         val navController = findNavController(R.id.nav_host_fragment)
 
         setupNavDrawer(navView, navController, drawerLayout)
-        addStoragesToDrawer(navView, drawerLayout)
+        mainViewModel.storagePaths.observe(this) { paths ->
+            populateStorageDrawer(navView, drawerLayout, paths)
+        }
         requestPermissions()
 
         if (intent.getBooleanExtra(
@@ -186,40 +188,27 @@ class MainActivity :
         drawerToggle.syncState()
     }
 
-    private fun addStoragesToDrawer(
+    private fun populateStorageDrawer(
         navView: NavigationView,
         drawerLayout: DrawerLayout,
+        paths: List<String>,
     ) {
-        val storageDirectories = StoragePaths.getStorageDirectories()
-
-        for (path in storageDirectories) {
+        navView.menu.removeGroup(R.id.storage)
+        for (path in paths) {
             val storage = navView.menu.add(R.id.storage, Menu.NONE, 0, path)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 storage.icon = ContextCompat.getDrawable(this, R.drawable.ic_hdd)
             }
             storage.setOnMenuItemClickListener {
-                onStorageButtonClick(path)
+                val result = mainViewModel.onStorageSelected(path)
+                directoryViewModel.setPath(path)
+                destination = MobileNavigationDirections.globalActionNavDirectory()
+                if (result.showSafDialog) {
+                    launchSAF()
+                }
                 drawerLayout.closeDrawers()
                 true
             }
-        }
-    }
-
-    private fun refreshNavDrawer(
-        navView: NavigationView,
-        drawerLayout: DrawerLayout,
-    ) {
-        navView.menu.removeGroup(R.id.storage)
-        addStoragesToDrawer(navView, drawerLayout)
-    }
-
-    private fun onStorageButtonClick(path: String) {
-        directoryViewModel.setPath(path)
-        destination = MobileNavigationDirections.globalActionNavDirectory()
-        if (path != ROOT_DIRECTORY && !File(path).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q &&
-            storageDirectoryPreferenceProvider.getChosenUri() == EMPTY_STR
-        ) {
-            launchSAF()
         }
     }
 
@@ -234,14 +223,14 @@ class MainActivity :
     }
 
     override fun refreshStorageButtons() {
-        val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
-        val navView: NavigationView = findViewById(R.id.nav_view)
-        refreshNavDrawer(navView, drawerLayout)
+        mainViewModel.refreshStoragePaths()
     }
 
     override fun launchSAF() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            showDialog(SafAccessRequestDialog())
+            val dialog: SafAccessRequestDialog = SafAccessRequestDialog()
+            dialog.callbacks = SafAccessRequestCallbacks { safAccessRequest() }
+            showDialog(dialog)
         }
     }
 
@@ -262,7 +251,7 @@ class MainActivity :
     }
 
     @SuppressLint("InlinedApi") // Version check already exists
-    override fun manageAllFilesRequestListener() {
+    private fun manageAllFilesRequest() {
         val intent = Intent()
         intent.action = Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
         val uri: Uri = Uri.fromParts(URI_SCHEME, this.packageName, null)
@@ -271,7 +260,7 @@ class MainActivity :
     }
 
     @SuppressLint("InlinedApi") // Version check already exists
-    override fun safAccessRequestListener() {
+    private fun safAccessRequest() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
         resultLauncher.launch(intent)
     }

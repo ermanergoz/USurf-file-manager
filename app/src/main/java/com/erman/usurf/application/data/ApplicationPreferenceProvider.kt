@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
-import com.erman.usurf.application.MainApplication
 import com.erman.usurf.application.utils.PREFERENCE_IS_FIRST_LAUNCH
 import com.erman.usurf.utils.SHARED_PREF_FILE
 import com.erman.usurf.utils.logd

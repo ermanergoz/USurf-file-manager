@@ -9,6 +9,8 @@ data class HomeUiState(
 
 sealed class HomeUiEvent {
     data class NavigateToDirectory(val actionId: Int, val path: String) : HomeUiEvent()
+
     data class ShowDialog(val dialogArgs: DialogArgs) : HomeUiEvent()
+
     data class ShowToast(val messageResId: Int) : HomeUiEvent()
 }
