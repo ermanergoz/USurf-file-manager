@@ -90,7 +90,7 @@ dependencies {
     implementation group: 'org.apache.ftpserver', name: 'ftpserver-core', version: '1.1.0'
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1"
     implementation('com.github.Stericson:RootTools:5.0') { transitive = false }
-    implementation 'com.github.Stericson:RootShell:1.6'
+    implementation 'com.github.Stericson:RootShell:1.4'
     implementation 'com.android.support:multidex:1.0.3'
     implementation 'com.github.bumptech.glide:glide:4.14.2'
     implementation "io.insert-koin:koin-core:3.0.1"

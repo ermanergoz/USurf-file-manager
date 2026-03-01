@@ -30,6 +30,13 @@ class HomeViewModel(
     private val realm: Realm,
     private val favoriteDao: FavoriteDao,
 ) : ViewModel() {
+
+    private val _uiState = MutableLiveData(HomeUiState())
+    val uiState: LiveData<HomeUiState> = _uiState
+
+    private val _uiEvents = MutableLiveData<Event<HomeUiEvent>>()
+    val uiEvents: LiveData<Event<HomeUiEvent>> = _uiEvents
+
     private val _storageButtons =
         MutableLiveData<MutableList<StorageButtonBinding>>().apply {
             value = homeModel.createStorageButtons()
@@ -41,38 +48,24 @@ class HomeViewModel(
             realm.copyFromRealm(realmResults)
         }
 
-    private val _navigateToDirectory = MutableLiveData<Event<Int>>()
-    val navigateToDirectory: MutableLiveData<Event<Int>> = _navigateToDirectory
-
-    private val _path = MutableLiveData<String>()
-    val path: MutableLiveData<String> = _path
-
-    private val _dialog = MutableLiveData<Event<DialogArgs>>()
-    val dialog: LiveData<Event<DialogArgs>> = _dialog
-
-    private val _isRenameMode = MutableLiveData<Boolean>()
-    val isRenameMode: LiveData<Boolean> = _isRenameMode
-
-    private val _toastMessage = MutableLiveData<Event<Int>>()
-    val toastMessage: LiveData<Event<Int>> = _toastMessage
+    private fun updateState(transform: (HomeUiState) -> HomeUiState) {
+        _uiState.value = transform(_uiState.value ?: HomeUiState())
+    }
 
     fun onStorageButtonClick(view: View) {
-        _path.value = view.tag.toString()
-        _navigateToDirectory.value = Event(R.id.global_action_nav_directory)
-        path.value?.let { path ->
-            if (shouldShowSafDialog(path)) {
-                _dialog.value = Event(DialogArgs.SAFActivityArgs)
-            }
+        val newPath = view.tag.toString()
+        updateState { it.copy(path = newPath) }
+        _uiEvents.value = Event(HomeUiEvent.NavigateToDirectory(R.id.global_action_nav_directory, newPath))
+        if (shouldShowSafDialog(newPath)) {
+            _uiEvents.value = Event(HomeUiEvent.ShowDialog(DialogArgs.SAFActivityArgs))
         }
-
         val isKitkatRemovableStorage = (
             Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT &&
                 StoragePaths.getStorageDirectories().size > 1 &&
-                path.value == StoragePaths.getStorageDirectories().elementAt(1)
+                newPath == StoragePaths.getStorageDirectories().elementAt(1)
         )
-
         if (isKitkatRemovableStorage && !homePreferenceProvider.getIsKitkatRemovableStorageWarningDisplayedPreference()) {
-            _dialog.value = Event(DialogArgs.KitkatRemovableStorageDialogArgs(isKitkatRemovableStorage))
+            _uiEvents.value = Event(HomeUiEvent.ShowDialog(DialogArgs.KitkatRemovableStorageDialogArgs(isKitkatRemovableStorage)))
             homePreferenceProvider.editIsKitkatRemovableStorageWarningDisplayedPreference(true)
         }
     }
@@ -80,10 +73,9 @@ class HomeViewModel(
     private fun shouldShowSafDialog(path: String): Boolean {
         if (path == ROOT_DIRECTORY) return false
         if (File(path).canWrite()) return false
-
         return when {
             Build.VERSION.SDK_INT > Build.VERSION_CODES.Q -> false
-            storageDirectoryPreferenceProvider.getChosenUri() !== "" -> false
+            storageDirectoryPreferenceProvider.getChosenUri() != "" -> false
             else -> true
         }
     }
@@ -98,64 +90,65 @@ class HomeViewModel(
     ) {
         logi("Add favorite: $name")
         if (favoriteDao.addFavorite(path, name)) {
-            _toastMessage.value = Event(R.string.favorite_created)
+            _uiEvents.value = Event(HomeUiEvent.ShowToast(R.string.favorite_created))
         } else {
-            _toastMessage.value = Event(R.string.unable_to_create_favorite)
+            _uiEvents.value = Event(HomeUiEvent.ShowToast(R.string.unable_to_create_favorite))
         }
     }
 
     fun onFavoriteClick(view: View) {
         val favoritePath = view.tag.toString()
-
         if (File(favoritePath).exists()) {
             if (File(favoritePath).isDirectory) {
                 logd("Open a favorite directory")
-                _path.value = favoritePath
-                _navigateToDirectory.value = Event(R.id.global_action_nav_directory)
+                updateState { it.copy(path = favoritePath) }
+                _uiEvents.value = Event(HomeUiEvent.NavigateToDirectory(R.id.global_action_nav_directory, favoritePath))
             } else {
-                _dialog.value = Event(DialogArgs.OpenFileActivityArgs(favoritePath))
+                _uiEvents.value = Event(HomeUiEvent.ShowDialog(DialogArgs.OpenFileActivityArgs(favoritePath)))
             }
         } else {
-            _toastMessage.value = Event(R.string.invalid_favorite)
+            _uiEvents.value = Event(HomeUiEvent.ShowToast(R.string.invalid_favorite))
         }
     }
 
     fun onFavoriteLongClick(view: TextView): Boolean {
-        _dialog.value = Event(DialogArgs.FavoriteOptionsDialogArgs(view))
+        _uiEvents.value = Event(HomeUiEvent.ShowDialog(DialogArgs.FavoriteOptionsDialogArgs(view)))
         return true
     }
 
     fun deleteFavorites(favoriteView: TextView) {
-        logi("Delete favorite: " + favoriteView.text)
+        logi("Delete favorite: ${favoriteView.text}")
         if (favoriteDao.removeFavorite(favoriteView)) {
-            _toastMessage.value = Event(R.string.favorite_deleted)
+            _uiEvents.value = Event(HomeUiEvent.ShowToast(R.string.favorite_deleted))
         } else {
-            _toastMessage.value = Event(R.string.unable_to_delete_favorite)
+            _uiEvents.value = Event(HomeUiEvent.ShowToast(R.string.unable_to_delete_favorite))
         }
     }
 
     fun renameFavorite(oldName: String) {
-        _isRenameMode.value = true
-        _dialog.value = Event(DialogArgs.RenameDialogArgs(oldName))
+        updateState { it.copy(isRenameMode = true) }
+        _uiEvents.value = Event(HomeUiEvent.ShowDialog(DialogArgs.RenameDialogArgs(oldName)))
     }
 
     fun turnOffRenameMode() {
-        _isRenameMode.value = false
+        updateState { it.copy(isRenameMode = false) }
     }
 
     fun onRenameFavoriteOkPressed(
         favoriteView: TextView,
         favoriteName: String,
     ) {
-        logi("Rename favorite: " + favoriteView.text + " to " + favoriteName)
+        logi("Rename favorite: ${favoriteView.text} to $favoriteName")
         if (favoriteDao.renameFavorite(favoriteView, favoriteName)) {
-            _toastMessage.value = Event(R.string.favorite_renamed)
+            _uiEvents.value = Event(HomeUiEvent.ShowToast(R.string.favorite_renamed))
         } else {
-            _toastMessage.value = Event(R.string.unable_to_rename_favorite)
+            _uiEvents.value = Event(HomeUiEvent.ShowToast(R.string.unable_to_rename_favorite))
         }
     }
 
     fun createStorageButtons() {
         _storageButtons.value = homeModel.createStorageButtons()
     }
+
+    fun getPathForDirectory(): String = _uiState.value?.path ?: ""
 }

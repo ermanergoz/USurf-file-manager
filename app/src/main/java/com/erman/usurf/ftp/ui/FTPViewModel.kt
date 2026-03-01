@@ -2,8 +2,10 @@ package com.erman.usurf.ftp.ui
 
 import android.util.Log
 import android.widget.RadioGroup
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.MediatorLiveData
 import com.erman.usurf.R
 import com.erman.usurf.ftp.data.FtpPreferenceProvider
 import com.erman.usurf.ftp.model.ConnectionLiveData
@@ -19,43 +21,34 @@ class FTPViewModel(
     private val ftpModel: FtpModel,
     private val preferenceProvider: FtpPreferenceProvider,
     private val connectionLiveData: ConnectionLiveData,
-    private val ftpLiveData: FTPLiveData
+    private val ftpLiveData: FTPLiveData,
 ) : ViewModel() {
-    val url =
-        MutableLiveData<String>().apply {
-            value = ftpModel.getIpAddress()
-        }
 
-    val username =
-        MutableLiveData<String>().apply {
-            value = preferenceProvider.getUsername()
+    private val _uiState = MediatorLiveData<FtpUiState>().apply {
+        value = FtpUiState(
+            url = ftpModel.getIpAddress(),
+            username = preferenceProvider.getUsername().orEmpty(),
+            password = preferenceProvider.getPassword().orEmpty(),
+            port = preferenceProvider.getPort().toString(),
+            storagePaths = StoragePaths.getStorageDirectories().toList(),
+            isConnectedToWifi = connectionLiveData.value == true,
+            isServiceRunning = ftpLiveData.value == true,
+        )
+        addSource(connectionLiveData) { connected ->
+            value = (value ?: FtpUiState()).copy(isConnectedToWifi = connected == true)
         }
+        addSource(ftpLiveData) { running ->
+            value = (value ?: FtpUiState()).copy(isServiceRunning = running == true)
+        }
+    }
+    val uiState: LiveData<FtpUiState> = _uiState
 
-    val password =
-        MutableLiveData<String>().apply {
-            value = preferenceProvider.getPassword()
-        }
+    private val _uiEvents = MutableLiveData<Event<FtpUiEvent>>()
+    val uiEvents: LiveData<Event<FtpUiEvent>> = _uiEvents
 
-    val port =
-        MutableLiveData<String>().apply {
-            value = preferenceProvider.getPort().toString()
-        }
-
-    val isConnectedToWifi =
-        MutableLiveData<ConnectionLiveData>().apply {
-            value = connectionLiveData
-        }
-
-    val isServiceRunning =
-        MutableLiveData<FTPLiveData>().apply {
-            value = ftpLiveData
-        }
-
-    private val _storagePaths =
-        MutableLiveData<Set<String>>().apply {
-            value = StoragePaths.getStorageDirectories()
-        }
-    val storagePaths: MutableLiveData<Set<String>> = _storagePaths
+    private fun updateState(transform: (FtpUiState) -> FtpUiState) {
+        _uiState.value = transform(_uiState.value ?: FtpUiState())
+    }
 
     fun onConnectClicked() {
         Log.e("connection stat", FtpServer.isFtpServerRunning.toString())
@@ -66,12 +59,7 @@ class FTPViewModel(
         }
     }
 
-    fun getServerStatus(): Boolean {
-        return FtpServer.isFtpServerRunning
-    }
-
-    private val _toastMessage = MutableLiveData<Event<Int>>()
-    val toastMessage: MutableLiveData<Event<Int>> = _toastMessage
+    fun getServerStatus(): Boolean = FtpServer.isFtpServerRunning
 
     @Suppress("UNUSED_PARAMETER")
     fun onUsernameChanged(
@@ -80,7 +68,9 @@ class FTPViewModel(
         before: Int,
         count: Int,
     ) {
-        preferenceProvider.editUsername(username.toString())
+        val str = username.toString()
+        preferenceProvider.editUsername(str)
+        updateState { it.copy(username = str) }
     }
 
     @Suppress("UNUSED_PARAMETER")
@@ -90,7 +80,9 @@ class FTPViewModel(
         before: Int,
         count: Int,
     ) {
-        preferenceProvider.editPassword(password.toString())
+        val str = password.toString()
+        preferenceProvider.editPassword(str)
+        updateState { it.copy(password = str) }
     }
 
     @Suppress("UNUSED_PARAMETER")
@@ -106,9 +98,10 @@ class FTPViewModel(
         } catch (err: NumberFormatException) {
             loge("onPortChanged $err")
             newPort = DEFAULT_PORT
-            _toastMessage.value = Event(R.string.port_error)
+            _uiEvents.value = Event(FtpUiEvent.ShowToast(R.string.port_error))
         }
         preferenceProvider.editPort(newPort)
+        updateState { it.copy(port = port.toString()) }
     }
 
     @Suppress("UNUSED_PARAMETER")
@@ -116,10 +109,9 @@ class FTPViewModel(
         radioGroup: RadioGroup,
         id: Int,
     ) {
-        preferenceProvider.editFtpPath(_storagePaths.value?.elementAt(id))
+        val paths = _uiState.value?.storagePaths ?: emptyList()
+        preferenceProvider.editFtpPath(paths.elementAtOrNull(id))
     }
 
-    fun getFtpSelectedPath(): String? {
-        return preferenceProvider.getFtpPath()
-    }
+    fun getFtpSelectedPath(): String? = preferenceProvider.getFtpPath()
 }
