@@ -13,7 +13,7 @@
 
         <variable
             name="uiState"
-            type="com.erman.usurf.directory.ui.DirectoryUIState" />
+            type="com.erman.usurf.directory.ui.DirectoryUiState" />
     </data>
 
 
@@ -26,19 +26,20 @@
             android:id="@+id/emptyFolderTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="@string/empty_folder"
             android:textSize="@dimen/text_size_18"
-            app:layout_constraintBottom_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="parent" />
+            app:emptyFolderVisibility="@{uiState}"
+            app:layout_constraintBottom_toTopOf="@+id/confirmationButtonBar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/divider" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/fileListRecyclerView"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:clipToPadding="false"
-            android:paddingBottom="128dp"
+            android:paddingBottom="@dimen/padding_128"
             android:scrollbarStyle="outsideOverlay"
             app:contentVisibility="@{uiState.isLoading}"
             app:layout_constraintBottom_toTopOf="@+id/confirmationButtonBar"
@@ -90,18 +91,18 @@
             android:layout_height="wrap_content"
             android:background="@color/colorAccent"
             android:orientation="vertical"
-            app:moreMenuVisibility="@{uiState}"
             app:layout_constraintBottom_toBottomOf="@+id/fileListRecyclerView"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintVertical_bias="1.0">
+            app:layout_constraintVertical_bias="1.0"
+            app:moreMenuVisibility="@{uiState}">
 
             <Button
                 android:id="@+id/favoriteButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="@dimen/vertical_margin_4"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:drawableTop="@{uiState.common.canRename ? @drawable/ic_favorite : @drawable/ic_favorite_disabled}"
@@ -115,7 +116,7 @@
                 android:id="@+id/compressButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="@dimen/vertical_margin_4"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:drawableTop="@drawable/ic_zip"
@@ -128,7 +129,7 @@
                 android:id="@+id/extractButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="@dimen/vertical_margin_4"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:drawableTop="@{uiState.common.canRename ? @drawable/ic_unzip : @drawable/ic_unzip_disabled}"
@@ -142,7 +143,7 @@
                 android:id="@+id/informationButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="@dimen/vertical_margin_4"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:drawableTop="@drawable/ic_info_menu"
@@ -155,7 +156,7 @@
                 android:id="@+id/shareButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="@dimen/vertical_margin_4"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:drawableTop="@drawable/ic_share"
@@ -172,16 +173,16 @@
             android:background="@color/colorAccent"
             android:gravity="center"
             android:orientation="horizontal"
-            app:optionBarVisibility="@{uiState}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
+            app:layout_constraintStart_toStartOf="parent"
+            app:optionBarVisibility="@{uiState}">
 
             <Button
                 android:id="@+id/copyButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="@dimen/vertical_margin_4"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:drawableTop="@drawable/ic_copy"
@@ -194,7 +195,7 @@
                 android:id="@+id/moveButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="@dimen/vertical_margin_4"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:drawableTop="@drawable/ic_move"
@@ -207,7 +208,7 @@
                 android:id="@+id/renameButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="@dimen/vertical_margin_4"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:drawableTop="@{uiState.common.canRename ? @drawable/ic_rename : @drawable/ic_rename_disabled}"
@@ -221,7 +222,7 @@
                 android:id="@+id/deleteButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="@dimen/vertical_margin_4"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:drawableTop="@drawable/ic_delete"
@@ -231,16 +232,16 @@
                 android:textSize="@dimen/text_size_10" />
 
             <ImageButton
-                android:contentDescription="@string/more"
                 android:id="@+id/moreButton"
-                android:layout_width="60dp"
+                android:layout_width="@dimen/more_button_width"
                 android:layout_height="match_parent"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="@dimen/vertical_margin_4"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
+                android:contentDescription="@string/more"
                 android:onClick="@{() -> viewModel.showMoreOption()}"
                 android:src="@{uiState.common.isMoreMenuVisible ? @drawable/ic_down_arrow : @drawable/ic_up_arrow}"
-                app:moreButtonVisibility="@{uiState}"
+                android:visibility="@{uiState.atRootDirectory ? View.GONE : View.VISIBLE}"
                 tools:ignore="ContentDescription" />
         </LinearLayout>
 
@@ -248,14 +249,14 @@
             android:id="@+id/createNewFloatingButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginEnd="@dimen/horizontal_margin_16"
+            android:layout_marginBottom="@dimen/vertical_margin_16"
             android:clickable="true"
             android:contentDescription="@string/create_new"
             android:focusable="true"
             android:onClick="@{() -> viewModel.onCreate()}"
-            app:createFabVisibility="@{uiState}"
             app:backgroundTint="@color/colorAccent"
+            app:createFabVisibility="@{uiState}"
             app:layout_constraintBottom_toTopOf="@+id/moreMenuButtonBar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
@@ -266,53 +267,32 @@
             android:id="@+id/newFileFloatingButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginEnd="@dimen/horizontal_margin_16"
+            android:layout_marginBottom="@dimen/vertical_margin_16"
             android:clickable="true"
             android:contentDescription="@string/new_file"
             android:enabled="@{!uiState.isSearchMode}"
             android:focusable="true"
             android:onClick="@{() -> viewModel.createFile()}"
-            app:menuExpandedFabVisibility="@{uiState}"
             app:backgroundTint="@color/colorAccent"
             app:layout_constraintBottom_toTopOf="@+id/createNewFloatingButton"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:srcCompat="@drawable/ic_file_white" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/deviceWideSearchFloatingButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
-            android:clickable="true"
-            android:contentDescription="@string/device_wide_search"
-            android:focusable="true"
-            android:onClick="@{() -> viewModel.deviceWideSearch()}"
             app:menuExpandedFabVisibility="@{uiState}"
-            app:backgroundTint="@color/colorAccent"
-            app:layout_constraintBottom_toTopOf="@+id/newFolderFloatingButton"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="1.0"
-            app:srcCompat="@drawable/ic_search" />
+            app:srcCompat="@drawable/ic_file_white" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/newFolderFloatingButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginEnd="@dimen/horizontal_margin_16"
+            android:layout_marginBottom="@dimen/vertical_margin_16"
             android:clickable="true"
             android:contentDescription="@string/new_folder"
             android:enabled="@{!uiState.isSearchMode}"
             android:focusable="true"
             android:onClick="@{() -> viewModel.createFolder()}"
-            app:menuExpandedFabVisibility="@{uiState}"
             app:backgroundTint="@color/colorAccent"
             app:layout_constraintBottom_toTopOf="@+id/newFileFloatingButton"
             app:layout_constraintEnd_toEndOf="parent"
@@ -320,32 +300,30 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0"
+            app:menuExpandedFabVisibility="@{uiState}"
             app:srcCompat="@drawable/ic_folder_white" />
 
         <TextView
             android:id="@+id/pathTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:layout_marginLeft="4dp"
-            android:layout_marginTop="4dp"
-            android:layout_marginEnd="4dp"
-            android:layout_marginRight="4dp"
+            android:layout_marginStart="@dimen/horizontal_margin_8"
+            android:layout_marginTop="@dimen/vertical_margin_4"
             android:ellipsize="start"
             android:singleLine="true"
             android:text="@{uiState.displayPath}"
             android:textSize="@dimen/text_size_14"
-            app:pathVisibility="@{uiState}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintBottom_toTopOf="@+id/divider"
+            app:layout_constraintEnd_toStartOf="@+id/actionProgress"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:pathVisibility="@{uiState}" />
 
         <View
             android:id="@+id/divider"
             android:layout_width="0dp"
-            android:layout_height="2dp"
-            android:layout_marginTop="4dp"
+            android:layout_height="@dimen/divider_height"
+            android:layout_marginTop="@dimen/vertical_margin_4"
             android:background="?android:attr/listDivider"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
@@ -355,12 +333,24 @@
         <ProgressBar
             android:id="@+id/loadingProgressBar"
             style="?android:attr/progressBarStyle"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginTop="64dp"
-            app:loadingVisibility="@{uiState.isLoading}"
+            android:layout_width="@dimen/progress_bar_size"
+            android:layout_height="@dimen/progress_bar_size"
+            android:layout_marginTop="@dimen/vertical_margin_64"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:loadingVisibility="@{uiState.isLoading}" />
+
+        <ProgressBar
+            android:id="@+id/actionProgress"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            app:actionProgressVisibility="@{uiState}"
+            app:layout_constraintBottom_toTopOf="@+id/divider"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toEndOf="@+id/pathTextView"
             app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

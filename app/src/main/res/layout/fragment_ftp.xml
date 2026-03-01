@@ -160,7 +160,7 @@
                 android:layout_margin="@dimen/layout_margin_8"
                 android:layout_marginTop="@dimen/vertical_margin_16"
                 android:layout_marginBottom="@dimen/vertical_margin_16"
-                android:onCheckedChanged="@{viewModel::onFtpPathSelected}"
+                android:onCheckedChanged="@{(group, checkedId) -> viewModel.onFtpPathSelected(checkedId)}"
                 android:visibility="@{uiState.isServiceRunning ? View.GONE : View.VISIBLE}" />
 
             <Button
@@ -170,6 +170,7 @@
                 android:layout_marginLeft="@dimen/horizontal_margin_24"
                 android:layout_marginTop="@dimen/vertical_margin_16"
                 android:layout_marginRight="@dimen/horizontal_margin_24"
+                android:layout_marginBottom="@dimen/vertical_margin_32"
                 android:background="@drawable/button_selectable_background"
                 android:contentDescription="@string/connect"
                 android:enabled="@{uiState.isConnectedToWifi}"

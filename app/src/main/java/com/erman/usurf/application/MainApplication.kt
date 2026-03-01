@@ -6,17 +6,18 @@ import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.multidex.MultiDexApplication
 import com.erman.usurf.application.data.ApplicationDao
-import com.erman.usurf.application.data.ApplicationPreferenceProvider
 import com.erman.usurf.application.di.appModule
-import com.erman.usurf.application.utils.REALM_CONFIG_FILE_NAME
+import com.erman.usurf.application.domain.ApplicationPreferencesRepository
 import io.realm.Realm
 import io.realm.RealmConfiguration
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext.startKoin
 
+private const val REALM_CONFIG_FILE_NAME = "usurf.realm"
+
 class MainApplication : MultiDexApplication() {
-    private val preferenceProvider: ApplicationPreferenceProvider by inject()
+    private val applicationPreferencesRepository: ApplicationPreferencesRepository by inject()
     private val applicationDao: ApplicationDao by inject()
 
     override fun onCreate() {
@@ -37,9 +38,9 @@ class MainApplication : MultiDexApplication() {
 
         Realm.setDefaultConfiguration(config)
 
-        if (preferenceProvider.getIsFirstLaunch()) {
+        if (applicationPreferencesRepository.getIsFirstLaunch()) {
             applicationDao.addInitialFavorites()
-            preferenceProvider.editIsFirstLaunch(false)
+            applicationPreferencesRepository.setIsFirstLaunch(false)
         }
 
         registerActivityLifecycleCallbacks(

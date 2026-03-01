@@ -6,12 +6,16 @@
     <data>
 
         <variable
-            name="viewModel"
-            type="com.erman.usurf.directory.ui.DirectoryViewModel" />
+            name="listener"
+            type="com.erman.usurf.directory.ui.FileItemListener" />
 
         <variable
             name="file"
             type="com.erman.usurf.directory.model.FileModel" />
+
+        <variable
+            name="showThumbnails"
+            type="boolean" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -20,8 +24,8 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="1dp"
         android:background="@{file.isSelected ? @drawable/selection_background : @drawable/button_ripple_effect}"
-        android:onClick="@{() -> viewModel.onFileClick(file)}"
-        android:onLongClick="@{() -> viewModel.onFileLongClick(file)}"
+        android:onClick="@{() -> listener.onFileClick(file)}"
+        android:onLongClick="@{() -> listener.onFileLongClick(file)}"
         android:padding="@dimen/layout_margin_4">
 
         <TextView
@@ -82,6 +86,8 @@
             android:layout_height="50dp"
             android:contentDescription="@string/folder_icon"
             app:filePath="@{file.path}"
+            app:showThumbnails="@{showThumbnails}"
+            app:isDirectory="@{file.isDirectory}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

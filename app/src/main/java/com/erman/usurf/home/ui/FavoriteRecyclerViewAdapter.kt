@@ -1,6 +1,5 @@
 package com.erman.usurf.home.ui
 
-import android.annotation.SuppressLint
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -8,22 +7,27 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.erman.usurf.R
 import com.erman.usurf.databinding.RecyclerFavoriteLayoutBinding
-import com.erman.usurf.directory.utils.MARQUEE_REPEAT_LIM
-import com.erman.usurf.home.data.Favorite
+import com.erman.usurf.home.model.FavoriteItem
+import com.erman.usurf.utils.MARQUEE_REPEAT_LIM
+import com.erman.usurf.utils.updateWithDiff
 
-class FavoriteRecyclerViewAdapter(var viewModel: HomeViewModel) :
+class FavoriteRecyclerViewAdapter(private val listener: FavoriteItemListener) :
     RecyclerView.Adapter<FavoriteRecyclerViewAdapter.FavoriteHolder>() {
-    private lateinit var binding: RecyclerFavoriteLayoutBinding
-    var favorites = listOf<Favorite>()
+    private var favorites = listOf<FavoriteItem>()
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int,
     ): FavoriteHolder {
-        binding = DataBindingUtil.inflate(LayoutInflater.from(parent.context), R.layout.recycler_favorite_layout, parent, false)
-
-        binding.viewModel = viewModel
-        return FavoriteHolder(binding)
+        val itemBinding =
+            DataBindingUtil.inflate<RecyclerFavoriteLayoutBinding>(
+                LayoutInflater.from(parent.context),
+                R.layout.recycler_favorite_layout,
+                parent,
+                false,
+            )
+        itemBinding.listener = listener
+        return FavoriteHolder(itemBinding)
     }
 
     override fun getItemCount(): Int {
@@ -34,26 +38,30 @@ class FavoriteRecyclerViewAdapter(var viewModel: HomeViewModel) :
         holder: FavoriteHolder,
         position: Int,
     ) {
-        holder.bindButtons(favorites.elementAt(position))
+        holder.bind(favorites.elementAt(position))
     }
 
-    inner class FavoriteHolder(var binding: RecyclerFavoriteLayoutBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bindButtons(favorite: Favorite) {
-            binding.favorite.text = favorite.name
-            binding.favorite.tag = favorite.path
+    inner class FavoriteHolder(private val binding: RecyclerFavoriteLayoutBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(favorite: FavoriteItem) {
+            binding.favoriteItem = favorite
+            binding.executePendingBindings()
             binding.favorite.isSingleLine = true
-
             binding.favorite.ellipsize = TextUtils.TruncateAt.MARQUEE
-            // for sliding names if the length is longer than 1 line
             binding.favorite.isSelected = true
             binding.favorite.marqueeRepeatLimit = MARQUEE_REPEAT_LIM
-            // -1 is for forever
         }
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    fun updateData(favorites: List<Favorite>) {
-        this.favorites = favorites
-        notifyDataSetChanged()
+    fun updateData(newFavorites: List<FavoriteItem>) {
+        favorites =
+            updateWithDiff(
+                oldList = favorites,
+                newList = newFavorites,
+                areItemsTheSame = { oldItem, newItem -> oldItem.id == newItem.id },
+                areContentsTheSame = { oldItem, newItem ->
+                    oldItem.name == newItem.name && oldItem.path == newItem.path
+                },
+            )
     }
 }

@@ -1,37 +1,39 @@
 package com.erman.usurf.home.ui
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AnimationUtils
 import android.widget.FrameLayout
-import android.widget.Toast
-import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import com.erman.usurf.MobileNavigationDirections
 import com.erman.usurf.R
 import com.erman.usurf.activity.model.ShowDialog
 import com.erman.usurf.databinding.FragmentHomeBinding
 import com.erman.usurf.databinding.StorageButtonBinding
 import com.erman.usurf.dialog.model.DialogArgs
+import com.erman.usurf.dialog.model.FavoriteOptionsDialogListener
+import com.erman.usurf.dialog.model.OnRenameOkPressedListener
 import com.erman.usurf.dialog.ui.FavoriteOptionsDialog
 import com.erman.usurf.dialog.ui.KitkatRemovableStorageWarningDialog
 import com.erman.usurf.dialog.ui.RenameDialog
-import com.erman.usurf.directory.ui.DirectoryViewModel
 import com.erman.usurf.home.model.HomeStorageButton
 import com.erman.usurf.home.model.StorageAccessFramework
-import com.erman.usurf.home.utils.STORAGE_BUTTON_HORIZONTAL_MARGIN
-import com.erman.usurf.home.utils.STORAGE_BUTTON_VERTICAL_MARGIN
+import com.erman.usurf.home.model.StorageItem
+import com.erman.usurf.utils.EventObserver
+import com.erman.usurf.utils.FileOpenUtils
+import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
-import org.koin.android.viewmodel.ext.android.sharedViewModel
-import org.koin.android.viewmodel.ext.android.viewModel
-import java.io.File
+import com.google.android.material.snackbar.Snackbar
+import org.koin.androidx.viewmodel.ext.android.viewModel
+
+private const val STORAGE_BUTTON_HORIZONTAL_MARGIN: Int = 8
+private const val STORAGE_BUTTON_VERTICAL_MARGIN: Int = 0
+private const val FAVORITE_GRID_SPAN_COUNT: Int = 2
 
 class HomeFragment : Fragment() {
     private val homeViewModel by viewModel<HomeViewModel>()
@@ -40,7 +42,6 @@ class HomeFragment : Fragment() {
     private lateinit var safListener: StorageAccessFramework
     private lateinit var storageButtonDimensions: HomeStorageButton
     private lateinit var binding: FragmentHomeBinding
-    private val directoryViewModel by sharedViewModel<DirectoryViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -58,34 +59,37 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupStorageButtonsObserver() {
-        homeViewModel.storageButtons.observe(viewLifecycleOwner) { buttons ->
-            if (buttons != null) {
+        var lastRenderedStorageItems: List<StorageItem>? = null
+        homeViewModel.uiState.observe(viewLifecycleOwner) { state ->
+            if (state.storageItems !== lastRenderedStorageItems) {
+                lastRenderedStorageItems = state.storageItems
                 binding.storageUsageBarLayout.removeAllViews()
-                createStorageButtons(buttons)
-            }
-        }
-    }
-
-    private fun setupUiEventsObserver() {
-        homeViewModel.uiEvents.observe(viewLifecycleOwner) { event ->
-            event.getContentIfNotHandled()?.let { e ->
-                when (e) {
-                    is HomeUiEvent.NavigateToDirectory -> {
-                        directoryViewModel.setPath(e.path)
-                        findNavController().navigate(e.actionId)
-                    }
-                    is HomeUiEvent.ShowDialog -> handleDialog(e.dialogArgs)
-                    is HomeUiEvent.ShowToast ->
-                        Toast.makeText(context, getString(e.messageResId), Toast.LENGTH_LONG).show()
+                if (state.storageItems.isNotEmpty()) {
+                    createStorageButtons(state.storageItems)
                 }
             }
         }
     }
 
-    private fun createStorageButtons(buttons: List<StorageButtonBinding>) {
+    private fun setupUiEventsObserver() {
+        homeViewModel.uiEvents.observe(
+            viewLifecycleOwner,
+            EventObserver { event ->
+                when (event) {
+                    is HomeUiEvent.NavigateToDirectory ->
+                        findNavController().navigate(MobileNavigationDirections.globalActionNavDirectory(event.path))
+                    is HomeUiEvent.ShowDialog -> handleDialog(event.dialogArgs)
+                    is HomeUiEvent.ShowSnackbar ->
+                        Snackbar.make(binding.root, getString(event.messageResId), Snackbar.LENGTH_LONG).show()
+                }
+            },
+        )
+    }
+
+    private fun createStorageButtons(items: List<StorageItem>) {
         val dimensions =
             storageButtonDimensions.autoSizeButtonDimensions(
-                buttons.size,
+                items.size,
                 STORAGE_BUTTON_HORIZONTAL_MARGIN,
             )
         val buttonLayoutParams = FrameLayout.LayoutParams(dimensions.first, dimensions.second)
@@ -95,48 +99,79 @@ class HomeFragment : Fragment() {
             STORAGE_BUTTON_HORIZONTAL_MARGIN,
             STORAGE_BUTTON_VERTICAL_MARGIN,
         )
-        buttons.forEach { button ->
-            button.lifecycleOwner = this
-            button.viewModel = homeViewModel
-            binding.storageUsageBarLayout.addView(button.root, buttonLayoutParams)
+        items.forEach { item ->
+            val buttonBinding: StorageButtonBinding =
+                DataBindingUtil.inflate(
+                    layoutInflater,
+                    R.layout.storage_button,
+                    binding.storageUsageBarLayout,
+                    false,
+                )
+            buttonBinding.lifecycleOwner = viewLifecycleOwner
+            buttonBinding.viewModel = homeViewModel
+            buttonBinding.storageItem = item
+            binding.storageUsageBarLayout.addView(buttonBinding.root, buttonLayoutParams)
         }
     }
 
     private fun handleDialog(args: DialogArgs) {
         when (args) {
-            is DialogArgs.RenameDialogArgs -> dialogListener.showDialog(RenameDialog(args.name))
             is DialogArgs.OpenFileActivityArgs -> openFile(args.path)
-            is DialogArgs.FavoriteOptionsDialogArgs -> dialogListener.showDialog(FavoriteOptionsDialog(args.view))
-            is DialogArgs.KitkatRemovableStorageDialogArgs -> dialogListener.showDialog(KitkatRemovableStorageWarningDialog())
+            is DialogArgs.FavoriteOptionsDialogArgs -> showFavoriteOptionsDialog(args)
+            is DialogArgs.KitkatRemovableStorageDialogArgs ->
+                dialogListener.showDialog(KitkatRemovableStorageWarningDialog())
             is DialogArgs.SAFActivityArgs -> safListener.launchSAF()
             else -> loge("HomeFragment $args")
         }
     }
 
-    private fun openFile(path: String) {
-        val intent = Intent(Intent.ACTION_VIEW).apply {
-            data = FileProvider.getUriForFile(
-                requireContext(),
-                requireContext().packageName,
-                File(path),
-            )
-            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-        }
-        intent.resolveActivity(requireContext().packageManager)
-            ?.let { startActivity(intent) }
-            ?: Toast.makeText(
-                context,
-                getString(R.string.unsupported_file),
-                Toast.LENGTH_LONG,
-            ).show()
+    private fun showFavoriteOptionsDialog(args: DialogArgs.FavoriteOptionsDialogArgs) {
+        val dialog: FavoriteOptionsDialog = FavoriteOptionsDialog.newInstance(args.favoritePath, args.favoriteName)
+        dialog.listener =
+            object : FavoriteOptionsDialogListener {
+                override fun onRenameButtonClick(
+                    path: String,
+                    currentName: String,
+                ) {
+                    homeViewModel.setRenameMode()
+                    val renameDialog: RenameDialog = RenameDialog.newInstance(currentName)
+                    renameDialog.onRenameOkPressedListener =
+                        OnRenameOkPressedListener { newName ->
+                            homeViewModel.onRenameFavoriteOkPressed(path, newName)
+                        }
+                    dialogListener.showDialog(renameDialog)
+                }
+
+                override fun onRename(
+                    path: String,
+                    newName: String,
+                ) {
+                    homeViewModel.onRenameFavoriteOkPressed(path, newName)
+                }
+
+                override fun onDelete(path: String) {
+                    homeViewModel.deleteFavorite(path)
+                }
+
+                override fun onDismiss() {
+                    homeViewModel.turnOffRenameMode()
+                }
+
+                override fun getUiState() = homeViewModel.uiState
+            }
+        dialogListener.showDialog(dialog)
     }
 
-    private fun runRecyclerViewAnimation(recyclerView: RecyclerView) {
-        val context = recyclerView.context
-        val controller =
-            AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_move_up)
-        recyclerView.layoutAnimation = controller
-        recyclerView.scheduleLayoutAnimation()
+    private fun openFile(path: String) {
+        val isOpened: Boolean =
+            FileOpenUtils.openFile(
+                context = requireContext(),
+                path = path,
+                grantWritePermission = true,
+            )
+        if (!isOpened) {
+            Snackbar.make(binding.root, getString(R.string.unsupported_file), Snackbar.LENGTH_LONG).show()
+        }
     }
 
     override fun onViewCreated(
@@ -145,20 +180,29 @@ class HomeFragment : Fragment() {
     ) {
         super.onViewCreated(view, savedInstanceState)
 
-        favoriteRecyclerViewAdapter = FavoriteRecyclerViewAdapter(homeViewModel)
-        binding.favoriteRecyclerView.layoutManager = GridLayoutManager(context, 2)
+        favoriteRecyclerViewAdapter =
+            FavoriteRecyclerViewAdapter(
+                object : FavoriteItemListener {
+                    override fun onFavoriteClick(path: String) = homeViewModel.onFavoriteClick(path)
+
+                    override fun onFavoriteLongClick(
+                        path: String,
+                        name: String,
+                    ): Boolean = homeViewModel.onFavoriteLongClick(path, name)
+                },
+            )
+        binding.favoriteRecyclerView.layoutManager = GridLayoutManager(context, FAVORITE_GRID_SPAN_COUNT)
         binding.favoriteRecyclerView.adapter = favoriteRecyclerViewAdapter
-        binding.favoriteRecyclerView.itemAnimator?.changeDuration = 0
+        binding.favoriteRecyclerView.itemAnimator = null
 
         homeViewModel.favorites.observe(viewLifecycleOwner) {
             favoriteRecyclerViewAdapter.updateData(it)
-            runRecyclerViewAnimation(binding.favoriteRecyclerView)
         }
     }
 
     private fun refreshStorageButtons() {
         binding.storageUsageBarLayout.removeAllViews()
-        homeViewModel.createStorageButtons()
+        homeViewModel.refreshStorageItems()
     }
 
     override fun onResume() {
@@ -178,7 +222,7 @@ class HomeFragment : Fragment() {
             safListener = context as StorageAccessFramework
             storageButtonDimensions = context as HomeStorageButton
         } catch (err: ClassCastException) {
-            err.printStackTrace()
+            loge(err.localizedMessage ?: UNKNOWN_ERROR)
         }
     }
 }

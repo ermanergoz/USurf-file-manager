@@ -8,7 +8,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import androidx.lifecycle.LiveData
-import com.erman.usurf.utils.logd
+import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
 
 class ConnectionLiveData(private val context: Context) : LiveData<Boolean>() {
@@ -24,7 +24,6 @@ class ConnectionLiveData(private val context: Context) : LiveData<Boolean>() {
 
     override fun onActive() {
         super.onActive()
-        logd("Register networkReceiver")
         context.registerReceiver(
             networkReceiver,
             IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"),
@@ -34,10 +33,9 @@ class ConnectionLiveData(private val context: Context) : LiveData<Boolean>() {
     override fun onInactive() {
         super.onInactive()
         try {
-            logd("Unregister networkReceiver")
             context.unregisterReceiver(networkReceiver)
         } catch (err: Exception) {
-            loge("onInactive $err")
+            loge(err.localizedMessage ?: UNKNOWN_ERROR)
         }
     }
 }
