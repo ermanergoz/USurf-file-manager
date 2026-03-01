@@ -10,6 +10,10 @@
         <variable
             name="viewModel"
             type="com.erman.usurf.directory.ui.DirectoryViewModel" />
+
+        <variable
+            name="uiState"
+            type="com.erman.usurf.directory.ui.DirectoryUIState" />
     </data>
 
 
@@ -36,7 +40,7 @@
             android:clipToPadding="false"
             android:paddingBottom="128dp"
             android:scrollbarStyle="outsideOverlay"
-            android:visibility="@{viewModel.loading ? View.GONE : View.VISIBLE}"
+            app:contentVisibility="@{uiState.isLoading}"
             app:layout_constraintBottom_toTopOf="@+id/confirmationButtonBar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -49,7 +53,7 @@
             android:layout_height="wrap_content"
             android:background="@color/colorAccent"
             android:orientation="horizontal"
-            android:visibility="@{(viewModel.moveMode || viewModel.copyMode) ? View.VISIBLE : View.GONE}"
+            app:confirmationBarVisibility="@{uiState}"
             app:layout_constraintBottom_toTopOf="@+id/optionButtonBar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -86,7 +90,7 @@
             android:layout_height="wrap_content"
             android:background="@color/colorAccent"
             android:orientation="vertical"
-            android:visibility="@{viewModel.moreMenuMode ? View.VISIBLE : View.GONE}"
+            app:moreMenuVisibility="@{uiState}"
             app:layout_constraintBottom_toBottomOf="@+id/fileListRecyclerView"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
@@ -100,11 +104,11 @@
                 android:layout_marginTop="4dp"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
-                android:drawableTop="@{viewModel.isSingleOperationMode ? @drawable/ic_favorite : @drawable/ic_favorite_disabled}"
-                android:enabled="@{viewModel.isSingleOperationMode}"
+                android:drawableTop="@{uiState.common.canRename ? @drawable/ic_favorite : @drawable/ic_favorite_disabled}"
+                android:enabled="@{uiState.common.canRename}"
                 android:onClick="@{() -> viewModel.onFavoriteButtonPressed()}"
                 android:text="@string/favorite"
-                android:textColor="@{viewModel.isSingleOperationMode ? @color/textColorDark : @color/textColorLight}"
+                android:textColor="@{uiState.common.canRename ? @color/textColorDark : @color/textColorLight}"
                 android:textSize="@dimen/text_size_10" />
 
             <Button
@@ -127,11 +131,11 @@
                 android:layout_marginTop="4dp"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
-                android:drawableTop="@{viewModel.isSingleOperationMode ? @drawable/ic_unzip : @drawable/ic_unzip_disabled}"
-                android:enabled="@{viewModel.isSingleOperationMode}"
+                android:drawableTop="@{uiState.common.canRename ? @drawable/ic_unzip : @drawable/ic_unzip_disabled}"
+                android:enabled="@{uiState.common.canRename}"
                 android:onClick="@{() -> viewModel.extract()}"
                 android:text="@string/extract"
-                android:textColor="@{viewModel.isSingleOperationMode ? @color/textColorDark : @color/textColorLight}"
+                android:textColor="@{uiState.common.canRename ? @color/textColorDark : @color/textColorLight}"
                 android:textSize="@dimen/text_size_10" />
 
             <Button
@@ -168,7 +172,7 @@
             android:background="@color/colorAccent"
             android:gravity="center"
             android:orientation="horizontal"
-            android:visibility="@{(viewModel.optionMode &amp;&amp; (viewModel.moveMode==false &amp;&amp; viewModel.copyMode==false)) ? View.VISIBLE : View.GONE}"
+            app:optionBarVisibility="@{uiState}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
@@ -206,11 +210,11 @@
                 android:layout_marginTop="4dp"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
-                android:drawableTop="@{viewModel.isSingleOperationMode ? @drawable/ic_rename : @drawable/ic_rename_disabled}"
-                android:enabled="@{viewModel.isSingleOperationMode}"
+                android:drawableTop="@{uiState.common.canRename ? @drawable/ic_rename : @drawable/ic_rename_disabled}"
+                android:enabled="@{uiState.common.canRename}"
                 android:onClick="@{() -> viewModel.rename()}"
                 android:text="@string/rename"
-                android:textColor="@{viewModel.isSingleOperationMode ? @color/textColorDark : @color/textColorLight}"
+                android:textColor="@{uiState.common.canRename ? @color/textColorDark : @color/textColorLight}"
                 android:textSize="@dimen/text_size_10" />
 
             <Button
@@ -235,8 +239,8 @@
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:onClick="@{() -> viewModel.showMoreOption()}"
-                android:src="@{viewModel.moreMenuMode ? @drawable/ic_down_arrow : @drawable/ic_up_arrow}"
-                android:visibility="@{viewModel.isRootMode ? View.GONE : View.VISIBLE}"
+                android:src="@{uiState.common.isMoreMenuVisible ? @drawable/ic_down_arrow : @drawable/ic_up_arrow}"
+                app:moreButtonVisibility="@{uiState}"
                 tools:ignore="ContentDescription" />
         </LinearLayout>
 
@@ -250,7 +254,7 @@
             android:contentDescription="@string/create_new"
             android:focusable="true"
             android:onClick="@{() -> viewModel.onCreate()}"
-            android:visibility="@{viewModel.optionMode || viewModel.loading ? View.GONE : View.VISIBLE}"
+            app:createFabVisibility="@{uiState}"
             app:backgroundTint="@color/colorAccent"
             app:layout_constraintBottom_toTopOf="@+id/moreMenuButtonBar"
             app:layout_constraintEnd_toEndOf="parent"
@@ -266,10 +270,10 @@
             android:layout_marginBottom="16dp"
             android:clickable="true"
             android:contentDescription="@string/new_file"
-            android:enabled="@{!viewModel.fileSearchMode}"
+            android:enabled="@{!uiState.isSearchMode}"
             android:focusable="true"
             android:onClick="@{() -> viewModel.createFile()}"
-            android:visibility="@{(viewModel.menuMode &amp;&amp; (viewModel.optionMode == false  &amp;&amp; viewModel.loading == false)) ? View.VISIBLE : View.GONE}"
+            app:menuExpandedFabVisibility="@{uiState}"
             app:backgroundTint="@color/colorAccent"
             app:layout_constraintBottom_toTopOf="@+id/createNewFloatingButton"
             app:layout_constraintEnd_toEndOf="parent"
@@ -287,7 +291,7 @@
             android:contentDescription="@string/device_wide_search"
             android:focusable="true"
             android:onClick="@{() -> viewModel.deviceWideSearch()}"
-            android:visibility="@{((viewModel.menuMode &amp;&amp; (viewModel.optionMode==false &amp;&amp; viewModel.loading == false))) ? View.VISIBLE : View.GONE}"
+            app:menuExpandedFabVisibility="@{uiState}"
             app:backgroundTint="@color/colorAccent"
             app:layout_constraintBottom_toTopOf="@+id/newFolderFloatingButton"
             app:layout_constraintEnd_toEndOf="parent"
@@ -305,10 +309,10 @@
             android:layout_marginBottom="16dp"
             android:clickable="true"
             android:contentDescription="@string/new_folder"
-            android:enabled="@{!viewModel.fileSearchMode}"
+            android:enabled="@{!uiState.isSearchMode}"
             android:focusable="true"
             android:onClick="@{() -> viewModel.createFolder()}"
-            android:visibility="@{(viewModel.menuMode &amp;&amp; (viewModel.optionMode==false  &amp;&amp; viewModel.loading == false)) ? View.VISIBLE : View.GONE}"
+            app:menuExpandedFabVisibility="@{uiState}"
             app:backgroundTint="@color/colorAccent"
             app:layout_constraintBottom_toTopOf="@+id/newFileFloatingButton"
             app:layout_constraintEnd_toEndOf="parent"
@@ -329,9 +333,9 @@
             android:layout_marginRight="4dp"
             android:ellipsize="start"
             android:singleLine="true"
-            android:text="@{viewModel.path}"
+            android:text="@{uiState.displayPath}"
             android:textSize="@dimen/text_size_14"
-            android:visibility="@{viewModel.fileSearchMode ? View.GONE : View.VISIBLE}"
+            app:pathVisibility="@{uiState}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
@@ -354,7 +358,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginTop="64dp"
-            android:visibility="@{viewModel.loading ? View.VISIBLE : View.GONE}"
+            app:loadingVisibility="@{uiState.isLoading}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
