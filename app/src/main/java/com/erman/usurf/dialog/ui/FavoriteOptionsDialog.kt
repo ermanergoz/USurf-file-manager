@@ -12,6 +12,7 @@ import androidx.databinding.library.baseAdapters.BR
 import androidx.fragment.app.DialogFragment
 import com.erman.usurf.R
 import com.erman.usurf.databinding.DialogEditFavoriteBinding
+import com.erman.usurf.home.ui.HomeUiState
 import com.erman.usurf.home.ui.HomeViewModel
 import org.koin.android.viewmodel.ext.android.viewModel
 
@@ -31,6 +32,10 @@ class FavoriteOptionsDialog(private val favoriteView: TextView) : DialogFragment
             binding.setVariable(BR.favoriteView, favoriteView)
             binding.lifecycleOwner = this
             binding.viewModel = viewModel
+            binding.uiState = viewModel.uiState.value ?: HomeUiState()
+            viewModel.uiState.observe(this) { state ->
+                binding.uiState = state
+            }
 
             this.okButton = binding.root.findViewById(R.id.okButton)
             this.renameEditText = binding.root.findViewById(R.id.renameEditText)

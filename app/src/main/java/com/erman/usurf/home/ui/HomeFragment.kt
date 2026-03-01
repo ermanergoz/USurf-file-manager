@@ -28,7 +28,6 @@ import com.erman.usurf.home.model.HomeStorageButton
 import com.erman.usurf.home.model.StorageAccessFramework
 import com.erman.usurf.home.utils.STORAGE_BUTTON_HORIZONTAL_MARGIN
 import com.erman.usurf.home.utils.STORAGE_BUTTON_VERTICAL_MARGIN
-import com.erman.usurf.utils.logd
 import com.erman.usurf.utils.loge
 import org.koin.android.viewmodel.ext.android.sharedViewModel
 import org.koin.android.viewmodel.ext.android.viewModel
@@ -52,32 +51,34 @@ class HomeFragment : Fragment() {
         binding.lifecycleOwner = this
         binding.viewModel = homeViewModel
 
-        setupNavigationObserver()
-        setupPathObserver()
+        setupUiEventsObserver()
         setupStorageButtonsObserver()
-        setupDialogObserver()
-        setupToastMessageObserver()
 
         return binding.root
     }
 
-    private fun setupNavigationObserver() {
-        homeViewModel.navigateToDirectory.observe(viewLifecycleOwner) {
-            it.getContentIfNotHandled()?.let { navId ->
-                findNavController().navigate(navId)
+    private fun setupStorageButtonsObserver() {
+        homeViewModel.storageButtons.observe(viewLifecycleOwner) { buttons ->
+            if (buttons != null) {
+                binding.storageUsageBarLayout.removeAllViews()
+                createStorageButtons(buttons)
             }
         }
     }
 
-    private fun setupPathObserver() {
-        homeViewModel.path.observe(viewLifecycleOwner) {
-            directoryViewModel.setPath(it)
-        }
-    }
-
-    private fun setupStorageButtonsObserver() {
-        homeViewModel.storageButtons.observe(viewLifecycleOwner) { buttons ->
-            createStorageButtons(buttons)
+    private fun setupUiEventsObserver() {
+        homeViewModel.uiEvents.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let { e ->
+                when (e) {
+                    is HomeUiEvent.NavigateToDirectory -> {
+                        directoryViewModel.setPath(e.path)
+                        findNavController().navigate(e.actionId)
+                    }
+                    is HomeUiEvent.ShowDialog -> handleDialog(e.dialogArgs)
+                    is HomeUiEvent.ShowToast ->
+                        Toast.makeText(context, getString(e.messageResId), Toast.LENGTH_LONG).show()
+                }
+            }
         }
     }
 
@@ -101,14 +102,6 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun setupDialogObserver() {
-        homeViewModel.dialog.observe(viewLifecycleOwner) {
-            it.getContentIfNotHandled()?.let { args ->
-                handleDialog(args)
-            }
-        }
-    }
-
     private fun handleDialog(args: DialogArgs) {
         when (args) {
             is DialogArgs.RenameDialogArgs -> dialogListener.showDialog(RenameDialog(args.name))
@@ -121,32 +114,21 @@ class HomeFragment : Fragment() {
     }
 
     private fun openFile(path: String) {
-        logd("Open a favorite file")
-        val intent = Intent(Intent.ACTION_VIEW)
-        intent.data =
-            FileProvider.getUriForFile(
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            data = FileProvider.getUriForFile(
                 requireContext(),
                 requireContext().packageName,
                 File(path),
             )
-        intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+        }
         intent.resolveActivity(requireContext().packageManager)
             ?.let { startActivity(intent) }
-            ?: let {
-                Toast.makeText(
-                    context,
-                    getString(R.string.unsupported_file),
-                    Toast.LENGTH_LONG,
-                ).show()
-            }
-    }
-
-    private fun setupToastMessageObserver() {
-        homeViewModel.toastMessage.observe(viewLifecycleOwner) {
-            it.getContentIfNotHandled()?.let { messageId ->
-                Toast.makeText(context, getString(messageId), Toast.LENGTH_LONG).show()
-            }
-        }
+            ?: Toast.makeText(
+                context,
+                getString(R.string.unsupported_file),
+                Toast.LENGTH_LONG,
+            ).show()
     }
 
     private fun runRecyclerViewAnimation(recyclerView: RecyclerView) {
@@ -166,9 +148,7 @@ class HomeFragment : Fragment() {
         favoriteRecyclerViewAdapter = FavoriteRecyclerViewAdapter(homeViewModel)
         binding.favoriteRecyclerView.layoutManager = GridLayoutManager(context, 2)
         binding.favoriteRecyclerView.adapter = favoriteRecyclerViewAdapter
-        binding.favoriteRecyclerView.itemAnimator?.let {
-            it.changeDuration = 0
-        } // to avoid flickering
+        binding.favoriteRecyclerView.itemAnimator?.changeDuration = 0
 
         homeViewModel.favorites.observe(viewLifecycleOwner) {
             favoriteRecyclerViewAdapter.updateData(it)
@@ -183,21 +163,16 @@ class HomeFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        // To avoid storage buttons from disappearing when resuming the app from background
-        // And also, to refresh it after preference change
         refreshStorageButtons()
     }
 
     override fun onPause() {
         super.onPause()
-        // To avoid java.lang.IllegalStateException: The specified child already has a parent.
-        // You must call removeView() on the child's parent first.
         binding.storageUsageBarLayout.removeAllViews()
     }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-
         try {
             dialogListener = context as ShowDialog
             safListener = context as StorageAccessFramework
