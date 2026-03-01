@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
 import android.widget.Toast
-import androidx.core.view.isGone
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import com.erman.usurf.R
@@ -15,7 +14,7 @@ import com.erman.usurf.utils.EventObserver
 import org.koin.android.viewmodel.ext.android.viewModel
 
 class FTPFragment : Fragment() {
-    private val fTPViewModel by viewModel<FTPViewModel>()
+    private val ftpViewModel by viewModel<FTPViewModel>()
     private lateinit var binding: FragmentFtpBinding
 
     override fun onCreateView(
@@ -24,40 +23,30 @@ class FTPFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_ftp, container, false)
-
-        fTPViewModel.toastMessage.observe(
-            viewLifecycleOwner,
-            EventObserver {
-                Toast.makeText(context, getString(it), Toast.LENGTH_LONG).show()
-            },
-        )
-
-        fTPViewModel.storagePaths.observe(viewLifecycleOwner) {
-            for (storagePath in it) {
-                val radioButton = RadioButton(context)
-                radioButton.text = storagePath
-                radioButton.id = it.indexOf(storagePath)
-                if (storagePath == fTPViewModel.getFtpSelectedPath()) {
-                    radioButton.isChecked = true
+        binding.lifecycleOwner = viewLifecycleOwner
+        binding.viewModel = ftpViewModel
+        binding.uiState = ftpViewModel.uiState.value ?: FtpUiState()
+        ftpViewModel.uiState.observe(viewLifecycleOwner) { state ->
+            binding.uiState = state
+            state?.storagePaths?.let { paths ->
+                binding.radioButtonGroup.removeAllViews()
+                paths.forEachIndexed { index, path ->
+                    val radioButton = RadioButton(context)
+                    radioButton.text = path
+                    radioButton.id = index
+                    if (path == ftpViewModel.getFtpSelectedPath()) {
+                        radioButton.isChecked = true
+                    }
+                    binding.radioButtonGroup.addView(radioButton)
                 }
-                binding.radioButtonGroup.addView(radioButton)
             }
         }
-
-        binding.lifecycleOwner = this
-        binding.viewModel = fTPViewModel
+        ftpViewModel.uiEvents.observe(viewLifecycleOwner, EventObserver { event ->
+            when (event) {
+                is FtpUiEvent.ShowToast ->
+                    Toast.makeText(context, getString(event.messageResId), Toast.LENGTH_LONG).show()
+            }
+        })
         return binding.root
-    }
-
-    override fun onResume() {
-        super.onResume()
-        // a workaround to fix the problem of button text not updating on resume with data binding
-        if (fTPViewModel.getServerStatus()) {
-            binding.editUserNameTextView.isEnabled = false
-            binding.editPasswordTextView.isEnabled = false
-            binding.editPortTextView.isEnabled = false
-            binding.radioButtonGroup.isGone = true
-            binding.connectButton.text = getString(R.string.disconnect)
-        }
     }
 }
