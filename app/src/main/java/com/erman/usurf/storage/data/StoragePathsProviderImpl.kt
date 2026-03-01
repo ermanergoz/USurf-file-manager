@@ -1,20 +1,26 @@
-package com.erman.usurf.utils
+package com.erman.usurf.storage.data
 
 import android.annotation.SuppressLint
 import android.content.Context
-import com.erman.usurf.application.MainApplication
-import com.erman.usurf.preference.data.PreferenceProvider
-import org.koin.java.KoinJavaComponent.getKoin
-import org.koin.java.KoinJavaComponent.inject
+import com.erman.usurf.preference.domain.PreferencesRepository
+import com.erman.usurf.storage.domain.StoragePathsProvider
+import com.erman.usurf.utils.ROOT_DIRECTORY
+import com.erman.usurf.utils.SINGLE_STORAGE_COUNT
+import com.erman.usurf.utils.UNKNOWN_ERROR
+import com.erman.usurf.utils.loge
 import java.io.File
 import java.io.IOException
 
-object StoragePaths {
-    private val preferenceProvider: PreferenceProvider = getKoin().get()
-    private val context: Context by inject(Context::class.java)
+private const val SUBSTRING_START_INDEX: Int = 0
+private const val EXTERNAL_DIR_SUFFIX: String = "/Android/data"
+private const val DIR_TYPE_EXTERNAL: String = "external"
 
+class StoragePathsProviderImpl(
+    private val context: Context,
+    private val preferencesRepository: PreferencesRepository,
+) : StoragePathsProvider {
     @SuppressLint("SdCardPath")
-    fun getStorageDirectories(): Set<String> {
+    override fun getStorageDirectories(): Set<String> {
         val paths = mutableSetOf<String>()
         val storageDirectories =
             arrayOf(
@@ -41,18 +47,18 @@ object StoragePaths {
             )
 
         for (file in context.getExternalFilesDirs(DIR_TYPE_EXTERNAL)) {
-            file?.let {
-                val index = it.absolutePath.lastIndexOf(EXTERNAL_DIR_SUFFIX)
-                var path = it.absolutePath.substring(0, index)
+            file?.let { fileDir ->
+                val index = fileDir.absolutePath.lastIndexOf(EXTERNAL_DIR_SUFFIX)
+                var path = fileDir.absolutePath.substring(SUBSTRING_START_INDEX, index)
                 try {
                     path = File(path).canonicalPath
                 } catch (err: IOException) {
-                    loge("" + err.localizedMessage)
+                    err.localizedMessage?.let { loge(it) } ?: UNKNOWN_ERROR
                 }
                 paths.add(path)
             }
         }
-        if (paths.isEmpty() || paths.size == 1) {
+        if (paths.isEmpty() || paths.size == SINGLE_STORAGE_COUNT) {
             storageDirectories.forEach {
                 if (File(it).exists() && File(it).canRead()) {
                     paths.add(it)
@@ -60,12 +66,9 @@ object StoragePaths {
             }
         }
 
-        if (File(ROOT_DIRECTORY).exists() && File(ROOT_DIRECTORY).canRead() && preferenceProvider.getRootAccessPreference()) {
+        if (preferencesRepository.getRootAccessPreference()) {
             paths.add(ROOT_DIRECTORY)
         }
         return paths
     }
 }
-
-const val DIR_TYPE_EXTERNAL: String = "external"
-const val EXTERNAL_DIR_SUFFIX: String = "/Android/data"

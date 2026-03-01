@@ -5,29 +5,27 @@ import android.widget.ImageView
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.RequestBuilder
 import com.erman.usurf.R
-import com.erman.usurf.directory.utils.THUMBNAIL_SIZE_MULTIPLIER
-import com.erman.usurf.preference.data.PreferenceProvider
-import org.koin.java.KoinJavaComponent.getKoin
 import java.io.File
 
-@BindingAdapter("filePath")
+private const val THUMBNAIL_SIZE_MULTIPLIER = 0.1F
+
+@BindingAdapter("filePath", "showThumbnails", "isDirectory")
 fun setImage(
     imageView: ImageView,
     filePath: String,
+    showThumbnails: Boolean,
+    isDirectory: Boolean,
 ) {
-    val preferenceProvider: PreferenceProvider = getKoin().get()
-    val file = File(filePath)
-
-    if (file.isFile && preferenceProvider.getShowThumbnailsPreference()) {
+    if (isDirectory) {
+        imageView.setImageResource(R.drawable.ic_folder)
+    } else if (showThumbnails) {
         val requestBuilder: RequestBuilder<Drawable> =
             GlideApp.with(imageView.context)
                 .asDrawable().sizeMultiplier(THUMBNAIL_SIZE_MULTIPLIER)
 
         GlideApp.with(imageView.context).load(filePath).thumbnail(requestBuilder)
             .into(imageView)
-    } else if (file.isFile) {
-        imageView.setImageResource(R.drawable.ic_file)
     } else {
-        imageView.setImageResource(R.drawable.ic_folder)
+        imageView.setImageResource(R.drawable.ic_file)
     }
 }

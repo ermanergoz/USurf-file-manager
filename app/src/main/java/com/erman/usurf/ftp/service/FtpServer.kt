@@ -1,4 +1,4 @@
-package com.erman.usurf.ftp.model
+package com.erman.usurf.ftp.service
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -16,30 +16,32 @@ import android.os.IBinder
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.app.ServiceCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.erman.usurf.R
 import com.erman.usurf.activity.MainActivity
-import com.erman.usurf.application.MainApplication
 import com.erman.usurf.ftp.data.FtpPreferenceProvider
 import com.erman.usurf.ftp.utils.DEFAULT_PORT
-import com.erman.usurf.ftp.utils.FTP_NOTIFICATION_CHANNEL_ID
-import com.erman.usurf.ftp.utils.FTP_NOTIFICATION_ID
-import com.erman.usurf.ftp.utils.PENDING_INTENT_REQUEST_CODE
 import com.erman.usurf.ftp.utils.PORT_KEY
 import com.erman.usurf.utils.KEY_INTENT_IS_FTP_NOTIFICATION_CLICKED
 import com.erman.usurf.utils.SHARED_PREF_FILE
-import com.erman.usurf.utils.logd
+import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
 import org.apache.ftpserver.ConnectionConfigFactory
-import org.apache.ftpserver.FtpServer
 import org.apache.ftpserver.FtpServerFactory
 import org.apache.ftpserver.listener.ListenerFactory
 import org.apache.ftpserver.usermanager.impl.BaseUser
 import org.koin.android.ext.android.inject
+import org.apache.ftpserver.FtpServer as ApacheFtpServer
+
+private const val FTP_LISTENER_NAME: String = "default"
+private const val FTP_NOTIFICATION_CHANNEL_ID: String = "FtpNotificationChannel"
+private const val PENDING_INTENT_REQUEST_CODE = 0
+private const val FTP_NOTIFICATION_ID: Int = 1
 
 class FtpServer : Service() {
     private val serverFactory = FtpServerFactory()
-    private val server: FtpServer? = serverFactory.createServer()
+    private val server: ApacheFtpServer? = serverFactory.createServer()
     private val ftpPreferenceProvider: FtpPreferenceProvider by inject()
 
     companion object {
@@ -55,7 +57,6 @@ class FtpServer : Service() {
         flags: Int,
         startId: Int,
     ): Int {
-        logd("Start FTP server service")
         // Let it continue running until it is stopped.
         val listenerFactory = ListenerFactory()
         val connectionConfigFactory = ConnectionConfigFactory()
@@ -73,41 +74,35 @@ class FtpServer : Service() {
         user.homeDirectory = ftpPreferenceProvider.getFtpPath()
 
         serverFactory.userManager.save(user)
-        serverFactory.addListener("default", listenerFactory.createListener())
+        serverFactory.addListener(FTP_LISTENER_NAME, listenerFactory.createListener())
         server?.let {
             try {
                 it.start()
                 sendBroadcast()
                 isFtpServerRunning = true
-                logd("FTP server started")
             } catch (err: Exception) {
-                loge("onStartCommand $err")
-
+                err.localizedMessage?.let { loge(it) } ?: UNKNOWN_ERROR
                 it.stop()
                 sendBroadcast()
                 isFtpServerRunning = false
-                removeNotification()
-                logd("FTP server stopped")
+                stopServiceWithNotificationRemoval()
+                stopSelf()
             }
         }
-        // displayNotification()
         return START_STICKY // will restart if the android system terminates it for any reason.
     }
 
     override fun onDestroy() {
-        logd("Stop FTP server service")
         super.onDestroy()
         server?.let {
             it.stop()
             sendBroadcast()
             isFtpServerRunning = false
-            removeNotification()
-            logd("FTP server stopped")
         }
+        stopServiceWithNotificationRemoval()
     }
 
     private fun sendBroadcast() {
-        logd("Send broadcast")
         val broadcastIntent = Intent()
         broadcastIntent.action = applicationContext.getString(R.string.ftp_broadcast_receiver)
         LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(broadcastIntent)
@@ -165,69 +160,62 @@ class FtpServer : Service() {
         }
     }
 
-    private fun removeNotification() {
-        NotificationManagerCompat.from(this).cancel(FTP_NOTIFICATION_ID)
+    /**
+     * Stops foreground state (removing the notification on O+) and cancels the notification on pre-O.
+     * Call when the service is stopping (failure path or onDestroy).
+     */
+    private fun stopServiceWithNotificationRemoval() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
+        } else {
+            NotificationManagerCompat.from(this).cancel(FTP_NOTIFICATION_ID)
+        }
     }
 
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
-
-        Intent(this, FtpServer()::class.java).also { intent ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    startForeground(
-                        FTP_NOTIFICATION_ID,
-                        getNotification(),
-                        ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC,
-                    )
-                } else {
-                    startForeground(FTP_NOTIFICATION_ID, getNotification())
-                }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                startForeground(
+                    FTP_NOTIFICATION_ID,
+                    getNotification(),
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC,
+                )
             } else {
-                startService(intent)
-                with(NotificationManagerCompat.from(this)) {
-                    if (ActivityCompat.checkSelfPermission(
-                            this@FtpServer,
-                            Manifest.permission.POST_NOTIFICATIONS,
-                        ) != PackageManager.PERMISSION_GRANTED
-                    ) {
-                        // TODO: Consider calling ActivityCompat#requestPermissions
-                        return
-                    }
-                    notify(FTP_NOTIFICATION_ID, getNotification())
-                }
+                startForeground(FTP_NOTIFICATION_ID, getNotification())
             }
+        } else {
+            showNotificationIfPermitted()
         }
     }
 
     override fun onCreate() {
         super.onCreate()
-
-        Intent(this, FtpServer()::class.java).also { intent ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    startForeground(
-                        FTP_NOTIFICATION_ID,
-                        getNotification(),
-                        ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC,
-                    )
-                } else {
-                    startForeground(FTP_NOTIFICATION_ID, getNotification())
-                }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                startForeground(
+                    FTP_NOTIFICATION_ID,
+                    getNotification(),
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC,
+                )
             } else {
-                startService(intent)
-                with(NotificationManagerCompat.from(this)) {
-                    if (ActivityCompat.checkSelfPermission(
-                            this@FtpServer,
-                            Manifest.permission.POST_NOTIFICATIONS,
-                        ) != PackageManager.PERMISSION_GRANTED
-                    ) {
-                        // TODO: Consider calling ActivityCompat#requestPermissions
-                        return
-                    }
-                    notify(FTP_NOTIFICATION_ID, getNotification())
-                }
+                startForeground(FTP_NOTIFICATION_ID, getNotification())
+            }
+        } else {
+            showNotificationIfPermitted()
+        }
+    }
+
+    private fun showNotificationIfPermitted() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS,
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                return
             }
         }
+        NotificationManagerCompat.from(this).notify(FTP_NOTIFICATION_ID, getNotification())
     }
 }

@@ -1,11 +1,16 @@
 package com.erman.usurf.directory.model
 
-import com.erman.usurf.directory.utils.FOLDER_SUFFIX
-import com.erman.usurf.directory.utils.ROOT_COMMAND_WAIT_TIME_MS
+import com.erman.usurf.directory.utils.PATH_SEPARATOR_CHAR
+import com.erman.usurf.directory.utils.SUFFIX_LENGTH
+import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
 import com.stericson.RootShell.execution.Command
 import com.stericson.RootTools.RootTools
 import java.io.File
+
+private const val ROOT_COMMAND_WAIT_TIME_MS: Long = 50
+private const val ROOT_COMMAND_ID_DEFAULT: Int = 0
+private const val EXIT_CODE_SUCCESS: Int = 0
 
 class RootHandler {
     private fun getParentPath(fileModel: FileModel): String {
@@ -20,7 +25,7 @@ class RootHandler {
             try {
                 Thread.sleep(ROOT_COMMAND_WAIT_TIME_MS)
             } catch (err: InterruptedException) {
-                loge("waitForFinish $err")
+                err.localizedMessage?.let { loge("createFile $it") } ?: UNKNOWN_ERROR
             }
         }
     }
@@ -30,28 +35,34 @@ class RootHandler {
     }
 
     fun isRootAccessGiven(): Boolean {
-        return RootTools.isAccessGiven()
+        return try {
+            RootTools.getShell(true)
+            true
+        } catch (err: Exception) {
+            err.localizedMessage?.let { loge(it) } ?: UNKNOWN_ERROR
+            false
+        }
     }
 
     fun remountRootDirAs(mountMode: String) {
-        var mntCommand = ""
-
-        when (mountMode) {
-            MountOption.READ_WRITE.option -> mntCommand = "mount -o rw,remount /"
-            MountOption.READ.option -> mntCommand = "mount -o ro,remount /"
+        val mntCommand: String = when (mountMode) {
+            MountOption.READ_WRITE.option -> "mount -o rw,remount /"
+            MountOption.READ.option -> "mount -o ro,remount /"
+            else -> return
         }
 
         val command: Command =
-            object : Command(0, mntCommand) {
+            object : Command(ROOT_COMMAND_ID_DEFAULT, "mount -o rw,remount /") {
                 override fun commandTerminated(
                     id: Int,
                     reason: String,
                 ) {
                     super.commandTerminated(id, reason)
-                    loge("delete commandTerminated $reason")
+                    loge("remountRootDirAs $reason")
                 }
             }
         RootTools.getShell(true).add(command)
+        waitForFinish(command)
     }
 
     fun getFileList(path: String): List<String> {
@@ -59,7 +70,7 @@ class RootHandler {
         // -p adds the trailing slash on directories to distinguish folders from files
         // -a is to display hidden files
         val command: Command =
-            object : Command(0, "cd '$path'", "ls -p -a") {
+            object : Command(ROOT_COMMAND_ID_DEFAULT, "cd '$path'", "ls -p -a") {
                 override fun commandOutput(
                     id: Int,
                     line: String,
@@ -73,7 +84,7 @@ class RootHandler {
                     reason: String,
                 ) {
                     super.commandTerminated(id, reason)
-                    loge("getFileList commandTerminated $reason")
+                    loge(reason)
                 }
             }
         RootTools.getShell(true).add(command)
@@ -87,13 +98,13 @@ class RootHandler {
 
         for (source in selectedDirectories) {
             val command: Command =
-                object : Command(0, "rm -r '${source.path}'") {
+                object : Command(ROOT_COMMAND_ID_DEFAULT, "rm -r '${source.path}'") {
                     override fun commandCompleted(
                         id: Int,
                         exitcode: Int,
                     ) {
                         super.commandCompleted(id, exitcode)
-                        isSuccess = true
+                        isSuccess = exitcode == EXIT_CODE_SUCCESS
                     }
 
                     override fun commandTerminated(
@@ -102,7 +113,7 @@ class RootHandler {
                     ) {
                         super.commandTerminated(id, reason)
                         isSuccess = false
-                        loge("delete commandTerminated $reason")
+                        loge(reason)
                     }
                 }
             RootTools.getShell(true).add(command)
@@ -119,7 +130,7 @@ class RootHandler {
         var fileName = name
 
         if (isDirectory) {
-            fileName = "$name$FOLDER_SUFFIX"
+            fileName = "$name$PATH_SEPARATOR_CHAR"
         }
 
         for (file in getFileList(path)) {
@@ -138,13 +149,13 @@ class RootHandler {
 
         if (!doesFileExist(path, folderName, true)) {
             val command: Command =
-                object : Command(0, "cd '$path'", "mkdir '$folderName'") {
+                object : Command(ROOT_COMMAND_ID_DEFAULT, "cd '$path'", "mkdir '$folderName'") {
                     override fun commandCompleted(
                         id: Int,
                         exitcode: Int,
                     ) {
                         super.commandCompleted(id, exitcode)
-                        isSuccess = true
+                        isSuccess = exitcode == EXIT_CODE_SUCCESS
                     }
 
                     override fun commandTerminated(
@@ -153,7 +164,7 @@ class RootHandler {
                     ) {
                         super.commandTerminated(id, reason)
                         isSuccess = false
-                        loge("createFolder commandTerminated $reason")
+                        loge(reason)
                     }
                 }
             RootTools.getShell(true).add(command)
@@ -170,13 +181,13 @@ class RootHandler {
 
         if (!doesFileExist(path, fileName, false)) {
             val command: Command =
-                object : Command(0, "cd '$path'", "> '$fileName'") {
+                object : Command(ROOT_COMMAND_ID_DEFAULT, "cd '$path'", "> '$fileName'") {
                     override fun commandCompleted(
                         id: Int,
                         exitcode: Int,
                     ) {
                         super.commandCompleted(id, exitcode)
-                        isSuccess = true
+                        isSuccess = exitcode == EXIT_CODE_SUCCESS
                     }
 
                     override fun commandTerminated(
@@ -185,7 +196,7 @@ class RootHandler {
                     ) {
                         super.commandTerminated(id, reason)
                         isSuccess = false
-                        loge("createFile commandTerminated $reason")
+                        loge("createFile $reason")
                     }
                 }
             RootTools.getShell(true).add(command)
@@ -203,13 +214,17 @@ class RootHandler {
 
         if (!doesFileExist(parentDir, newName, true)) {
             val command: Command =
-                object : Command(0, "cd $parentDir", "mv '${selectedFile.path}' '${"$parentDir/$newName"}'") {
+                object : Command(
+                    ROOT_COMMAND_ID_DEFAULT,
+                    "cd '$parentDir'",
+                    "mv '${selectedFile.path}' '${"$parentDir${File.separator}$newName"}'",
+                ) {
                     override fun commandCompleted(
                         id: Int,
                         exitcode: Int,
                     ) {
                         super.commandCompleted(id, exitcode)
-                        isSuccess = true
+                        isSuccess = exitcode == EXIT_CODE_SUCCESS
                     }
 
                     override fun commandTerminated(
@@ -218,7 +233,7 @@ class RootHandler {
                     ) {
                         super.commandTerminated(id, reason)
                         isSuccess = false
-                        loge("renameFile commandTerminated $reason")
+                        loge(reason)
                     }
                 }
             RootTools.getShell(true).add(command)
@@ -235,20 +250,20 @@ class RootHandler {
 
         for (source in selectedDirectories) {
             val sourcePath =
-                if (source.path.last() == '/') {
-                    source.path.dropLast(1)
+                if (source.path.last() == PATH_SEPARATOR_CHAR) {
+                    source.path.dropLast(SUFFIX_LENGTH)
                 } else {
                     source.path
                 }
 
             val command: Command =
-                object : Command(0, "cp -a '$sourcePath' '$copyOrMoveDestination'") {
+                object : Command(ROOT_COMMAND_ID_DEFAULT, "cp -a '$sourcePath' '$copyOrMoveDestination'") {
                     override fun commandCompleted(
                         id: Int,
                         exitcode: Int,
                     ) {
                         super.commandCompleted(id, exitcode)
-                        isSuccess = true
+                        isSuccess = exitcode == EXIT_CODE_SUCCESS
                     }
 
                     override fun commandTerminated(
@@ -257,7 +272,7 @@ class RootHandler {
                     ) {
                         super.commandTerminated(id, reason)
                         isSuccess = false
-                        loge("copyFile commandTerminated $reason")
+                        loge(reason)
                     }
                 }
             RootTools.getShell(true).add(command)
@@ -274,20 +289,20 @@ class RootHandler {
 
         for (source in selectedDirectories) {
             val sourcePath =
-                if (source.path.last() == FOLDER_SUFFIX) {
-                    source.path.dropLast(1)
+                if (source.path.last() == PATH_SEPARATOR_CHAR) {
+                    source.path.dropLast(SUFFIX_LENGTH)
                 } else {
                     source.path
                 }
 
             val command: Command =
-                object : Command(0, "mv '$sourcePath' '$copyOrMoveDestination'") {
+                object : Command(ROOT_COMMAND_ID_DEFAULT, "mv '$sourcePath' '$copyOrMoveDestination'") {
                     override fun commandCompleted(
                         id: Int,
                         exitcode: Int,
                     ) {
                         super.commandCompleted(id, exitcode)
-                        isSuccess = true
+                        isSuccess = exitcode == EXIT_CODE_SUCCESS
                     }
 
                     override fun commandTerminated(
@@ -296,7 +311,7 @@ class RootHandler {
                     ) {
                         super.commandTerminated(id, reason)
                         isSuccess = false
-                        loge("copyFile commandTerminated $reason")
+                        loge(reason)
                     }
                 }
             RootTools.getShell(true).add(command)

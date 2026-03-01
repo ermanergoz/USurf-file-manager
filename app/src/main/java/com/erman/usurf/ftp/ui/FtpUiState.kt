@@ -11,5 +11,5 @@ data class FtpUiState(
 )
 
 sealed class FtpUiEvent {
-    data class ShowToast(val messageResId: Int) : FtpUiEvent()
+    data class ShowSnackbar(val messageResId: Int) : FtpUiEvent()
 }

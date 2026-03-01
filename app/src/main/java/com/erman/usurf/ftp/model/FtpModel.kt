@@ -4,14 +4,14 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.content.ContextCompat
-import com.erman.usurf.ftp.utils.URL_SCHEME
-import com.erman.usurf.utils.logd
+import com.erman.usurf.ftp.service.FtpServer
 import java.net.Inet4Address
 import java.net.NetworkInterface
 
+private const val URL_SCHEME: String = "ftps://"
+
 class FtpModel(private val context: Context) {
     fun getIpAddress(): String {
-        logd("Get ip address")
         var ip = ""
         NetworkInterface.getNetworkInterfaces()?.toList()?.map { networkInterface ->
             networkInterface.inetAddresses?.toList()?.find {

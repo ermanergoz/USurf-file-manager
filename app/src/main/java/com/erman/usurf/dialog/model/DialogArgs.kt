@@ -1,6 +1,5 @@
 package com.erman.usurf.dialog.model
 
-import android.widget.TextView
 import com.erman.usurf.directory.model.FileModel
 
 sealed class DialogArgs {
@@ -20,7 +19,7 @@ sealed class DialogArgs {
 
     data class AddFavoriteDialogArgs(val path: String) : DialogArgs()
 
-    data class FavoriteOptionsDialogArgs(val view: TextView) : DialogArgs()
+    data class FavoriteOptionsDialogArgs(val favoritePath: String, val favoriteName: String) : DialogArgs()
 
     object FileSearchDialogArgs : DialogArgs()
 
