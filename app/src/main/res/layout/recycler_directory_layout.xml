@@ -6,8 +6,8 @@
     <data>
 
         <variable
-            name="viewModel"
-            type="com.erman.usurf.directory.ui.DirectoryViewModel" />
+            name="listener"
+            type="com.erman.usurf.directory.ui.FileItemListener" />
 
         <variable
             name="file"
@@ -20,8 +20,8 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="1dp"
         android:background="@{file.isSelected ? @drawable/selection_background : @drawable/button_ripple_effect}"
-        android:onClick="@{() -> viewModel.onFileClick(file)}"
-        android:onLongClick="@{() -> viewModel.onFileLongClick(file)}"
+        android:onClick="@{() -> listener.onFileClick(file)}"
+        android:onLongClick="@{() -> listener.onFileLongClick(file)}"
         android:padding="@dimen/layout_margin_4">
 
         <TextView
@@ -47,7 +47,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
             android:gravity="start"
             android:singleLine="true"
             android:text="@{file.isDirectory() ? file.subFileCount : file.size}"
@@ -92,7 +91,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
             android:singleLine="true"
             android:text="@{file.isDirectory ? @string/empty : file.extension}"
             android:textAllCaps="true"

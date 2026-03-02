@@ -6,12 +6,12 @@
         <import type="android.view.View" />
 
         <variable
-            name="favoriteView"
-            type="android.widget.TextView" />
+            name="favoriteName"
+            type="String" />
 
         <variable
-            name="viewModel"
-            type="com.erman.usurf.home.ui.HomeViewModel" />
+            name="uiState"
+            type="com.erman.usurf.home.ui.HomeUiState" />
     </data>
 
     <LinearLayout
@@ -28,9 +28,8 @@
             android:layout_marginRight="@dimen/horizontal_margin_16"
             android:layout_marginBottom="@dimen/vertical_margin_8"
             android:background="@drawable/button_selectable_background"
-            android:onClick="@{() -> viewModel.renameFavorite(favoriteView.text.toString())}"
             android:text="@string/rename"
-            android:visibility="@{viewModel.isRenameMode ? View.GONE : View.VISIBLE}" />
+            android:visibility="@{uiState.isRenameMode ? View.GONE : View.VISIBLE}" />
 
         <Button
             android:id="@+id/deleteButton"
@@ -42,12 +41,13 @@
             android:layout_marginBottom="@dimen/vertical_margin_16"
             android:background="@drawable/button_selectable_background"
             android:text="@string/delete"
-            android:visibility="@{viewModel.isRenameMode ? View.GONE : View.VISIBLE}" />
+            android:visibility="@{uiState.isRenameMode ? View.GONE : View.VISIBLE}"
+            />
 
         <EditText
             android:id="@+id/renameEditText"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/height_48"
             android:layout_marginLeft="@dimen/horizontal_margin_16"
             android:layout_marginTop="@dimen/vertical_margin_16"
             android:layout_marginRight="@dimen/horizontal_margin_16"
@@ -55,21 +55,19 @@
             android:ems="10"
             android:hint="@string/name"
             android:inputType="textPersonName"
-            android:text="@{favoriteView.text.toString()}"
-            android:visibility="@{viewModel.isRenameMode ? View.VISIBLE : View.GONE}"
+            android:text="@{favoriteName}"
+            android:visibility="@{uiState.isRenameMode ? View.VISIBLE : View.GONE}"
             android:importantForAutofill="no" />
 
         <Button
             android:id="@+id/okButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
             android:layout_marginTop="@dimen/vertical_margin_4"
-            android:layout_marginRight="@dimen/horizontal_margin_16"
             android:layout_marginBottom="@dimen/vertical_margin_16"
             android:background="@drawable/button_selectable_background"
             android:text="@string/ok"
-            android:visibility="@{viewModel.isRenameMode ? View.VISIBLE : View.GONE}"
+            android:visibility="@{uiState.isRenameMode ? View.VISIBLE : View.GONE}"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="@dimen/horizontal_margin_16" />
 

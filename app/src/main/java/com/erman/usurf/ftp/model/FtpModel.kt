@@ -1,14 +1,15 @@
 package com.erman.usurf.ftp.model
 
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.content.ContextCompat
-import com.erman.usurf.application.MainApplication.Companion.appContext
+import com.erman.usurf.ftp.utils.URL_SCHEME
 import com.erman.usurf.utils.logd
 import java.net.Inet4Address
 import java.net.NetworkInterface
 
-class FtpModel {
+class FtpModel(private val context: Context) {
     fun getIpAddress(): String {
         logd("Get ip address")
         var ip = ""
@@ -17,21 +18,22 @@ class FtpModel {
                 !it.isLoopbackAddress && it is Inet4Address
             }?.let { ip = it.hostAddress?.toString() ?: "" }
         }
-        return "ftps://$ip"
+        return "$URL_SCHEME$ip"
     }
 
     fun startFTPServer() {
-        Intent(appContext, FtpServer()::class.java).also { intent ->
+        Intent(context, FtpServer()::class.java).also { intent ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                ContextCompat.startForegroundService(appContext, intent)
-            } else
-                appContext.startService(intent)
+                ContextCompat.startForegroundService(context, intent)
+            } else {
+                context.startService(intent)
+            }
         }
     }
 
     fun stopFTPServer() {
-        Intent(appContext, FtpServer()::class.java).also { intent ->
-            appContext.stopService(intent)
+        Intent(context, FtpServer()::class.java).also { intent ->
+            context.stopService(intent)
         }
     }
 }

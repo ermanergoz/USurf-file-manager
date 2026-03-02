@@ -1,23 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.erman.usurf">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-
-    <permission android:name="android.permission.QUERY_ALL_PACKAGES" />
-
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <permission android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="ReservedSystemPermission" />
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="29" />
     <uses-permission
         android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
-
     <queries>
         <intent>
             <action android:name="android.intent.action.MAIN" />
@@ -36,7 +35,10 @@
         android:theme="@style/AppTheme"
         tools:targetApi="s"
         android:dataExtractionRules="@xml/data_extraction_rules">
-        <service android:name=".ftp.model.FtpServer" />
+        <service
+            android:name=".ftp.model.FtpServer"
+            android:foregroundServiceType="dataSync"
+            android:exported="false" />
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.erman.usurf"

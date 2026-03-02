@@ -18,7 +18,6 @@
     <string name="developer">Geliştirici:</string>
     <string name="yusuf_erman_ergoz">Yusuf Erman ERGÖZ</string>
     <string name="version">Versiyon:</string>
-    <string name="app_version">1.3.1</string>
     <string name="github">Github:</string>
     <string name="github_link">https://github.com/ermanergoz/USurf</string>
     <string name="icons_those_icons">Device-wide Search icon and Menu icon by Those Icons from flaticon.com</string>
@@ -127,5 +126,10 @@
     <string name="saf_access_message">Uygulamaya yazma izni vermek için lütfen çıkarılabilir depolamanın kök dizinini seçin.</string>
     <string name="supported_compression_formats">Desteklenen dosya biçimleri: 7z bzip2 gzip tar wim xz zip</string>
     <string name="privacy_policy">Gizlilik Politikası</string>
-    <string name="privacy_policy_url">https://www.ermanergoz.com/usurf-privacy-policy.html</string>
+    <string name="bytes">Bayt</string>
+    <string name="file_count">Tane dosyalar</string>
+    <string name="more">Daha fazla</string>
+    <string name="hint_port">Port</string>
+    <string name="hint_password">Şifre</string>
+    <string name="hint_username">Kullanıcı adı</string>
 </resources>

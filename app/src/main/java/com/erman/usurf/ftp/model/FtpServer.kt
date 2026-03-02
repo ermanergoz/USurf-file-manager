@@ -1,19 +1,31 @@
 package com.erman.usurf.ftp.model
 
+import android.Manifest
 import android.annotation.SuppressLint
-import android.app.*
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.erman.usurf.activity.MainActivity
 import com.erman.usurf.R
-import com.erman.usurf.application.MainApplication
+import com.erman.usurf.activity.MainActivity
 import com.erman.usurf.ftp.data.FtpPreferenceProvider
-import com.erman.usurf.ftp.utils.*
+import com.erman.usurf.ftp.utils.DEFAULT_PORT
+import com.erman.usurf.ftp.utils.FTP_NOTIFICATION_CHANNEL_ID
+import com.erman.usurf.ftp.utils.FTP_NOTIFICATION_ID
+import com.erman.usurf.ftp.utils.PENDING_INTENT_REQUEST_CODE
+import com.erman.usurf.ftp.utils.PORT_KEY
+import com.erman.usurf.utils.KEY_INTENT_IS_FTP_NOTIFICATION_CLICKED
 import com.erman.usurf.utils.SHARED_PREF_FILE
 import com.erman.usurf.utils.logd
 import com.erman.usurf.utils.loge
@@ -37,14 +49,22 @@ class FtpServer : Service() {
         return null
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    override fun onStartCommand(
+        intent: Intent?,
+        flags: Int,
+        startId: Int,
+    ): Int {
         logd("Start FTP server service")
         // Let it continue running until it is stopped.
         val listenerFactory = ListenerFactory()
         val connectionConfigFactory = ConnectionConfigFactory()
         connectionConfigFactory.isAnonymousLoginEnabled = true
         serverFactory.connectionConfig = connectionConfigFactory.createConnectionConfig()
-        listenerFactory.port = getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE).getInt(PORT_KEY, DEFAULT_PORT)
+        listenerFactory.port =
+            getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE).getInt(
+                PORT_KEY,
+                DEFAULT_PORT,
+            )
 
         val user = BaseUser()
         user.name = ftpPreferenceProvider.getUsername()
@@ -69,8 +89,8 @@ class FtpServer : Service() {
                 logd("FTP server stopped")
             }
         }
-        //displayNotification()
-        return START_STICKY //will restart if the android system terminates it for any reason.
+        // displayNotification()
+        return START_STICKY // will restart if the android system terminates it for any reason.
     }
 
     override fun onDestroy() {
@@ -99,20 +119,29 @@ class FtpServer : Service() {
         val intent = Intent(this, MainActivity::class.java)
         intent.putExtra(KEY_INTENT_IS_FTP_NOTIFICATION_CLICKED, true)
 
-        val pendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            PendingIntent.getActivity(
-                this,
-                PENDING_INTENT_REQUEST_CODE,
-                intent,
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-            )
-        } else {
-            PendingIntent.getActivity(this, PENDING_INTENT_REQUEST_CODE, intent, PendingIntent.FLAG_IMMUTABLE)
-        }
+        val pendingIntent =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                PendingIntent.getActivity(
+                    this,
+                    PENDING_INTENT_REQUEST_CODE,
+                    intent,
+                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+                )
+            } else {
+                PendingIntent.getActivity(
+                    this,
+                    PENDING_INTENT_REQUEST_CODE,
+                    intent,
+                    PendingIntent.FLAG_IMMUTABLE,
+                )
+            }
 
-        val builder = NotificationCompat.Builder(this, FTP_NOTIFICATION_CHANNEL_ID).setSmallIcon(R.drawable.ic_folder)
-            .setContentTitle(getString(R.string.ftp_server_is_running)).setContentIntent(pendingIntent)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT).setOngoing(true)
+        val builder =
+            NotificationCompat.Builder(this, FTP_NOTIFICATION_CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_folder)
+                .setContentTitle(getString(R.string.ftp_server_is_running))
+                .setContentIntent(pendingIntent)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT).setOngoing(true)
 
         return builder.build()
     }
@@ -124,11 +153,13 @@ class FtpServer : Service() {
             val name = getString(R.string.ftp_notification_channel_name)
             val descriptionText = getString(R.string.ftp_notification_channel_description)
             val importance = NotificationManager.IMPORTANCE_DEFAULT
-            val channel = NotificationChannel(FTP_NOTIFICATION_CHANNEL_ID, name, importance).apply {
-                description = descriptionText
-            }
+            val channel =
+                NotificationChannel(FTP_NOTIFICATION_CHANNEL_ID, name, importance).apply {
+                    description = descriptionText
+                }
             // Register the channel with the system
-            val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val notificationManager: NotificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
     }
@@ -140,12 +171,28 @@ class FtpServer : Service() {
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
 
-        Intent(MainApplication.appContext, FtpServer()::class.java).also { intent ->
+        Intent(this, FtpServer()::class.java).also { intent ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForeground(FTP_NOTIFICATION_ID, getNotification())
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    startForeground(
+                        FTP_NOTIFICATION_ID,
+                        getNotification(),
+                        ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC,
+                    )
+                } else {
+                    startForeground(FTP_NOTIFICATION_ID, getNotification())
+                }
             } else {
                 startService(intent)
                 with(NotificationManagerCompat.from(this)) {
+                    if (ActivityCompat.checkSelfPermission(
+                            this@FtpServer,
+                            Manifest.permission.POST_NOTIFICATIONS,
+                        ) != PackageManager.PERMISSION_GRANTED
+                    ) {
+                        // TODO: Consider calling ActivityCompat#requestPermissions
+                        return
+                    }
                     notify(FTP_NOTIFICATION_ID, getNotification())
                 }
             }
@@ -155,12 +202,28 @@ class FtpServer : Service() {
     override fun onCreate() {
         super.onCreate()
 
-        Intent(MainApplication.appContext, FtpServer()::class.java).also { intent ->
+        Intent(this, FtpServer()::class.java).also { intent ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForeground(FTP_NOTIFICATION_ID, getNotification())
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    startForeground(
+                        FTP_NOTIFICATION_ID,
+                        getNotification(),
+                        ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC,
+                    )
+                } else {
+                    startForeground(FTP_NOTIFICATION_ID, getNotification())
+                }
             } else {
                 startService(intent)
                 with(NotificationManagerCompat.from(this)) {
+                    if (ActivityCompat.checkSelfPermission(
+                            this@FtpServer,
+                            Manifest.permission.POST_NOTIFICATIONS,
+                        ) != PackageManager.PERMISSION_GRANTED
+                    ) {
+                        // TODO: Consider calling ActivityCompat#requestPermissions
+                        return
+                    }
                     notify(FTP_NOTIFICATION_ID, getNotification())
                 }
             }
