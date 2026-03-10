@@ -76,24 +76,18 @@ class PermissionHandler(
         ) { _, _ -> launchSafPicker() }
     }
 
-    @SuppressLint("ObsoleteSdkInt")
     fun requestInitialPermissions() {
         requestStoragePermissions()
         requestNotificationPermission()
     }
 
     fun requestSafAccess() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            SafAccessRequestDialog()
-                .show(activity.supportFragmentManager, SAF_ACCESS_DIALOG_TAG)
-        }
+        SafAccessRequestDialog()
+            .show(activity.supportFragmentManager, SAF_ACCESS_DIALOG_TAG)
     }
 
-    @SuppressLint("ObsoleteSdkInt")
     private fun requestStoragePermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN &&
-            Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q
-        ) {
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
             val permissions: Array<String> =
                 arrayOf(
                     Manifest.permission.READ_EXTERNAL_STORAGE,

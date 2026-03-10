@@ -19,7 +19,6 @@ import com.erman.usurf.dialog.model.DialogArgs
 import com.erman.usurf.dialog.model.FavoriteOptionsDialogListener
 import com.erman.usurf.dialog.model.OnRenameOkPressedListener
 import com.erman.usurf.dialog.ui.FavoriteOptionsDialog
-import com.erman.usurf.dialog.ui.KitkatRemovableStorageWarningDialog
 import com.erman.usurf.dialog.ui.RenameDialog
 import com.erman.usurf.home.model.HomeStorageButton
 import com.erman.usurf.home.model.StorageAccessFramework
@@ -118,8 +117,6 @@ class HomeFragment : Fragment() {
         when (args) {
             is DialogArgs.OpenFileActivityArgs -> openFile(args.path)
             is DialogArgs.FavoriteOptionsDialogArgs -> showFavoriteOptionsDialog(args)
-            is DialogArgs.KitkatRemovableStorageDialogArgs ->
-                dialogListener.showDialog(KitkatRemovableStorageWarningDialog())
             is DialogArgs.SAFActivityArgs -> safListener.launchSAF()
             else -> loge("HomeFragment $args")
         }
