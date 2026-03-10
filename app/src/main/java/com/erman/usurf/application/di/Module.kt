@@ -19,10 +19,7 @@ import com.erman.usurf.ftp.model.FtpModel
 import com.erman.usurf.ftp.ui.FTPViewModel
 import com.erman.usurf.home.data.FavoriteDao
 import com.erman.usurf.home.data.FavoriteRepositoryImpl
-import com.erman.usurf.home.data.HomePreferenceProvider
-import com.erman.usurf.home.data.HomePreferencesRepositoryImpl
 import com.erman.usurf.home.domain.FavoriteRepository
-import com.erman.usurf.home.domain.HomePreferencesRepository
 import com.erman.usurf.home.model.HomeModel
 import com.erman.usurf.home.ui.HomeViewModel
 import com.erman.usurf.preference.data.PreferenceProvider
@@ -56,10 +53,8 @@ val appModule =
         viewModel { DirectoryViewModel(get(), get()) }
 
         single { HomeModel(get()) }
-        single { HomePreferenceProvider(get()) }
-        single<HomePreferencesRepository> { HomePreferencesRepositoryImpl(get()) }
         single<FavoriteRepository> { FavoriteRepositoryImpl(get(), get()) }
-        viewModel { HomeViewModel(get(), get(), get(), get(), get()) }
+        viewModel { HomeViewModel(get(), get(), get(), get()) }
 
         single { FtpModel(get()) }
         single { ConnectionLiveData(get()) }

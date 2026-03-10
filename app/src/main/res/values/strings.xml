@@ -122,7 +122,6 @@
     <string name="create_new">Create new</string>
     <string name="device_wide_search">Device-wide search</string>
     <string name="i_understand">I understand</string>
-    <string name="kitkat_removable_storage_warning">Due to the decisions made by Google regarding Android 4.4 KitKat, file operations in the removable storage may not work on most of the devices.</string>
     <string name="manage_all_files_message">In order this application to work, \"Allow access to manage all files\" setting needs to be turned on.</string>
     <string name="storage_permission_not_granted">Storage permission is not granted.</string>
     <string name="storage_permission_rationale">Storage permission is required for the file manager to access your files.</string>
