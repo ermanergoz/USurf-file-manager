@@ -23,7 +23,5 @@ sealed class DialogArgs {
 
     data object FileSearchDialogArgs : DialogArgs()
 
-    data class KitkatRemovableStorageDialogArgs(val isKitkatRemovableStorage: Boolean) : DialogArgs()
-
     data object SAFActivityArgs : DialogArgs()
 }
