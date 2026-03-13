@@ -220,7 +220,10 @@ class DirectoryFragment : Fragment() {
                     path: String,
                     name: String,
                 ) {
-                    homeViewModel.onFavoriteAdd(path, name)
+                    val isSuccess: Boolean = homeViewModel.onFavoriteAdd(path, name)
+                    val messageResId: Int =
+                        if (isSuccess) R.string.favorite_created else R.string.unable_to_create_favorite
+                    Snackbar.make(binding.root, getString(messageResId), Snackbar.LENGTH_LONG).show()
                 }
             }
         dialogListener.showDialog(dialog)
