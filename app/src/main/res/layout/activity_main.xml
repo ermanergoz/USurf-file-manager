@@ -5,8 +5,8 @@
     android:id="@+id/mainActivityLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.MainActivity"
-    android:background="?attr/background">
+    android:background="?attr/background"
+    tools:context=".activities.MainActivity">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/shortcutRecyclerView"
@@ -39,7 +39,7 @@
         android:layout_marginRight="11dp"
         android:layout_marginBottom="2dp"
         android:clickable="true"
-        app:backgroundTint="?attr/blueColorAccent"
+        app:backgroundTint="@color/darkBlue"
         app:layout_constraintBottom_toBottomOf="@+id/shortcutRecyclerView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
