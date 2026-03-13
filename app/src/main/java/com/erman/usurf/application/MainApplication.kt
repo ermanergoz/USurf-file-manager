@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.os.Bundle
-import androidx.multidex.MultiDexApplication
+import android.app.Application
 import com.erman.usurf.application.data.ApplicationDao
 import com.erman.usurf.application.di.appModule
 import com.erman.usurf.application.domain.ApplicationPreferencesRepository
@@ -16,7 +16,7 @@ import org.koin.core.context.GlobalContext.startKoin
 
 private const val REALM_CONFIG_FILE_NAME = "usurf.realm"
 
-class MainApplication : MultiDexApplication() {
+class MainApplication : Application() {
     private val applicationPreferencesRepository: ApplicationPreferencesRepository by inject()
     private val applicationDao: ApplicationDao by inject()
 
