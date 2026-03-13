@@ -7,13 +7,12 @@ import android.view.View
 import android.widget.EditText
 import androidx.fragment.app.DialogFragment
 import com.erman.drawerfm.R
+import com.erman.drawerfm.activities.MainActivity
 
 class CreateShortcutDialog : DialogFragment() {
-    private lateinit var shortcutPath: String
     private lateinit var shortcutName: String
     private lateinit var listener: DialogCreateShortcutListener
 
-    private lateinit var pathEditText: EditText
     private lateinit var nameEditText: EditText
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -22,24 +21,19 @@ class CreateShortcutDialog : DialogFragment() {
             val inflater = requireActivity().layoutInflater
             val dialogView: View = inflater.inflate(R.layout.dialog_create_shortcut, null)
 
-            this.pathEditText = dialogView.findViewById(R.id.pathEditText)
             this.nameEditText = dialogView.findViewById(R.id.nameEditText)
 
             // Create the AlertDialog object and return it
             builder.setMessage(R.string.create_shortcut)
 
-                .setPositiveButton(R.string.ok,
-                    DialogInterface.OnClickListener { dialog, id ->
-                        // Send the positive button event back to the host activity
-                        shortcutPath = this.pathEditText.text.toString()
-                        shortcutName = this.nameEditText.text.toString()
+                .setPositiveButton(R.string.ok, DialogInterface.OnClickListener { dialog, id ->
+                    // Send the positive button event back to the host activity
+                    shortcutName = this.nameEditText.text.toString()
 
-                        listener.dialogCreateShortcutListener(shortcutPath, shortcutName)
-                    })
-                .setNegativeButton(R.string.cancel,
-                    DialogInterface.OnClickListener { dialog, id ->
-                        getDialog()?.cancel()
-                    })
+                    listener.dialogCreateShortcutListener(shortcutName, false)
+                }).setNegativeButton(R.string.cancel, DialogInterface.OnClickListener { dialog, id ->
+                    listener.dialogCreateShortcutListener("", true)
+                })
 
             builder.setView(dialogView)
             builder.create()
@@ -52,13 +46,11 @@ class CreateShortcutDialog : DialogFragment() {
         try {
             listener = context as DialogCreateShortcutListener
         } catch (err: ClassCastException) {
-            throw ClassCastException(
-                (context.toString() + " must implement CreateShortcutDialogListener")
-            )
+            throw ClassCastException((context.toString() + " must implement CreateShortcutDialogListener"))
         }
     }
 
     interface DialogCreateShortcutListener {
-        fun dialogCreateShortcutListener(shortcutPath: String, shortcutName: String)
+        fun dialogCreateShortcutListener(shortcutName: String, isCanceled: Boolean)
     }
 }

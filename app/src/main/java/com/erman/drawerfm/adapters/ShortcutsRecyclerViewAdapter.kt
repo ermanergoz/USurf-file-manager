@@ -6,40 +6,45 @@ import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.erman.drawerfm.R
 import com.erman.drawerfm.activities.FragmentActivity
+import com.erman.drawerfm.dialogs.ShortcutOptions
+import com.erman.drawerfm.interfaces.OnFileClickListener
+import com.erman.drawerfm.interfaces.OnShortcutClickListener
 import kotlinx.android.synthetic.main.shortcut_recycler_layout.view.*
 
-class ShortcutRecyclerViewAdapter :
+class ShortcutRecyclerViewAdapter(var context: Context) :
     RecyclerView.Adapter<ShortcutRecyclerViewAdapter.ShortcutHolder>() {
-
     var shortcutNames: Set<String> = mutableSetOf()
     var shortcutPaths: Set<String> = mutableSetOf()
+    private lateinit var onClickCallback: OnShortcutClickListener
+
 
     override fun getItemCount(): Int {
         return shortcutPaths.count()
     }
 
-    override fun onBindViewHolder(
-        holder: ShortcutHolder, position: Int
-    ) {
+    override fun onBindViewHolder(holder: ShortcutHolder, position: Int) {
         holder.bindButtons(shortcutNames.elementAt(position), shortcutPaths.elementAt(position))
+
+        try {
+            onClickCallback = context as OnShortcutClickListener
+        } catch (e: Exception) {
+            throw Exception("${context} OnShortcutClickListener is not implemented")
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShortcutHolder {
-        return ShortcutHolder(
-            LayoutInflater.from(parent.context).inflate(
-                R.layout.shortcut_recycler_layout,
-                parent,
-                false
-            )
-        )
+        return ShortcutHolder(LayoutInflater.from(parent.context).inflate(R.layout.shortcut_recycler_layout,
+                                                                          parent,
+                                                                          false))
     }
 
-    inner class ShortcutHolder(var view: View) : RecyclerView.ViewHolder(view),
-        View.OnClickListener, View.OnLongClickListener {
+    inner class ShortcutHolder(var view: View) : RecyclerView.ViewHolder(view), View.OnClickListener,
+        View.OnLongClickListener {
         init {
             view.setOnClickListener(this)
             view.setOnLongClickListener(this)
@@ -51,11 +56,8 @@ class ShortcutRecyclerViewAdapter :
             itemView.shortcut.setBackgroundResource(R.drawable.storage_button_style)
             itemView.shortcut.isSingleLine = true
 
-            if (itemView.context.getSharedPreferences(
-                    "com.erman.draverfm",
-                    Context.MODE_PRIVATE
-                ).getBoolean("marquee choice", true)
-            ) {
+            if (itemView.context.getSharedPreferences("com.erman.draverfm",
+                                                      Context.MODE_PRIVATE).getBoolean("marquee choice", true)) {
                 itemView.shortcut.ellipsize =
                     TextUtils.TruncateAt.MARQUEE  //for sliding names if the length is longer than 1 line
                 itemView.shortcut.isSelected = true
@@ -64,13 +66,11 @@ class ShortcutRecyclerViewAdapter :
         }
 
         override fun onClick(p0: View?) {
-            val intent = Intent(view.context, FragmentActivity::class.java)
-            intent.putExtra("path", itemView.shortcut.tag.toString())
-            startActivity(view.context, intent, null)
+            onClickCallback.onClick(itemView.shortcut)
         }
 
         override fun onLongClick(view: View): Boolean {
-            //TODO: Implement shortcut recycler view adapter onLonClick listener to remove the shortcut
+            onClickCallback.onLongClick(itemView.shortcut)
             return true
         }
     }
@@ -80,5 +80,4 @@ class ShortcutRecyclerViewAdapter :
         this.shortcutPaths = shortcutPaths
         notifyDataSetChanged()
     }
-
 }

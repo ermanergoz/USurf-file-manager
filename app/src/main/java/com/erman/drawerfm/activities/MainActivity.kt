@@ -11,10 +11,8 @@ import android.content.res.Configuration
 import android.graphics.BlendMode
 import android.graphics.BlendModeColorFilter
 import android.graphics.PorterDuff
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.storage.StorageManager
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.LayoutInflater
@@ -22,6 +20,8 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.res.ResourcesCompat
@@ -30,22 +30,30 @@ import com.erman.drawerfm.R
 import com.erman.drawerfm.adapters.ShortcutRecyclerViewAdapter
 import com.erman.drawerfm.dialogs.AboutDrawerFMDialog
 import com.erman.drawerfm.dialogs.ErrorDialog
+import com.erman.drawerfm.dialogs.ShortcutOptions
+import com.erman.drawerfm.interfaces.OnShortcutClickListener
 import getStorageDirectories
 import com.erman.drawerfm.utilities.getUsedStoragePercentage
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.storage_button.view.*
 import java.io.File
 
-class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShortcutListener {
+class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShortcutListener,
+    ShortcutOptions.ShortcutOptionListener, OnShortcutClickListener {
 
-    override fun dialogCreateShortcutListener(shortcutPath: String, shortcutName: String) {
-        addShortcut(shortcutPath, shortcutName)
+    override fun dialogCreateShortcutListener(shortcutName: String, isCanceled: Boolean) {
+        if (File(newShortcutPath).exists() && !isCanceled) {
+            addShortcut(newShortcutPath, shortcutName)
+        }
+        isCreateShortcutMode = false
     }
 
     companion object {
         lateinit var mainActivity: Activity
     }
 
+    private var newShortcutPath = ""
+    var isCreateShortcutMode = false
     private lateinit var layoutManager: GridLayoutManager
     private lateinit var adapter: ShortcutRecyclerViewAdapter
     private var storageProgressBarHeight = 20f
@@ -62,19 +70,15 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     lateinit var preferencesEditor: SharedPreferences.Editor
     //-----------------------------------------------------------------
 
-    private var shortcutNames: MutableSet<String> = mutableSetOf(
-        "DCIM",
-        "Download"
-    )
+    private var shortcutNames: MutableSet<String> = mutableSetOf("DCIM", "Download")
 
-    private var shortcutPaths: MutableSet<String> = mutableSetOf(
-        "/storage/emulated/0/DCIM",
-        "/storage/emulated/0/Download"
-    )
+    private var shortcutPaths: MutableSet<String> =
+        mutableSetOf("/storage/emulated/0/DCIM", "/storage/emulated/0/Download")
+
+    //TODO: Empty those sets before submitting
 
     private fun saveShortcuts() {
-        preferences =
-            this.getSharedPreferences(sharedPrefFile, AppCompatActivity.MODE_PRIVATE)
+        preferences = this.getSharedPreferences(sharedPrefFile, AppCompatActivity.MODE_PRIVATE)
 
         preferencesEditor = preferences.edit()
         preferencesEditor.putStringSet("shortcut names", shortcutNames)
@@ -83,37 +87,33 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     }
 
     private fun requestPermissions() {
-        ActivityCompat.requestPermissions(
-            this, arrayOf(
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            ), 1
-        )
+        ActivityCompat.requestPermissions(this,
+                                          arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,
+                                                  Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                                          1)
     }
 
     private fun setTheme() {
-        val chosenTheme = getSharedPreferences(
-            "com.erman.draverfm", Context.MODE_PRIVATE
-        ).getString("theme choice", "System default")
+        val chosenTheme =
+            getSharedPreferences("com.erman.draverfm", Context.MODE_PRIVATE).getString("theme choice", "System default")
 
         when (chosenTheme) {
             "Dark theme" -> {
                 setTheme(R.style.DarkTheme)
-                storageProgressBarColor =
-                    ResourcesCompat.getColor(resources, R.color.darkBlue, null)
+                storageProgressBarColor = ResourcesCompat.getColor(resources, R.color.darkBlue, null)
             }
             "Light theme" -> {
                 setTheme(R.style.LightTheme)
-                storageProgressBarColor =
-                    ResourcesCompat.getColor(resources, R.color.lightBlue, null)
+                storageProgressBarColor = ResourcesCompat.getColor(resources, R.color.lightBlue, null)
             }
             else -> {
                 setTheme(R.style.AppTheme)
                 storageProgressBarColor =
-                    if (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES)
-                        ResourcesCompat.getColor(resources, R.color.darkBlue, null)
-                    else
-                        ResourcesCompat.getColor(resources, R.color.lightBlue, null)
+                    if (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES) ResourcesCompat.getColor(
+                        resources,
+                        R.color.darkBlue,
+                        null)
+                    else ResourcesCompat.getColor(resources, R.color.lightBlue, null)
             }
         }
     }
@@ -122,15 +122,11 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         var name = ""
 
         for (i in button.tag.toString().length - 1 downTo 1) {
-            if (button.tag.toString()[i] != '/')
-                name = button.tag.toString()[i] + name
-            else
-                break
+            if (button.tag.toString()[i] != '/') name = button.tag.toString()[i] + name
+            else break
         }
-        if (name == "0")
-            name = "emulated/0"
-        else if (name == "")
-            name = "/"
+        if (name == "0") name = "emulated/0"
+        else if (name == "") name = "/"
 
         button.linkText.text = name
     }
@@ -140,8 +136,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
 
         for (i in storageDirectories.indices) {
             val layoutInflater: LayoutInflater = LayoutInflater.from(this)
-            val storageButtonLayout: View =
-                layoutInflater.inflate(R.layout.storage_button, null, false)
+            val storageButtonLayout: View = layoutInflater.inflate(R.layout.storage_button, null, false)
 
             storageButtons.add(storageButtonLayout)
             storageButtons[i].tag = storageDirectories.elementAt(i)
@@ -153,9 +148,8 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
                 storageButtons[i].progressBar.progressDrawable.colorFilter =
                     BlendModeColorFilter(storageProgressBarColor, BlendMode.SRC_ATOP)
             } else {
-                storageButtons[i].progressBar.progressDrawable.setColorFilter(
-                    storageProgressBarColor, PorterDuff.Mode.SRC_ATOP
-                )
+                storageButtons[i].progressBar.progressDrawable.setColorFilter(storageProgressBarColor,
+                                                                              PorterDuff.Mode.SRC_ATOP)
             }
         }
     }
@@ -166,10 +160,9 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         screenWidth = displayMetrics.widthPixels
         screenHeight = displayMetrics.heightPixels
 
-        val buttonLayoutParams = FrameLayout.LayoutParams(
-            ((screenWidth - ((buttonSideMargin * 2) * storageDirectories.size)) / storageDirectories.size),
-            (screenHeight / (8 + storageButtons.size))
-        )
+        val buttonLayoutParams =
+            FrameLayout.LayoutParams(((screenWidth - ((buttonSideMargin * 2) * storageDirectories.size)) / storageDirectories.size),
+                                     (screenHeight / (8 + storageButtons.size)))
         buttonLayoutParams.setMargins(buttonSideMargin, 0, buttonSideMargin, 0)
 
         for (i in storageDirectories.indices) {
@@ -180,15 +173,14 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
 
     private fun displayUsedSpace() {
         for (i in storageDirectories.indices) {
-            storageButtons[i].progressBar.progress =
-                getUsedStoragePercentage(storageDirectories.elementAt(i))
+            storageButtons[i].progressBar.progress = getUsedStoragePercentage(storageDirectories.elementAt(i))
         }
     }
 
     private fun createShortcutGrid() {
         layoutManager = GridLayoutManager(this, 2/*number of columns*/)
         shortcutRecyclerView.layoutManager = layoutManager
-        adapter = ShortcutRecyclerViewAdapter()
+        adapter = ShortcutRecyclerViewAdapter(this)
         shortcutRecyclerView.adapter = adapter
         adapter.updateData(shortcutNames, shortcutPaths)
     }
@@ -196,7 +188,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     private fun setClickListener() {
         for (i in 0 until storageButtons.size) {
             storageButtons[i].setOnClickListener {
-                startFragmentActivity(storageButtons[i].tag.toString())
+                startFragmentActivity(storageButtons[i].tag.toString(), isCreateShortcutMode)
             }
         }
     }
@@ -207,28 +199,48 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     }
 
     private fun addShortcut(shortcutPath: String, shortcutName: String) {
-        if (shortcutPath in shortcutPaths)
-            displayErrorDialog(getString(R.string.duplicate_shortcut))
-        else if (File(shortcutPath).exists()) {
-            shortcutNames.add(shortcutName)
-            shortcutPaths.add(shortcutPath)
+        when {
+            shortcutPath in shortcutPaths -> displayErrorDialog(getString(R.string.duplicate_shortcut))
 
-            adapter.updateData(shortcutNames, shortcutPaths)
-            saveShortcuts()
+            File(shortcutPath).exists() -> {
+                shortcutNames.add(shortcutName)
+                shortcutPaths.add(shortcutPath)
 
-        } else
-            displayErrorDialog(getString(R.string.invalid_path))
+                adapter.updateData(shortcutNames, shortcutPaths)
+                saveShortcuts()
+            }
+            else -> displayErrorDialog(getString(R.string.invalid_path))
+        }
+    }
+
+    private fun removeShortcut(shortcut: TextView) {
+        shortcutNames.remove(shortcut.text)
+        shortcutPaths.remove(shortcut.tag)
+        adapter.updateData(shortcutNames, shortcutPaths)
+        saveShortcuts()
+    }
+
+    private fun renameShortcut(shortcut: TextView, newName: String) {
+        val pathTemp = shortcut.tag.toString()
+
+        shortcutNames.remove(shortcut.text)
+        shortcutPaths.remove(pathTemp)
+
+        shortcutNames.add(newName)
+        shortcutPaths.add(pathTemp)
+
+        shortcut.text = newName
+
+        adapter.updateData(shortcutNames, shortcutPaths)
+        saveShortcuts()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        shortcutNames.addAll(getSharedPreferences(
-            "com.erman.draverfm", Context.MODE_PRIVATE
-        ).getStringSet("shortcut names", emptySet())!!)
+        shortcutNames.addAll(getSharedPreferences("com.erman.draverfm",
+                                                  Context.MODE_PRIVATE).getStringSet("shortcut names", emptySet())!!)
 
-        shortcutPaths.addAll(getSharedPreferences(
-            "com.erman.draverfm", Context.MODE_PRIVATE
-        ).getStringSet("shortcut paths", emptySet())!!)
-
+        shortcutPaths.addAll(getSharedPreferences("com.erman.draverfm",
+                                                  Context.MODE_PRIVATE).getStringSet("shortcut paths", emptySet())!!)
         setTheme()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -247,8 +259,10 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         setClickListener()
 
         addShortcut.setOnClickListener {
-            val newFragment = CreateShortcutDialog()
-            newFragment.show(supportFragmentManager, "")
+            /*val newFragment = CreateShortcutDialog()
+            newFragment.show(supportFragmentManager, "")*/
+            isCreateShortcutMode = true
+            Toast.makeText(this, getString(R.string.new_shortcut_instruction), Toast.LENGTH_LONG).show()
         }
         mainActivity = this
 
@@ -261,28 +275,61 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.deviceWideSearch ->
-                Log.e("option", "deviceWideSearch")
-            R.id.settings ->
-                startSettingsActivity()
-            R.id.about ->
-                AboutDrawerFMDialog().show(supportFragmentManager, "")
-            android.R.id.home ->
-                finish()
+            R.id.deviceWideSearch -> Log.e("option", "deviceWideSearch")
+            R.id.settings -> startSettingsActivity()
+            R.id.about -> AboutDrawerFMDialog().show(supportFragmentManager, "")
+            android.R.id.home -> finish()
             /*R.id.generalInfo ->
                 startGeneralStorageInfoActivity(storageDirectories)*/
         }
         return super.onOptionsItemSelected(item)
     }
 
-    private fun startFragmentActivity(path: String) {
+    private fun startFragmentActivity(path: String, isCreateShortcutMode: Boolean) {
         val intent = Intent(this, FragmentActivity::class.java)
         intent.putExtra("path", path)
-        startActivity(intent)
+        if (isCreateShortcutMode) {
+            intent.putExtra("isCreateShortcutMode", isCreateShortcutMode)
+            startActivityForResult(intent, 1)
+        } else startActivity(intent)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        //in case of new shortcut creation
+        if (requestCode == 1) {
+            if (resultCode == RESULT_OK) {
+                newShortcutPath = data!!.getStringExtra("newShortcutPath")
+
+                val newFragment = CreateShortcutDialog()
+                newFragment.show(supportFragmentManager, "")
+            }
+        }
     }
 
     private fun startSettingsActivity() {
         val intent = Intent(this, PreferencesActivity::class.java)
         startActivity(intent)
+    }
+
+    override fun shortcutOptionListener(isDelete: Boolean, isRename: Boolean, shortcut: TextView, newName: String) {
+        if (isDelete) removeShortcut(shortcut)
+        if (isRename) renameShortcut(shortcut, newName)
+    }
+
+    override fun onClick(shortcut: TextView) {
+        startFragmentActivity(shortcut.tag.toString(), isCreateShortcutMode)
+    }
+
+    override fun onLongClick(shortcut: TextView) {
+        val newFragment = ShortcutOptions(shortcut)
+        newFragment.show(supportFragmentManager, "")
+    }
+
+    override fun onBackPressed() {
+        if (isCreateShortcutMode) {
+            isCreateShortcutMode = false
+            Toast.makeText(this, getString(R.string.canceled), Toast.LENGTH_SHORT).show()
+        } else finish()
     }
 }
