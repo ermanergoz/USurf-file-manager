@@ -7,11 +7,13 @@ import android.util.Log
 import android.widget.Toast
 import androidx.documentfile.provider.DocumentFile
 import com.erman.drawerfm.R
+import com.erman.drawerfm.common.SHARED_PREF_FILE
 import java.io.*
 import java.io.File.separator
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
+
 
 fun getFiles(path: String,
              showHidden: Boolean,
@@ -72,15 +74,13 @@ fun getDocumentFile(file: File, isDirectory: Boolean, context: Context): Documen
         val fullPath = file.canonicalPath
         if (getExtSdCardBaseFolder != fullPath) relativePathOfFile = fullPath.substring(getExtSdCardBaseFolder.length + 1)
         else originalDirectory = true
-        Log.e("relativePath", getExtSdCardBaseFolder)
     } catch (e: IOException) {
         return null
     } catch (f: Exception) {
         originalDirectory = true
-        //continue
     }
 
-    val extSdCardChosenUri = context.getSharedPreferences("com.erman.draverfm", Context.MODE_PRIVATE).getString("extSdCardChosenUri", null)
+    val extSdCardChosenUri = context.getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE).getString("extSdCardChosenUri", null)
 
     var treeUri: Uri? = null
     if (extSdCardChosenUri != null) treeUri = Uri.parse(extSdCardChosenUri)
@@ -97,10 +97,10 @@ fun getDocumentFile(file: File, isDirectory: Boolean, context: Context): Documen
         var nextDocument = document!!.findFile(parts[i])
 
         if (nextDocument == null) {
-            if (i < parts.size - 1 || isDirectory) {
-                nextDocument = document.createDirectory(parts[i])
+            nextDocument = if (i < parts.size - 1 || isDirectory) {
+                document.createDirectory(parts[i])
             } else {
-                nextDocument = document.createFile("*/*", parts[i])
+                document.createFile("*/*", parts[i])
             }
         }
         document = nextDocument
@@ -258,9 +258,9 @@ fun copyFile(context: Context, copyOrMoveSources: List<File>, copyOrMoveDestinat
     var isSuccess = false
 
     if (isExtSdCard) {
-
-        //TODO: Implement this and moveFile.
-
+        for (i in copyOrMoveSources.indices) {
+            copyToExtCard(copyOrMoveSources[i], copyOrMoveDestination, context)
+        }
     } else {
 
         for (i in copyOrMoveSources.indices) {
@@ -283,6 +283,57 @@ fun copyFile(context: Context, copyOrMoveSources: List<File>, copyOrMoveDestinat
     } else {
         Toast.makeText(context, context.getString(R.string.error_while_copying), Toast.LENGTH_LONG).show()
     }
+}
+
+fun copyToExtCard(sourceFile: File, copyOrMoveDestination: String?, context: Context): Boolean {
+    var documentFileDestination: DocumentFile = getDocumentFile(File(copyOrMoveDestination!!), File(copyOrMoveDestination).isDirectory, context)!!
+    var fileInputStream: FileInputStream? = null
+    var outputStream: OutputStream? = null
+
+    if (sourceFile.isDirectory) {
+        documentFileDestination.createDirectory(sourceFile.name)!!
+
+        for (i in sourceFile.listFiles()!!.indices) {
+            copyToExtCard(sourceFile.listFiles()!![i], copyOrMoveDestination + separator + sourceFile.name, context)
+        }
+    } else {
+        documentFileDestination = documentFileDestination.createFile(sourceFile.extension, sourceFile.name)!!
+        try {
+            fileInputStream = FileInputStream(sourceFile)
+            outputStream = context.contentResolver.openOutputStream(documentFileDestination.uri)!!
+
+            val buffer = 6144
+            val byteArray = ByteArray(buffer)
+            var bytesRead: Int
+            try {
+                while (fileInputStream.read(byteArray).also { bytesRead = it } != -1) {
+                    outputStream.write(byteArray, 0, bytesRead)
+                }
+            } catch (err: Exception) {
+                err.printStackTrace()
+            } finally {
+                try {
+                    fileInputStream.close()
+                    outputStream.close()
+                    return true
+                } catch (err: Exception) {
+                    err.printStackTrace()
+                }
+            }
+        } catch (err: Exception) {
+            err.printStackTrace()
+        } finally {
+            try {
+                fileInputStream!!.close()
+                outputStream!!.close()
+                return true
+            } catch (err: Exception) {
+                err.printStackTrace()
+            }
+        }
+        return false
+    }
+    return false
 }
 
 fun moveFile(context: Context, copyOrMoveSources: List<File>, copyOrMoveDestination: String, isExtSdCard: Boolean, updateFragment: () -> Unit) {
