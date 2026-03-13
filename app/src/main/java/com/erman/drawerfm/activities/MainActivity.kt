@@ -1,7 +1,6 @@
 package com.erman.drawerfm.activities
 
 import CreateShortcutDialog
-import com.erman.drawerfm.adapters.ShortcutRecyclerViewAdapter
 import android.Manifest
 import android.app.Activity
 import android.content.Context
@@ -11,8 +10,10 @@ import android.content.res.Configuration
 import android.graphics.BlendMode
 import android.graphics.BlendModeColorFilter
 import android.graphics.PorterDuff
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.storage.StorageManager
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.LayoutInflater
@@ -25,14 +26,14 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import com.erman.drawerfm.R
+import com.erman.drawerfm.adapters.ShortcutRecyclerViewAdapter
 import com.erman.drawerfm.dialogs.AboutDrawerFMDialog
 import com.erman.drawerfm.dialogs.ErrorDialog
 import getStorageDirectories
-import getUsedStoragePercentage
+import com.erman.drawerfm.utilities.getUsedStoragePercentage
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.storage_button.view.*
 import java.io.File
-import java.util.*
 
 class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShortcutListener {
 
@@ -45,24 +46,19 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     }
 
     private lateinit var layoutManager: GridLayoutManager
-    lateinit var adapter: ShortcutRecyclerViewAdapter
-
-    var storageProgressBarHeight = 20f
-    var buttonSideMargin = 7
+    private lateinit var adapter: ShortcutRecyclerViewAdapter
+    private var storageProgressBarHeight = 20f
+    private var buttonSideMargin = 7
     private var storageProgressBarColor: Int = 0
-
-    private var buttonBorder: Int = 0
-
+    private var buttonBorder: Int = R.drawable.storage_button_style
     private lateinit var storageButtons: MutableList<View>
-    private lateinit var storageDirectories: ArrayList<String>
+    private lateinit var storageDirectories: Set<String>
     private var screenWidth = 0
+    private var screenHeight = 0
 
     private var shortcuts: MutableMap<String, String> = mutableMapOf(
         "DCIM" to "/storage/emulated/0/DCIM",
-        "Download" to "/storage/emulated/0/Download",
-        "Pictures" to "/storage/emulated/0/Pictures",
-        "Movies" to "/storage/emulated/0/Movies",
-        "Music" to "/storage/emulated/0/Music"
+        "Download" to "/storage/emulated/0/Download"
     )
 
     private fun requestPermissions() {
@@ -92,11 +88,11 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
             }
             else -> {
                 setTheme(R.style.AppTheme)
-                storageProgressBarColor = if (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES) {
-                    ResourcesCompat.getColor(resources, R.color.darkBlue, null)
-                } else {
-                    ResourcesCompat.getColor(resources, R.color.lightBlue, null)
-                }
+                storageProgressBarColor =
+                    if (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES)
+                        ResourcesCompat.getColor(resources, R.color.darkBlue, null)
+                    else
+                        ResourcesCompat.getColor(resources, R.color.lightBlue, null)
             }
         }
     }
@@ -121,13 +117,13 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     private fun createStorageButtons() {
         storageButtons = mutableListOf()
 
-        for (i in 0 until storageDirectories.size) {
+        for (i in storageDirectories.indices) {
             val layoutInflater: LayoutInflater = LayoutInflater.from(this)
             val storageButtonLayout: View =
                 layoutInflater.inflate(R.layout.storage_button, null, false)
 
             storageButtons.add(storageButtonLayout)
-            storageButtons[i].tag = storageDirectories[i]
+            storageButtons[i].tag = storageDirectories.elementAt(i)
             setStorageButtonName(storageButtons[i])
             storageButtons[i].linkText.isSingleLine = true
             storageButtons[i].setBackgroundResource(buttonBorder)
@@ -147,24 +143,24 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         val displayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)
         screenWidth = displayMetrics.widthPixels
+        screenHeight = displayMetrics.heightPixels
 
         val buttonLayoutParams = FrameLayout.LayoutParams(
             ((screenWidth - ((buttonSideMargin * 2) * storageDirectories.size)) / storageDirectories.size),
-            (170)
-            //TODO: Change button height in such way that  it will look nice on different screen sizes
+            (screenHeight / (8 + storageButtons.size))
         )
         buttonLayoutParams.setMargins(buttonSideMargin, 0, buttonSideMargin, 0)
 
-        for (i in 0 until storageDirectories.size) {
+        for (i in storageDirectories.indices) {
             storageButtons[i].progressBar.scaleY = storageProgressBarHeight
             storageUsageBarLayout.addView(storageButtons[i], buttonLayoutParams)
         }
     }
 
     private fun displayUsedSpace() {
-        for (i in 0 until storageDirectories.size) {
+        for (i in storageDirectories.indices) {
             storageButtons[i].progressBar.progress =
-                getUsedStoragePercentage(storageDirectories[i])
+                getUsedStoragePercentage(storageDirectories.elementAt(i))
         }
     }
 
@@ -200,14 +196,48 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         }
     }
 
+    var sdCardUri: Uri? = null
+
+    private fun requestSDCardPermissions() {
+        if (Build.VERSION.SDK_INT < 24) {
+            startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT_TREE), 1)
+            return
+        }
+        // find removable device using getStorageVolumes
+        val sm = getSystemService(Context.STORAGE_SERVICE) as StorageManager
+        val sdCard = sm.storageVolumes.find { it.isRemovable }
+        if (sdCard != null) {
+            startActivityForResult(sdCard.createAccessIntent(null), 1)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == 1 || requestCode == 0) {
+            if (resultCode == RESULT_OK) {
+                if (data == null) {
+                    Log.e("dsfsdfsd", "Error obtaining access")
+                } else {
+                    sdCardUri = data.data
+                    Log.d("StorageAccess", "obtained access to $sdCardUri")
+                    // optionally store uri in preferences as well here { ... }
+                }
+            } else
+                Log.e("access denied", "sdfsdfsdfsdffsdfsdfsd")
+            return
+        }
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme()
-
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
         requestPermissions()
+        //requestSDCardPermissions()
 
         storageDirectories = getStorageDirectories(this)
 
@@ -233,12 +263,14 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         when (item.itemId) {
             R.id.deviceWideSearch ->
                 Log.e("option", "deviceWideSearch")
-
             R.id.settings ->
                 startSettingsActivity()
-
             R.id.about ->
                 AboutDrawerFMDialog().show(supportFragmentManager, "")
+            android.R.id.home ->
+                finish()
+            /*R.id.generalInfo ->
+                startGeneralStorageInfoActivity(storageDirectories)*/
         }
         return super.onOptionsItemSelected(item)
     }
@@ -248,6 +280,12 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         intent.putExtra("path", path)
         startActivity(intent)
     }
+
+    /*private fun startGeneralStorageInfoActivity(storageDirectories: ArrayList<String>) {
+        val intent = Intent(this, GeneralStorageInfo::class.java)
+        intent.putExtra("storageDirectories", storageDirectories)
+        startActivity(intent)
+    }*/
 
     private fun startSettingsActivity() {
         val intent = Intent(this, PreferencesActivity::class.java)

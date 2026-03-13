@@ -1,22 +1,25 @@
 package com.erman.drawerfm.adapters
 
-import DirectoryData
+import android.content.Context
+import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.erman.drawerfm.R
+import com.erman.drawerfm.utilities.getConvertedFileSize
+import com.erman.drawerfm.utilities.getUsedStorage
 import kotlinx.android.synthetic.main.directory_recycler_layout.view.*
+import java.io.File
 import java.text.SimpleDateFormat
 
 class DirectoryRecyclerViewAdapter :
     RecyclerView.Adapter<DirectoryRecyclerViewAdapter.ViewHolder>() {
 
-    var onClickListener: ((DirectoryData) -> Unit)? = null
-    var onLongClickListener: ((DirectoryData) -> Unit)? = null
-    var directoryList = listOf<DirectoryData>()
+    var onClickListener: ((File) -> Unit)? = null
+    var onLongClickListener: ((File) -> Unit)? = null
+    var directoryList = listOf<File>()
     private var dateFormat = SimpleDateFormat("dd MMMM | HH:mm:ss")
-
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -37,7 +40,6 @@ class DirectoryRecyclerViewAdapter :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bindDirectory(directoryList[position])
-
     }
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener,
@@ -57,30 +59,44 @@ class DirectoryRecyclerViewAdapter :
             return true
         }
 
-        fun bindDirectory(directoryData: DirectoryData) {
+        fun bindDirectory(directoryData: File) {
             itemView.nameTextView.text = directoryData.name
+            itemView.nameTextView.isSingleLine = true
 
+            if (itemView.context.getSharedPreferences(
+                    "com.erman.draverfm",
+                    Context.MODE_PRIVATE
+                ).getBoolean("marquee choice", true)
+            ) {
+                itemView.nameTextView.ellipsize =
+                    TextUtils.TruncateAt.MARQUEE  //for sliding names if the length is longer than 1 line
+                itemView.nameTextView.isSelected = true
+                itemView.nameTextView.marqueeRepeatLimit = -1   //-1 is for forever
+            }
 
-            if (directoryData.isFolder) {
-                if (directoryData.subFileNum == 0) {
-                    itemView.totalSizeTextView.text = "Empty Folder"
-                } else {
-                    itemView.totalSizeTextView.text = directoryData.subFileNum.toString() + " Files"
-                    itemView.lastModifiedTextView.text =
-                        dateFormat.format(directoryData.lastModifiedDate)
+            if (directoryData.isDirectory) {
+                itemView.imageView.setImageResource(R.drawable.folder_icon)
+                if (directoryData.listFiles() != null) {
+                    if (directoryData.listFiles().isEmpty()) {
+                        itemView.totalSizeTextView.text =
+                            itemView.context.getString(R.string.empty_folder)
+                    } else {
+                        itemView.totalSizeTextView.text =
+                            directoryData.listFiles().size.toString() +" "+ itemView.context.getString(R.string.files_num)
+                        itemView.lastModifiedTextView.text =
+                            dateFormat.format(directoryData.lastModified())
+                    }
                 }
             } else {
+                itemView.imageView.setImageResource(R.drawable.file_icon)
                 itemView.totalSizeTextView.visibility = View.VISIBLE
-                itemView.totalSizeTextView.text =
-                    "${String.format("%.2f", directoryData.sizeInMB)} mb"
-                itemView.lastModifiedTextView.text =
-                    dateFormat.format(directoryData.lastModifiedDate)
+                itemView.totalSizeTextView.text = getConvertedFileSize(directoryData.length())
+                itemView.lastModifiedTextView.text = dateFormat.format(directoryData.lastModified())
             }
         }
-
     }
 
-    fun updateData(filesList: List<DirectoryData>) {
+    fun updateData(filesList: List<File>) {
         this.directoryList = filesList
         notifyDataSetChanged()
     }
