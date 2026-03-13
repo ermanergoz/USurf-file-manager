@@ -1,14 +1,36 @@
 <resources>
 
-    <!-- Base application theme. Customize your theme here. -->
-    <!-- <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
-    </style> -->
-
     <style name="AppTheme" parent="Theme.AppCompat.DayNight">
+        <item name="colorAccent">?attr/blueColorAccent</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDarkDefault</item>
+        <item name="blueColorAccent">@color/daynnightBlue</item>
+        <item name="background">@color/daynnightbackground</item>
+        <item name="textColor">@color/daynnightTextColor</item>
+        <item name="separatorColor">@color/daynnightSeparatorColor</item>
 
+    </style>
+
+    <!-- Light theme. -->
+    <style name="LightTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorAccent">?attr/blueColorAccent</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDarkDefault</item>
+        <item name="blueColorAccent">@color/lightBlue</item>
+        <item name="background">@color/background</item>
+        <item name="textColor">@color/textColorLight</item>
+        <item name="separatorColor">@color/separatorColorLight</item>
+    </style>
+
+    <!-- Dark theme. -->
+    <style name="DarkTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorAccent">?attr/blueColorAccent</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDarkDefault</item>
+        <item name="blueColorAccent">@color/darkBlue</item>
+        <item name="background">@color/backgroundDark</item>
+        <item name="textColor">@color/textColorDark</item>
+        <item name="separatorColor">@color/separatorColorDark</item>
     </style>
 
 </resources>

@@ -10,7 +10,7 @@ import androidx.fragment.app.DialogFragment
 import com.erman.drawerfm.R
 
 
-class AboutDrawerFMDialog() : DialogFragment() {
+class AboutDrawerFMDialog : DialogFragment() {
 
     private lateinit var linkText: TextView
 
@@ -23,8 +23,9 @@ class AboutDrawerFMDialog() : DialogFragment() {
 
             this.linkText = dialogView.findViewById(R.id.linkText)
 
-            var link = "To check the source code:\n" + "https://github.com/ermanergoz/DraverFM"
+            var link = "https://github.com/ermanergoz/DraverFM"
             linkText.text = link
+            linkText.isSingleLine = true
 
             builder.setMessage(R.string.about)
 
