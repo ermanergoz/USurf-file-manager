@@ -5,4 +5,10 @@
         <item>"Light theme"</item>
         <item>"Dark theme"</item>
     </string-array>
+
+    <string-array name="sort_files">
+        <item>"Sort by name"</item>
+        <item>"Sort by size"</item>
+        <item>"Sort by last modified"</item>
+    </string-array>
 </resources>

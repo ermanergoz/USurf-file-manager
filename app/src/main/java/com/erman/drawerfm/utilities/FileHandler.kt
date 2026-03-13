@@ -7,8 +7,55 @@ import com.erman.drawerfm.R
 import java.io.File
 import java.io.IOException
 
-fun getFiles(path: String): List<File> {
-    return File(path).listFiles().sorted().toList()
+fun getFiles(path: String,
+             showHidden: Boolean,
+             showFilesOnly: Boolean,
+             showFoldersOnly: Boolean,
+             fileSortMode: String?,
+             isAscending: Boolean,
+             isDescending: Boolean,
+             showFilesOnTop: Boolean,
+             showFoldersOnTop: Boolean): List<File> {
+
+    var files = File(path).listFiles().filter { !it.isHidden || showHidden }.filter { it.isFile || !showFilesOnly }
+        .filter { it.isDirectory || !showFoldersOnly }.toMutableList()
+
+    if (fileSortMode == "Sort by name") {
+        if (isAscending) files = files.sortedWith(compareBy({ !it.isDirectory || !showFoldersOnTop },
+                                                            { !it.isFile || !showFilesOnTop },
+                                                            { it.name })).toMutableList()
+        else if (isDescending) {
+            files = files.sortedWith(compareBy<File>({ !it.isDirectory || !showFoldersOnTop },
+                                                     { !it.isFile || !showFilesOnTop }).thenByDescending { it.name })
+                .toMutableList()
+        }
+    }
+
+    if (fileSortMode == "Sort by size") {
+        if (isAscending) files = files.sortedWith(compareBy({ !it.isDirectory || !showFoldersOnTop },
+                                                            { !it.isFile || !showFilesOnTop },
+                                                            { it.length() },
+                                                            { getFolderSize(it.path) })).toMutableList()
+        else if (isDescending) {
+            files = files.sortedWith(compareBy({ !it.isDirectory || !showFoldersOnTop },
+                                               { !it.isFile || !showFilesOnTop },
+                                               { it.length() },
+                                               { getFolderSize(it.path) })).asReversed().toMutableList()
+            /*asReversed() is a view of the sorted list with reversed index and has better performance than using reverse()*/
+            /*in this case we have 2 descending fields and compareByDescending can take only one*/
+        }
+    }
+    if (fileSortMode == "Sort by last modified") {
+        if (isAscending) files = files.sortedWith(compareBy({ !it.isDirectory || !showFoldersOnTop },
+                                                            { !it.isFile || !showFilesOnTop },
+                                                            { it.lastModified() })).toMutableList()
+        else if (isDescending) {
+            files = files.sortedWith(compareBy<File>({ !it.isDirectory || !showFoldersOnTop },
+                                                     { !it.isFile || !showFilesOnTop }).thenByDescending { it.lastModified() })
+                .toMutableList()
+        }
+    }
+    return files
 }
 
 fun getSearchedFiles(path: String, searchQuery: String): List<File> {
