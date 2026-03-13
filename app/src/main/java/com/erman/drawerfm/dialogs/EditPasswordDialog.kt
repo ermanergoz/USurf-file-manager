@@ -8,30 +8,26 @@ import android.os.Bundle
 import android.view.View
 import android.widget.EditText
 import androidx.fragment.app.DialogFragment
-import com.erman.drawerfm.common.CREATE_NEW_FILE
 import com.erman.drawerfm.R
 
-class CreateNew(var title: String, var whatToCreate: String) : DialogFragment() {
-    private lateinit var newFileName: String
-    private lateinit var listener: DialogCreateFolderListener
-    private lateinit var nameEditText: EditText
+class EditPasswordDialog(var title: String) : DialogFragment() {
+    private lateinit var passwordInput: String
+    private lateinit var listener: EditPasswordDialogListener
+    private lateinit var editText: EditText
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
             val builder = AlertDialog.Builder(it)
             val inflater = requireActivity().layoutInflater
-            val dialogView: View = inflater.inflate(R.layout.dialog_rename_file, null)
+            val dialogView: View = inflater.inflate(R.layout.dialog_edit_password, null)
 
-            this.nameEditText = dialogView.findViewById(R.id.nameEditText)
-
-            if(whatToCreate == CREATE_NEW_FILE)
-                nameEditText.setText(".txt")
+            this.editText = dialogView.findViewById(R.id.passwordEditText)
 
             builder.setMessage(title)
 
                 .setPositiveButton(R.string.ok, DialogInterface.OnClickListener { dialog, id ->
-                    newFileName = this.nameEditText.text.toString()
-                    listener.dialogCreateNewListener(newFileName, whatToCreate)
+                    passwordInput = this.editText.text.toString()
+                    listener.editPasswordDialogListener(passwordInput)
                 }).setNegativeButton(R.string.cancel, DialogInterface.OnClickListener { dialog, id ->
                     getDialog()?.cancel()
                 })
@@ -45,13 +41,13 @@ class CreateNew(var title: String, var whatToCreate: String) : DialogFragment() 
         super.onAttach(context)
 
         try {
-            listener = context as DialogCreateFolderListener
+            listener = context as EditPasswordDialogListener
         } catch (err: ClassCastException) {
-            throw ClassCastException((context.toString() + " must implement DialogCreateFolderListener"))
+            throw ClassCastException((context.toString() + " must implement EditDialogListener"))
         }
     }
 
-    interface DialogCreateFolderListener {
-        fun dialogCreateNewListener(newFileName: String, whatToCreate: String)
+    interface EditPasswordDialogListener {
+        fun editPasswordDialogListener(stringInput: String)
     }
 }
