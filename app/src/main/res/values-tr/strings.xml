@@ -10,6 +10,7 @@
     <string name="menu_info">Bilgi</string>
     <string name="root_explorer">Root gezgini</string>
     <string name="root_explorer_summary">Root dosyalarına erişim için bu kutuyu işaretleyin. Sadece root erişimi olan cihazlar için.</string>
+    <string name="clean_storage_reminder">Alan açma hatırlatıcıları</string>
     <string name="show_hidden_files">Gizli dosyaları göster</string>
     <string name="sort_by">Sırala</string>
     <string name="ascending_order">Artan</string>
