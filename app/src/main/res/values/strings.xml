@@ -127,4 +127,10 @@
     <string name="supported_compression_formats">Supported formats are: 7z bzip2 gzip tar wim xz zip</string>
     <string name="privacy_policy">Privacy Policy</string>
     <string name="privacy_policy_url">https://www.ermanergoz.com/usurf-privacy-policy.html</string>
+    <string name="tb" translatable="false">TB</string>
+    <string name="gb" translatable="false">GB</string>
+    <string name="mb" translatable="false">MB</string>
+    <string name="kb" translatable="false">KB</string>
+    <string name="bytes">Bytes</string>
+    <string name="file_count">Files</string>
 </resources>

@@ -6,9 +6,9 @@ import androidx.lifecycle.ViewModel
 import com.erman.usurf.R
 import com.erman.usurf.dialog.model.DialogArgs
 import com.erman.usurf.directory.model.*
-import com.erman.usurf.directory.utils.ROOT_DIRECTORY
 import com.erman.usurf.preference.data.PreferenceProvider
 import com.erman.usurf.utils.Event
+import com.erman.usurf.utils.ROOT_DIRECTORY
 import com.erman.usurf.utils.logd
 import com.erman.usurf.utils.loge
 import kotlinx.coroutines.*
