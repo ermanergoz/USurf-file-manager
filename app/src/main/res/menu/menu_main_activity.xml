@@ -13,7 +13,7 @@ tools:context=".main.MainActivity">
 
     <item
         android:id="@+id/subMenu"
-        android:icon="@android:drawable/ic_menu_add"
+        android:icon="@drawable/menu_icon"
         android:title="Options"
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction">
