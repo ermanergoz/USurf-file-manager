@@ -53,8 +53,8 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             logd("Request read and write permissions")
             ActivityCompat.requestPermissions(this,
-                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
+                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
         }
     }
 
@@ -85,13 +85,13 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
 
     private fun setupNavDrawer(navView: NavigationView, navController: NavController, drawerLayout: DrawerLayout) {
         appBarConfiguration = AppBarConfiguration(
-            setOf(
-                R.id.nav_home,
-                R.id.nav_directory,
-                R.id.nav_preferences,
-                R.id.nav_ftp,
-                R.id.nav_info
-            ), drawerLayout
+                setOf(
+                        R.id.nav_home,
+                        R.id.nav_directory,
+                        R.id.nav_preferences,
+                        R.id.nav_ftp,
+                        R.id.nav_info
+                ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
 
@@ -107,14 +107,14 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
         }
 
         val drawerToggle: ActionBarDrawerToggle =
-            object : ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close) {
-                override fun onDrawerClosed(view: View) {
-                    super.onDrawerClosed(view)
-                    //This whole thing is a workaround to fix nav drawer lag issue.
-                    //Goes to the destination after it closes instead of right after the click.
-                    destination?.let { navController.navigate(it) }
+                object : ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close) {
+                    override fun onDrawerClosed(view: View) {
+                        super.onDrawerClosed(view)
+                        //This whole thing is a workaround to fix nav drawer lag issue.
+                        //Goes to the destination after it closes instead of right after the click.
+                        destination?.let { navController.navigate(it) }
+                    }
                 }
-            }
         drawerToggle.isDrawerIndicatorEnabled = true
         drawerLayout.addDrawerListener(drawerToggle)
         drawerToggle.syncState()
@@ -144,8 +144,8 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
     private fun onStorageButtonClick(path: String, navController: NavController) {
         directoryViewModel.setPath(path)
         destination = R.id.global_action_nav_directory
-        if (path !=  "/" && !File(path).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.P
-            && StorageDirectoryPreferenceProvider().getChosenUri() == "") {
+        if (path != "/" && !File(path).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.P
+                && StorageDirectoryPreferenceProvider().getChosenUri() == "") {
             launchSAF()
         }
     }
@@ -156,7 +156,7 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
             data?.data?.let { treeUri ->
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                     this.contentResolver.takePersistableUriPermission(treeUri,
-                        Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
                 }
                 StorageDirectoryPreferenceProvider().editChosenUri(treeUri.toString())
             }
@@ -205,6 +205,7 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
     }
 
     override fun autoSizeButtonDimensions(storageButtonCount: Int, sideMargin: Int): Pair<Int, Int> {
+        //to calculate the storage buttons so that they will fill the screen vertically
         val displayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)
 
@@ -212,6 +213,6 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
         val screenHeight = displayMetrics.heightPixels
 
         return Pair(((screenWidth - ((sideMargin * 2) * storageButtonCount)) / storageButtonCount),
-            (screenHeight / (8 + storageButtonCount)))
+                (screenHeight / (8 + storageButtonCount)))
     }
 }
