@@ -47,7 +47,9 @@ USurf File Manager is a simple open sourced Android file manager application tha
 - [Apache MINA](https://mina.apache.org/)
 - [Realm](https://realm.io/)
 - [RootTools](https://github.com/Stericson/RootTools)
-- [AndroidP7zip](https://github.com/hzy3774/AndroidP7zip)
+- [7-Zip](https://www.7-zip.org/) (built from source via NDK)
+- [Glide](https://github.com/bumptech/glide)
+- [Koin](https://insert-koin.io/)
 
 ## Meta
 
