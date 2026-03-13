@@ -5,11 +5,12 @@ import android.os.Build
 import android.os.Environment
 import com.erman.usurf.application.MainApplication
 import com.erman.usurf.preference.data.PreferenceProvider
+import org.koin.java.KoinJavaComponent.getKoin
 import java.io.File
 import java.io.IOException
 
 class StoragePaths {
-    private val preferenceProvider = PreferenceProvider()
+    private val preferenceProvider: PreferenceProvider = getKoin().get()
 
     @SuppressLint("SdCardPath")
     fun getStorageDirectories(): Set<String> {

@@ -11,17 +11,17 @@ import com.erman.usurf.preference.data.PreferenceProvider
 import com.erman.usurf.preference.utils.*
 import com.erman.usurf.activity.model.RefreshNavDrawer
 import com.erman.usurf.utils.loge
+import org.koin.android.ext.android.inject
 import java.io.File
 
 class MainPreferencesFragment : PreferenceFragmentCompat() {
-    private lateinit var preferenceProvider: PreferenceProvider
     private lateinit var navDrawerRefreshListener: RefreshNavDrawer
+    private val preferenceProvider: PreferenceProvider by inject()
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences_main, rootKey)
-        preferenceProvider = PreferenceProvider()
 
-        val rootAccessPreference = findPreference<SwitchPreference>("root_access")
+        val rootAccessPreference = findPreference<SwitchPreference>(KEY_PREFERENCE_ROOT_ACCESS)
         rootAccessPreference?.setOnPreferenceChangeListener { _, newValue ->
             if(RootHandler().isDeviceRooted()) {
                 preferenceProvider.editRootAccessPreference(newValue as Boolean)
@@ -33,7 +33,7 @@ class MainPreferencesFragment : PreferenceFragmentCompat() {
             }
         }
 
-        findPreference<Preference>("clear_logs")?.setOnPreferenceClickListener {
+        findPreference<Preference>(KEY_PREFERENCE_CLEAR_LOGS)?.setOnPreferenceClickListener {
             if (File(MainApplication.appContext.getExternalFilesDir(null)?.absolutePath + File.separator + "logs").deleteRecursively())
                 Toast.makeText(context, getString(R.string.cleared), Toast.LENGTH_LONG).show()
             true

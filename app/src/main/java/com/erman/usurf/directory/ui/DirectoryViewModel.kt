@@ -16,7 +16,7 @@ import java.io.File
 import java.lang.Exception
 import kotlin.coroutines.CoroutineContext
 
-class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel(), CoroutineScope {
+class DirectoryViewModel(private val directoryModel: DirectoryModel, private val preferenceProvider: PreferenceProvider) : ViewModel(), CoroutineScope {
     private var multiSelectionMode: Boolean = false
 
     private val _path = MutableLiveData<String>()
@@ -152,7 +152,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                 path.value?.let { path ->
                     File(path).parent?.let { parent ->
                         val prevFile = File(parent)
-                        if ((prevFile.canRead() && prevFile.path != ROOT_DIRECTORY) || PreferenceProvider().getRootAccessPreference()) {
+                        if ((prevFile.canRead() && prevFile.path != ROOT_DIRECTORY) || preferenceProvider.getRootAccessPreference()) {
                             _path.value = prevFile.path
                             return true
                         }
@@ -176,10 +176,10 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
             _loading.value = true
             launch {
                 path.value?.let { path ->
-                    val directory = directoryModel.getFileModelsFromFiles(path)
+                    val directory = directoryModel.getFileModelsFromFiles(path) //2 7   8
                     if (directory.isNullOrEmpty())
                         _toastMessage.value = Event(R.string.empty_folder)
-                    _updateDirectoryList.value = directory
+                    _updateDirectoryList.value = directory  //5
                 }
                 _loading.value = false
             }
