@@ -1,6 +1,5 @@
 package com.erman.usurf.activity
 
-import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.View
@@ -163,9 +162,7 @@ class MainActivity :
         navView.menu.removeGroup(R.id.storage)
         for (path in paths) {
             val storage = navView.menu.add(R.id.storage, Menu.NONE, STORAGE_MENU_ITEM_ORDER_FIRST, path)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                storage.icon = ContextCompat.getDrawable(this, R.drawable.ic_hdd)
-            }
+            storage.icon = ContextCompat.getDrawable(this, R.drawable.ic_hdd)
             storage.setOnMenuItemClickListener {
                 val result = mainViewModel.onStorageSelected(path)
                 destination = MobileNavigationDirections.globalActionNavDirectory(path)

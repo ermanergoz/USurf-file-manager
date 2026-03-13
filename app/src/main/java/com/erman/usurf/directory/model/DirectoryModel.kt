@@ -3,7 +3,6 @@ package com.erman.usurf.directory.model
 import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
-import android.os.Build
 import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import com.erman.usurf.directory.utils.FILE_EXTENSION_SEPARATOR
@@ -57,7 +56,6 @@ class DirectoryModel(
         file: File,
         isDirectory: Boolean,
     ): DocumentFile? {
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) return DocumentFile.fromFile(file)
         val getExtSdCardBaseFolder: String
         try {
             getExtSdCardBaseFolder =
