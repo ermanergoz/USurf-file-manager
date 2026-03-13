@@ -3,14 +3,15 @@ package com.erman.usurf.directory.model
 import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Build
-import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import com.erman.usurf.app.MainApplication.Companion.appContext
 import com.erman.usurf.directory.utils.SIMPLE_DATE_FORMAT_PATTERN
 import com.erman.usurf.preference.data.PreferenceProvider
 import com.erman.usurf.utils.*
-import kotlinx.coroutines.*
-import kotlinx.coroutines.NonCancellable.cancel
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.withContext
 import java.io.*
 import java.text.SimpleDateFormat
 import java.util.zip.ZipEntry
@@ -109,7 +110,9 @@ class DirectoryModel {
 
     private fun getDocumentFile(file: File, isDirectory: Boolean): DocumentFile? {
         logd("getDocumentFile")
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) return DocumentFile.fromFile(file)
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT)
+            return DocumentFile.fromFile(file)
+
         val getExtSdCardBaseFolder = StoragePaths().getStorageDirectories().elementAt(1)
         var originalDirectory = false
         var relativePathOfFile: String? = null
@@ -123,6 +126,7 @@ class DirectoryModel {
         } catch (err: Exception) {
             originalDirectory = true
         }
+
         val extSdCardChosenUri = DirectoryPreferenceProvider().getChosenUri()
         var treeUri: Uri? = null
         if (extSdCardChosenUri != null) treeUri = Uri.parse(extSdCardChosenUri)
@@ -196,6 +200,7 @@ class DirectoryModel {
 
     suspend fun createFolder(path: String, folderName: String) = withContext(Dispatchers.IO) {
         logi("Attempt to create folder: $path $folderName")
+
         if (!File("$path/$folderName").exists()) {
             if (!File("$path/$folderName").mkdir()) {
                 //try catch wont work here. Doesn't throw IOException
@@ -236,7 +241,9 @@ class DirectoryModel {
             logi("Attempt to copy: from " + copyOrMoveSources[i].path + " to " + copyOrMoveDestination)
             if (!doesFileExist(copyOrMoveSources[i], copyOrMoveDestination)) {
                 if (copyOrMoveSources[i].isDirectory) {
-                    if (!File(copyOrMoveSources[i].path).copyRecursively(File(copyOrMoveDestination + File.separator + copyOrMoveSources[i].name))) {
+                    try {
+                        File(copyOrMoveSources[i].path).copyRecursively(File(copyOrMoveDestination + File.separator + copyOrMoveSources[i].name))
+                    } catch (err: Exception) {
                         if (!copyToExtCard(File(copyOrMoveSources[i].path), copyOrMoveDestination))
                             cancel()
                     }
@@ -260,14 +267,12 @@ class DirectoryModel {
 
         if (sourceFile.isDirectory) {
             documentFileDestination?.createDirectory(sourceFile.name)
-            val sourceFileList = sourceFile.listFiles()
+            var isSUccess = false
 
-            sourceFileList?.let {
-                for (i in it.indices) {
-                    copyToExtCard(it[i],
-                        copyOrMoveDestination + File.separator + sourceFile.name)
-                }
+            for (i in sourceFile.listFiles()!!.indices) {
+                isSUccess = copyToExtCard(sourceFile.listFiles()!![i], copyOrMoveDestination + File.separator + sourceFile.name)
             }
+            return isSUccess
         } else {
             documentFileDestination?.createFile(sourceFile.extension, sourceFile.name)?.let {
                 documentFileDestination = it
@@ -326,127 +331,7 @@ class DirectoryModel {
         }
     }
 
-    suspend fun compressFile(selectedDirectories: List<FileModel>, zipName: String) = withContext(Dispatchers.IO) {
-        val buffer = 6144
-
-        try {
-            File(selectedDirectories[0].path).parent?.let { parentDir ->
-                val destination = FileOutputStream(parentDir)
-                val output = ZipOutputStream(BufferedOutputStream(destination))
-                val data = ByteArray(buffer)
-
-                for (i in selectedDirectories.indices) {
-                    logi("Attempt to compress: " + selectedDirectories[i].name)
-                    if (selectedDirectories[i].isDirectory) {
-                        File(selectedDirectories[0].path).listFiles()?.let {
-                            if (!zipFolder(it.toList(), output, selectedDirectories[i].name)) {
-                                cancel()//in case of an error in zipFolder function
-                            }
-                        }
-                    } else {
-                        val fileOrigin = BufferedInputStream(FileInputStream(File(selectedDirectories[0].path)))
-                        output.putNextEntry(ZipEntry(selectedDirectories[i].name))
-                        var counter = (fileOrigin.read(data, 0, buffer))
-
-                        while (counter != -1) {
-                            output.write(data, 0, counter)
-                            counter = (fileOrigin.read(data, 0, buffer))
-                        }
-                        fileOrigin.close()
-                    }
-                }
-                output.close()
-            }
-        } catch (err: Exception) {
-            loge("compressFile $err")
-            cancel()
-        }
-        true
-    }
-
-    private fun zipFolder(selectedDirectories: List<File>, output: ZipOutputStream, folderName: String): Boolean {
-        val buffer = 6144
-        val data = ByteArray(buffer)
-
-        try {
-            for (i in selectedDirectories.indices) {
-                if (selectedDirectories[i].isDirectory) {
-                    selectedDirectories[i].listFiles()?.let {
-                        zipFolder(it.toList(), output, folderName + File.separator + selectedDirectories[i].name)
-                    }
-                } else {
-                    output.putNextEntry(ZipEntry(folderName + File.separator + selectedDirectories[i].name))
-                    val fileOrigin = BufferedInputStream(FileInputStream(selectedDirectories[i]))
-
-                    var counter = (fileOrigin.read(data, 0, buffer))
-                    while (counter != -1) {
-                        output.write(data, 0, counter)
-                        counter = (fileOrigin.read(data, 0, buffer))
-                    }
-                    fileOrigin.close()
-                }
-            }
-            return true
-        } catch (err: Exception) {
-            loge("compressFile $err")
-            return false
-        }
-    }
-
-    suspend fun extractFiles(selectedDirectories: List<FileModel>) = withContext(Dispatchers.IO) {
-        val buffer = 6144
-        val data = ByteArray(buffer)
-
-        try {
-            for (i in selectedDirectories.indices) {
-                logi("Attempt to extract: " + selectedDirectories[i].name)
-                File(selectedDirectories[0].path).parent?.let { parentDir ->
-                    val baseFolderPath = parentDir + File.separator + File(selectedDirectories[0].path).name
-                    File(baseFolderPath).mkdir()
-
-                    val zipInput = ZipInputStream(FileInputStream(selectedDirectories[i].path))
-                    var zipContent: ZipEntry
-
-                    while (zipInput.nextEntry.also { zipContent = it } != null) {
-                        if (zipContent.name.contains(File.separator)) {    //if it contains directory
-                            //zipContent.name -> "someSubFolder/zipContentName.extension"
-                            createSubDirectories(
-                                zipContent.name,
-                                baseFolderPath
-                            ) //create all the subdirectories
-                        }
-                        val fileOutput = FileOutputStream(baseFolderPath + File.separator + zipContent.name)
-
-                        var counter: Int = zipInput.read(data, 0, buffer)
-                        while (counter != -1) {
-                            fileOutput.write(data, 0, counter)
-                            counter = zipInput.read(data, 0, buffer)
-                        }
-                        zipInput.closeEntry()
-                        fileOutput.close()
-                    }
-                    zipInput.close()
-                }
-            }
-        } catch (err: Exception) {
-            loge("compressFile $err")
-            cancel()
-        }
-    }
-
-    private fun createSubDirectories(zipEntryName: String, baseFolderPath: String) {
-        var subPath = ""
-
-        for (i in zipEntryName.indices) {
-            subPath += if (zipEntryName[i] != '/') zipEntryName[i]
-            else {
-                File(baseFolderPath + File.separator + subPath).mkdir()
-                '/'
-            }
-        }
-    }
-
-    suspend fun getSearchedDeviceFiles(searchQuery: String): List<FileModel>  = withContext(Dispatchers.IO){
+    suspend fun getSearchedDeviceFiles(searchQuery: String): List<FileModel> = withContext(Dispatchers.IO) {
         val fileList = mutableListOf<File>()
         try {
             val storagePaths = StoragePaths().getStorageDirectories()
@@ -461,7 +346,7 @@ class DirectoryModel {
                     (it.listFiles()?.size.toString() + " files"), getPermissions(it), it.isHidden)
             }
         } catch (err: java.lang.Exception) {
-            Log.e("getSearchedDeviceFiles", err.toString())
+            loge("getSearchedDeviceFiles $err")
         }
         return@withContext emptyList<FileModel>()
     }
@@ -477,5 +362,139 @@ class DirectoryModel {
             res.addAll(directory.listFiles()!!.toSet())
         }
         return res
+    }
+
+    private fun getInputStream(target: File): InputStream? {
+        var destination: InputStream? = null
+        if (File(target.parent).canWrite()) {
+            destination = FileInputStream(target)
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                // if normal way doesn't work, do it with saf
+                val targetDocument: DocumentFile = getDocumentFile(target, target.isDirectory) ?: return null
+                destination = appContext.contentResolver.openInputStream(targetDocument.uri)
+            }
+        }
+        return destination
+    }
+
+    private fun getOutputStream(target: File): OutputStream? {
+        var destination: OutputStream? = null
+        if (File(target.parent).canWrite()) {
+            destination = FileOutputStream(target)
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                //saf, same story as input stream
+                val targetDocument: DocumentFile = getDocumentFile(target, target.isDirectory) ?: return null
+                destination = appContext.contentResolver.openOutputStream(targetDocument.uri)
+            }
+        }
+        return destination
+    }
+
+    private suspend fun createSubDirectories(zipEntryName: String, baseFolderPath: String) {
+        var subPath = ""
+
+        for (i in zipEntryName.indices) {
+            if (zipEntryName[i] != '/')
+                subPath += zipEntryName[i]
+            else {
+                try {
+                    createFolder(baseFolderPath, subPath)
+                    subPath += '/'
+                } catch (err: Exception) {}
+            }
+        }
+    }
+
+    suspend fun extractFiles(selectedDirectories: List<FileModel>) = withContext(Dispatchers.IO) {
+        val buffer = 6144
+        val data = ByteArray(buffer)
+        var inputStream: InputStream?
+
+        try {
+            for (i in selectedDirectories.indices) {
+                val baseFolderPath =
+                    File(selectedDirectories[0].path).parent + File.separator + File(selectedDirectories[0].path).nameWithoutExtension
+                createFolder(File(baseFolderPath).parent, File(baseFolderPath).nameWithoutExtension)
+
+                inputStream = getInputStream(File(selectedDirectories[i].path))
+                val zipInput = ZipInputStream(BufferedInputStream(inputStream))
+                var zipContent: ZipEntry?
+
+                while (zipInput.nextEntry.also { zipContent = it } != null) {
+                    if (zipContent!!.name.contains(File.separator)) {    //if it contains directory
+                        //zipContent!!.name -> "someSubFolder/zipContentName.extension"
+                        createSubDirectories(zipContent!!.name, baseFolderPath) //create all the subdirectories
+                    }
+                    val fileOutput = getOutputStream(File(baseFolderPath + File.separator + zipContent!!.name))
+
+                    var counter: Int = zipInput.read(data, 0, buffer)
+                    while (counter != -1) {
+                        fileOutput?.write(data, 0, counter)
+                        counter = zipInput.read(data, 0, buffer)
+                    }
+                    zipInput.closeEntry()
+                    fileOutput?.close()
+                }
+                zipInput.close()
+            }
+        } catch (err: Exception) {
+            loge("extractFiles $err")
+            cancel()
+        }
+    }
+
+    suspend fun compressFiles(zipSources: List<FileModel>, zipNameWithExtension: String) = withContext(Dispatchers.IO) {
+        val outputStream: OutputStream
+        val directory = File(zipSources.first().path).parent + File.separator + zipNameWithExtension
+        val zipDirectory = File(directory)
+        var zipOutputStream: ZipOutputStream? = null
+        try {
+            outputStream = getOutputStream(zipDirectory)!!
+            zipOutputStream = ZipOutputStream(BufferedOutputStream(outputStream))
+            for (file in zipSources) {
+                compressFile(File(file.path), "", zipOutputStream)
+            }
+        } catch (err: IOException) {
+            loge("compressFiles $err")
+            cancel()
+        } finally {
+            try {
+                zipOutputStream?.let {
+                    zipOutputStream.flush()
+                    zipOutputStream.close()
+                }
+            } catch (err: IOException) {
+                loge("compressFiles $err")
+                cancel()
+            }
+        }
+    }
+
+    private fun compressFile(file: File, path: String, zipOutputStream: ZipOutputStream?) {
+        if (!file.isDirectory) {
+            val buffer = 6144
+            val data = ByteArray(buffer)
+            var len: Int
+            val inputStream = BufferedInputStream(FileInputStream(file))
+            zipOutputStream!!.putNextEntry(ZipEntry(path + "/" + file.name))
+            try {
+                while (inputStream.read(data).also { len = it } > 0) {
+                    zipOutputStream.write(data, 0, len)
+                }
+            } catch (err: Exception) {
+                loge("compressFile $err")
+            } finally {
+                inputStream.close()
+            }
+            return
+        }
+        if (file.list() == null)
+            return
+
+        for (currentFile in file.listFiles()) {
+            compressFile(currentFile, path + File.separator + file.name, zipOutputStream)
+        }
     }
 }
