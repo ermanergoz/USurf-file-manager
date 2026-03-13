@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    >
+    <ListPreference
+        android:entries="@array/sort_files"
+        android:entryValues="@array/sort_files"
+        android:icon="@android:drawable/arrow_down_float"
+        android:key="sortListPreference"
+        android:defaultValue="Sort by name"
+        android:title="@string/sort_by" />
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="ascendingOrderPreference"
+        android:title="@string/ascending_order" />
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="descendingOrderPreference"
+        android:title="@string/descending_order" />
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="showFilesOnTopPreference"
+        android:title="@string/show_files_on_top" />
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="showFoldersOnTopPreference"
+        android:title="@string/show_folders_on_top" />
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="showHiddenFileSwitch"
+        android:title="@string/show_hidden_files" />
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="showFilesOnlySwitch"
+        android:title="@string/show_files_only" />
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="showFoldersOnlySwitch"
+        android:title="@string/show_folders_only" />
+</PreferenceScreen>
