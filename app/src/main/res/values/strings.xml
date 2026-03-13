@@ -17,7 +17,7 @@
     <string name="developer">Developer:</string>
     <string name="yusuf_erman_ergoz">Yusuf Erman ERGÖZ</string>
     <string name="version">Version:</string>
-    <string name="app_version" translatable="false">2.1.0</string>
+    <string name="app_version" translatable="false">2.2.0</string>
     <string name="github">Github:</string>
     <string name="github_link">https://github.com/ermanergoz/USurf</string>
     <string name="icons_those_icons">Device-wide Search icon and Menu icon by Those Icons from flaticon.com</string>
@@ -140,4 +140,12 @@
     <string name="hint_port">Port</string>
     <string name="hint_password">Password</string>
     <string name="hint_username">Username</string>
+    <string name="section_storage">Storage</string>
+    <string name="section_favorites">Favorites</string>
+    <string name="empty_favorites_title">No favorites yet</string>
+    <string name="empty_favorites_subtitle">Long press a folder to add it as a favorite</string>
+    <string name="internal_storage">Internal Storage</string>
+    <string name="sd_card">SD Card</string>
+    <string name="root_storage">Root</string>
+    <string name="storage_usage_format" translatable="false">%1$s / %2$s</string>
 </resources>
