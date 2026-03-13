@@ -17,11 +17,9 @@ class MainApplication : Application() {
 
         //Documentation: https://realm.io/docs/kotlin/latest/#realms
         // Initialize Realm
-        //Realm.init(this)
-        //val config = RealmConfiguration.Builder().name(REALM_CONFIG_FILE_NAME).initialData(Realm.Transaction { realm ->
-        //    realm.insert(FTPUser())
-        //}).deleteRealmIfMigrationNeeded().build()
-        //Realm.setDefaultConfiguration(config)
+        Realm.init(this)
+        val config = RealmConfiguration.Builder().name(REALM_CONFIG_FILE_NAME).deleteRealmIfMigrationNeeded().build()
+        Realm.setDefaultConfiguration(config)
         // Get a Realm instance for this thread
         //realm = Realm.getDefaultInstance()
     }
