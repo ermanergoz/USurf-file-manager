@@ -1,141 +1,275 @@
 package com.erman.usurf.directory.ui
 
+import android.content.ClipData
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AnimationUtils
-import android.widget.Toast
-import androidx.activity.addCallback
 import androidx.core.content.FileProvider
+import androidx.core.view.MenuProvider
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.erman.usurf.R
 import com.erman.usurf.activity.model.ShowDialog
 import com.erman.usurf.databinding.FragmentDirectoryBinding
+import com.erman.usurf.dialog.model.AddFavoriteDialogCallbacks
 import com.erman.usurf.dialog.model.DialogArgs
-import com.erman.usurf.dialog.ui.*
-import com.erman.usurf.utils.*
-import org.koin.android.viewmodel.ext.android.sharedViewModel
+import com.erman.usurf.dialog.model.OnCompressOkPressedListener
+import com.erman.usurf.dialog.model.OnFileCreateOkPressedListener
+import com.erman.usurf.dialog.model.OnFolderCreateOkPressedListener
+import com.erman.usurf.dialog.model.OnRenameOkPressedListener
+import com.erman.usurf.dialog.model.OnSearchOkPressedListener
+import com.erman.usurf.dialog.ui.AddFavoriteDialog
+import com.erman.usurf.dialog.ui.CompressDialog
+import com.erman.usurf.dialog.ui.CreateFileDialog
+import com.erman.usurf.dialog.ui.CreateFolderDialog
+import com.erman.usurf.dialog.ui.FileInformationDialog
+import com.erman.usurf.dialog.ui.RenameDialog
+import com.erman.usurf.dialog.ui.SearchDialog
+import com.erman.usurf.directory.model.FileModel
+import com.erman.usurf.directory.utils.MIME_TYPE_ALL
+import com.erman.usurf.directory.utils.MimeUtils
+import com.erman.usurf.home.ui.HomeViewModel
+import com.erman.usurf.utils.EventObserver
+import com.erman.usurf.utils.FileOpenUtils
+import com.erman.usurf.utils.ROOT_DIRECTORY
+import com.erman.usurf.utils.UNKNOWN_ERROR
+import com.erman.usurf.utils.loge
+import com.erman.usurf.utils.logi
+import com.google.android.material.snackbar.Snackbar
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import java.io.File
+
+private const val FILE_LIST_GRID_SPAN_COUNT = 1
 
 class DirectoryFragment : Fragment() {
     private val directoryViewModel by sharedViewModel<DirectoryViewModel>()
+    private val homeViewModel by sharedViewModel<HomeViewModel>()
     private lateinit var directoryRecyclerViewAdapter: DirectoryRecyclerViewAdapter
     private lateinit var dialogListener: ShowDialog
     private lateinit var binding: FragmentDirectoryBinding
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_directory, container, false)
         binding.lifecycleOwner = this
         binding.viewModel = directoryViewModel
+        binding.uiState = directoryViewModel.uiState.value ?: DirectoryUiState()
 
-        directoryViewModel.toastMessage.observe(viewLifecycleOwner, EventObserver {
-            Toast.makeText(context, getString(it), Toast.LENGTH_LONG).show()
-        })
-
-        directoryViewModel.multipleSelection.observe(viewLifecycleOwner) {
-            directoryRecyclerViewAdapter.updateSelection()
+        directoryViewModel.uiState.observe(viewLifecycleOwner) { state ->
+            binding.uiState = state
+            if (::directoryRecyclerViewAdapter.isInitialized) {
+                directoryRecyclerViewAdapter.updateData(state.fileList)
+                directoryRecyclerViewAdapter.updateSelection()
+            }
         }
-
-        directoryViewModel.dialog.observe(viewLifecycleOwner) {
-            it.getContentIfNotHandled()?.let { args ->
-                when (args) {
-                    is DialogArgs.RenameDialogArgs -> dialogListener.showDialog(RenameDialog(args.name))
-                    is DialogArgs.InformationDialogArgs -> dialogListener.showDialog(FileInformationDialog(args.file))
-                    is DialogArgs.CreateFolderDialogArgs -> dialogListener.showDialog(CreateFolderDialog())
-                    is DialogArgs.CreateFileDialogArgs -> dialogListener.showDialog(CreateFileDialog())
-                    is DialogArgs.CompressDialogArgs -> dialogListener.showDialog(CompressDialog())
-                    is DialogArgs.OpenFileActivityArgs -> {
-                        logd("Opening a file")
-                        val intent = Intent(Intent.ACTION_VIEW)
-                        intent.data = FileProvider.getUriForFile(requireContext(), requireContext().packageName, File(args.path))
-                        intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-                        intent.addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT)
-                        intent.resolveActivity(requireContext().packageManager)?.let { startActivity(intent) }
-                            ?: let {
-                                Toast.makeText(context, getString(R.string.unsupported_file), Toast.LENGTH_LONG).show()
-                                loge("Error when opening a file")
-                            }
-                    }
-                    is DialogArgs.ShareActivityArgs -> {
-                        val fileUris: ArrayList<Uri> = arrayListOf()
-                        val messages: MutableList<String> = mutableListOf(getString(R.string.share_directory))
-
-                        for (fileModel in args.multipleSelectionList) {
-                            if (!fileModel.isDirectory) {
-                                logi("Share: " + fileModel.name)
-                                fileUris.add(
-                                    FileProvider.getUriForFile(
-                                        requireContext(),
-                                        requireContext().packageName, //(use your app signature + ".provider" )
-                                        File(fileModel.path)
-                                    )
-                                )  //used this instead of File().toUri to avoid FileUriExposedException
-                            } else
-                                messages.add(fileModel.name)
-                        }
-                        if (messages.size > 1)
-                            Toast.makeText(context, messages.toString(), Toast.LENGTH_LONG).show()
-
-                        val shareIntent = Intent().apply {
-                            logd("Start share activity")
-                            action = Intent.ACTION_SEND_MULTIPLE
-                            putParcelableArrayListExtra(Intent.EXTRA_STREAM, fileUris)
-                            type = "*/*"
-                        }
-                        startActivity(Intent.createChooser(shareIntent, requireContext().getString(R.string.share)))
-                    }
-                    is DialogArgs.AddFavoriteDialogArgs -> dialogListener.showDialog(AddFavoriteDialog(args.path))
-                    is DialogArgs.FileSearchDialogArgs -> dialogListener.showDialog(SearchDialog())
-                    else -> loge("DirectoryFragment $args")
+        directoryViewModel.uiEvents.observe(
+            viewLifecycleOwner,
+            EventObserver { event ->
+                when (event) {
+                    is DirectoryUiEvent.ShowSnackbar ->
+                        Snackbar.make(binding.root, getString(event.messageResId), Snackbar.LENGTH_LONG).show()
+                    is DirectoryUiEvent.ShowDialog -> handleDialogEvent(event.dialogArgs)
                 }
-            }
-        }
-
-        directoryViewModel.updateDirectoryList.observe(viewLifecycleOwner) {
-            directoryRecyclerViewAdapter.updateData(it)
-        }
-
-        requireActivity().onBackPressedDispatcher.addCallback(this) {
-            if (!directoryViewModel.onBackPressed()) {
-                //goes to home fragment because it is annoying to navigate to the
-                //last opened fragment after directory fragment
-                findNavController().navigate(R.id.global_action_nav_home)
-            }
-        }
+            },
+        )
         return binding.root
     }
 
-    private fun runRecyclerViewAnimation(recyclerView: RecyclerView) {
-        val context = recyclerView.context
-        val controller = AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_fall_down)
-        recyclerView.layoutAnimation = controller
-        recyclerView.scheduleLayoutAnimation()
+    private fun handleDialogEvent(args: DialogArgs) {
+        when (args) {
+            is DialogArgs.RenameDialogArgs -> showRenameDialog(args)
+            is DialogArgs.InformationDialogArgs -> showInformationDialog(args)
+            is DialogArgs.CreateFolderDialogArgs -> showCreateFolderDialog()
+            is DialogArgs.CreateFileDialogArgs -> showCreateFileDialog()
+            is DialogArgs.CompressDialogArgs -> showCompressDialog()
+            is DialogArgs.OpenFileActivityArgs -> openFileFromArgs(args.path)
+            is DialogArgs.ShareActivityArgs -> handleShare(args)
+            is DialogArgs.AddFavoriteDialogArgs -> showAddFavoriteDialog(args.path)
+            is DialogArgs.FileSearchDialogArgs -> showSearchDialog()
+            else -> loge("DirectoryFragment $args")
+        }
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    private fun showRenameDialog(args: DialogArgs.RenameDialogArgs) {
+        val dialog: RenameDialog = RenameDialog.newInstance(args.name)
+        dialog.onRenameOkPressedListener = OnRenameOkPressedListener { directoryViewModel.onRenameOkPressed(it) }
+        dialogListener.showDialog(dialog)
+    }
+
+    private fun showInformationDialog(args: DialogArgs.InformationDialogArgs) {
+        dialogListener.showDialog(FileInformationDialog.newInstance(args.file))
+    }
+
+    private fun showCreateFolderDialog() {
+        val dialog = CreateFolderDialog()
+        dialog.onFolderCreateOkPressedListener =
+            OnFolderCreateOkPressedListener { directoryViewModel.onFolderCreateOkPressed(it) }
+        dialogListener.showDialog(dialog)
+    }
+
+    private fun showCreateFileDialog() {
+        val dialog = CreateFileDialog()
+        dialog.onFileCreateOkPressedListener =
+            OnFileCreateOkPressedListener { directoryViewModel.onFileCreateOkPressed(it) }
+        dialogListener.showDialog(dialog)
+    }
+
+    private fun showCompressDialog() {
+        val dialog = CompressDialog()
+        dialog.onCompressOkPressedListener =
+            OnCompressOkPressedListener { directoryViewModel.onFileCompressOkPressed(it) }
+        dialogListener.showDialog(dialog)
+    }
+
+    private fun openFileFromArgs(path: String) {
+        val isOpened: Boolean =
+            FileOpenUtils.openFile(
+                context = requireContext(),
+                path = path,
+                grantWritePermission = true,
+                bringToFront = true,
+            )
+        if (!isOpened) {
+            Snackbar.make(binding.root, getString(R.string.unsupported_file), Snackbar.LENGTH_LONG).show()
+            loge("Error when opening a file")
+        }
+    }
+
+    private fun handleShare(args: DialogArgs.ShareActivityArgs) {
+        val shareableFiles: List<FileModel> = args.multipleSelectionList.filter { !it.isDirectory }
+        val fileUris: ArrayList<Uri> = collectShareableFileUris(shareableFiles)
+        showDirectoryShareWarning(args.multipleSelectionList)
+        launchShareIntent(fileUris, shareableFiles.map { it.path })
+    }
+
+    private fun collectShareableFileUris(files: List<FileModel>): ArrayList<Uri> {
+        val uris: ArrayList<Uri> = arrayListOf()
+        files.forEach { fileModel ->
+            logi("Share: ${fileModel.name}")
+            uris.add(
+                FileProvider.getUriForFile(
+                    requireContext(),
+                    requireContext().packageName,
+                    File(fileModel.path),
+                ),
+            )
+        }
+        return uris
+    }
+
+    private fun showDirectoryShareWarning(files: List<FileModel>) {
+        val directoryNames = files.filter { it.isDirectory }.map { it.name }
+        if (directoryNames.isNotEmpty()) {
+            val messages = listOf(getString(R.string.share_directory)) + directoryNames
+            Snackbar.make(binding.root, messages.toString(), Snackbar.LENGTH_LONG).show()
+        }
+    }
+
+    private fun launchShareIntent(
+        fileUris: ArrayList<Uri>,
+        filePaths: List<String>,
+    ) {
+        if (fileUris.isEmpty()) return
+        val clipData: ClipData =
+            ClipData.newRawUri("", fileUris.first()).apply {
+                fileUris.drop(1).forEach { uri -> addItem(ClipData.Item(uri)) }
+            }
+        val shareIntent: Intent =
+            if (fileUris.size == 1) {
+                Intent().apply {
+                    action = Intent.ACTION_SEND
+                    putExtra(Intent.EXTRA_STREAM, fileUris.first())
+                    type = MimeUtils.getMimeTypeForPath(filePaths.first())
+                    setClipData(clipData)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+            } else {
+                Intent().apply {
+                    action = Intent.ACTION_SEND_MULTIPLE
+                    putParcelableArrayListExtra(Intent.EXTRA_STREAM, fileUris)
+                    type = MIME_TYPE_ALL
+                    setClipData(clipData)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+            }
+        startActivity(Intent.createChooser(shareIntent, requireContext().getString(R.string.share)))
+    }
+
+    private fun showAddFavoriteDialog(path: String) {
+        val dialog: AddFavoriteDialog = AddFavoriteDialog.newInstance(path)
+        dialog.callbacks =
+            object : AddFavoriteDialogCallbacks {
+                override fun onDialogShown() {
+                    directoryViewModel.turnOffOptionPanel()
+                    directoryViewModel.clearMultipleSelection()
+                }
+
+                override fun onAddFavorite(
+                    path: String,
+                    name: String,
+                ) {
+                    homeViewModel.onFavoriteAdd(path, name)
+                }
+            }
+        dialogListener.showDialog(dialog)
+    }
+
+    private fun showSearchDialog() {
+        val dialog = SearchDialog()
+        dialog.onSearchOkPressedListener = OnSearchOkPressedListener { directoryViewModel.onFileSearchOkPressed(it) }
+        dialogListener.showDialog(dialog)
+    }
+
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         super.onViewCreated(view, savedInstanceState)
+        val path: String = DirectoryFragmentArgs.fromBundle(requireArguments()).currentPath ?: ROOT_DIRECTORY
+        directoryViewModel.setPath(path)
+        requireActivity().addMenuProvider(
+            object : MenuProvider {
+                override fun onCreateMenu(
+                    menu: Menu,
+                    menuInflater: MenuInflater,
+                ) {
+                    menuInflater.inflate(R.menu.menu_directory, menu)
+                }
 
-        binding.fileListRecyclerView.layoutManager = GridLayoutManager(context, 1)
-        directoryRecyclerViewAdapter = DirectoryRecyclerViewAdapter(directoryViewModel)
+                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                    if (menuItem.itemId == R.id.action_device_wide_search) {
+                        directoryViewModel.deviceWideSearch()
+                        return true
+                    }
+                    return false
+                }
+            },
+            viewLifecycleOwner,
+        )
+        binding.fileListRecyclerView.layoutManager = GridLayoutManager(context, FILE_LIST_GRID_SPAN_COUNT)
+        directoryRecyclerViewAdapter =
+            DirectoryRecyclerViewAdapter(
+                object : FileItemListener {
+                    override fun onFileClick(file: FileModel) = directoryViewModel.onFileClick(file)
+
+                    override fun onFileLongClick(file: FileModel): Boolean = directoryViewModel.onFileLongClick(file)
+                },
+            ).apply {
+                showThumbnails = directoryViewModel.shouldShowThumbnails
+            }
         binding.fileListRecyclerView.adapter = directoryRecyclerViewAdapter
-
-        directoryViewModel.path.observe(viewLifecycleOwner) {
-            directoryViewModel.getFileList()
-            runRecyclerViewAnimation(binding.fileListRecyclerView)
-        }
-
-        directoryViewModel.fileSearchQuery.observe(viewLifecycleOwner) {
-            directoryViewModel.getSearchedFiles()
-            runRecyclerViewAnimation(binding.fileListRecyclerView)
-        }
+        binding.fileListRecyclerView.itemAnimator = null
     }
 
     override fun onAttach(context: Context) {
@@ -144,29 +278,12 @@ class DirectoryFragment : Fragment() {
         try {
             dialogListener = context as ShowDialog
         } catch (err: ClassCastException) {
-            loge("onAttach $err")
+            loge(err.localizedMessage ?: UNKNOWN_ERROR)
         }
     }
 
     override fun onResume() {
         super.onResume()
-        //this has to be done in fragment since we need to do this in lifecycle function
-        //this is to prevent option panel from closing when moving/copying files
-        //when we are not copying/moving, it is annoying to keep it open
-        var isCopyMode = false
-        var isMoveMode = false
-
-        directoryViewModel.copyMode.value?.let {
-            isCopyMode = it
-        }
-        directoryViewModel.moveMode.value?.let {
-            isMoveMode = it
-        }
-        if (!isCopyMode && !isMoveMode) {
-            directoryViewModel.turnOffOptionPanel()
-            directoryViewModel.clearMultipleSelection()
-        }
-        directoryViewModel.getFileList()
-        runRecyclerViewAnimation(binding.fileListRecyclerView)
+        directoryViewModel.onFragmentResume()
     }
 }

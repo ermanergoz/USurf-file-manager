@@ -5,7 +5,11 @@ import com.erman.usurf.utils.loge
 import com.hzy.libp7zip.P7ZipApi
 
 class FileCompressionHandler {
-    fun compress(compressedFileDirectory: String, multipleSelection: MutableList<FileModel>, archiveType: String): Boolean {
+    fun compress(
+        compressedFileDirectory: String,
+        multipleSelection: List<FileModel>,
+        archiveType: String,
+    ): Boolean {
         var filesToBeCompressed = ""
         for (file in multipleSelection) {
             filesToBeCompressed = filesToBeCompressed + " '" + file.path + "'"
@@ -29,7 +33,10 @@ class FileCompressionHandler {
         return false
     }
 
-    fun extract(compressedFileDirectory: String, outputDirectory: String): Boolean {
+    fun extract(
+        compressedFileDirectory: String,
+        outputDirectory: String,
+    ): Boolean {
         when (P7ZipApi.executeCommand("7z x '$compressedFileDirectory' '-o$outputDirectory'")) {
             0 -> {
                 logd("No errors or warnings detected")

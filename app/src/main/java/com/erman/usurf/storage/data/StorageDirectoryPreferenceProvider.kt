@@ -1,17 +1,16 @@
-package com.erman.usurf.activity.data
+package com.erman.usurf.storage.data
 
 import android.content.SharedPreferences
-import com.erman.usurf.activity.utils.KEY_INTENT_EXTCARD_CHOSEN_URI
-import com.erman.usurf.utils.logd
+import androidx.core.content.edit
+
+private const val KEY_INTENT_EXTCARD_CHOSEN_URI: String = "extSdCardChosenUri"
 
 class StorageDirectoryPreferenceProvider(private val preferences: SharedPreferences) {
     fun getChosenUri(): String? {
-        logd("getChosenUri")
         return preferences.getString(KEY_INTENT_EXTCARD_CHOSEN_URI, "")
     }
 
     fun editChosenUri(treeUri: String) {
-        logd("editChosenUri")
-        preferences.edit().putString(KEY_INTENT_EXTCARD_CHOSEN_URI, treeUri).apply()
+        preferences.edit { putString(KEY_INTENT_EXTCARD_CHOSEN_URI, treeUri) }
     }
 }

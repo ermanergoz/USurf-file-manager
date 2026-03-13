@@ -16,6 +16,6 @@ class KitkatRemovableStorageWarningDialog : DialogFragment() {
                     dismiss()
                 }
             builder.create()
-        } ?: throw IllegalStateException("Activity cannot be null")
+        } ?: error("Activity cannot be null")
     }
 }

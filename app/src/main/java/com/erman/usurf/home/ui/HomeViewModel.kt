@@ -1,132 +1,159 @@
 package com.erman.usurf.home.ui
 
 import android.os.Build
-import android.view.View
-import android.widget.TextView
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.erman.usurf.R
-import com.erman.usurf.databinding.StorageButtonBinding
 import com.erman.usurf.dialog.model.DialogArgs
-import com.erman.usurf.home.data.Favorite
-import com.erman.usurf.home.data.FavoriteDao
-import com.erman.usurf.activity.data.StorageDirectoryPreferenceProvider
-import com.erman.usurf.home.data.HomePreferenceProvider
+import com.erman.usurf.home.domain.FavoriteRepository
+import com.erman.usurf.home.domain.HomePreferencesRepository
+import com.erman.usurf.home.model.FavoriteItem
 import com.erman.usurf.home.model.HomeModel
-import com.erman.usurf.home.utils.ROOT_DIRECTORY
+import com.erman.usurf.storage.domain.StorageDirectoryRepository
+import com.erman.usurf.storage.domain.StoragePathsProvider
+import com.erman.usurf.utils.EXTERNAL_SD_STORAGE_INDEX
 import com.erman.usurf.utils.Event
-import com.erman.usurf.utils.StoragePaths
-import com.erman.usurf.utils.logd
+import com.erman.usurf.utils.ROOT_DIRECTORY
+import com.erman.usurf.utils.SINGLE_STORAGE_COUNT
 import com.erman.usurf.utils.logi
-import io.realm.Realm
 import java.io.File
 
-class HomeViewModel(private val homeModel: HomeModel,
-                    private val storageDirectoryPreferenceProvider: StorageDirectoryPreferenceProvider,
-                    private val homePreferenceProvider: HomePreferenceProvider,
-                    private val realm: Realm,
-                    private val favoriteDao: FavoriteDao) : ViewModel() {
+class HomeViewModel(
+    private val homeModel: HomeModel,
+    private val storageDirectoryRepository: StorageDirectoryRepository,
+    private val homePreferencesRepository: HomePreferencesRepository,
+    private val favoriteRepository: FavoriteRepository,
+    private val storagePathsProvider: StoragePathsProvider,
+) : ViewModel() {
+    private val _uiState =
+        MutableLiveData(HomeUiState(storageItems = homeModel.getStorageItems()))
+    val uiState: LiveData<HomeUiState> = _uiState
 
-    private val _storageButtons = MutableLiveData<MutableList<StorageButtonBinding>>().apply {
-        value = homeModel.createStorageButtons()
+    private val _uiEvents = MutableLiveData<Event<HomeUiEvent>>()
+    val uiEvents: LiveData<Event<HomeUiEvent>> = _uiEvents
+
+    val favorites: LiveData<List<FavoriteItem>> = favoriteRepository.getFavorites()
+
+    private fun updateState(transform: (HomeUiState) -> HomeUiState) {
+        _uiState.value = transform(_uiState.value ?: HomeUiState())
     }
-    val storageButtons: LiveData<MutableList<StorageButtonBinding>> = _storageButtons
 
-    var favorites: LiveData<List<Favorite>> = Transformations.map(favoriteDao.getFavorites()) { realmResult ->
-        realm.copyFromRealm(realmResult)
+    fun onStorageButtonClick(path: String) {
+        updateState { it.copy(path = path) }
+        navigateToDirectory(path)
+        showSafDialogIfNeeded(path)
+        showKitkatWarningIfNeeded(path)
     }
 
-    private val _navigateToDirectory = MutableLiveData<Event<Int>>()
-    val navigateToDirectory: MutableLiveData<Event<Int>> = _navigateToDirectory
+    private fun navigateToDirectory(path: String) {
+        _uiEvents.value = Event(HomeUiEvent.NavigateToDirectory(path))
+    }
 
-    private val _path = MutableLiveData<String>()
-    val path: MutableLiveData<String> = _path
-
-    private val _dialog = MutableLiveData<Event<DialogArgs>>()
-    val dialog: LiveData<Event<DialogArgs>> = _dialog
-
-    private val _isRenameMode = MutableLiveData<Boolean>()
-    val isRenameMode: LiveData<Boolean> = _isRenameMode
-
-    private val _toastMessage = MutableLiveData<Event<Int>>()
-    val toastMessage: LiveData<Event<Int>> = _toastMessage
-
-    fun onStorageButtonClick(view: View) {
-        _path.value = view.tag.toString()
-        _navigateToDirectory.value = Event(R.id.global_action_nav_directory)
-        path.value?.let { path ->
-            if (path != ROOT_DIRECTORY && !File(path).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q
-                && storageDirectoryPreferenceProvider.getChosenUri() == "")
-                _dialog.value = Event(DialogArgs.SAFActivityArgs)
-        }
-
-        val isKitkatRemovableStorage = (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT &&
-                StoragePaths().getStorageDirectories().size > 1 &&
-                path.value == StoragePaths().getStorageDirectories().elementAt(1))
-
-        if (isKitkatRemovableStorage && !homePreferenceProvider.getIsKitkatRemovableStorageWarningDisplayedPreference()) {
-            _dialog.value = Event(DialogArgs.KitkatRemovableStorageDialogArgs(isKitkatRemovableStorage))
-            homePreferenceProvider.editIsKitkatRemovableStorageWarningDisplayedPreference(true)
+    private fun showSafDialogIfNeeded(path: String) {
+        if (shouldShowSafDialog(path)) {
+            _uiEvents.value = Event(HomeUiEvent.ShowDialog(DialogArgs.SAFActivityArgs))
         }
     }
 
-    fun getUsedStoragePercentage(view: View): Int {
-        return homeModel.getUsedStoragePercentage(view.tag.toString())
+    private fun showKitkatWarningIfNeeded(path: String) {
+        if (!isKitkatRemovableStorage(path)) return
+        if (homePreferencesRepository.getIsKitkatRemovableStorageWarningDisplayed()) return
+        _uiEvents.value =
+            Event(HomeUiEvent.ShowDialog(DialogArgs.KitkatRemovableStorageDialogArgs(true)))
+        homePreferencesRepository.setKitkatRemovableStorageWarningDisplayed(true)
     }
 
-    fun onFavoriteAdd(path: String, name: String) {
+    private fun isKitkatRemovableStorage(path: String): Boolean {
+        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.KITKAT) return false
+        val storageDirectories = storagePathsProvider.getStorageDirectories()
+        return storageDirectories.size > SINGLE_STORAGE_COUNT &&
+            path == storageDirectories.elementAt(EXTERNAL_SD_STORAGE_INDEX)
+    }
+
+    private fun shouldShowSafDialog(path: String): Boolean {
+        if (path == ROOT_DIRECTORY) return false
+        if (File(path).canWrite()) return false
+        return when {
+            Build.VERSION.SDK_INT > Build.VERSION_CODES.Q -> false
+            storageDirectoryRepository.getChosenUri() != "" -> false
+            else -> true
+        }
+    }
+
+    fun getUsedStoragePercentage(path: String): Int {
+        return homeModel.getUsedStoragePercentage(path)
+    }
+
+    fun onFavoriteAdd(
+        path: String,
+        name: String,
+    ) {
         logi("Add favorite: $name")
-        if (favoriteDao.addFavorite(path, name))
-            _toastMessage.value = Event(R.string.favorite_created)
-        else
-            _toastMessage.value = Event(R.string.unable_to_create_favorite)
+        if (favoriteRepository.addFavorite(path, name)) {
+            _uiEvents.value = Event(HomeUiEvent.ShowSnackbar(R.string.favorite_created))
+        } else {
+            _uiEvents.value = Event(HomeUiEvent.ShowSnackbar(R.string.unable_to_create_favorite))
+        }
     }
 
-    fun onFavoriteClick(view: View) {
-        val favoritePath = view.tag.toString()
-
+    fun onFavoriteClick(favoritePath: String) {
         if (File(favoritePath).exists()) {
             if (File(favoritePath).isDirectory) {
-                logd("Open a favorite directory")
-                _path.value = favoritePath
-                _navigateToDirectory.value = Event(R.id.global_action_nav_directory)
-            } else _dialog.value = Event(DialogArgs.OpenFileActivityArgs(favoritePath))
-        } else _toastMessage.value = Event(R.string.invalid_favorite)
+                updateState { it.copy(path = favoritePath) }
+                _uiEvents.value =
+                    Event(HomeUiEvent.NavigateToDirectory(favoritePath))
+            } else {
+                _uiEvents.value = Event(HomeUiEvent.ShowDialog(DialogArgs.OpenFileActivityArgs(favoritePath)))
+            }
+        } else {
+            _uiEvents.value = Event(HomeUiEvent.ShowSnackbar(R.string.invalid_favorite))
+        }
     }
 
-    fun onFavoriteLongClick(view: TextView): Boolean {
-        _dialog.value = Event(DialogArgs.FavoriteOptionsDialogArgs(view))
+    fun onFavoriteLongClick(
+        favoritePath: String,
+        favoriteName: String,
+    ): Boolean {
+        _uiEvents.value =
+            Event(
+                HomeUiEvent.ShowDialog(
+                    DialogArgs.FavoriteOptionsDialogArgs(favoritePath, favoriteName),
+                ),
+            )
         return true
     }
 
-    fun deleteFavorites(favoriteView: TextView) {
-        logi("Delete favorite: " + favoriteView.text)
-        if (favoriteDao.removeFavorite(favoriteView))
-            _toastMessage.value = Event(R.string.favorite_deleted)
-        else
-            _toastMessage.value = Event(R.string.unable_to_delete_favorite)
+    fun deleteFavorite(favoritePath: String) {
+        logi("Delete favorite: $favoritePath")
+        if (favoriteRepository.removeFavorite(favoritePath)) {
+            _uiEvents.value = Event(HomeUiEvent.ShowSnackbar(R.string.favorite_deleted))
+        } else {
+            _uiEvents.value = Event(HomeUiEvent.ShowSnackbar(R.string.unable_to_delete_favorite))
+        }
     }
 
-    fun renameFavorite(oldName: String) {
-        _isRenameMode.value = true
-        _dialog.value = Event(DialogArgs.RenameDialogArgs(oldName))
+    fun setRenameMode() {
+        updateState { it.copy(isRenameMode = true) }
     }
 
     fun turnOffRenameMode() {
-        _isRenameMode.value = false
+        updateState { it.copy(isRenameMode = false) }
     }
 
-    fun onRenameFavoriteOkPressed(favoriteView: TextView, favoriteName: String) {
-        logi("Rename favorite: " + favoriteView.text + " to " + favoriteName)
-        if (favoriteDao.renameFavorite(favoriteView, favoriteName))
-            _toastMessage.value = Event(R.string.favorite_renamed)
-        else
-            _toastMessage.value = Event(R.string.unable_to_rename_favorite)
+    fun onRenameFavoriteOkPressed(
+        favoritePath: String,
+        newName: String,
+    ) {
+        logi("Rename favorite: $favoritePath to $newName")
+        if (favoriteRepository.renameFavorite(favoritePath, newName)) {
+            _uiEvents.value = Event(HomeUiEvent.ShowSnackbar(R.string.favorite_renamed))
+        } else {
+            _uiEvents.value = Event(HomeUiEvent.ShowSnackbar(R.string.unable_to_rename_favorite))
+        }
     }
 
-    fun createStorageButtons() {
-        _storageButtons.value = homeModel.createStorageButtons()
+    fun refreshStorageItems() {
+        updateState { it.copy(storageItems = homeModel.getStorageItems()) }
     }
 }
