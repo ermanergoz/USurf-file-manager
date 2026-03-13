@@ -1,10 +1,13 @@
 package com.erman.usurf.preference.ui
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.os.Bundle
+import androidx.core.content.ContextCompat
 import androidx.preference.CheckBoxPreference
 import androidx.preference.ListPreference
 import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.PreferenceGroup
 import androidx.preference.SwitchPreference
 import com.erman.usurf.R
 import com.erman.usurf.activity.model.RefreshNavDrawer
@@ -44,6 +47,7 @@ class PreferencesFragment : PreferenceFragmentCompat() {
             }
         }
 
+        tintPreferenceIcons()
         val sortListPreference = findPreference<ListPreference>(KEY_SORT_FILES_LIST_PREFERENCE)
         sortListPreference?.setOnPreferenceChangeListener { _, newValue ->
             sortListPreference.title = newValue.toString()
@@ -81,6 +85,22 @@ class PreferencesFragment : PreferenceFragmentCompat() {
                 true
             } else {
                 false
+            }
+        }
+    }
+
+    private fun tintPreferenceIcons() {
+        val color: Int = ContextCompat.getColor(requireContext(), R.color.colorPrimary)
+        val tintList: ColorStateList = ColorStateList.valueOf(color)
+        val screen: PreferenceGroup = preferenceScreen
+        for (i in 0 until screen.preferenceCount) {
+            val preference = screen.getPreference(i)
+            if (preference is PreferenceGroup) {
+                for (j in 0 until preference.preferenceCount) {
+                    preference.getPreference(j).icon?.setTintList(tintList)
+                }
+            } else {
+                preference.icon?.setTintList(tintList)
             }
         }
     }
