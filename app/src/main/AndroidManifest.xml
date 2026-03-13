@@ -23,13 +23,6 @@
         android:theme="@style/AppTheme"
         tools:targetApi="q">
         <service android:name=".ftp.model.FtpServer" />
-        <receiver
-            android:name=".pushNotification.model.PushNotificationBroadcastReceiver"
-            android:enabled="true"
-            android:exported="false" />
-        <service
-            android:name=".pushNotification.model.PushNotificationIntentService"
-            android:exported="false" />
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.erman.usurf"
