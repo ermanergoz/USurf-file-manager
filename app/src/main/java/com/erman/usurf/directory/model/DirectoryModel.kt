@@ -8,6 +8,7 @@ import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import com.erman.usurf.activity.data.StorageDirectoryPreferenceProvider
 import com.erman.usurf.application.MainApplication.Companion.appContext
+import com.erman.usurf.directory.utils.ROOT_DIRECTORY
 import com.erman.usurf.directory.utils.SIMPLE_DATE_FORMAT_PATTERN
 import com.erman.usurf.preference.data.PreferenceProvider
 import com.erman.usurf.utils.*
@@ -99,7 +100,7 @@ class DirectoryModel {
     }
 
     private fun getFolderSize(file: File): Double {
-        if (file.exists() && file.parent != "/") {
+        if (file.exists() && file.parent != ROOT_DIRECTORY) {
             file.listFiles()?.let {
                 var size = 0.0
                 val fileList = it.toList()
@@ -694,24 +695,5 @@ class DirectoryModel {
             }
         }
         return lastAccessTime
-    }
-
-    private fun isLastAccessTimeValid(lastAccessTime: Long): Boolean {
-        //most of the devices don't keep track of last accessed time
-        val calendar = Calendar.getInstance()
-        calendar.timeInMillis = lastAccessTime
-        return calendar.get(Calendar.YEAR) != 1970
-    }
-
-    suspend fun getFilesToClean(): List<FileModel> = withContext(Dispatchers.IO) {
-        val deviceFileList = getSearchedDeviceFiles("")
-
-        if (isLastAccessTimeValid(getLastAccessTime(deviceFileList.shuffled().first()))) {
-            //unused files first. This doesn't work on some devices.
-            return@withContext deviceFileList.sortedWith(compareBy({ !it.isDirectory }, { getLastAccessTime(it) })).toList()
-        } else {
-            //largest file first
-            return@withContext deviceFileList.sortedWith(compareBy({ !it.isDirectory }, { it.size })).reversed().toList()
-        }
     }
 }
