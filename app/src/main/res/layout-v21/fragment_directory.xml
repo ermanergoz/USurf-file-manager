@@ -33,6 +33,9 @@
             android:id="@+id/fileListRecyclerView"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:clipToPadding="false"
+            android:paddingBottom="128dp"
+            android:scrollbarStyle="outsideOverlay"
             android:visibility="@{viewModel.loading ? View.GONE : View.VISIBLE}"
             app:layout_constraintBottom_toTopOf="@+id/confirmationButtonBar"
             app:layout_constraintEnd_toEndOf="parent"
@@ -78,17 +81,16 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/moreOptionButtonBar"
+            android:id="@+id/moreMenuButtonBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@color/colorAccent"
             android:orientation="vertical"
-            android:visibility="@{viewModel.moreOptionMode ? View.VISIBLE : View.GONE}"
+            android:visibility="@{viewModel.moreMenuMode ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="@+id/fileListRecyclerView"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/confirmationButtonBar"
             app:layout_constraintVertical_bias="1.0">
 
             <Button
@@ -232,7 +234,7 @@
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:onClick="@{() -> viewModel.showMoreOption()}"
-                android:src="@{viewModel.moreOptionMode ? @drawable/ic_down_arrow : @drawable/ic_up_arrow}"
+                android:src="@{viewModel.moreMenuMode ? @drawable/ic_down_arrow : @drawable/ic_up_arrow}"
                 android:visibility="@{viewModel.isRootMode ? View.GONE : View.VISIBLE}"
                 tools:ignore="ContentDescription" />
         </LinearLayout>
@@ -242,14 +244,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
             android:layout_marginBottom="16dp"
             android:clickable="true"
+            android:contentDescription="@string/create_new"
             android:focusable="true"
             android:onClick="@{() -> viewModel.onCreate()}"
             android:visibility="@{viewModel.optionMode || viewModel.loading ? View.GONE : View.VISIBLE}"
             app:backgroundTint="@color/colorAccent"
-            app:layout_constraintBottom_toTopOf="@+id/moreOptionButtonBar"
+            app:layout_constraintBottom_toTopOf="@+id/moreMenuButtonBar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
@@ -260,9 +262,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
             android:layout_marginBottom="16dp"
             android:clickable="true"
+            android:contentDescription="@string/new_file"
             android:enabled="@{!viewModel.fileSearchMode}"
             android:focusable="true"
             android:onClick="@{() -> viewModel.createFile()}"
@@ -279,9 +281,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
             android:layout_marginBottom="16dp"
             android:clickable="true"
+            android:contentDescription="@string/device_wide_search"
             android:focusable="true"
             android:onClick="@{() -> viewModel.deviceWideSearch()}"
             android:visibility="@{((viewModel.menuMode &amp;&amp; (viewModel.optionMode==false &amp;&amp; viewModel.loading == false))) ? View.VISIBLE : View.GONE}"
@@ -299,9 +301,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
             android:layout_marginBottom="16dp"
             android:clickable="true"
+            android:contentDescription="@string/new_folder"
             android:enabled="@{!viewModel.fileSearchMode}"
             android:focusable="true"
             android:onClick="@{() -> viewModel.createFolder()}"
@@ -355,19 +357,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/loadingMessage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="@{viewModel.showLoadingMessage ? View.VISIBLE : View.GONE}"
-            android:layout_marginTop="16dp"
-            android:text="@{viewModel.fileSearchMode ? @string/searching : @string/analyzing_files}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/loadingProgressBar"
-            app:layout_constraintVertical_bias="0.0" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
