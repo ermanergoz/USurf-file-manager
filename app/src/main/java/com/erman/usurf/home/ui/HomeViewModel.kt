@@ -23,9 +23,11 @@ import com.erman.usurf.utils.logi
 import io.realm.Realm
 import java.io.File
 
-class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
-    private var realm = Realm.getDefaultInstance()
-    private var favoriteDao = FavoriteDao(realm)
+class HomeViewModel(private val homeModel: HomeModel,
+                    private val storageDirectoryPreferenceProvider: StorageDirectoryPreferenceProvider,
+                    private val homePreferenceProvider: HomePreferenceProvider,
+                    private val realm: Realm,
+                    private val favoriteDao: FavoriteDao) : ViewModel() {
 
     private val _storageButtons = MutableLiveData<MutableList<StorageButtonBinding>>().apply {
         value = homeModel.createStorageButtons()
@@ -56,7 +58,7 @@ class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
         _navigateToDirectory.value = Event(R.id.global_action_nav_directory)
         path.value?.let { path ->
             if (path != ROOT_DIRECTORY && !File(path).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q
-                && StorageDirectoryPreferenceProvider().getChosenUri() == "")
+                && storageDirectoryPreferenceProvider.getChosenUri() == "")
                 _dialog.value = Event(DialogArgs.SAFActivityArgs)
         }
 
@@ -64,9 +66,9 @@ class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
                 StoragePaths().getStorageDirectories().size > 1 &&
                 path.value == StoragePaths().getStorageDirectories().elementAt(1))
 
-        if (isKitkatRemovableStorage && !HomePreferenceProvider().getIsKitkatRemovableStorageWarningDisplayedPreference()) {
+        if (isKitkatRemovableStorage && !homePreferenceProvider.getIsKitkatRemovableStorageWarningDisplayedPreference()) {
             _dialog.value = Event(DialogArgs.KitkatRemovableStorageDialogArgs(isKitkatRemovableStorage))
-            HomePreferenceProvider().editIsKitkatRemovableStorageWarningDisplayedPreference(true)
+            homePreferenceProvider.editIsKitkatRemovableStorageWarningDisplayedPreference(true)
         }
     }
 

@@ -11,6 +11,7 @@ import com.erman.usurf.directory.utils.MARQUEE_REPEAT_LIM
 import androidx.databinding.library.baseAdapters.BR
 import com.erman.usurf.databinding.RecyclerDirectoryLayoutBinding
 import com.erman.usurf.directory.model.FileModel
+import com.erman.usurf.utils.loge
 
 class DirectoryRecyclerViewAdapter(var viewModel: DirectoryViewModel) :
     RecyclerView.Adapter<DirectoryRecyclerViewAdapter.ViewHolder>() {
