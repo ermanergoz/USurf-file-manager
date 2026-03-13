@@ -13,8 +13,10 @@ import com.google.android.material.navigation.NavigationView
 import androidx.core.app.ActivityCompat
 import android.Manifest
 import android.os.Build
+import androidx.fragment.app.DialogFragment
+import com.erman.usurf.utils.ShowDialog
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), ShowDialog {
     private lateinit var appBarConfiguration: AppBarConfiguration
 
     private fun requestPermissions() {
@@ -55,5 +57,9 @@ class MainActivity : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+    }
+
+    override fun showDialog(dialog: DialogFragment) {
+        dialog.show(supportFragmentManager ,"")
     }
 }
