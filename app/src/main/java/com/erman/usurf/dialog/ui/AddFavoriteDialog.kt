@@ -34,6 +34,7 @@ class AddFavoriteDialog(val path: String) : DialogFragment() {
 
             directoryViewModel.turnOffOptionPanel()
             directoryViewModel.clearMultipleSelection()
+            editText.setText(R.string.new_favorite)
 
             builder.setMessage(getString(R.string.addFavorite))
                 .setPositiveButton(R.string.ok, DialogInterface.OnClickListener { _, _ ->
