@@ -86,10 +86,12 @@ class HomeFragment : Fragment() {
     }
 
     private fun createStorageButtons(items: List<StorageItem>) {
+        val containerHorizontalPadding: Int = binding.root.paddingStart + binding.root.paddingEnd
         val dimensions =
             storageButtonDimensions.autoSizeButtonDimensions(
                 items.size,
                 STORAGE_BUTTON_HORIZONTAL_MARGIN,
+                containerHorizontalPadding,
             )
         val buttonLayoutParams = FrameLayout.LayoutParams(dimensions.first, dimensions.second)
         buttonLayoutParams.setMargins(
