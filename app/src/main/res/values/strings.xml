@@ -18,9 +18,28 @@
     <string name="credit">Yusuf Erman ERGÖZ</string>
     <string name="about">About</string>
 
+    <!--com.erman.drawerfm.utilities.rename file dialog-->
+    <string name="rename_file">Rename</string>
+    <string name="new_directory_name">New directory name</string>
+    <string name="new_file_name">New file name</string>
+
+
     <!--preferences-->
     <string name="dark_theme_title">Dark theme</string>
     <string name="dark_theme_summary">Check this box to enable the dark theme</string>
     <string name="get_root_access">Get root access</string>
+
+    <!--broadcast receiver-->
+    <string name="file_broadcast_receiver">com.erman.drawerfm.fileBroadcastReceiver</string>
+
+    <!--fragment stuff-->
+    <string name="empty_folder">Empty Folder</string>
+    <string name="files_num">Files</string>
+    <string name="copy">Copy</string>
+    <string name="move">Move</string>
+    <string name="rename">Rename</string>
+    <string name="delete">Delete</string>
+    <string name="zip">Zip</string>
+    <string name="unzip">Unzip</string>
 
 </resources>
