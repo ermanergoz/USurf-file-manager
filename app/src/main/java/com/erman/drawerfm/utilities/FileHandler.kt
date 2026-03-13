@@ -24,7 +24,7 @@ fun getFiles(path: String,
              showFilesOnTop: Boolean,
              showFoldersOnTop: Boolean): List<File> {
 
-    var files = File(path).listFiles().filter { !it.isHidden || showHidden }.filter { it.isFile || !showFilesOnly }
+    var files = File(path).listFiles()!!.filter { !it.isHidden || showHidden }.filter { it.isFile || !showFilesOnly }
         .filter { it.isDirectory || !showFoldersOnly }.toMutableList()
 
     if (fileSortMode == "Sort by name") {
@@ -71,7 +71,7 @@ fun getDocumentFile(file: File, isDirectory: Boolean, context: Context): Documen
     var relativePathOfFile: String? = null
     try {
         val fullPath = file.canonicalPath
-        if (getExtSdCardBaseFolder != fullPath) relativePathOfFile = fullPath.substring(getExtSdCardBaseFolder!!.length + 1)
+        if (getExtSdCardBaseFolder != fullPath) relativePathOfFile = fullPath.substring(getExtSdCardBaseFolder.length + 1)
         else originalDirectory = true
         Log.e("relativePath", getExtSdCardBaseFolder)
     } catch (e: IOException) {
@@ -109,13 +109,48 @@ fun getDocumentFile(file: File, isDirectory: Boolean, context: Context): Documen
     return document
 }
 
-fun getSearchedFiles(path: String, searchQuery: String): List<File> {
+fun getSearchedDirectoryFiles(path: String, searchQuery: String): List<File> {
     try {
-        return File(path).listFiles(FileSearchFilter(searchQuery)).toList()
-    } catch (err: IllegalStateException) {
-        Log.e("IllegalStateException", "File(path).listFiles must not be null")
+        return File(path).listFiles()!!.filter { file ->
+            searchQuery.decapitalize().toRegex().containsMatchIn(file.nameWithoutExtension.decapitalize())
+        }.toList()
+    } catch (err: Exception) {
+        Log.e("getSearchedDirFiles", err.toString())
     }
     return emptyList()
+}
+
+fun getSearchedDeviceFiles(storagePaths: ArrayList<String>, searchQuery: String): List<File> {
+    val fileList = mutableListOf<File>()
+    try {
+        for (i in storagePaths.indices) {
+            Log.e("strg", storagePaths[i])
+            fileList.addAll(getSubSearchedFiles(File(storagePaths[i]), searchQuery))
+        }
+
+        return fileList.filter { file ->
+            searchQuery.decapitalize().toRegex().containsMatchIn(file.nameWithoutExtension.decapitalize())
+        }
+    } catch (err: Exception) {
+        Log.e("getSearchedDeviceFiles", err.toString())
+    }
+    return emptyList()
+}
+
+fun getSubSearchedFiles(directory: File, searchQuery: String, res: MutableSet<File> = mutableSetOf<File>()): MutableSet<File> {
+    //Depth first search algorithm
+
+    val listOfFilesAndDirectory = directory.listFiles()!!.toMutableSet()
+
+    for (file in listOfFilesAndDirectory) {
+        if (file.isDirectory) {
+            getSubSearchedFiles(file, searchQuery, res)
+        } else {
+            res.add(file)
+        }
+        res.addAll(listOfFilesAndDirectory)
+    }
+    return res
 }
 
 fun rename(context: Context, selectedDirectories: List<File>, newNameToBe: String, isExtSdCard: Boolean, updateFragment: () -> Unit) {
@@ -185,8 +220,8 @@ fun delete(context: Context, selectedDirectories: List<File>, isExtSdCard: Boole
         }
     }
     if (isSuccess) {
-        Toast.makeText(context, context.getString(R.string.deleting_successful), Toast.LENGTH_LONG).show()
         updateFragment.invoke()
+        Toast.makeText(context, context.getString(R.string.deleting_successful), Toast.LENGTH_LONG).show()
     }
 }
 
@@ -282,12 +317,14 @@ fun moveFile(context: Context, copyOrMoveSources: List<File>, copyOrMoveDestinat
     }
 }
 
-fun zipFile(context: Context, selectedDirectories: List<File>, zipName: String, updateFragment: () -> Unit) {
+fun zipFile(context: Context, selectedDirectories: List<File>, zipName: String, isExtSdCard: Boolean, updateFragment: () -> Unit) {
     val buffer = 6144
-    val destination = FileOutputStream(selectedDirectories[0].parent!! + separator + zipName + ".zip")
-    val output = ZipOutputStream(BufferedOutputStream(destination))
-    val data = ByteArray(buffer)
+
     try {
+        val destination = FileOutputStream(selectedDirectories[0].parent!! + separator + zipName + ".zip") //burası
+        val output = ZipOutputStream(BufferedOutputStream(destination))
+        val data = ByteArray(buffer)
+
         for (i in selectedDirectories.indices) {
             if (selectedDirectories[i].isDirectory) {
                 if (!zipFolder(selectedDirectories[i].listFiles()!!.toList(), output, selectedDirectories[i].name)) {
@@ -348,7 +385,7 @@ fun unzip(context: Context, selectedDirectories: List<File>, updateFragment: () 
 
     try {
         for (i in selectedDirectories.indices) {
-            var baseFolderPath = selectedDirectories[i].parent + separator + selectedDirectories[i].nameWithoutExtension
+            val baseFolderPath = selectedDirectories[i].parent!! + separator + selectedDirectories[i].nameWithoutExtension
             File(baseFolderPath).mkdir()
 
             val zipInput = ZipInputStream(FileInputStream(selectedDirectories[i].path))
@@ -375,6 +412,7 @@ fun unzip(context: Context, selectedDirectories: List<File>, updateFragment: () 
     } catch (e: Exception) {
         Toast.makeText(context, context.getString(R.string.error_while_extracting), Toast.LENGTH_LONG).show()
         Log.e("Error while extracting", e.toString())
+        return
     }
     Toast.makeText(context, context.getString(R.string.extracting_successful), Toast.LENGTH_LONG).show()
 }
