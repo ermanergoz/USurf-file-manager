@@ -13,7 +13,6 @@ import androidx.activity.addCallback
 import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
@@ -33,7 +32,7 @@ class DirectoryFragment : Fragment() {
     private lateinit var dialogListener: ShowDialog
     private lateinit var binding: FragmentDirectoryBinding
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         viewModelFactory = ViewModelFactory()
         directoryViewModel = ViewModelProvider(requireActivity(), viewModelFactory).get(DirectoryViewModel::class.java)
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_directory, container, false)
@@ -44,11 +43,11 @@ class DirectoryFragment : Fragment() {
             Toast.makeText(context, getString(it), Toast.LENGTH_LONG).show()
         })
 
-        directoryViewModel.multipleSelection.observe(viewLifecycleOwner, Observer {
+        directoryViewModel.multipleSelection.observe(viewLifecycleOwner, {
             directoryRecyclerViewAdapter.updateSelection()
         })
 
-        directoryViewModel.dialog.observe(viewLifecycleOwner, Observer {
+        directoryViewModel.dialog.observe(viewLifecycleOwner, {
             it.getContentIfNotHandled()?.let { args ->
                 when (args) {
                     is DialogArgs.RenameDialogArgs -> dialogListener.showDialog(RenameDialog(args.name))
@@ -99,7 +98,7 @@ class DirectoryFragment : Fragment() {
             }
         })
 
-        directoryViewModel.updateDirectoryList.observe(viewLifecycleOwner, Observer {
+        directoryViewModel.updateDirectoryList.observe(viewLifecycleOwner, {
             directoryRecyclerViewAdapter.updateData(it)
             runRecyclerViewAnimation(binding.fileListRecyclerView)
         })
@@ -128,12 +127,12 @@ class DirectoryFragment : Fragment() {
         directoryRecyclerViewAdapter = DirectoryRecyclerViewAdapter(directoryViewModel)
         binding.fileListRecyclerView.adapter = directoryRecyclerViewAdapter
 
-        directoryViewModel.path.observe(viewLifecycleOwner, Observer {
+        directoryViewModel.path.observe(viewLifecycleOwner, {
             directoryViewModel.getFileList()
             runRecyclerViewAnimation(binding.fileListRecyclerView)
         })
 
-        directoryViewModel.fileSearchQuery.observe(viewLifecycleOwner, Observer {
+        directoryViewModel.fileSearchQuery.observe(viewLifecycleOwner, {
             directoryViewModel.getSearchedFiles()
             runRecyclerViewAnimation(binding.fileListRecyclerView)
         })

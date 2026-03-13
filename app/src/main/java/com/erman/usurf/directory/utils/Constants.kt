@@ -6,3 +6,5 @@ const val ROOT_DIRECTORY: String = "/"
 const val THUMBNAIL_IMAGE_HEIGHT: Int = 100
 const val THUMBNAIL_IMAGE_WIDTH: Int = 100
 const val THUMBNAIL_SIZE_MULTIPLIER: Float = 0.1F
+const val DUMMY_FILE_NAME: String = "usurfIsRootCheck.txt"
+const val DUMMY_FILE_NAME_WO_EXTENSION: String = "usurfIsRootCheck"

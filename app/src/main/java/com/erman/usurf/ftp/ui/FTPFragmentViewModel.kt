@@ -67,7 +67,7 @@ class FTPViewModel(private val ftpModel: FtpModel) : ViewModel() {
     }
 
     fun onPortChanged(port: CharSequence, start: Int, before: Int, count: Int) {
-        var newPort = DEFAULT_PORT
+        var newPort: Int
         try {
             newPort = port.toString().toInt()
         }catch (err: NumberFormatException)

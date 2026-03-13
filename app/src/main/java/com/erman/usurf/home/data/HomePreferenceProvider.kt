@@ -11,7 +11,6 @@ import com.erman.usurf.utils.logd
 
 class HomePreferenceProvider {
     private var preferences: SharedPreferences = MainApplication.appContext.getSharedPreferences(SHARED_PREF_FILE, AppCompatActivity.MODE_PRIVATE)
-    lateinit var preferencesEditor: SharedPreferences.Editor
 
     fun editIsKitkatRemovableStorageWarningDisplayedPreference(choice: Boolean) {
         logd("editIsKitkatRemovableStorageWarningDisplayedPreference")
