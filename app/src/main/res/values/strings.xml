@@ -148,4 +148,12 @@
     <string name="sd_card">SD Card</string>
     <string name="root_storage">Root</string>
     <string name="storage_usage_format" translatable="false">%1$s / %2$s</string>
+    <string name="ftp_section_status">Connection</string>
+    <string name="ftp_section_settings">Server Settings</string>
+    <string name="ftp_section_storage">Storage Path</string>
+    <string name="ftp_url_copied">URL copied to clipboard</string>
+    <string name="ftp_not_connected_hint">Connect to WiFi to start FTP server</string>
+    <string name="ftp_server_active">FTP Server Active</string>
+    <string name="wifi_icon">WiFi status icon</string>
+    <string name="copy_url">Copy URL</string>
 </resources>
