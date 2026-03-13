@@ -6,7 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import androidx.lifecycle.LiveData
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.erman.usurf.app.MainApplication.Companion.appContext
+import com.erman.usurf.application.MainApplication.Companion.appContext
 import com.erman.usurf.R
 import com.erman.usurf.utils.logd
 import com.erman.usurf.utils.loge

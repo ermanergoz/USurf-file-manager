@@ -4,7 +4,7 @@ import android.os.Build
 import android.os.StatFs
 import android.view.LayoutInflater
 import androidx.databinding.DataBindingUtil
-import com.erman.usurf.app.MainApplication.Companion.appContext
+import com.erman.usurf.application.MainApplication.Companion.appContext
 import com.erman.usurf.R
 import com.erman.usurf.databinding.StorageButtonBinding
 import com.erman.usurf.utils.StoragePaths
@@ -12,7 +12,6 @@ import kotlinx.android.synthetic.main.storage_button.view.*
 
 class HomeModel() {
     fun createStorageButtons(): MutableList<StorageButtonBinding> {
-        //TODO: Move this function to view model
         val storageButtons: MutableList<StorageButtonBinding> = mutableListOf<StorageButtonBinding>()
         val storageDirectories = StoragePaths().getStorageDirectories()
 

@@ -3,7 +3,7 @@ package com.erman.usurf.ftp.data
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
-import com.erman.usurf.app.MainApplication.Companion.appContext
+import com.erman.usurf.application.MainApplication.Companion.appContext
 import com.erman.usurf.ftp.utils.*
 import com.erman.usurf.utils.SHARED_PREF_FILE
 import com.erman.usurf.utils.StoragePaths

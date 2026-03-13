@@ -19,6 +19,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.erman.usurf.R
+import com.erman.usurf.activity.model.ShowDialog
 import com.erman.usurf.databinding.FragmentDirectoryBinding
 import com.erman.usurf.dialog.ui.*
 import com.erman.usurf.utils.*
@@ -71,12 +72,20 @@ class DirectoryFragment : Fragment() {
         directoryViewModel.onShare.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.let { args ->
                 val fileUris: ArrayList<Uri> = arrayListOf()
+                val messages: MutableList<String> = mutableListOf(getString(R.string.share_directory))
 
                 for (fileModel in args.multipleSelectionList) {
-                    logi("Share: " + fileModel.name)
-                    fileUris.add(FileProvider.getUriForFile(requireContext(), requireContext().packageName, //(use your app signature + ".provider" )
-                        File(fileModel.path)))  //used this instead of File().toUri to avoid FileUriExposedException
+                    if (!fileModel.isDirectory) {
+                        logi("Share: " + fileModel.name)
+                        fileUris.add(FileProvider.getUriForFile(requireContext(),
+                            requireContext().packageName, //(use your app signature + ".provider" )
+                            File(fileModel.path)))  //used this instead of File().toUri to avoid FileUriExposedException
+                    } else
+                        messages.add(fileModel.name)
                 }
+                if (messages.size > 1)
+                    Toast.makeText(context, messages.toString(), Toast.LENGTH_LONG).show()
+
                 val shareIntent = Intent().apply {
                     logd("Start share activity")
                     action = Intent.ACTION_SEND_MULTIPLE
@@ -111,9 +120,9 @@ class DirectoryFragment : Fragment() {
             }
         })
 
-        directoryViewModel.onAddShortcut.observe(viewLifecycleOwner, Observer {
+        directoryViewModel.onAddFavorite.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.let { args ->
-                dialogListener.showDialog(AddShortcutDialog(args.path))
+                dialogListener.showDialog(AddFavoriteDialog(args.path))
             }
         })
 
@@ -187,9 +196,10 @@ class DirectoryFragment : Fragment() {
         directoryViewModel.moveMode.value?.let {
             isMoveMode = it
         }
-        if (!isCopyMode && !isMoveMode)
+        if (!isCopyMode && !isMoveMode) {
             directoryViewModel.turnOffOptionPanel()
-
+            directoryViewModel.clearMultipleSelection()
+        }
         directoryViewModel.getFileList()
         runRecyclerViewAnimation(fileListRecyclerView)
     }

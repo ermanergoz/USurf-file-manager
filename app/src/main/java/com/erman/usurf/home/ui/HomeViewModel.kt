@@ -9,11 +9,12 @@ import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.erman.usurf.R
 import com.erman.usurf.databinding.StorageButtonBinding
-import com.erman.usurf.dialog.model.UIEventArgs
-import com.erman.usurf.home.data.Shortcut
-import com.erman.usurf.home.data.ShortcutDao
-import com.erman.usurf.utils.DirectoryPreferenceProvider
+import com.erman.usurf.dialog.model.DialogArgs
+import com.erman.usurf.home.data.Favorite
+import com.erman.usurf.home.data.FavoriteDao
+import com.erman.usurf.activity.data.StorageDirectoryPreferenceProvider
 import com.erman.usurf.home.model.HomeModel
+import com.erman.usurf.home.model.StorageAccessArgs
 import com.erman.usurf.utils.Event
 import com.erman.usurf.utils.logd
 import com.erman.usurf.utils.logi
@@ -22,14 +23,14 @@ import java.io.File
 
 class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
     private var realm = Realm.getDefaultInstance()
-    private var shortcutDao = ShortcutDao(realm)
+    private var favoriteDao = FavoriteDao(realm)
 
     private val _storageButtons = MutableLiveData<MutableList<StorageButtonBinding>>().apply {
         value = homeModel.createStorageButtons()
     }
     val storageButtons: LiveData<MutableList<StorageButtonBinding>> = _storageButtons
 
-    var shortcuts: LiveData<List<Shortcut>> = Transformations.map(shortcutDao.getShortcuts()) { realmResult ->
+    var favorites: LiveData<List<Favorite>> = Transformations.map(favoriteDao.getFavorites()) { realmResult ->
         realm.copyFromRealm(realmResult)
     }
 
@@ -39,20 +40,20 @@ class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
     private val _path = MutableLiveData<String>()
     val path: MutableLiveData<String> = _path
 
-    private val _saf = MutableLiveData<Event<UIEventArgs.SAFActivityArgs>>()
-    val saf: MutableLiveData<Event<UIEventArgs.SAFActivityArgs>> = _saf
+    private val _saf = MutableLiveData<Event<StorageAccessArgs.SAFActivityArgs>>()
+    val saf: MutableLiveData<Event<StorageAccessArgs.SAFActivityArgs>> = _saf
 
-    private val _onShortcutOption = MutableLiveData<Event<UIEventArgs.ShortcutOptionsDialogArgs>>()
-    val onShortcutOption: LiveData<Event<UIEventArgs.ShortcutOptionsDialogArgs>> = _onShortcutOption
+    private val _onFavoriteOption = MutableLiveData<Event<DialogArgs.FavoriteOptionsDialogArgs>>()
+    val onFavoriteOption: LiveData<Event<DialogArgs.FavoriteOptionsDialogArgs>> = _onFavoriteOption
 
-    private val _onRename = MutableLiveData<Event<UIEventArgs.RenameDialogArgs>>()
-    val onRename: LiveData<Event<UIEventArgs.RenameDialogArgs>> = _onRename
+    private val _onRename = MutableLiveData<Event<DialogArgs.RenameDialogArgs>>()
+    val onRename: LiveData<Event<DialogArgs.RenameDialogArgs>> = _onRename
 
     private val _isRenameMode = MutableLiveData<Boolean>()
     val isRenameMode: LiveData<Boolean> = _isRenameMode
 
-    private val _openFile = MutableLiveData<Event<UIEventArgs.OpenFileActivityArgs>>()
-    val openFile: LiveData<Event<UIEventArgs.OpenFileActivityArgs>> = _openFile
+    private val _openFile = MutableLiveData<Event<DialogArgs.OpenFileActivityArgs>>()
+    val openFile: LiveData<Event<DialogArgs.OpenFileActivityArgs>> = _openFile
 
     private val _toastMessage = MutableLiveData<Event<Int>>()
     val toastMessage: LiveData<Event<Int>> = _toastMessage
@@ -62,8 +63,8 @@ class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
         _navigateToDirectory.value = Event(R.id.global_action_nav_directory)
         path.value?.let { path ->
             if (!File(path).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.P
-                && DirectoryPreferenceProvider().getChosenUri() == "")
-                _saf.value = Event(UIEventArgs.SAFActivityArgs)
+                && StorageDirectoryPreferenceProvider().getChosenUri() == "")
+                _saf.value = Event(StorageAccessArgs.SAFActivityArgs)
         }
     }
 
@@ -71,56 +72,52 @@ class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
         return homeModel.getUsedStoragePercentage(view.tag.toString())
     }
 
-    fun saveDocumentTree(treeUri: String) {
-        DirectoryPreferenceProvider().editChosenUri(treeUri)
-    }
-
-    fun onShortcutAdd(path: String, name: String) {
-        logi("Add shortcut: $name")
-        if (shortcutDao.addShortcut(path, name))
-            _toastMessage.value = Event(R.string.shortcut_created) //TODO: toast massege doesnt get displayed
+    fun onFavoriteAdd(path: String, name: String) {
+        logi("Add favorite: $name")
+        if (favoriteDao.addFavorite(path, name))
+            _toastMessage.value = Event(R.string.favorite_created)
         else
-            _toastMessage.value = Event(R.string.unable_to_create_shortcut)
+            _toastMessage.value = Event(R.string.unable_to_create_favorite)
     }
 
-    fun onShortcutClick(view: View) {
-        val shortcutPath = view.tag.toString()
+    fun onFavoriteClick(view: View) {
+        val favoritePath = view.tag.toString()
 
-        if (File(shortcutPath).isDirectory) {
-            logd("Open a shortcut directory")
-            _path.value = shortcutPath
+        if (File(favoritePath).isDirectory) {
+            logd("Open a favorite directory")
+            _path.value = favoritePath
             _navigateToDirectory.value = Event(R.id.global_action_nav_directory)
-        } else _openFile.value = Event(UIEventArgs.OpenFileActivityArgs(shortcutPath))
+        } else _openFile.value = Event(DialogArgs.OpenFileActivityArgs(favoritePath))
     }
 
-    fun onShortcutLongClick(view: TextView): Boolean {
-        _onShortcutOption.value = Event(UIEventArgs.ShortcutOptionsDialogArgs(view))
+    fun onFavoriteLongClick(view: TextView): Boolean {
+        _onFavoriteOption.value = Event(DialogArgs.FavoriteOptionsDialogArgs(view))
         return true
     }
 
-    fun deleteShortcut(shortcutView: TextView) {
-        logi("Delete shortcut: " + shortcutView.text)
-        if (shortcutDao.removeShortcut(shortcutView))
-            _toastMessage.value = Event(R.string.shortcut_deleted) //TODO: toast massege doesnt get displayed
+    fun deleteFavorites(favoriteView: TextView) {
+        logi("Delete favorite: " + favoriteView.text)
+        if (favoriteDao.removeFavorite(favoriteView))
+            _toastMessage.value = Event(R.string.favorite_deleted)
         else
-            _toastMessage.value = Event(R.string.unable_to_delete_shortcut)
+            _toastMessage.value = Event(R.string.unable_to_delete_favorite)
     }
 
-    fun renameShortcut(oldName: String) {
+    fun renameFavorite(oldName: String) {
         _isRenameMode.value = true
-        _onRename.value = Event(UIEventArgs.RenameDialogArgs(oldName))
+        _onRename.value = Event(DialogArgs.RenameDialogArgs(oldName))
     }
 
     fun turnOffRenameMode() {
         _isRenameMode.value = false
     }
 
-    fun onRenameShortcutOkPressed(shortcutView: TextView, shortcutName: String) {
-        logi("Rename shortcut: " + shortcutView.text + " to " + shortcutName)
-        if (shortcutDao.renameShortcut(shortcutView, shortcutName))
-            _toastMessage.value = Event(R.string.shortcut_renamed) //TODO: toast massege doesnt get displayed
+    fun onRenameFavoriteOkPressed(favoriteView: TextView, favoriteName: String) {
+        logi("Rename favorite: " + favoriteView.text + " to " + favoriteName)
+        if (favoriteDao.renameFavorite(favoriteView, favoriteName))
+            _toastMessage.value = Event(R.string.favorite_renamed)
         else
-            _toastMessage.value = Event(R.string.unable_to_rename_shortcut)
+            _toastMessage.value = Event(R.string.unable_to_rename_favorite)
     }
 
     fun createStorageButtons() {
