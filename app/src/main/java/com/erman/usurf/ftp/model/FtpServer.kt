@@ -76,7 +76,7 @@ class FtpServer : Service() {
             }
         }
         //displayNotification()
-        return START_STICKY //will restart if the android system terminates for any reason.
+        return START_STICKY //will restart if the android system terminates it for any reason.
     }
 
     override fun onDestroy() {
