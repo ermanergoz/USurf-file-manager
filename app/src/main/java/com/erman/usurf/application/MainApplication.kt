@@ -2,31 +2,30 @@ package com.erman.usurf.application
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Context
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.multidex.MultiDexApplication
 import com.erman.usurf.application.data.ApplicationDao
-import com.erman.usurf.application.data.ApplicationPreferenceProvider
-import com.erman.usurf.application.di.AppModule
-import com.erman.usurf.application.utils.REALM_CONFIG_FILE_NAME
+import com.erman.usurf.application.di.appModule
+import com.erman.usurf.application.domain.ApplicationPreferencesRepository
 import io.realm.Realm
 import io.realm.RealmConfiguration
+import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext.startKoin
 
+private const val REALM_CONFIG_FILE_NAME = "usurf.realm"
+
 class MainApplication : MultiDexApplication() {
-    companion object {
-        lateinit var appContext: Context
-    }
+    private val applicationPreferencesRepository: ApplicationPreferencesRepository by inject()
+    private val applicationDao: ApplicationDao by inject()
 
     override fun onCreate() {
         super.onCreate()
-        appContext = this.applicationContext
 
         startKoin {
             androidContext(this@MainApplication)
-            modules(AppModule)
+            modules(appModule)
         }
 
         Realm.init(this)
@@ -38,12 +37,10 @@ class MainApplication : MultiDexApplication() {
                 .build()
 
         Realm.setDefaultConfiguration(config)
-        val realm = Realm.getDefaultInstance()
-        val preferenceProvider = ApplicationPreferenceProvider()
 
-        if (preferenceProvider.getIsFirstLaunch()) {
-            ApplicationDao(realm).addInitialFavorites()
-            preferenceProvider.editIsFirstLaunch(false)
+        if (applicationPreferencesRepository.getIsFirstLaunch()) {
+            applicationDao.addInitialFavorites()
+            applicationPreferencesRepository.setIsFirstLaunch(false)
         }
 
         registerActivityLifecycleCallbacks(

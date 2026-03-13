@@ -7,27 +7,25 @@ import android.view.View
 import android.widget.EditText
 import androidx.fragment.app.DialogFragment
 import com.erman.usurf.R
-import com.erman.usurf.directory.ui.DirectoryViewModel
-import org.koin.android.viewmodel.ext.android.sharedViewModel
+import com.erman.usurf.dialog.model.OnSearchOkPressedListener
 
 class SearchDialog : DialogFragment() {
-    private val editDialogViewModel by sharedViewModel<DirectoryViewModel>()
-    private lateinit var editText: EditText
+    var onSearchOkPressedListener: OnSearchOkPressedListener? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
             val builder = AlertDialog.Builder(it)
             val inflater = requireActivity().layoutInflater
             val dialogView: View = inflater.inflate(R.layout.dialog_edit, null)
-
             this.editText = dialogView.findViewById(R.id.editText)
-
             builder.setTitle(getString(R.string.search))
                 .setPositiveButton(R.string.ok) { _, _ ->
-                    editDialogViewModel.onFileSearchOkPressed(editText.text.toString())
+                    onSearchOkPressedListener?.onSearchOkPressed(editText.text.toString())
                 }
             builder.setView(dialogView)
             builder.create()
-        } ?: throw IllegalStateException("Activity cannot be null")
+        } ?: error("Activity cannot be null")
     }
+
+    private lateinit var editText: EditText
 }

@@ -4,8 +4,12 @@
     <data>
 
         <variable
-            name="viewModel"
-            type="com.erman.usurf.home.ui.HomeViewModel" />
+            name="listener"
+            type="com.erman.usurf.home.ui.FavoriteItemListener" />
+
+        <variable
+            name="favoriteItem"
+            type="com.erman.usurf.home.model.FavoriteItem" />
     </data>
 
     <LinearLayout
@@ -15,8 +19,8 @@
         android:background="@drawable/button_selectable_background"
         android:clickable="true"
         android:focusable="true"
-        android:onClick="@{() -> viewModel.onFavoriteClick(favorite)}"
-        android:onLongClick="@{() -> viewModel.onFavoriteLongClick(favorite)}"
+        android:onClick="@{() -> listener.onFavoriteClick(favoriteItem.path)}"
+        android:onLongClick="@{() -> listener.onFavoriteLongClick(favoriteItem.path, favoriteItem.name)}"
         android:orientation="vertical">
 
         <TextView
@@ -25,6 +29,7 @@
             android:layout_height="56dp"
             android:layout_margin="@dimen/layout_margin_4"
             android:gravity="center"
+            android:text="@{favoriteItem.name}"
             android:textColor="@color/daynnightTextColor"
             android:textSize="@dimen/text_size_22" />
     </LinearLayout>

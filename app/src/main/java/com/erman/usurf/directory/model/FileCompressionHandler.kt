@@ -7,7 +7,7 @@ import com.hzy.libp7zip.P7ZipApi
 class FileCompressionHandler {
     fun compress(
         compressedFileDirectory: String,
-        multipleSelection: MutableList<FileModel>,
+        multipleSelection: List<FileModel>,
         archiveType: String,
     ): Boolean {
         var filesToBeCompressed = ""

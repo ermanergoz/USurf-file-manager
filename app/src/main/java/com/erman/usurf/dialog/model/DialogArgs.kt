@@ -1,6 +1,5 @@
 package com.erman.usurf.dialog.model
 
-import android.widget.TextView
 import com.erman.usurf.directory.model.FileModel
 
 sealed class DialogArgs {
@@ -8,11 +7,11 @@ sealed class DialogArgs {
 
     data class InformationDialogArgs(val file: FileModel) : DialogArgs()
 
-    object CreateFolderDialogArgs : DialogArgs()
+    data object CreateFolderDialogArgs : DialogArgs()
 
-    object CreateFileDialogArgs : DialogArgs()
+    data object CreateFileDialogArgs : DialogArgs()
 
-    object CompressDialogArgs : DialogArgs()
+    data object CompressDialogArgs : DialogArgs()
 
     data class OpenFileActivityArgs(val path: String) : DialogArgs()
 
@@ -20,11 +19,11 @@ sealed class DialogArgs {
 
     data class AddFavoriteDialogArgs(val path: String) : DialogArgs()
 
-    data class FavoriteOptionsDialogArgs(val view: TextView) : DialogArgs()
+    data class FavoriteOptionsDialogArgs(val favoritePath: String, val favoriteName: String) : DialogArgs()
 
-    object FileSearchDialogArgs : DialogArgs()
+    data object FileSearchDialogArgs : DialogArgs()
 
     data class KitkatRemovableStorageDialogArgs(val isKitkatRemovableStorage: Boolean) : DialogArgs()
 
-    object SAFActivityArgs : DialogArgs()
+    data object SAFActivityArgs : DialogArgs()
 }
