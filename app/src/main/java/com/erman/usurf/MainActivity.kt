@@ -14,18 +14,20 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.os.Build
+import android.util.DisplayMetrics
+import android.view.Menu
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
-import androidx.core.view.iterator
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import com.erman.usurf.dialog.ui.SearchDialog
 import com.erman.usurf.directory.ui.DirectoryViewModel
+import com.erman.usurf.home.model.FinishActivity
 import com.erman.usurf.utils.*
 import java.io.File
 
-class MainActivity : AppCompatActivity(), ShowDialog {
+class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNavDrawer, StorageAccessFramework, HomeStorageButton {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var directoryViewModel: DirectoryViewModel
     private lateinit var viewModelFactory: ViewModelFactory
@@ -51,9 +53,16 @@ class MainActivity : AppCompatActivity(), ShowDialog {
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         val navView: NavigationView = findViewById(R.id.nav_view)
         val navController = findNavController(R.id.nav_host_fragment)
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
 
+        setupNavDrawer(navView, navController, drawerLayout)
+        addStoragesToDrawer(navView, navController, drawerLayout)
+        requestPermissions()
+
+        if (intent.getBooleanExtra(KEY_INTENT_IS_FTP_NOTIFICATION_CLICKED, INTENT_IS_FTP_NOTIFICATION_CLICKED_DEF_VAL))
+            navController.navigate(R.id.global_action_to_nav_ftp)
+    }
+
+    private fun setupNavDrawer(navView: NavigationView, navController: NavController, drawerLayout: DrawerLayout) {
         appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.nav_home,
@@ -66,7 +75,6 @@ class MainActivity : AppCompatActivity(), ShowDialog {
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         navView.setNavigationItemSelectedListener {
-            clearNavItemChecked(navView)
             when (it.itemId) {
                 R.id.nav_home -> navController.navigate(R.id.global_action_nav_home)
                 R.id.nav_preferences -> navController.navigate(R.id.global_action_nav_preferences)
@@ -77,45 +85,34 @@ class MainActivity : AppCompatActivity(), ShowDialog {
             drawerLayout.closeDrawers()
             true
         }
-        addStorageToDrawer(navView, navController, drawerLayout)
-        requestPermissions()
     }
 
-    private fun addStorageToDrawer(navView: NavigationView, navController: NavController, drawerLayout: DrawerLayout) {
+    private fun addStoragesToDrawer(navView: NavigationView, navController: NavController, drawerLayout: DrawerLayout) {
         val storageDirectories = StoragePaths().getStorageDirectories()
 
         for (path in storageDirectories) {
-            if (path != "/") {
-                val storage = navView.menu.add(path)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    storage.icon = ContextCompat.getDrawable(this, R.drawable.ic_hdd)
-                }
-                storage.setOnMenuItemClickListener {
-                    clearNavItemChecked(navView)
-                    onStorageButtonClick(path, navController)
-                    drawerLayout.closeDrawers()
-                    storage.isChecked = true
-                    true
-                }
+            val storage = navView.menu.add(R.id.storage, Menu.NONE, 0, path)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                storage.icon = ContextCompat.getDrawable(this, R.drawable.ic_hdd)
+            }
+            storage.setOnMenuItemClickListener {
+                onStorageButtonClick(path, navController)
+                drawerLayout.closeDrawers()
+                true
             }
         }
     }
 
-    private fun clearNavItemChecked(navView: NavigationView) {
-        for (item in navView.menu) {
-            item.isChecked = false
-        }
+    private fun refreshNavDrawer(navView: NavigationView, navController: NavController, drawerLayout: DrawerLayout) {
+        navView.menu.removeGroup(R.id.storage)
+        addStoragesToDrawer(navView, navController, drawerLayout)
     }
 
     private fun onStorageButtonClick(path: String, navController: NavController) {
         directoryViewModel.setPath(path)
         navController.navigate(R.id.global_action_nav_directory)
         if (!File(path).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-                //If you really do need full access to an entire subtree of documents,
-                this.startActivityForResult(intent, 2)
-            }
+            launchSAF()
         }
     }
 
@@ -151,5 +148,41 @@ class MainActivity : AppCompatActivity(), ShowDialog {
             drawerLayout.closeDrawers()
         else
             super.onBackPressed()
+    }
+
+    override fun finishActivity() {
+        finish()
+    }
+
+    override fun refreshStorageButtons() {
+        val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
+        val navView: NavigationView = findViewById(R.id.nav_view)
+        val navController = findNavController(R.id.nav_host_fragment)
+
+        refreshNavDrawer(navView, navController, drawerLayout)
+    }
+
+    override fun launchSAF() {
+        //https://developer.android.com/reference/android/support/v4/provider/DocumentFile
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+            //If you really do need full access to an entire subtree of documents,
+            this.startActivityForResult(intent, 2)
+        }
+    }
+
+    override fun autoSizeButtonDimensions(storageButtonCount: Int, sideMargin: Int): Pair<Int, Int> {
+        val displayMetrics = DisplayMetrics()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+            this.display?.getRealMetrics(displayMetrics)
+        else
+            windowManager.defaultDisplay.getMetrics(displayMetrics)
+
+        val screenWidth = displayMetrics.widthPixels
+        val screenHeight = displayMetrics.heightPixels
+
+        return Pair(((screenWidth - ((sideMargin * 2) * storageButtonCount)) / storageButtonCount),
+            (screenHeight / (8 + storageButtonCount)))
     }
 }
