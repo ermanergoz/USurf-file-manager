@@ -48,6 +48,9 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     private val _onAddShortcut = MutableLiveData<Event<UIEventArgs.ShortcutDialogArgs>>()
     val onAddShortcut: LiveData<Event<UIEventArgs.ShortcutDialogArgs>> = _onAddShortcut
 
+    private val _isSingleOperationMode = MutableLiveData<Boolean>()
+    val isSingleOperationMode: LiveData<Boolean> = _isSingleOperationMode
+
     private val _copyMode = MutableLiveData<Boolean>().apply {
         value = false
     }
@@ -83,6 +86,11 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
     val moreOptionMode: LiveData<Boolean> = _moreOptionMode
 
+    private val _isEmptyDir = MutableLiveData<Boolean>().apply {
+        value = false
+    }
+    val isEmptyDir: LiveData<Boolean> = _isEmptyDir
+
     fun getSearchedDeviceFiles(storagePaths: ArrayList<String>, searchQuery: String): List<File> {
         val fileList = mutableListOf<File>()
         try {
@@ -114,8 +122,11 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
 
     fun onFileClick(file: FileModel) {
         if (multiSelectionMode) {
-            multipleSelection.value?.let {multipleSelection ->
+            _isSingleOperationMode.value = false
+            multipleSelection.value?.let { multipleSelection ->
                 _multipleSelection.value = directoryModel.manageMultipleSelectionList(file, multipleSelection)
+                if (multipleSelection.size == 1)
+                    _isSingleOperationMode.value = true
             }
         } else {
             if (file.isDirectory) _path.value = file.path
@@ -124,9 +135,10 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
 
     fun onFileLongClick(file: FileModel): Boolean {
-        multipleSelection.value?.let {multipleSelection ->
+        multipleSelection.value?.let { multipleSelection ->
             _multipleSelection.value = directoryModel.manageMultipleSelectionList(file, multipleSelection)
         }
+        _isSingleOperationMode.value = true
         _optionMode.value = true
         multiSelectionMode = true
         return true
@@ -142,7 +154,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
 
     fun clearMultipleSelection() {
-        multipleSelection.value?.let {multipleSelection ->
+        multipleSelection.value?.let { multipleSelection ->
             _multipleSelection.value = directoryModel.clearMultipleSelection(multipleSelection)
         }
     }
@@ -183,8 +195,10 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     fun getFileList(): List<FileModel> {
         if (!path.value.isNullOrEmpty()) {
             try {
-                path.value?.let {path ->
-                    return directoryModel.getFileModelsFromFiles(path)
+                path.value?.let { path ->
+                    val directory = directoryModel.getFileModelsFromFiles(path)
+                    _isEmptyDir.value = directory.isNullOrEmpty()
+                    return directory
                 }
             } catch (err: IllegalStateException) {
                 _toastMessage.value = Event(R.string.unable_to_open_directory)
@@ -264,11 +278,13 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
 
     fun copy() {
         _copyMode.value = true
+        _moreOptionMode.value = false
         multiSelectionMode = false
     }
 
     fun move() {
         _moveMode.value = true
+        _moreOptionMode.value = false
         multiSelectionMode = false
     }
 
@@ -340,9 +356,6 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
 
     fun rename() {
         multipleSelection.value?.let { multipleSelection ->
-            if (multipleSelection.size > 1)
-                _toastMessage.value = Event(R.string.forced_single_selection_info)
-
             _onRename.value = Event(UIEventArgs.RenameDialogArgs(multipleSelection.last().name))
         }
     }
@@ -409,7 +422,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
         logd("onFileCreateOkPressed")
         launch {
             try {
-                path.value?.let {path ->
+                path.value?.let { path ->
                     directoryModel.createFile(path, fileName)
                     _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path)
                     _toastMessage.value = Event(R.string.file_creation_successful)

@@ -1,5 +1,6 @@
 package com.erman.usurf.ftp.ui
 
+import android.widget.RadioGroup
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.erman.usurf.utils.Event
@@ -10,6 +11,7 @@ import com.erman.usurf.ftp.model.FtpModel
 import com.erman.usurf.ftp.model.FTPLiveData
 import com.erman.usurf.ftp.model.FtpServer
 import com.erman.usurf.ftp.utils.DEFAULT_PORT
+import com.erman.usurf.utils.StoragePaths
 import com.erman.usurf.utils.loge
 
 class FTPViewModel(private val ftpModel: FtpModel) : ViewModel() {
@@ -34,13 +36,23 @@ class FTPViewModel(private val ftpModel: FtpModel) : ViewModel() {
     val isConnectedToWifi = MutableLiveData<ConnectionLiveData>().apply {
         value = ConnectionLiveData()
     }
+
     val isServiceRunning = MutableLiveData<FTPLiveData>().apply {
         value = FTPLiveData()
     }
 
+    private val _storagePaths = MutableLiveData<List<String>>().apply {
+        value = StoragePaths().getStorageDirectories()
+    }
+    val storagePaths: MutableLiveData<List<String>> = _storagePaths
+
     fun onConnectClicked() {
         if (!FtpServer.isFtpServerRunning) ftpModel.startFTPServer()
         else ftpModel.stopFTPServer()
+    }
+
+    fun getServerStatus(): Boolean {
+        return FtpServer.isFtpServerRunning
     }
 
     private val _toastMessage = MutableLiveData<Event<Int>>()
@@ -60,10 +72,18 @@ class FTPViewModel(private val ftpModel: FtpModel) : ViewModel() {
             newPort = port.toString().toInt()
         }catch (err: NumberFormatException)
         {
-            loge("onPortChanged$err")
+            loge("onPortChanged $err")
             newPort = DEFAULT_PORT
             _toastMessage.value = Event(R.string.port_error)
         }
         preferenceProvider.editPort(newPort)
+    }
+
+    fun onFtpPathSelected(radioGroup :RadioGroup, id: Int) {
+        preferenceProvider.editFtpPath(_storagePaths.value?.let { it[id] })
+    }
+
+    fun getFtpSelectedPath(): String? {
+        return preferenceProvider.getFtpPath()
     }
 }
