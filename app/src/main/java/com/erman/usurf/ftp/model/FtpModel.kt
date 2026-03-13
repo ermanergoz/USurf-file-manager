@@ -25,8 +25,9 @@ class FtpModel {
         Intent(appContext, FtpServer()::class.java).also { intent ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 ContextCompat.startForegroundService(appContext, intent)
-            } else
+            } else {
                 appContext.startService(intent)
+            }
         }
     }
 

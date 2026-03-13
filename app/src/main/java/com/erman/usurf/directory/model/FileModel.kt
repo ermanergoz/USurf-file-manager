@@ -1,6 +1,6 @@
 package com.erman.usurf.directory.model
 
-data class  FileModel(
+data class FileModel(
     var path: String = "",
     var name: String = "",
     var nameWithoutExtension: String = "",
@@ -12,5 +12,5 @@ data class  FileModel(
     var permission: MountOption = MountOption.OTHER,
     var isHidden: Boolean = false,
     var isInRoot: Boolean = false,
-    var isSelected: Boolean = false
+    var isSelected: Boolean = false,
 )

@@ -1,7 +1,6 @@
 package com.erman.usurf.utils
 
 import android.annotation.SuppressLint
-import android.os.Build
 import com.erman.usurf.application.MainApplication
 import com.erman.usurf.preference.data.PreferenceProvider
 import org.koin.java.KoinJavaComponent.getKoin
@@ -14,41 +13,40 @@ object StoragePaths {
     @SuppressLint("SdCardPath")
     fun getStorageDirectories(): Set<String> {
         val paths = mutableSetOf<String>()
-        val storageDirectories = arrayOf(
-            "/data/sdext4",
-            "/data/sdext3",
-            "/data/sdext2",
-            "/data/sdext1",
-            "/data/sdext",
-            "/storage/removable/sdcard1",
-            "/storage/external_SD",
-            "/storage/ext_sd",
-            "/storage/extsd",
-            "/storage/sdcard1",
-            "/storage/sdcard0",
-            "/storage/sdcard",
-            "/mnt/sdcard/external_sd",
-            "/mnt/extsdcard",
-            "/mnt/external_sd",
-            "/mnt/externalsd",
-            "/mnt/emmc",
-            "/mnt/sdcard0",
-            "/mnt/sdcard1",
-            "/mnt/sdcard"
-        )
+        val storageDirectories =
+            arrayOf(
+                "/data/sdext4",
+                "/data/sdext3",
+                "/data/sdext2",
+                "/data/sdext1",
+                "/data/sdext",
+                "/storage/removable/sdcard1",
+                "/storage/external_SD",
+                "/storage/ext_sd",
+                "/storage/extsd",
+                "/storage/sdcard1",
+                "/storage/sdcard0",
+                "/storage/sdcard",
+                "/mnt/sdcard/external_sd",
+                "/mnt/extsdcard",
+                "/mnt/external_sd",
+                "/mnt/externalsd",
+                "/mnt/emmc",
+                "/mnt/sdcard0",
+                "/mnt/sdcard1",
+                "/mnt/sdcard",
+            )
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            for (file in MainApplication.appContext.getExternalFilesDirs(DIR_TYPE_EXTERNAL)) {
-                file?.let {
-                    val index = it.absolutePath.lastIndexOf(EXTERNAL_DIR_SUFFIX)
-                    var path = it.absolutePath.substring(0, index)
-                    try {
-                        path = File(path).canonicalPath
-                    } catch (err: IOException) {
-                        loge("" + err.localizedMessage)
-                    }
-                    paths.add(path)
+        for (file in MainApplication.appContext.getExternalFilesDirs(DIR_TYPE_EXTERNAL)) {
+            file?.let {
+                val index = it.absolutePath.lastIndexOf(EXTERNAL_DIR_SUFFIX)
+                var path = it.absolutePath.substring(0, index)
+                try {
+                    path = File(path).canonicalPath
+                } catch (err: IOException) {
+                    loge("" + err.localizedMessage)
                 }
+                paths.add(path)
             }
         }
         if (paths.isEmpty() || paths.size == 1) {

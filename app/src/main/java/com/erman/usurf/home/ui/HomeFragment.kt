@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.erman.usurf.R
 import com.erman.usurf.activity.model.ShowDialog
 import com.erman.usurf.databinding.FragmentHomeBinding
+import com.erman.usurf.databinding.StorageButtonBinding
 import com.erman.usurf.dialog.model.DialogArgs
 import com.erman.usurf.dialog.ui.FavoriteOptionsDialog
 import com.erman.usurf.dialog.ui.KitkatRemovableStorageWarningDialog
@@ -45,84 +46,107 @@ class HomeFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false)
+        binding.lifecycleOwner = this
+        binding.viewModel = homeViewModel
 
+        setupNavigationObserver()
+        setupPathObserver()
+        setupStorageButtonsObserver()
+        setupDialogObserver()
+        setupToastMessageObserver()
+
+        return binding.root
+    }
+
+    private fun setupNavigationObserver() {
         homeViewModel.navigateToDirectory.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let { navId ->
                 findNavController().navigate(navId)
             }
         }
+    }
 
+    private fun setupPathObserver() {
         homeViewModel.path.observe(viewLifecycleOwner) {
             directoryViewModel.setPath(it)
         }
+    }
 
-        homeViewModel.storageButtons.observe(viewLifecycleOwner) {
-            val dimensions = storageButtonDimensions.autoSizeButtonDimensions(
-                it.size,
-                STORAGE_BUTTON_HORIZONTAL_MARGIN
-            )
-            val buttonLayoutParams = FrameLayout.LayoutParams(dimensions.first, dimensions.second)
-            buttonLayoutParams.setMargins(
-                STORAGE_BUTTON_HORIZONTAL_MARGIN,
-                STORAGE_BUTTON_VERTICAL_MARGIN,
-                STORAGE_BUTTON_HORIZONTAL_MARGIN,
-                STORAGE_BUTTON_VERTICAL_MARGIN
-            )
-            it.forEach { button ->
-                button.lifecycleOwner = this
-                button.viewModel = homeViewModel
-                binding.storageUsageBarLayout.addView(button.root, buttonLayoutParams)
-            }
+    private fun setupStorageButtonsObserver() {
+        homeViewModel.storageButtons.observe(viewLifecycleOwner) { buttons ->
+            createStorageButtons(buttons)
         }
+    }
 
+    private fun createStorageButtons(buttons: List<StorageButtonBinding>) {
+        val dimensions =
+            storageButtonDimensions.autoSizeButtonDimensions(
+                buttons.size,
+                STORAGE_BUTTON_HORIZONTAL_MARGIN,
+            )
+        val buttonLayoutParams = FrameLayout.LayoutParams(dimensions.first, dimensions.second)
+        buttonLayoutParams.setMargins(
+            STORAGE_BUTTON_HORIZONTAL_MARGIN,
+            STORAGE_BUTTON_VERTICAL_MARGIN,
+            STORAGE_BUTTON_HORIZONTAL_MARGIN,
+            STORAGE_BUTTON_VERTICAL_MARGIN,
+        )
+        buttons.forEach { button ->
+            button.lifecycleOwner = this
+            button.viewModel = homeViewModel
+            binding.storageUsageBarLayout.addView(button.root, buttonLayoutParams)
+        }
+    }
+
+    private fun setupDialogObserver() {
         homeViewModel.dialog.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let { args ->
-                when (args) {
-                    is DialogArgs.RenameDialogArgs -> dialogListener.showDialog(RenameDialog(args.name))
-                    is DialogArgs.OpenFileActivityArgs -> {
-                        logd("Open a favorite file")
-                        val intent = Intent(Intent.ACTION_VIEW)
-                        intent.data = FileProvider.getUriForFile(
-                            requireContext(),
-                            requireContext().packageName,
-                            File(args.path)
-                        )
-                        intent.flags =
-                            Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-                        intent.resolveActivity(requireContext().packageManager)
-                            ?.let { startActivity(intent) }
-                            ?: let {
-                                Toast.makeText(
-                                    context,
-                                    getString(R.string.unsupported_file),
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            }
-                    }
-                    is DialogArgs.FavoriteOptionsDialogArgs -> dialogListener.showDialog(
-                        FavoriteOptionsDialog(args.view)
-                    )
-                    is DialogArgs.KitkatRemovableStorageDialogArgs -> dialogListener.showDialog(
-                        KitkatRemovableStorageWarningDialog()
-                    )
-                    is DialogArgs.SAFActivityArgs -> safListener.launchSAF()
-                    else -> loge("HomeFragment $args")
-                }
+                handleDialog(args)
             }
         }
+    }
 
+    private fun handleDialog(args: DialogArgs) {
+        when (args) {
+            is DialogArgs.RenameDialogArgs -> dialogListener.showDialog(RenameDialog(args.name))
+            is DialogArgs.OpenFileActivityArgs -> openFile(args.path)
+            is DialogArgs.FavoriteOptionsDialogArgs -> dialogListener.showDialog(FavoriteOptionsDialog(args.view))
+            is DialogArgs.KitkatRemovableStorageDialogArgs -> dialogListener.showDialog(KitkatRemovableStorageWarningDialog())
+            is DialogArgs.SAFActivityArgs -> safListener.launchSAF()
+            else -> loge("HomeFragment $args")
+        }
+    }
+
+    private fun openFile(path: String) {
+        logd("Open a favorite file")
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.data =
+            FileProvider.getUriForFile(
+                requireContext(),
+                requireContext().packageName,
+                File(path),
+            )
+        intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+        intent.resolveActivity(requireContext().packageManager)
+            ?.let { startActivity(intent) }
+            ?: let {
+                Toast.makeText(
+                    context,
+                    getString(R.string.unsupported_file),
+                    Toast.LENGTH_LONG,
+                ).show()
+            }
+    }
+
+    private fun setupToastMessageObserver() {
         homeViewModel.toastMessage.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let { messageId ->
                 Toast.makeText(context, getString(messageId), Toast.LENGTH_LONG).show()
             }
         }
-
-        binding.lifecycleOwner = this
-        binding.viewModel = homeViewModel
-        return binding.root
     }
 
     private fun runRecyclerViewAnimation(recyclerView: RecyclerView) {
@@ -133,7 +157,10 @@ class HomeFragment : Fragment() {
         recyclerView.scheduleLayoutAnimation()
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         super.onViewCreated(view, savedInstanceState)
 
         favoriteRecyclerViewAdapter = FavoriteRecyclerViewAdapter(homeViewModel)
@@ -141,7 +168,7 @@ class HomeFragment : Fragment() {
         binding.favoriteRecyclerView.adapter = favoriteRecyclerViewAdapter
         binding.favoriteRecyclerView.itemAnimator?.let {
             it.changeDuration = 0
-        }//to avoid flickering
+        } // to avoid flickering
 
         homeViewModel.favorites.observe(viewLifecycleOwner) {
             favoriteRecyclerViewAdapter.updateData(it)
@@ -156,14 +183,14 @@ class HomeFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        //To avoid storage buttons from disappearing when resuming the app from background
-        //And also, to refresh it after preference change
+        // To avoid storage buttons from disappearing when resuming the app from background
+        // And also, to refresh it after preference change
         refreshStorageButtons()
     }
 
     override fun onPause() {
         super.onPause()
-        //To avoid java.lang.IllegalStateException: The specified child already has a parent.
+        // To avoid java.lang.IllegalStateException: The specified child already has a parent.
         // You must call removeView() on the child's parent first.
         binding.storageUsageBarLayout.removeAllViews()
     }
