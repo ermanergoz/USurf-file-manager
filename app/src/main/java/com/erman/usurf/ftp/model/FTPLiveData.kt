@@ -7,11 +7,11 @@ import android.content.IntentFilter
 import androidx.lifecycle.LiveData
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.erman.usurf.R
-import com.erman.usurf.application.MainApplication.Companion.appContext
-import com.erman.usurf.utils.logd
+import com.erman.usurf.ftp.service.FtpServer
+import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
 
-class FTPLiveData : LiveData<Boolean>() {
+class FTPLiveData(private val context: Context) : LiveData<Boolean>() {
     private val ftpServiceReceiver =
         object : BroadcastReceiver() {
             override fun onReceive(
@@ -24,23 +24,21 @@ class FTPLiveData : LiveData<Boolean>() {
 
     override fun onActive() {
         super.onActive()
-        logd("Register ftpServiceReceiver")
-        LocalBroadcastManager.getInstance(appContext).registerReceiver(
+        LocalBroadcastManager.getInstance(context).registerReceiver(
             ftpServiceReceiver,
-            IntentFilter(appContext.getString(R.string.ftp_broadcast_receiver)),
+            IntentFilter(context.getString(R.string.ftp_broadcast_receiver)),
         )
     }
 
     override fun onInactive() {
         super.onInactive()
         try {
-            logd("Unregister ftpServiceReceiver")
-            LocalBroadcastManager.getInstance(appContext).unregisterReceiver(ftpServiceReceiver)
+            LocalBroadcastManager.getInstance(context).unregisterReceiver(ftpServiceReceiver)
         } catch (err: Exception) {
-            loge("onInactive $err")
+            loge(err.localizedMessage ?: UNKNOWN_ERROR)
         }
     }
 }
 
-val isServiceRunning: Boolean
+private val isServiceRunning: Boolean
     get() = FtpServer.isFtpServerRunning
