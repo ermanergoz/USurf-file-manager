@@ -31,7 +31,7 @@
             android:layout_height="32dp"
             android:layout_marginBottom="@dimen/layout_margin_4"
             android:contentDescription="@string/favorite"
-            android:src="@drawable/ic_folder"
+            android:src="@{favoriteItem.isDirectory ? @drawable/ic_folder : @drawable/ic_file}"
             android:tint="@color/colorPrimary" />
 
         <TextView
