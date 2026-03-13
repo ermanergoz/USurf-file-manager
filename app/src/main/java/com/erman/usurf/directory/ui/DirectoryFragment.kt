@@ -40,11 +40,11 @@ class DirectoryFragment : Fragment() {
             Toast.makeText(context, getString(it), Toast.LENGTH_LONG).show()
         })
 
-        directoryViewModel.multipleSelection.observe(viewLifecycleOwner, {
+        directoryViewModel.multipleSelection.observe(viewLifecycleOwner) {
             directoryRecyclerViewAdapter.updateSelection()
-        })
+        }
 
-        directoryViewModel.dialog.observe(viewLifecycleOwner, {
+        directoryViewModel.dialog.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let { args ->
                 when (args) {
                     is DialogArgs.RenameDialogArgs -> dialogListener.showDialog(RenameDialog(args.name))
@@ -71,9 +71,13 @@ class DirectoryFragment : Fragment() {
                         for (fileModel in args.multipleSelectionList) {
                             if (!fileModel.isDirectory) {
                                 logi("Share: " + fileModel.name)
-                                fileUris.add(FileProvider.getUriForFile(requireContext(),
-                                    requireContext().packageName, //(use your app signature + ".provider" )
-                                    File(fileModel.path)))  //used this instead of File().toUri to avoid FileUriExposedException
+                                fileUris.add(
+                                    FileProvider.getUriForFile(
+                                        requireContext(),
+                                        requireContext().packageName, //(use your app signature + ".provider" )
+                                        File(fileModel.path)
+                                    )
+                                )  //used this instead of File().toUri to avoid FileUriExposedException
                             } else
                                 messages.add(fileModel.name)
                         }
@@ -93,11 +97,11 @@ class DirectoryFragment : Fragment() {
                     else -> loge("DirectoryFragment $args")
                 }
             }
-        })
+        }
 
-        directoryViewModel.updateDirectoryList.observe(viewLifecycleOwner, {
-            directoryRecyclerViewAdapter.updateData(it) //3 6
-        })
+        directoryViewModel.updateDirectoryList.observe(viewLifecycleOwner) {
+            directoryRecyclerViewAdapter.updateData(it)
+        }
 
         requireActivity().onBackPressedDispatcher.addCallback(this) {
             if (!directoryViewModel.onBackPressed()) {
@@ -123,15 +127,15 @@ class DirectoryFragment : Fragment() {
         directoryRecyclerViewAdapter = DirectoryRecyclerViewAdapter(directoryViewModel)
         binding.fileListRecyclerView.adapter = directoryRecyclerViewAdapter
 
-        directoryViewModel.path.observe(viewLifecycleOwner, {
+        directoryViewModel.path.observe(viewLifecycleOwner) {
             directoryViewModel.getFileList()
             runRecyclerViewAnimation(binding.fileListRecyclerView)
-        })
+        }
 
-        directoryViewModel.fileSearchQuery.observe(viewLifecycleOwner, {
+        directoryViewModel.fileSearchQuery.observe(viewLifecycleOwner) {
             directoryViewModel.getSearchedFiles()
             runRecyclerViewAnimation(binding.fileListRecyclerView)
-        })
+        }
     }
 
     override fun onAttach(context: Context) {

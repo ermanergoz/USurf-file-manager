@@ -35,7 +35,7 @@ val AppModule = module {
         )
     }
 
-    single{
+    single {
         return@single Realm.getDefaultInstance()
     }
 

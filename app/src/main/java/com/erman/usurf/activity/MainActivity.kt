@@ -27,6 +27,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.window.layout.WindowMetricsCalculator
 import com.erman.usurf.MobileNavigationDirections
 import com.erman.usurf.R
 import com.erman.usurf.activity.data.StorageDirectoryPreferenceProvider
@@ -49,7 +50,8 @@ import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
 import java.io.File
 
-class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNavDrawer, StorageAccessFramework, HomeStorageButton, DialogListener {
+class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNavDrawer, StorageAccessFramework, HomeStorageButton,
+    DialogListener {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private val storageDirectoryPreferenceProvider: StorageDirectoryPreferenceProvider by inject()
     private lateinit var resultLauncher: ActivityResultLauncher<Intent>
@@ -62,10 +64,14 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN &&
             Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
             logd("Request read and write permissions")
-            ActivityCompat.requestPermissions(this,
-                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                READ_AND_WRITE_PERMISSION_REQUEST_CODE)
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ),
+                READ_AND_WRITE_PERMISSION_REQUEST_CODE
+            )
 
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             logd("Request access to manage all files")
@@ -96,8 +102,10 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
             val data: Intent? = result.data
             data?.data?.let { treeUri ->
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    this.contentResolver.takePersistableUriPermission(treeUri,
-                        Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                    this.contentResolver.takePersistableUriPermission(
+                        treeUri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    )
                 }
                 storageDirectoryPreferenceProvider.editChosenUri(treeUri.toString())
             }
@@ -128,7 +136,13 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
         }
 
         val drawerToggle: ActionBarDrawerToggle =
-            object : ActionBarDrawerToggle(this, drawerLayout, binding.incAppBarMain.toolbar, R.string.drawer_open, R.string.drawer_close) {
+            object : ActionBarDrawerToggle(
+                this,
+                drawerLayout,
+                binding.incAppBarMain.toolbar,
+                R.string.drawer_open,
+                R.string.drawer_close
+            ) {
                 override fun onDrawerClosed(view: View) {
                     super.onDrawerClosed(view)
                     //This whole thing is a workaround to fix nav drawer lag issue.
@@ -136,7 +150,6 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
                     destination?.let { navController.navigate(it) }
                 }
             }
-
         drawerToggle.isDrawerIndicatorEnabled = true
         drawerLayout.addDrawerListener(drawerToggle)
         drawerToggle.syncState()
@@ -207,14 +220,15 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
 
     override fun autoSizeButtonDimensions(storageButtonCount: Int, sideMargin: Int): Pair<Int, Int> {
         //to calculate the storage buttons so that they will fill the screen vertically
-        val displayMetrics = DisplayMetrics()
-        windowManager.defaultDisplay.getMetrics(displayMetrics)
+        val windowMetrics = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(this)
+        val currentBounds = windowMetrics.bounds // E.g. [0 0 1350 1800]
+        val screenWidth = currentBounds.width()
+        val screenHeight = currentBounds.height()
 
-        val screenWidth = displayMetrics.widthPixels
-        val screenHeight = displayMetrics.heightPixels
-
-        return Pair(((screenWidth - ((sideMargin * 2) * storageButtonCount)) / storageButtonCount),
-            (screenHeight / (8 + storageButtonCount)))
+        return Pair(
+            ((screenWidth - ((sideMargin * 2) * storageButtonCount)) / storageButtonCount),
+            (screenHeight / (8 + storageButtonCount))
+        )
     }
 
     @SuppressLint("InlinedApi") //Version check already exists
