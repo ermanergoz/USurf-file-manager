@@ -9,18 +9,23 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.module.AppGlideModule
 import com.bumptech.glide.request.RequestOptions
 import com.erman.usurf.R
-import com.erman.usurf.directory.utils.THUMBNAIL_IMAGE_HEIGHT
-import com.erman.usurf.directory.utils.THUMBNAIL_IMAGE_WIDTH
+
+private const val THUMBNAIL_IMAGE_HEIGHT = 100
+private const val THUMBNAIL_IMAGE_WIDTH = 100
 
 @GlideModule
 class ThumbnailGlideModule : AppGlideModule() {
-    override fun applyOptions(context: Context, builder: GlideBuilder) {
-        val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.NONE)
-            .format(DecodeFormat.PREFER_RGB_565) //uses less memory than default ARGB_8888
-            .override(THUMBNAIL_IMAGE_WIDTH, THUMBNAIL_IMAGE_HEIGHT)
-            .placeholder(R.drawable.ic_file)
+    override fun applyOptions(
+        context: Context,
+        builder: GlideBuilder,
+    ) {
+        val requestOptions =
+            RequestOptions().diskCacheStrategy(DiskCacheStrategy.NONE)
+                .format(DecodeFormat.PREFER_RGB_565) // uses less memory than default ARGB_8888
+                .override(THUMBNAIL_IMAGE_WIDTH, THUMBNAIL_IMAGE_HEIGHT)
+                .placeholder(R.drawable.ic_file)
 
         builder.setDefaultRequestOptions(requestOptions)
-            .setLogLevel(Log.ERROR) //Info and Warn are too annoying
+            .setLogLevel(Log.ERROR) // Info and Warn are too annoying
     }
 }

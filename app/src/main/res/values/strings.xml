@@ -17,7 +17,7 @@
     <string name="developer">Developer:</string>
     <string name="yusuf_erman_ergoz">Yusuf Erman ERGÖZ</string>
     <string name="version">Version:</string>
-    <string name="app_version" translatable="false">1.3.1</string>
+    <string name="app_version" translatable="false">1.4.0</string>
     <string name="github">Github:</string>
     <string name="github_link">https://github.com/ermanergoz/USurf</string>
     <string name="icons_those_icons">Device-wide Search icon and Menu icon by Those Icons from flaticon.com</string>
@@ -69,6 +69,7 @@
     <string name="extracting_successful">Extracted</string>
     <string name="error_while_extracting">Error while extracting</string>
     <string name="su_not_found">Device is not rooted.</string>
+    <string name="root_access_denied">Root access was denied.</string>
     <string name="name">Name:</string>
     <string name="path">Path:</string>
     <string name="size">Size:</string>
@@ -123,8 +124,21 @@
     <string name="i_understand">I understand</string>
     <string name="kitkat_removable_storage_warning">Due to the decisions made by Google regarding Android 4.4 KitKat, file operations in the removable storage may not work on most of the devices.</string>
     <string name="manage_all_files_message">In order this application to work, \"Allow access to manage all files\" setting needs to be turned on.</string>
+    <string name="storage_permission_not_granted">Storage permission is not granted.</string>
+    <string name="storage_permission_rationale">Storage permission is required for the file manager to access your files.</string>
+    <string name="notification_permission_not_granted">Notification permission is not granted. FTP server notifications will not be shown.</string>
     <string name="saf_access_message">Please choose the root directory of the removable storage to grant write permission to operate.</string>
     <string name="supported_compression_formats">Supported formats are: 7z bzip2 gzip tar wim xz zip</string>
     <string name="privacy_policy">Privacy Policy</string>
-    <string name="privacy_policy_url">https://www.ermanergoz.com/usurf-privacy-policy.html</string>
+    <string name="privacy_policy_url" translatable="false">https://ermanergoz.github.io/policies/usurf-privacy-policy.html</string>
+    <string name="tb" translatable="false">TB</string>
+    <string name="gb" translatable="false">GB</string>
+    <string name="mb" translatable="false">MB</string>
+    <string name="kb" translatable="false">KB</string>
+    <string name="bytes">Bytes</string>
+    <string name="file_count">Files</string>
+    <string name="more">More</string>
+    <string name="hint_port">Port</string>
+    <string name="hint_password">Password</string>
+    <string name="hint_username">Username</string>
 </resources>

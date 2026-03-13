@@ -9,6 +9,10 @@
         <variable
             name="viewModel"
             type="com.erman.usurf.ftp.ui.FTPViewModel" />
+
+        <variable
+            name="uiState"
+            type="com.erman.usurf.ftp.ui.FtpUiState" />
     </data>
 
     <ScrollView
@@ -39,8 +43,8 @@
                 android:layout_marginLeft="@dimen/horizontal_margin_8"
                 android:layout_marginTop="@dimen/vertical_margin_4"
                 android:layout_marginRight="@dimen/horizontal_margin_8"
-                android:text="@{viewModel.isConnectedToWifi() ? @string/connected : @string/no_connection}"
-                android:textColor="@{viewModel.isConnectedToWifi() ? @android:color/holo_green_dark : @android:color/holo_red_dark}"
+                android:text="@{uiState.isConnectedToWifi ? @string/connected : @string/no_connection}"
+                android:textColor="@{uiState.isConnectedToWifi ? @android:color/holo_green_dark : @android:color/holo_red_dark}"
                 android:textSize="@dimen/text_size_16" />
 
             <TextView
@@ -61,7 +65,7 @@
                 android:layout_marginLeft="@dimen/horizontal_margin_8"
                 android:layout_marginTop="@dimen/vertical_margin_4"
                 android:layout_marginRight="@dimen/horizontal_margin_8"
-                android:text="@{viewModel.isConnectedToWifi() ? viewModel.url : @string/empty}"
+                android:text="@{uiState.isConnectedToWifi ? uiState.url : @string/empty}"
                 android:textSize="@dimen/text_size_16" />
 
             <TextView
@@ -78,16 +82,17 @@
             <EditText
                 android:id="@+id/editUserNameTextView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/height_48"
                 android:layout_marginLeft="@dimen/horizontal_margin_8"
                 android:layout_marginTop="@dimen/vertical_margin_4"
                 android:layout_marginRight="@dimen/horizontal_margin_8"
                 android:ems="10"
-                android:enabled="@{viewModel.isServiceRunning ? false : true}"
+                android:enabled="@{!uiState.isServiceRunning}"
+                android:hint="@string/hint_username"
                 android:importantForAutofill="no"
                 android:inputType="textPersonName"
                 android:onTextChanged="@{viewModel::onUsernameChanged}"
-                android:text="@{viewModel.username}"
+                android:text="@{uiState.username}"
                 android:textSize="@dimen/text_size_16"
                 tools:ignore="LabelFor" />
 
@@ -105,16 +110,17 @@
             <EditText
                 android:id="@+id/editPasswordTextView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/height_48"
                 android:layout_marginLeft="@dimen/horizontal_margin_8"
                 android:layout_marginTop="@dimen/vertical_margin_4"
                 android:layout_marginRight="@dimen/horizontal_margin_8"
                 android:autofillHints=""
                 android:ems="10"
-                android:enabled="@{viewModel.isServiceRunning ? false : true}"
+                android:enabled="@{!uiState.isServiceRunning}"
+                android:hint="@string/hint_password"
                 android:inputType="textPassword"
                 android:onTextChanged="@{viewModel::onPasswordChanged}"
-                android:text="@{viewModel.password}"
+                android:text="@{uiState.password}"
                 android:textSize="@dimen/text_size_16"
                 tools:ignore="LabelFor" />
 
@@ -132,17 +138,18 @@
             <EditText
                 android:id="@+id/editPortTextView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/height_48"
                 android:layout_marginLeft="@dimen/horizontal_margin_8"
                 android:layout_marginTop="@dimen/vertical_margin_4"
                 android:layout_marginRight="@dimen/horizontal_margin_8"
                 android:layout_marginBottom="@dimen/vertical_margin_16"
                 android:ems="10"
-                android:enabled="@{viewModel.isServiceRunning ? false : true}"
+                android:enabled="@{!uiState.isServiceRunning}"
+                android:hint="@string/hint_port"
                 android:importantForAutofill="no"
                 android:inputType="numberDecimal"
                 android:onTextChanged="@{viewModel::onPortChanged}"
-                android:text="@{viewModel.port}"
+                android:text="@{uiState.port}"
                 android:textSize="@dimen/text_size_16"
                 tools:ignore="LabelFor" />
 
@@ -153,8 +160,8 @@
                 android:layout_margin="@dimen/layout_margin_8"
                 android:layout_marginTop="@dimen/vertical_margin_16"
                 android:layout_marginBottom="@dimen/vertical_margin_16"
-                android:onCheckedChanged="@{viewModel::onFtpPathSelected}"
-                android:visibility="@{viewModel.isServiceRunning ? View.GONE : View.VISIBLE}" />
+                android:onCheckedChanged="@{(group, checkedId) -> viewModel.onFtpPathSelected(checkedId)}"
+                android:visibility="@{uiState.isServiceRunning ? View.GONE : View.VISIBLE}" />
 
             <Button
                 android:id="@+id/connectButton"
@@ -163,10 +170,12 @@
                 android:layout_marginLeft="@dimen/horizontal_margin_24"
                 android:layout_marginTop="@dimen/vertical_margin_16"
                 android:layout_marginRight="@dimen/horizontal_margin_24"
+                android:layout_marginBottom="@dimen/vertical_margin_32"
                 android:background="@drawable/button_selectable_background"
-                android:enabled="@{viewModel.isConnectedToWifi()}"
+                android:contentDescription="@string/connect"
+                android:enabled="@{uiState.isConnectedToWifi}"
                 android:onClick="@{() -> viewModel.onConnectClicked()}"
-                android:text="@{viewModel.isServiceRunning ? @string/disconnect : @string/connect}" />
+                android:text="@{uiState.isServiceRunning ? @string/disconnect : @string/connect}" />
 
         </LinearLayout>
     </ScrollView>

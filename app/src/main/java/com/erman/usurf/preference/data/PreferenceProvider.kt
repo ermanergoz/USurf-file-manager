@@ -1,64 +1,68 @@
 package com.erman.usurf.preference.data
 
 import android.content.SharedPreferences
-import com.erman.usurf.preference.utils.*
-import com.erman.usurf.utils.logd
+import androidx.core.content.edit
+import com.erman.usurf.preference.utils.KEY_PREFERENCE_ROOT_ACCESS
+
+private const val DESCENDING_ORDER_PREF_DEF_VAL: Boolean = false
+private const val ROOT_ACCESS_PREF_DEF_VAL: Boolean = false
+private const val FILE_SORT_MODE_DEF_VAL: String = "Sort by name"
+private const val SHOW_HIDDEN_PREF_DEF_VAL: Boolean = false
+private const val SHOW_THUMBNAILS_PREF_DEF_VAL: Boolean = true
+private const val KEY_PREFERENCE_SHOW_HIDDEN: String = "showHidden"
+private const val KEY_PREFERENCE_SHOW_THUMBNAILS: String = "showThumbnails"
+private const val KEY_PREFERENCE_ASCENDING_ORDER: String = "ascendingOrder"
+private const val KEY_PREFERENCE_DESCENDING_ORDER: String = "descendingOrder"
+private const val KEY_PREFERENCE_FILE_SORT: String = "sortFileMode"
 
 class PreferenceProvider(private val preferences: SharedPreferences) {
     fun editRootAccessPreference(choice: Boolean) {
-        logd("editRootAccessPreference")
-        preferences.edit().putBoolean(KEY_PREFERENCE_ROOT_ACCESS, choice).apply()
+        preferences.edit { putBoolean(KEY_PREFERENCE_ROOT_ACCESS, choice) }
     }
 
     fun getRootAccessPreference(): Boolean {
-        logd("getRootAccessPreference")
         return preferences.getBoolean(KEY_PREFERENCE_ROOT_ACCESS, ROOT_ACCESS_PREF_DEF_VAL)
     }
 
     fun editFileSortPreference(choice: String) {
-        logd("editFileSortPreference")
-        preferences.edit().putString(KEY_PREFERENCE_FILE_SORT, choice).apply()
+        preferences.edit { putString(KEY_PREFERENCE_FILE_SORT, choice) }
     }
 
     fun getFileSortPreference(): String? {
-        logd("getFileSortPreference")
         return preferences.getString(KEY_PREFERENCE_FILE_SORT, FILE_SORT_MODE_DEF_VAL)
     }
 
     fun editShowHiddenPreference(choice: Boolean) {
-        logd("editShowHiddenPreference")
-        preferences.edit().putBoolean(KEY_PREFERENCE_SHOW_HIDDEN, choice).apply()
+        preferences.edit { putBoolean(KEY_PREFERENCE_SHOW_HIDDEN, choice) }
     }
 
     fun getShowHiddenPreference(): Boolean {
-        logd("getShowHiddenPreference")
         return preferences.getBoolean(KEY_PREFERENCE_SHOW_HIDDEN, SHOW_HIDDEN_PREF_DEF_VAL)
     }
 
     fun editShowThumbnailsPreference(choice: Boolean) {
-        logd("editShowThumbnailsPreference")
-        preferences.edit().putBoolean(KEY_PREFERENCE_SHOW_THUMBNAILS, choice).apply()
+        preferences.edit { putBoolean(KEY_PREFERENCE_SHOW_THUMBNAILS, choice) }
     }
 
     fun getShowThumbnailsPreference(): Boolean {
-        logd("getShowThumbnailsPreference")
         return preferences.getBoolean(KEY_PREFERENCE_SHOW_THUMBNAILS, SHOW_THUMBNAILS_PREF_DEF_VAL)
     }
 
     fun editAscendingOrderPreference(choice: Boolean) {
-        logd("editAscendingOrderPreference")
-        preferences.edit().putBoolean(KEY_PREFERENCE_DESCENDING_ORDER, false).putBoolean(KEY_PREFERENCE_ASCENDING_ORDER, choice)
-            .apply()
+        preferences.edit {
+            putBoolean(KEY_PREFERENCE_DESCENDING_ORDER, false)
+                .putBoolean(KEY_PREFERENCE_ASCENDING_ORDER, choice)
+        }
     }
 
     fun editDescendingOrderPreference(choice: Boolean) {
-        logd("editDescendingOrderPreference")
-        preferences.edit().putBoolean(KEY_PREFERENCE_ASCENDING_ORDER, false).putBoolean(KEY_PREFERENCE_DESCENDING_ORDER, choice)
-            .apply()
+        preferences.edit {
+            putBoolean(KEY_PREFERENCE_ASCENDING_ORDER, false)
+                .putBoolean(KEY_PREFERENCE_DESCENDING_ORDER, choice)
+        }
     }
 
     fun getDescendingOrderPreference(): Boolean {
-        logd("getAscendingOrderPreference")
         return preferences.getBoolean(KEY_PREFERENCE_DESCENDING_ORDER, DESCENDING_ORDER_PREF_DEF_VAL)
     }
 }
