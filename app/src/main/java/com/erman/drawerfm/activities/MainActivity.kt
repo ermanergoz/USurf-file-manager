@@ -5,7 +5,6 @@ import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.BlendMode
@@ -28,12 +27,17 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import com.erman.drawerfm.R
 import com.erman.drawerfm.adapters.ShortcutRecyclerViewAdapter
+import com.erman.drawerfm.database.Shortcut
 import com.erman.drawerfm.dialogs.AboutDrawerFMDialog
 import com.erman.drawerfm.dialogs.ErrorDialog
 import com.erman.drawerfm.dialogs.ShortcutOptionsDialog
 import com.erman.drawerfm.interfaces.OnShortcutClickListener
 import com.erman.drawerfm.utilities.getStorageDirectories
 import com.erman.drawerfm.utilities.getUsedStoragePercentage
+import io.realm.Realm
+import io.realm.RealmConfiguration
+import io.realm.kotlin.createObject
+import io.realm.kotlin.where
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.storage_button.view.*
 import java.io.File
@@ -64,24 +68,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     private lateinit var storageDirectories: Set<String>
     private var screenWidth = 0
     private var screenHeight = 0
-    //-----------------------------------------------------------------
-    private lateinit var preferences: SharedPreferences
-    private var sharedPrefFile: String = "com.erman.draverfm"
-    lateinit var preferencesEditor: SharedPreferences.Editor
-    //-----------------------------------------------------------------
-
-    private var shortcutNames: MutableSet<String> = mutableSetOf("Download")
-
-    private var shortcutPaths: MutableSet<String> = mutableSetOf("/storage/emulated/0/Download")
-
-    private fun saveShortcuts() {
-        preferences = this.getSharedPreferences(sharedPrefFile, AppCompatActivity.MODE_PRIVATE)
-
-        preferencesEditor = preferences.edit()
-        preferencesEditor.putStringSet("shortcut names", shortcutNames)
-        preferencesEditor.putStringSet("shortcut paths", shortcutPaths)
-        preferencesEditor.apply()
-    }
+    private  lateinit var realm: Realm
 
     private fun requestPermissions() {
         ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
@@ -173,7 +160,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         shortcutRecyclerView.layoutManager = layoutManager
         adapter = ShortcutRecyclerViewAdapter(this)
         shortcutRecyclerView.adapter = adapter
-        adapter.updateData(shortcutNames, shortcutPaths)
+        adapter.updateData(realm.where<Shortcut>().findAll().toList())
     }
 
     private fun setClickListener() {
@@ -190,46 +177,42 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     }
 
     private fun addShortcut(shortcutPath: String, shortcutName: String) {
-        when {
-            shortcutPath in shortcutPaths -> displayErrorDialog(getString(R.string.duplicate_shortcut))
+        if (realm.where<Shortcut>().equalTo("path", shortcutPath).findAll().size>0) //if path exists in database
+            displayErrorDialog(getString(R.string.duplicate_shortcut))
+        else if (File(shortcutPath).exists()) {
+            adapter.updateData(realm.where<Shortcut>().findAll().toList())
+            realm.beginTransaction()
 
-            File(shortcutPath).exists() -> {
-                shortcutNames.add(shortcutName)
-                shortcutPaths.add(shortcutPath)
+            val shortcut: Shortcut = realm.createObject<Shortcut>((realm.where<Shortcut>().findAll().size)+1)
+            shortcut.name=shortcutName
+            shortcut.path=shortcutPath
 
-                adapter.updateData(shortcutNames, shortcutPaths)
-                saveShortcuts()
-            }
-            else -> displayErrorDialog(getString(R.string.invalid_path))
+            realm.commitTransaction()
+
+            adapter.updateData(realm.where<Shortcut>().findAll().toList())
         }
+        else displayErrorDialog(getString(R.string.invalid_path))
     }
 
     private fun removeShortcut(shortcut: TextView) {
-        shortcutNames.remove(shortcut.text)
-        shortcutPaths.remove(shortcut.tag)
-        adapter.updateData(shortcutNames, shortcutPaths)
-        saveShortcuts()
+        val results = realm.where<Shortcut>().equalTo("path", shortcut.tag.toString()).findAll()
+
+        realm.executeTransaction {
+            results.deleteFirstFromRealm()
+        }
+        adapter.updateData(realm.where<Shortcut>().findAll().toList())
     }
 
     private fun renameShortcut(shortcut: TextView, newName: String) {
-        val pathTemp = shortcut.tag.toString()
+        val path = shortcut.tag.toString()
 
-        shortcutNames.remove(shortcut.text)
-        shortcutPaths.remove(pathTemp)
+        removeShortcut(shortcut)
+        addShortcut(path, newName)
 
-        shortcutNames.add(newName)
-        shortcutPaths.add(pathTemp)
-
-        shortcut.text = newName
-
-        adapter.updateData(shortcutNames, shortcutPaths)
-        saveShortcuts()
+        adapter.updateData(realm.where<Shortcut>().findAll().toList())
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        shortcutNames.addAll(getSharedPreferences("com.erman.draverfm", Context.MODE_PRIVATE).getStringSet("shortcut names", emptySet())!!)
-
-        shortcutPaths.addAll(getSharedPreferences("com.erman.draverfm", Context.MODE_PRIVATE).getStringSet("shortcut paths", emptySet())!!)
         setTheme()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -240,6 +223,19 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         requestPermissions()
 
         storageDirectories = getStorageDirectories(this)
+
+
+        //File("/data/data/com.erman.drawerfm/files/drawerfm.realm").deleteRecursively()    //to delete database files
+
+        //Documentation: https://realm.io/docs/kotlin/latest/#realms
+        // Initialize Realm
+        Realm.init(this)
+        val config = RealmConfiguration.Builder().name("drawerfm.realm").build()
+        Realm.setDefaultConfiguration(config)
+        // Get a Realm instance for this thread
+        realm = Realm.getDefaultInstance()
+
+        Log.e("realm path",realm.path)
 
         createShortcutGrid()
         createStorageButtons()
@@ -252,7 +248,6 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
             Toast.makeText(this, getString(R.string.new_shortcut_instruction), Toast.LENGTH_LONG).show()
         }
         mainActivity = this
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -289,7 +284,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         //in case of new shortcut creation
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
-                newShortcutPath = data!!.getStringExtra("newShortcutPath")
+                newShortcutPath = data!!.getStringExtra("newShortcutPath")!!
 
                 val newFragment = CreateShortcutDialog()
                 newFragment.show(supportFragmentManager, "")
@@ -303,9 +298,9 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         startActivity(intent)
     }
 
-    override fun shortcutOptionListener(isDelete: Boolean, isRename: Boolean, shortcut: TextView, newName: String) {
-        if (isDelete) removeShortcut(shortcut)
-        if (isRename) renameShortcut(shortcut, newName)
+    override fun shortcutOptionListener(isDelete: Boolean, isRename: Boolean, shortcutView: TextView, newName: String) {
+        if (isDelete) removeShortcut(shortcutView)
+        if (isRename) renameShortcut(shortcutView, newName)
     }
 
     override fun onClick(shortcut: TextView) {
@@ -321,6 +316,9 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         if (isCreateShortcutMode) {
             isCreateShortcutMode = false
             Toast.makeText(this, getString(R.string.canceled), Toast.LENGTH_SHORT).show()
-        } else finish()
+        } else {
+            realm.close()
+            finish()
+        }
     }
 }
