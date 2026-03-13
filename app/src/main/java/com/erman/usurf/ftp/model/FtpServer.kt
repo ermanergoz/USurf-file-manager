@@ -1,6 +1,5 @@
 package com.erman.usurf.ftp.model
 
-import android.annotation.SuppressLint
 import android.app.*
 import android.content.Context
 import android.content.Intent
@@ -22,12 +21,10 @@ import org.apache.ftpserver.FtpServer
 import org.apache.ftpserver.FtpServerFactory
 import org.apache.ftpserver.listener.ListenerFactory
 import org.apache.ftpserver.usermanager.impl.BaseUser
-import org.koin.android.ext.android.inject
 
 class FtpServer : Service() {
     private val serverFactory = FtpServerFactory()
     private val server: FtpServer? = serverFactory.createServer()
-    private val ftpPreferenceProvider: FtpPreferenceProvider by inject()
 
     companion object {
         var isFtpServerRunning: Boolean = false
@@ -44,12 +41,21 @@ class FtpServer : Service() {
         val connectionConfigFactory = ConnectionConfigFactory()
         connectionConfigFactory.isAnonymousLoginEnabled = true
         serverFactory.connectionConfig = connectionConfigFactory.createConnectionConfig()
-        listenerFactory.port = getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE).getInt(PORT_KEY, DEFAULT_PORT)
-
+        getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE).getInt(
+            PORT_KEY, DEFAULT_PORT)?.let {
+            listenerFactory.port = it
+        }
+        
         val user = BaseUser()
-        user.name = ftpPreferenceProvider.getUsername()
-        user.password = ftpPreferenceProvider.getPassword()
-        user.homeDirectory = ftpPreferenceProvider.getFtpPath()
+        getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE).getString(
+            USERNAME_KEY, DEFAULT_USER_NAME)?.let {
+            user.name = it
+        }
+        getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE).getString(
+            PASSWORD_KEY, PASSWORD_DEF_VAL)?.let {
+            user.password = it
+        }
+        user.homeDirectory = FtpPreferenceProvider().getFtpPath()
 
         serverFactory.userManager.save(user)
         serverFactory.addListener("default", listenerFactory.createListener())
@@ -92,22 +98,21 @@ class FtpServer : Service() {
         LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(broadcastIntent)
     }
 
-    @SuppressLint("InlinedApi")
     private fun getNotification(): Notification {
         createNotificationChannel()
 
         val intent = Intent(this, MainActivity::class.java)
         intent.putExtra(KEY_INTENT_IS_FTP_NOTIFICATION_CLICKED, true)
 
-        val pendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            PendingIntent.getActivity(this, PENDING_INTENT_REQUEST_CODE, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
-        } else {
-            PendingIntent.getActivity(this, PENDING_INTENT_REQUEST_CODE, intent, PendingIntent.FLAG_IMMUTABLE)
-        }
+        val pendingIntent =
+            PendingIntent.getActivity(this, PENDING_INTENT_REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT)
 
-        val builder = NotificationCompat.Builder(this, FTP_NOTIFICATION_CHANNEL_ID).setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(getString(R.string.ftp_server_is_running)).setContentIntent(pendingIntent)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT).setOngoing(true)
+        val builder =
+            NotificationCompat.Builder(this, FTP_NOTIFICATION_CHANNEL_ID).setSmallIcon(R.drawable.ic_notification)
+                .setContentTitle(getString(R.string.ftp_server_is_running))
+                .setContentIntent(pendingIntent)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setOngoing(true)
 
         return builder.build()
     }
@@ -137,7 +142,7 @@ class FtpServer : Service() {
 
         Intent(MainApplication.appContext, FtpServer()::class.java).also { intent ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForeground(FTP_NOTIFICATION_ID, getNotification())
+                startForeground(FTP_NOTIFICATION_ID , getNotification())
             } else {
                 startService(intent)
                 with(NotificationManagerCompat.from(this)) {
@@ -152,7 +157,7 @@ class FtpServer : Service() {
 
         Intent(MainApplication.appContext, FtpServer()::class.java).also { intent ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForeground(FTP_NOTIFICATION_ID, getNotification())
+                startForeground(FTP_NOTIFICATION_ID , getNotification())
             } else {
                 startService(intent)
                 with(NotificationManagerCompat.from(this)) {
