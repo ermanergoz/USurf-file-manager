@@ -54,6 +54,9 @@ class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
     private val _openFile = MutableLiveData<Event<UIEventArgs.OpenFileActivityArgs>>()
     val openFile: LiveData<Event<UIEventArgs.OpenFileActivityArgs>> = _openFile
 
+    private val _toastMessage = MutableLiveData<Event<Int>>()
+    val toastMessage: LiveData<Event<Int>> = _toastMessage
+
     fun onStorageButtonClick(view: View) {
         _path.value = view.tag.toString()
         _navigateToDirectory.value = Event(R.id.global_action_nav_directory)
@@ -73,7 +76,10 @@ class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
 
     fun onShortcutAdd(path: String, name: String) {
         logi("Add shortcut: $name")
-        shortcutDao.addShortcut(path, name)
+        if (shortcutDao.addShortcut(path, name))
+            _toastMessage.value = Event(R.string.shortcut_created) //TODO: toast massege doesnt get displayed
+        else
+            _toastMessage.value = Event(R.string.unable_to_create_shortcut)
     }
 
     fun onShortcutClick(view: View) {
@@ -93,7 +99,10 @@ class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
 
     fun deleteShortcut(shortcutView: TextView) {
         logi("Delete shortcut: " + shortcutView.text)
-        shortcutDao.removeShortcut(shortcutView)
+        if(shortcutDao.removeShortcut(shortcutView))
+            _toastMessage.value = Event(R.string.shortcut_deleted) //TODO: toast massege doesnt get displayed
+        else
+            _toastMessage.value = Event(R.string.unable_to_delete_shortcut)
     }
 
     fun renameShortcut(oldName: String) {
@@ -107,7 +116,10 @@ class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
 
     fun onRenameShortcutOkPressed(shortcutView: TextView, shortcutName: String) {
         logi("Rename shortcut: " + shortcutView.text + " to " + shortcutName)
-        shortcutDao.renameShortcut(shortcutView, shortcutName)
+        if(shortcutDao.renameShortcut(shortcutView, shortcutName))
+            _toastMessage.value = Event(R.string.shortcut_renamed) //TODO: toast massege doesnt get displayed
+        else
+            _toastMessage.value = Event(R.string.unable_to_rename_shortcut)
     }
 
     fun createStorageButtons() {

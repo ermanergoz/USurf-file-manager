@@ -22,7 +22,7 @@
             android:id="@+id/emptyFolderTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
+            android:textSize="@dimen/text_size_18"
             app:layout_constraintBottom_toTopOf="parent"
             app:layout_constraintEnd_toStartOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
@@ -62,7 +62,7 @@
                 android:onClick="@{() -> viewModel.endCopyMode()}"
                 android:text="@string/cancel"
                 android:textColor="@color/textColorDark"
-                android:textSize="12sp" />
+                android:textSize="@dimen/text_size_12" />
 
             <Button
                 android:id="@+id/OKButton"
@@ -73,7 +73,7 @@
                 android:onClick="@{() -> viewModel.confirmAction()}"
                 android:text="@string/ok"
                 android:textColor="@color/textColorDark"
-                android:textSize="12sp" />
+                android:textSize="@dimen/text_size_12" />
         </LinearLayout>
 
         <LinearLayout
@@ -96,10 +96,11 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
+                android:enabled="@{viewModel.isSingleOperationMode}"
                 android:onClick="@{() -> viewModel.shortcutButton()}"
                 android:text="@string/shortcut"
-                android:textColor="@color/textColorDark"
-                android:textSize="12sp" />
+                android:textColor="@{viewModel.isSingleOperationMode ? @color/textColorDark : @color/textColorLight}"
+                android:textSize="@dimen/text_size_12" />
 
             <Button
                 android:id="@+id/compressButton"
@@ -110,7 +111,7 @@
                 android:onClick="@{() -> viewModel.compress()}"
                 android:text="@string/compress"
                 android:textColor="@color/textColorDark"
-                android:textSize="12sp" />
+                android:textSize="@dimen/text_size_12" />
 
             <Button
                 android:id="@+id/extractButton"
@@ -121,7 +122,7 @@
                 android:onClick="@{() -> viewModel.extract()}"
                 android:text="@string/extract"
                 android:textColor="@color/textColorDark"
-                android:textSize="12sp" />
+                android:textSize="@dimen/text_size_12" />
 
             <Button
                 android:id="@+id/informationButton"
@@ -132,7 +133,7 @@
                 android:onClick="@{() -> viewModel.showFileInformation()}"
                 android:text="@string/information"
                 android:textColor="@color/textColorDark"
-                android:textSize="12sp" />
+                android:textSize="@dimen/text_size_12" />
 
             <Button
                 android:id="@+id/shareButton"
@@ -143,7 +144,7 @@
                 android:onClick="@{() -> viewModel.share()}"
                 android:text="@string/share"
                 android:textColor="@color/textColorDark"
-                android:textSize="12sp" />
+                android:textSize="@dimen/text_size_12" />
         </LinearLayout>
 
         <LinearLayout
@@ -167,7 +168,7 @@
                 android:onClick="@{() -> viewModel.copy()}"
                 android:text="@string/copy_file"
                 android:textColor="@color/textColorDark"
-                android:textSize="12sp" />
+                android:textSize="@dimen/text_size_12" />
 
             <Button
                 android:id="@+id/moveButton"
@@ -178,7 +179,7 @@
                 android:onClick="@{() -> viewModel.move()}"
                 android:text="@string/move"
                 android:textColor="@color/textColorDark"
-                android:textSize="12sp" />
+                android:textSize="@dimen/text_size_12" />
 
             <Button
                 android:id="@+id/renameButton"
@@ -186,10 +187,11 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
+                android:enabled="@{viewModel.isSingleOperationMode}"
                 android:onClick="@{() -> viewModel.rename()}"
                 android:text="@string/rename"
-                android:textColor="@color/textColorDark"
-                android:textSize="12sp" />
+                android:textColor="@{viewModel.isSingleOperationMode ? @color/textColorDark : @color/textColorLight}"
+                android:textSize="@dimen/text_size_12" />
 
             <Button
                 android:id="@+id/deleteButton"
@@ -200,7 +202,7 @@
                 android:onClick="@{() -> viewModel.delete()}"
                 android:text="@string/delete"
                 android:textColor="@color/textColorDark"
-                android:textSize="12sp" />
+                android:textSize="@dimen/text_size_12" />
 
             <Button
                 android:id="@+id/moreButton"
@@ -211,7 +213,7 @@
                 android:onClick="@{() -> viewModel.showMoreOption()}"
                 android:text="@{viewModel.moreOptionMode ? @string/less : @string/more}"
                 android:textColor="@color/textColorDark"
-                android:textSize="12sp" />
+                android:textSize="@dimen/text_size_12" />
         </LinearLayout>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -282,7 +284,7 @@
             android:ellipsize="start"
             android:singleLine="true"
             android:text="@{viewModel.path}"
-            android:textSize="14sp"
+            android:textSize="@dimen/text_size_14"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
@@ -298,6 +300,34 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/pathTextView" />
+
+
+        <LinearLayout
+            android:id="@+id/emptyFolderLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="@{viewModel.isEmptyDir ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="UseCompoundDrawables">
+
+            <ImageView
+                android:id="@+id/imageView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/ic_empty_folder"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/empty_folder" />
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

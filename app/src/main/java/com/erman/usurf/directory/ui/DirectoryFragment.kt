@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.core.content.FileProvider
@@ -16,12 +17,14 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.erman.usurf.R
 import com.erman.usurf.databinding.FragmentDirectoryBinding
 import com.erman.usurf.dialog.ui.*
 import com.erman.usurf.utils.*
 import kotlinx.android.synthetic.main.fragment_directory.*
 import java.io.File
+
 
 class DirectoryFragment : Fragment() {
     private lateinit var viewModelFactory: ViewModelFactory
@@ -116,14 +119,24 @@ class DirectoryFragment : Fragment() {
 
         directoryViewModel.updateDirectoryList.observe(viewLifecycleOwner, Observer {
             directoryRecyclerViewAdapter.updateData(it)
+            runRecyclerViewAnimation(fileListRecyclerView)
         })
 
         requireActivity().onBackPressedDispatcher.addCallback(this) {
             if (!directoryViewModel.onBackPressed()) {
-                findNavController().popBackStack()
+                //goes to home fragment because it is annoying to navigate to the
+                //last opened fragment after directory fragment
+                findNavController().navigate(R.id.global_action_nav_home)
             }
         }
         return binding.root
+    }
+
+    private fun runRecyclerViewAnimation(recyclerView: RecyclerView) {
+        val context = recyclerView.context
+        val controller = AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_fall_down)
+        recyclerView.layoutAnimation = controller
+        recyclerView.scheduleLayoutAnimation()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -132,10 +145,11 @@ class DirectoryFragment : Fragment() {
         fileListRecyclerView.layoutManager = GridLayoutManager(context, 1)
         directoryRecyclerViewAdapter = DirectoryRecyclerViewAdapter(directoryViewModel)
         fileListRecyclerView.adapter = directoryRecyclerViewAdapter
-        fileListRecyclerView.itemAnimator?.let { it.changeDuration = 0 } //to avoid flickering
+        //fileListRecyclerView.itemAnimator?.let { it.changeDuration = 0 } //to avoid flickering
 
         directoryViewModel.path.observe(viewLifecycleOwner, Observer {
             directoryRecyclerViewAdapter.updateData(directoryViewModel.getFileList())
+            runRecyclerViewAnimation(fileListRecyclerView)
         })
     }
 
@@ -151,6 +165,8 @@ class DirectoryFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        directoryViewModel.turnOffOptionPanel()
         directoryRecyclerViewAdapter.updateData(directoryViewModel.getFileList())
+        runRecyclerViewAnimation(fileListRecyclerView)
     }
 }
