@@ -7,8 +7,8 @@ import android.util.Log
 import java.io.File
 import java.io.IOException
 
-fun getStorageDirectories(context: Context): Set<String> {
-    val paths = mutableSetOf<String>()
+fun getStorageDirectories(context: Context): ArrayList<String> {
+    val paths = arrayListOf<String>()
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
         for (file in context.getExternalFilesDirs("external")) {
