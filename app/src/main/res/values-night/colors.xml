@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="daynnightBlue">#168DDA</color>
+    <color name="daynnightbackground">#2B2B2B</color>
+    <color name="daynnightTextColor">#A9B7C6</color>
+    <color name="daynnightSeparatorColor">#ABB2B9</color>
+</resources>
