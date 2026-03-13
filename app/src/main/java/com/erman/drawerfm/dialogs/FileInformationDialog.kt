@@ -10,6 +10,7 @@ import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import com.erman.drawerfm.R
+import com.erman.drawerfm.common.SIMPLE_DATE_FORMAT_PATTERN
 import com.erman.drawerfm.utilities.*
 import java.io.File
 import java.text.SimpleDateFormat
@@ -26,7 +27,7 @@ class FileInformationDialog(var file: File) : DialogFragment() {
     private lateinit var usedStorageProgressBar: ProgressBar
     private lateinit var fileSizePercentTextView: TextView
     private lateinit var usedStoragePercentTextView: TextView
-    private val dateFormat = SimpleDateFormat("dd MMMM yyyy | HH:mm:ss")
+    private val dateFormat = SimpleDateFormat(SIMPLE_DATE_FORMAT_PATTERN)
     private var fileSizePercentage: Double = 0.0
     private var usedStoragePercentage = 0
 

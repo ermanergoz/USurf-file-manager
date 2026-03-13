@@ -13,7 +13,6 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
-
 fun getFiles(path: String,
              showHidden: Boolean,
              showFilesOnly: Boolean,
@@ -137,18 +136,16 @@ fun getSearchedDeviceFiles(storagePaths: ArrayList<String>, searchQuery: String)
     return emptyList()
 }
 
-fun getSubSearchedFiles(directory: File, searchQuery: String, res: MutableSet<File> = mutableSetOf<File>()): MutableSet<File> {
+fun getSubSearchedFiles(directory: File, searchQuery: String, res: MutableSet<File> = mutableSetOf<File>()): Set<File> {
     //Depth first search algorithm
 
-    val listOfFilesAndDirectory = directory.listFiles()!!.toMutableSet()
-
-    for (file in listOfFilesAndDirectory) {
+    for (file in directory.listFiles()!!.toSet()) {
         if (file.isDirectory) {
             getSubSearchedFiles(file, searchQuery, res)
         } else {
             res.add(file)
         }
-        res.addAll(listOfFilesAndDirectory)
+        res.addAll(directory.listFiles()!!.toSet())
     }
     return res
 }
@@ -347,6 +344,7 @@ fun zipFile(context: Context, selectedDirectories: List<File>, zipName: String, 
     } catch (err: Exception) {
         Toast.makeText(context, context.getString(R.string.error_while_compressing), Toast.LENGTH_LONG).show()
         Log.e("Error while compressing", err.toString())
+        return
     }
     updateFragment.invoke()
     Toast.makeText(context, context.getString(R.string.compressing_successful), Toast.LENGTH_LONG).show()
