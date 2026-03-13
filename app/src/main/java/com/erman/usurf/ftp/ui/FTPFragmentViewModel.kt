@@ -8,14 +8,14 @@ import com.erman.usurf.ftp.data.FtpPreferenceProvider
 import com.erman.usurf.ftp.model.ConnectionLiveData
 import com.erman.usurf.ftp.model.FtpModel
 import com.erman.usurf.ftp.model.FTPLiveData
-import com.erman.usurf.ftp.model.FTPServer
+import com.erman.usurf.ftp.model.FtpServer
 import com.erman.usurf.ftp.utils.DEFAULT_PORT
 
-class FTPViewModel(private val fTPHelper: FtpModel) : ViewModel() {
+class FTPViewModel(private val ftpModel: FtpModel) : ViewModel() {
     private var preferenceProvider = FtpPreferenceProvider()
 
     val url = MutableLiveData<String>().apply {
-        value = fTPHelper.getIpAddress()
+        value = ftpModel.getIpAddress()
     }
 
     val username = MutableLiveData<String>().apply {
@@ -38,12 +38,12 @@ class FTPViewModel(private val fTPHelper: FtpModel) : ViewModel() {
     }
 
     fun onConnectClicked() {
-        if (!FTPServer.isFtpServerRunning) fTPHelper.startFTPServer()
-        else fTPHelper.stopFTPServer()
+        if (!FtpServer.isFtpServerRunning) ftpModel.startFTPServer()
+        else ftpModel.stopFTPServer()
     }
 
-    private val _openTaskEvent = MutableLiveData<Event<Int>>()
-    val openTaskEvent: MutableLiveData<Event<Int>> = _openTaskEvent
+    private val _toastMessage = MutableLiveData<Event<Int>>()
+    val toastMessage: MutableLiveData<Event<Int>> = _toastMessage
 
     fun onUsernameChanged(username: CharSequence, start: Int, before: Int, count: Int) {
         preferenceProvider.editUsername(username.toString())
@@ -61,7 +61,7 @@ class FTPViewModel(private val fTPHelper: FtpModel) : ViewModel() {
         {
             err.printStackTrace()
             newPort = DEFAULT_PORT
-            _openTaskEvent.value = Event(R.string.port_error)
+            _toastMessage.value = Event(R.string.port_error)
         }
         preferenceProvider.editPort(newPort)
     }

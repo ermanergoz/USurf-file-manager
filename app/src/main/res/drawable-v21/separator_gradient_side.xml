@@ -3,7 +3,7 @@
     <!--android:endColor="#ABB2B9"-->
 
     <gradient
-        android:endColor="#ABB2B9"
+        android:endColor="@color/separatorColor"
         android:angle="90"
         android:dither="true"
         />
