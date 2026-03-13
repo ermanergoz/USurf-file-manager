@@ -1,6 +1,9 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
-    ext.kotlin_version = "1.7.20"
+    ext {
+        agp_version = '8.8.1'
+    }
+    ext.kotlin_version = "2.0.21"
 
     //https://stackoverflow.com/questions/66049196/replacing-jcenter-in-android-gradle-repositories
     repositories {
@@ -8,10 +11,11 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.3.1'
+        classpath "com.android.tools.build:gradle:$agp_version"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "io.realm:realm-gradle-plugin:10.11.1"
-        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.5.3"
+        classpath "io.realm:realm-gradle-plugin:10.15.1"
+        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.8.7"
+        classpath "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:1.18.1"
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -24,15 +28,17 @@ allprojects {
     }
 }
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+tasks.register('clean', Delete) {
+    delete 'build'
 }
 
 //add to android project level build.gradle
 allprojects {
     gradle.projectsEvaluated {
-        tasks.withType(JavaCompile) {
-            options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+        tasks.withType(JavaCompile).tap {
+            configureEach {
+                options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+            }
         }
     }
 }
