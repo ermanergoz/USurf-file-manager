@@ -12,9 +12,10 @@
         <item
             android:id="@+id/nav_directory"
             android:icon="@drawable/ic_hdd"
+            android:visible="false"
             android:title="@string/menu_directory" />
         <item
-            android:id="@+id/nav_device_search"
+            android:id="@+id/nav_device_wide_search"
             android:icon="@drawable/ic_search"
             android:title="@string/device_wide_search" />
         <item
