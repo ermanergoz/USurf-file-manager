@@ -5,6 +5,7 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="preferenceCategoryTitleTextAppearance">@style/PreferenceCategoryStyle</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -15,6 +16,12 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="PreferenceCategoryStyle">
+        <item name="android:textColor">@color/sectionHeaderColor</item>
+        <item name="android:textSize">@dimen/text_size_12</item>
+        <item name="android:textStyle">bold</item>
+    </style>
 
     <style name="StorageProgressBar" parent="Widget.AppCompat.ProgressBar.Horizontal">
         <item name="android:minHeight">0dp</item>
