@@ -4,8 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.erman.usurf.R
-import com.erman.usurf.dialog.model.UIEventArgs
+import com.erman.usurf.dialog.model.DialogArgs
 import com.erman.usurf.directory.model.*
+import com.erman.usurf.preference.data.PreferenceProvider
 import com.erman.usurf.utils.Event
 import com.erman.usurf.utils.logd
 import com.erman.usurf.utils.loge
@@ -23,29 +24,29 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     private val _toastMessage = MutableLiveData<Event<Int>>()
     val toastMessage: LiveData<Event<Int>> = _toastMessage
 
-    private val _openFile = MutableLiveData<Event<UIEventArgs.OpenFileActivityArgs>>()
-    val openFile: LiveData<Event<UIEventArgs.OpenFileActivityArgs>> = _openFile
+    private val _openFile = MutableLiveData<Event<DialogArgs.OpenFileActivityArgs>>()
+    val openFile: LiveData<Event<DialogArgs.OpenFileActivityArgs>> = _openFile
 
-    private val _onShare = MutableLiveData<Event<UIEventArgs.ShareActivityArgs>>()
-    val onShare: LiveData<Event<UIEventArgs.ShareActivityArgs>> = _onShare
+    private val _onShare = MutableLiveData<Event<DialogArgs.ShareActivityArgs>>()
+    val onShare: LiveData<Event<DialogArgs.ShareActivityArgs>> = _onShare
 
-    private val _onRename = MutableLiveData<Event<UIEventArgs.RenameDialogArgs>>()
-    val onRename: LiveData<Event<UIEventArgs.RenameDialogArgs>> = _onRename
+    private val _onRename = MutableLiveData<Event<DialogArgs.RenameDialogArgs>>()
+    val onRename: LiveData<Event<DialogArgs.RenameDialogArgs>> = _onRename
 
-    private val _onCompress = MutableLiveData<Event<UIEventArgs.CompressDialogArgs>>()
-    val onCompress: LiveData<Event<UIEventArgs.CompressDialogArgs>> = _onCompress
+    private val _onCompress = MutableLiveData<Event<DialogArgs.CompressDialogArgs>>()
+    val onCompress: LiveData<Event<DialogArgs.CompressDialogArgs>> = _onCompress
 
-    private val _onCreateFile = MutableLiveData<Event<UIEventArgs.CreateFileDialogArgs>>()
-    val onCreateFile: LiveData<Event<UIEventArgs.CreateFileDialogArgs>> = _onCreateFile
+    private val _onCreateFile = MutableLiveData<Event<DialogArgs.CreateFileDialogArgs>>()
+    val onCreateFile: LiveData<Event<DialogArgs.CreateFileDialogArgs>> = _onCreateFile
 
-    private val _onCreateFolder = MutableLiveData<Event<UIEventArgs.CreateFolderDialogArgs>>()
-    val onCreateFolder: LiveData<Event<UIEventArgs.CreateFolderDialogArgs>> = _onCreateFolder
+    private val _onCreateFolder = MutableLiveData<Event<DialogArgs.CreateFolderDialogArgs>>()
+    val onCreateFolder: LiveData<Event<DialogArgs.CreateFolderDialogArgs>> = _onCreateFolder
 
-    private val _onInformation = MutableLiveData<Event<UIEventArgs.InformationDialogArgs>>()
-    val onInformation: LiveData<Event<UIEventArgs.InformationDialogArgs>> = _onInformation
+    private val _onInformation = MutableLiveData<Event<DialogArgs.InformationDialogArgs>>()
+    val onInformation: LiveData<Event<DialogArgs.InformationDialogArgs>> = _onInformation
 
-    private val _onAddShortcut = MutableLiveData<Event<UIEventArgs.ShortcutDialogArgs>>()
-    val onAddShortcut: LiveData<Event<UIEventArgs.ShortcutDialogArgs>> = _onAddShortcut
+    private val _onAddFavorite = MutableLiveData<Event<DialogArgs.FavoriteDialogArgs>>()
+    val onAddFavorite: LiveData<Event<DialogArgs.FavoriteDialogArgs>> = _onAddFavorite
 
     private val _isSingleOperationMode = MutableLiveData<Boolean>()
     val isSingleOperationMode: LiveData<Boolean> = _isSingleOperationMode
@@ -58,13 +59,18 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
     val loading: LiveData<Boolean> = _loading
 
+    private val _showLoadingMessage = MutableLiveData<Boolean>().apply {
+        value = false
+    }
+    val showLoadingMessage: LiveData<Boolean> = _showLoadingMessage
+
     private val _fileSearchMode = MutableLiveData<Boolean>().apply {
         value = false
     }
     val fileSearchMode: LiveData<Boolean> = _fileSearchMode
 
-    private val _onFileSearch = MutableLiveData<Event<UIEventArgs.FileSearchDialogArgs>>()
-    val onFileSearch: LiveData<Event<UIEventArgs.FileSearchDialogArgs>> = _onFileSearch
+    private val _onFileSearch = MutableLiveData<Event<DialogArgs.FileSearchDialogArgs>>()
+    val onFileSearch: LiveData<Event<DialogArgs.FileSearchDialogArgs>> = _onFileSearch
 
     private val _copyMode = MutableLiveData<Boolean>().apply {
         value = false
@@ -101,10 +107,10 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
     val moreOptionMode: LiveData<Boolean> = _moreOptionMode
 
-    private val _isEmptyDir = MutableLiveData<Boolean>().apply {
+    private val _isRootMode = MutableLiveData<Boolean>().apply {
         value = false
     }
-    val isEmptyDir: LiveData<Boolean> = _isEmptyDir
+    val isRootMode: LiveData<Boolean> = _isRootMode
 
     fun onFileClick(file: FileModel) {
         if (multiSelectionMode) {
@@ -121,14 +127,16 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
         } else {
             _fileSearchMode.value = false
             if (file.isDirectory) _path.value = file.path
-            else _openFile.value = Event(UIEventArgs.OpenFileActivityArgs(file.path))
+            else _openFile.value = Event(DialogArgs.OpenFileActivityArgs(file.path))
         }
+        _isRootMode.value = file.isInRoot
     }
 
     fun onFileLongClick(file: FileModel): Boolean {
         multipleSelection.value?.let { multipleSelection ->
             _multipleSelection.value = directoryModel.manageMultipleSelectionList(file, multipleSelection)
         }
+        _isRootMode.value = file.isInRoot
         _isSingleOperationMode.value = true
         _optionMode.value = true
         multiSelectionMode = true
@@ -166,7 +174,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                 path.value?.let { path ->
                     File(path).parent?.let { parent ->
                         val prevFile = File(parent)
-                        if (prevFile.canRead() && prevFile.path != "/") {
+                        if ((prevFile.canRead() && prevFile.path != "/") || PreferenceProvider().getRootAccessPreference()) {
                             _path.value = prevFile.path
                             return true
                         }
@@ -192,7 +200,8 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                 launch {
                     path.value?.let { path ->
                         val directory = directoryModel.getFileModelsFromFiles(path)
-                        _isEmptyDir.value = directory.isNullOrEmpty()
+                        if (directory.isNullOrEmpty())
+                            _toastMessage.value = Event(R.string.empty_folder)
                         _updateDirectoryList.value = directory
                     }
                     _loading.value = false
@@ -201,33 +210,43 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                 _toastMessage.value = Event(R.string.unable_to_open_directory)
                 loge("getFileList $err")
             }
+        } else {
+            _loading.value = true
+            _showLoadingMessage.value = true
+            launch {
+                _updateDirectoryList.value = directoryModel.getFilesToClean()
+                _loading.value = false
+                _showLoadingMessage.value = false
+            }
         }
     }
 
     fun getSearchedFiles() {
-        _loading.value = true
         fileSearchQuery.value?.let {
+            _loading.value = true
+            _showLoadingMessage.value = true
             launch {
                 val fileList = directoryModel.getSearchedDeviceFiles(it)
-                _isEmptyDir.value = fileList.isNullOrEmpty()
+                if (fileList.isNullOrEmpty())
+                    _toastMessage.value = Event(R.string.empty_folder)
                 _updateDirectoryList.value = fileList
                 _menuMode.value = false
                 _loading.value = false
+                _showLoadingMessage.value = false
             }
         }
     }
 
     fun compress() {
-        _onCompress.value = Event(UIEventArgs.CompressDialogArgs)
+        _onCompress.value = Event(DialogArgs.CompressDialogArgs)
     }
 
-    fun refreshFileList() {
+    private fun refreshFileList() {
         launch {
             fileSearchMode.value?.let { isFileSearchMode ->
                 if (isFileSearchMode) {
                     fileSearchQuery.value?.let { fileSearchQuery ->
-                        if (isFileSearchMode)
-                            _updateDirectoryList.value = directoryModel.getSearchedDeviceFiles(fileSearchQuery)
+                        _updateDirectoryList.value = directoryModel.getSearchedDeviceFiles(fileSearchQuery)
                     }
                 } else {
                     path.value?.let { path ->
@@ -266,7 +285,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                 logd("extract")
                 launch {
                     try {
-                        directoryModel.extractFiles(multipleSelection)
+                        directoryModel.extractFiles(multipleSelection.first())
                         refreshFileList()
                         _toastMessage.value = Event(R.string.extracting_successful)
 
@@ -287,14 +306,14 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     fun showFileInformation() {
         multipleSelection.value?.let { multipleSelection ->
             for (file in multipleSelection) {
-                _onInformation.value = Event(UIEventArgs.InformationDialogArgs(file))
+                _onInformation.value = Event(DialogArgs.InformationDialogArgs(file))
             }
         }
     }
 
     fun share() {
         multipleSelection.value?.let { multipleSelection ->
-            _onShare.value = Event(UIEventArgs.ShareActivityArgs(multipleSelection))
+            _onShare.value = Event(DialogArgs.ShareActivityArgs(multipleSelection))
         }
     }
 
@@ -382,7 +401,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
 
     fun rename() {
         multipleSelection.value?.let { multipleSelection ->
-            _onRename.value = Event(UIEventArgs.RenameDialogArgs(multipleSelection.last().name))
+            _onRename.value = Event(DialogArgs.RenameDialogArgs(multipleSelection.last().name))
         }
     }
 
@@ -413,11 +432,11 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
 
     fun createFolder() {
-        _onCreateFolder.value = Event(UIEventArgs.CreateFolderDialogArgs)
+        _onCreateFolder.value = Event(DialogArgs.CreateFolderDialogArgs)
     }
 
     fun createFile() {
-        _onCreateFile.value = Event(UIEventArgs.CreateFileDialogArgs)
+        _onCreateFile.value = Event(DialogArgs.CreateFileDialogArgs)
     }
 
     fun onFolderCreateOkPressed(folderName: String) {
@@ -466,14 +485,14 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
 
     fun deviceWideSearch() {
-        _onFileSearch.value = Event(UIEventArgs.FileSearchDialogArgs)
+        _onFileSearch.value = Event(DialogArgs.FileSearchDialogArgs)
     }
 
-    fun shortcutButton() {
-        logd("shortcutButton")
+    fun favoriteButton() {
+        logd("favoriteButton")
         multipleSelection.value?.let {
             val file = it.last()
-            _onAddShortcut.value = Event(UIEventArgs.ShortcutDialogArgs(file.path))
+            _onAddFavorite.value = Event(DialogArgs.FavoriteDialogArgs(file.path))
         }
     }
 
