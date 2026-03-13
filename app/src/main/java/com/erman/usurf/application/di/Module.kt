@@ -18,31 +18,33 @@ import io.realm.Realm
 import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
-val AppModule = module {
-    single { DirectoryModel(get(), get(), get()) }
-    viewModel { DirectoryViewModel(get(), get()) }
+val AppModule =
+    module {
+        single { DirectoryModel(get(), get(), get()) }
+        viewModel { DirectoryViewModel(get(), get()) }
 
-    single { HomeModel() }
-    viewModel { HomeViewModel(get(), get(), get(), get(), get()) }
+        single { HomeModel() }
+        viewModel { HomeViewModel(get(), get(), get(), get(), get()) }
 
-    single { FtpModel() }
-    viewModel { FTPViewModel(get(), get()) }
+        single { FtpModel() }
+        viewModel { FTPViewModel(get(), get()) }
 
-    single {
-        val context: Context = get()
-        return@single context.getSharedPreferences(
-            SHARED_PREF_FILE, Context.MODE_PRIVATE
-        )
+        single {
+            val context: Context = get()
+            return@single context.getSharedPreferences(
+                SHARED_PREF_FILE,
+                Context.MODE_PRIVATE,
+            )
+        }
+
+        single {
+            return@single Realm.getDefaultInstance()
+        }
+
+        single { PreferenceProvider(get()) }
+        single { StorageDirectoryPreferenceProvider(get()) }
+        single { FtpPreferenceProvider(get()) }
+        single { RootHandler() }
+        single { HomePreferenceProvider(get()) }
+        single { FavoriteDao(get()) }
     }
-
-    single {
-        return@single Realm.getDefaultInstance()
-    }
-
-    single { PreferenceProvider(get()) }
-    single { StorageDirectoryPreferenceProvider(get()) }
-    single { FtpPreferenceProvider(get()) }
-    single { RootHandler() }
-    single { HomePreferenceProvider(get()) }
-    single { FavoriteDao(get()) }
-}

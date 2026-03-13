@@ -1,6 +1,5 @@
 <resources>
     <!-- Text sizes -->
-    <dimen name="text_size_9">9sp</dimen>
     <dimen name="text_size_10">10sp</dimen>
     <dimen name="text_size_12">12sp</dimen>
     <dimen name="text_size_14">14sp</dimen>
@@ -23,4 +22,6 @@
     <dimen name="horizontal_margin_8">8dp</dimen>
     <dimen name="horizontal_margin_16">16dp</dimen>
     <dimen name="horizontal_margin_24">24dp</dimen>
+
+    <dimen name="height_48">48dp</dimen>
 </resources>
