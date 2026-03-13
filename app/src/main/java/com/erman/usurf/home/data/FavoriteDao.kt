@@ -22,7 +22,7 @@ class FavoriteDao(var realm: Realm) {
         logd("Add favorite")
         realm.beginTransaction()
         try {
-            if(favoriteName.isNotEmpty()) {
+            if (favoriteName.isNotEmpty()) {
                 val favorite: Favorite = realm.createObject(favoritePath)
                 favorite.name = favoriteName
                 favorite.path = favoritePath

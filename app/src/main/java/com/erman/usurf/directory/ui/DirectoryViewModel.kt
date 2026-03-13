@@ -167,9 +167,8 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel, private val
         return false
     }
 
-    fun setPath(path: String?) {
+    fun setPath(path: String) {
         _path.value = path
-        _fileSearchQuery.value = null
     }
 
     fun getFileList() {
@@ -177,10 +176,10 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel, private val
             _loading.value = true
             launch {
                 path.value?.let { path ->
-                    val directory = directoryModel.getFileModelsFromFiles(path) //2 7   8
-                    if (directory.isNullOrEmpty())
+                    val directory = directoryModel.getFileModelsFromFiles(path)
+                    if (directory.isEmpty())
                         _toastMessage.value = Event(R.string.empty_folder)
-                    _updateDirectoryList.value = directory  //5
+                    _updateDirectoryList.value = directory
                 }
                 _loading.value = false
             }
@@ -195,7 +194,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel, private val
             _loading.value = true
             launch {
                 val fileList = directoryModel.getSearchedDeviceFiles(it)
-                if (fileList.isNullOrEmpty())
+                if (fileList.isEmpty())
                     _toastMessage.value = Event(R.string.empty_folder)
                 _updateDirectoryList.value = fileList
                 _menuMode.value = false
