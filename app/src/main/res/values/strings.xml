@@ -22,20 +22,26 @@
     <string name="github_link">https://github.com/ermanergoz/USurf</string>
     <string name="icons_those_icons">Device-wide Search icon and Menu icon by Those Icons from flaticon.com</string>
     <string name="those_icons_url">https://www.flaticon.com/authors/those-icons</string>
+    <string name="icons_kiranshastry">Delete icon by Kiranshastry from flaticon.com</string>
+    <string name="kiranshastry_url">https://www.flaticon.com/authors/kiranshastry</string>
+
+    <string name="icons_iconixar">Move icon and zip icon by iconixar from flaticon.com</string>
+    <string name="iconixar_url">https://www.flaticon.com/authors/iconixar</string>
+
     <string name="icons_smashicons">Home icon by Smashicons from flaticon.com</string>
     <string name="smashicons_url">https://www.flaticon.com/authors/smashicons</string>
     <string name="storage_icon">Storage icon by srip from flaticon.com</string>
     <string name="srip_url">https://www.flaticon.com/authors/srip</string>
-    <string name="icons_freepic">Information icon by Freepic from flaticon.com</string>
+    <string name="icons_roundicons">Up and down arrow icons by Roundicons from flaticon.com</string>
+    <string name="round_icons_url">https://www.flaticon.com/authors/roundicons</string>
+    <string name="icons_freepic">Information icon, rename icon, share icon and unzip icon by Freepic from flaticon.com</string>
     <string name="freepic_url">https://www.flaticon.com/authors/freepik</string>
     <string name="pix_perfect_link">https://www.flaticon.com/authors/pixel-perfect</string>
-    <string name="icons_pix_perfect">Preferences icon and FTP icon by Pixel perfect from flaticon.com</string>
+    <string name="icons_pix_perfect">Preferences icon, copy icon, favorite icon and FTP icon by Pixel perfect from flaticon.com</string>
     <string name="icons">Icons:</string>
     <string name="xnimrodx_url">https://www.flaticon.com/authors/xnimrodx</string>
-    <string name="smalllikeart_url">https://www.flaticon.com/authors/smalllikeart</string>
     <string name="url">URL:</string>
     <string name="folder_icon">Folder icon and file icon by xnimrodx from flaticon.com</string>
-    <string name="clean_icon">Clean icon by smalllikeart from flaticon.com</string>
     <string name="wifi_status">WiFi Status:</string>
     <string name="port">Port:</string>
     <string name="connect">Connect</string>
@@ -48,11 +54,13 @@
     <string name="ftp_broadcast_receiver">com.erman.usurf.fileBroadcastReceiver</string>
     <string name="unsupported_file">There is no application that supports the file.</string>
     <string name="unable_to_open_directory">Unable to open the directory.</string>
+    <string name="analyzing_files">Files are being analyzed. Please wait.</string>
     <string name="error_while_renaming">"Error while renaming: "</string>
     <string name="renaming_successful">Renamed</string>
     <string name="error_while_deleting">"Error while deleting"</string>
     <string name="deleting_successful">Deleted</string>
     <string name="folder_creation_successful">"New folder created"</string>
+    <string name="searching">"Searching"</string>
     <string name="error_when_creating_folder">"Error while creating new folder"</string>
     <string name="file_creation_successful">"New file created"</string>
     <string name="error_when_creating_file">"Error while creating new file"</string>
@@ -89,11 +97,10 @@
     <string name="new_compressed">New.zip</string>
     <string name="more">More</string>
     <string name="less">Less</string>
-    <string name="cancel">Cancel</string>
     <string name="done">Done</string>
     <string name="ok">OK</string>
-    <string name="shortcut">Shortcut</string>
-    <string name="addShortcut">Add Shortcut</string>
+    <string name="favorite">Favorite</string>
+    <string name="addFavorite">Add Favorite</string>
     <string name="compressing">Compressing</string>
     <string name="extracting">Extracting</string>
     <string name="invalid_extension">Invalid extension. Please choose a compressed file!</string>
@@ -103,14 +110,13 @@
     <string name="renaming">Renaming</string>
     <string name="creating">Creating</string>
     <string name="search">Search</string>
-    <string name="shortcut_created">Shortcut created</string>
-    <string name="unable_to_create_shortcut">Shortcut already exists.</string>
-    <string name="shortcut_deleted">Shortcut deleted</string>
-    <string name="unable_to_delete_shortcut">Unable to delete shortcut</string>
-    <string name="shortcut_renamed">Shortcut renamed</string>
-    <string name="unable_to_rename_shortcut">Unable to rename shortcut</string>
+    <string name="favorite_created">Added to favorites</string>
+    <string name="unable_to_create_favorite">Unable to add to favorites</string>
+    <string name="favorite_deleted">Favorite deleted</string>
+    <string name="unable_to_delete_favorite">Unable to delete the favorite</string>
+    <string name="favorite_renamed">Favorite renamed</string>
+    <string name="unable_to_rename_favorite">Unable to rename the favorite</string>
     <string name="ftp_server_is_running">Ftp Server is running</string>
-    <string name="free_up_space">Free up some space!</string>
     <string name="ftp_notification_channel_name">FTPNotificationChannel</string>
     <string name="ftp_notification_channel_description">FTP notification channel</string>
     <string name="drawer_open">Drawer open</string>
@@ -118,4 +124,5 @@
     <string name="share_directory">Operation not supported for following. Not a file </string>
     <string name="push_notification_channel_description">Push notification channel</string>
     <string name="push_notification_title">Free up some space!</string>
+    <string name="clear_logs">Clear logs and history</string>
 </resources>
