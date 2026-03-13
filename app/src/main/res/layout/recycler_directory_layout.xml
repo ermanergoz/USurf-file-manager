@@ -18,95 +18,99 @@
             type="boolean" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/directoryLayout"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="1dp"
-        android:background="@{file.isSelected ? @drawable/selection_background : @drawable/button_ripple_effect}"
-        android:onClick="@{() -> listener.onFileClick(file)}"
-        android:onLongClick="@{() -> listener.onFileLongClick(file)}"
-        android:padding="@dimen/layout_margin_4">
+        android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/nameTextView"
-            android:layout_width="0dp"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/directoryLayout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:gravity="center_vertical"
-            android:singleLine="true"
-            android:text="@{file.isDirectory ? file.name : file.nameWithoutExtension}"
-            android:textColor="@{file.isSelected ? @color/textColorLight : @color/daynnightTextColor}"
-            android:textSize="@dimen/text_size_18"
-            app:layout_constraintBottom_toTopOf="@id/lastModifiedTextView"
-            app:layout_constraintEnd_toStartOf="@id/extensionTextView"
-            app:layout_constraintStart_toEndOf="@+id/imageView"
-            app:layout_constraintTop_toTopOf="@+id/imageView" />
+            android:background="@{file.isSelected ? @drawable/selection_background : @drawable/button_ripple_effect}"
+            android:onClick="@{() -> listener.onFileClick(file)}"
+            android:onLongClick="@{() -> listener.onFileLongClick(file)}"
+            android:paddingStart="@dimen/padding_12"
+            android:paddingTop="@dimen/vertical_margin_8"
+            android:paddingEnd="@dimen/padding_12"
+            android:paddingBottom="@dimen/vertical_margin_8">
 
-        <TextView
-            android:id="@+id/totalSizeTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:gravity="start"
-            android:singleLine="true"
-            android:text="@{file.isDirectory() ? file.subFileCount : file.size}"
-            android:textColor="@{file.isSelected ? @color/textColorLight : @color/daynnightTextColor}"
-            android:textSize="@dimen/text_size_10"
-            app:layout_constraintBottom_toBottomOf="@+id/extensionTextView"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/extensionTextView"
-            tools:ignore="SmallSp" />
+            <FrameLayout
+                android:id="@+id/iconContainer"
+                android:layout_width="@dimen/icon_background_size"
+                android:layout_height="@dimen/icon_background_size"
+                android:background="@drawable/icon_background_circle"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/lastModifiedTextView"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:gravity="end"
-            android:singleLine="true"
-            android:text="@{file.lastModified}"
-            android:textColor="@{file.isSelected ? @color/textColorLight : @color/daynnightTextColor}"
-            android:textSize="@dimen/text_size_10"
-            app:layout_constraintBottom_toBottomOf="@+id/imageView"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/imageView"
-            app:layout_constraintTop_toBottomOf="@+id/nameTextView"
-            tools:ignore="SmallSp" />
+                <ImageView
+                    android:id="@+id/imageView"
+                    android:layout_width="@dimen/icon_size_24"
+                    android:layout_height="@dimen/icon_size_24"
+                    android:layout_gravity="center"
+                    android:contentDescription="@string/folder_icon"
+                    app:filePath="@{file.path}"
+                    app:isDirectory="@{file.isDirectory}"
+                    app:showThumbnails="@{showThumbnails}" />
+            </FrameLayout>
 
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:contentDescription="@string/folder_icon"
-            app:filePath="@{file.path}"
-            app:showThumbnails="@{showThumbnails}"
-            app:isDirectory="@{file.isDirectory}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:id="@+id/nameTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/padding_12"
+                android:layout_marginEnd="@dimen/horizontal_margin_8"
+                android:gravity="center_vertical"
+                android:singleLine="true"
+                android:text="@{file.isDirectory ? file.name : file.nameWithoutExtension}"
+                android:textColor="@{file.isSelected ? @color/textColorLight : @color/daynnightTextColor}"
+                android:textSize="@dimen/text_size_16"
+                app:layout_constraintBottom_toTopOf="@id/secondaryInfoTextView"
+                app:layout_constraintEnd_toStartOf="@id/extensionTextView"
+                app:layout_constraintStart_toEndOf="@+id/iconContainer"
+                app:layout_constraintTop_toTopOf="@+id/iconContainer"
+                app:layout_constraintVertical_chainStyle="packed" />
 
-        <TextView
-            android:id="@+id/extensionTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:singleLine="true"
-            android:text="@{file.isDirectory ? @string/empty : file.extension}"
-            android:textAllCaps="true"
-            android:textSize="@dimen/text_size_10"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="@+id/nameTextView"
-            app:layout_constraintEnd_toStartOf="@+id/totalSizeTextView"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toEndOf="@+id/nameTextView"
-            app:layout_constraintTop_toTopOf="@+id/nameTextView" />
+            <TextView
+                android:id="@+id/extensionTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:text="@{file.isDirectory ? @string/empty : file.extension}"
+                android:textAllCaps="true"
+                android:textColor="@color/sectionHeaderColor"
+                android:textSize="@dimen/text_size_10"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@+id/nameTextView"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/nameTextView"
+                tools:ignore="SmallSp" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:id="@+id/secondaryInfoTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/padding_12"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="@dimen/horizontal_margin_8"
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:text="@{file.isDirectory() ? file.subFileCount + `  ·  ` + file.lastModified : file.size + `  ·  ` + file.lastModified}"
+                android:textColor="@{file.isSelected ? @color/textColorLight : @color/sectionHeaderColor}"
+                android:textSize="@dimen/text_size_12"
+                app:layout_constraintBottom_toBottomOf="@+id/iconContainer"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/iconContainer"
+                app:layout_constraintTop_toBottomOf="@+id/nameTextView" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginStart="68dp"
+            android:background="@drawable/item_divider" />
+
+    </LinearLayout>
 </layout>

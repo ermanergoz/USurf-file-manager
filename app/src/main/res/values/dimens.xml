@@ -35,6 +35,15 @@
     <dimen name="corner_radius_8">8dp</dimen>
     <dimen name="corner_radius_12">12dp</dimen>
 
+    <!-- Icon sizes -->
+    <dimen name="icon_background_size">44dp</dimen>
+    <dimen name="icon_size_24">24dp</dimen>
+    <dimen name="empty_state_icon_size">64dp</dimen>
+
     <!-- Paddings -->
+    <dimen name="padding_12">12dp</dimen>
     <dimen name="padding_128">128dp</dimen>
+
+    <!-- Swipe refresh -->
+    <dimen name="swipe_refresh_trigger_distance">200dp</dimen>
 </resources>

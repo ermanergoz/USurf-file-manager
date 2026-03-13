@@ -156,4 +156,10 @@
     <string name="pref_category_sorting">Sıralama</string>
     <string name="pref_category_display">Görünüm</string>
     <string name="pref_category_advanced">Gelişmiş</string>
+    <string name="empty_folder_title">Bu klasör boş</string>
+    <string name="empty_folder_subtitle">Dosya veya klasör oluşturmak için + düğmesini kullanın</string>
+    <string name="path_icon">Yol simgesi</string>
+    <string name="loading_text">Yükleniyor…</string>
+    <string name="loading_description">Yükleniyor</string>
+    <string name="action_progress_description">İşlem devam ediyor</string>
 </resources>
