@@ -17,7 +17,7 @@ import com.erman.usurf.home.ui.HomeViewModel
 import com.erman.usurf.utils.ViewModelFactory
 import kotlinx.android.synthetic.main.dialog_edit_shortcut.*
 
-class ShortcutOptionsDialog(val shortcutView: TextView) : DialogFragment() {
+class ShortcutOptionsDialog(private val shortcutView: TextView) : DialogFragment() {
     private lateinit var viewModelFactory: ViewModelFactory
     private lateinit var viewModel: HomeViewModel
     private lateinit var okButton: Button

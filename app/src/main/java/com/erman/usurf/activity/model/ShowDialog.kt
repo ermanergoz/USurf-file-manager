@@ -1,4 +1,4 @@
-package com.erman.usurf.utils
+package com.erman.usurf.activity.model
 
 import androidx.fragment.app.DialogFragment
 
