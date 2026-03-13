@@ -102,11 +102,6 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
     val moreOptionMode: LiveData<Boolean> = _moreOptionMode
 
-    private val _isEmptyDir = MutableLiveData<Boolean>().apply {
-        value = false
-    }
-    val isEmptyDir: LiveData<Boolean> = _isEmptyDir
-
     private val _isRootMode = MutableLiveData<Boolean>().apply {
         value = false
     }
@@ -200,7 +195,8 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                 launch {
                     path.value?.let { path ->
                         val directory = directoryModel.getFileModelsFromFiles(path)
-                        _isEmptyDir.value = directory.isNullOrEmpty()
+                        if (directory.isNullOrEmpty())
+                            _toastMessage.value = Event(R.string.empty_folder)
                         _updateDirectoryList.value = directory
                     }
                     _loading.value = false
@@ -209,8 +205,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                 _toastMessage.value = Event(R.string.unable_to_open_directory)
                 loge("getFileList $err")
             }
-        }
-        else {
+        } else {
             _loading.value = true
             launch {
                 _updateDirectoryList.value = directoryModel.getFilesToClean()
@@ -224,7 +219,8 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
         fileSearchQuery.value?.let {
             launch {
                 val fileList = directoryModel.getSearchedDeviceFiles(it)
-                _isEmptyDir.value = fileList.isNullOrEmpty()
+                if (fileList.isNullOrEmpty())
+                    _toastMessage.value = Event(R.string.empty_folder)
                 _updateDirectoryList.value = fileList
                 _menuMode.value = false
                 _loading.value = false

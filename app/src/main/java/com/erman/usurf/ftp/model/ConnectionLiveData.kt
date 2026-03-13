@@ -48,5 +48,5 @@ val Context.isConnected: Boolean?
             connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
         activeNetwork?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ?: false
     } else {
-        (getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager)?.activeNetworkInfo?.isConnected
+        (getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager)?.getNetworkInfo(ConnectivityManager.TYPE_WIFI)?.isConnected
     }
