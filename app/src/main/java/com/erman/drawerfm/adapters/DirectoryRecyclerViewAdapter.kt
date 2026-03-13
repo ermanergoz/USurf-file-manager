@@ -19,7 +19,7 @@ class DirectoryRecyclerViewAdapter :
     var onClickListener: ((File) -> Unit)? = null
     var onLongClickListener: ((File) -> Unit)? = null
     var directoryList = listOf<File>()
-    private var dateFormat = SimpleDateFormat("dd MMMM | HH:mm:ss")
+    private val dateFormat = SimpleDateFormat("dd MMMM | HH:mm:ss")
     //var multipleSelectionList = mutableListOf<ConstraintLayout>()
     var isMultipleSelection = false
 
