@@ -1,247 +1,453 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/layout_margin_8"
-        android:layout_marginTop="@dimen/layout_margin_8"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingStart="@dimen/horizontal_margin_16"
+        android:paddingTop="@dimen/vertical_margin_16"
+        android:paddingEnd="@dimen/horizontal_margin_16"
+        android:paddingBottom="@dimen/vertical_margin_32">
 
-        <ImageView
+        <!-- Hero Section -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="119dp"
-            android:layout_marginBottom="@dimen/layout_margin_8"
-            android:background="@drawable/side_nav_bar"
-            android:contentDescription="@string/applogo_description"
-            app:srcCompat="@mipmap/ic_launcher" />
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingTop="@dimen/vertical_margin_16"
+            android:paddingBottom="@dimen/vertical_margin_32">
 
+            <ImageView
+                android:layout_width="@dimen/empty_state_icon_size"
+                android:layout_height="@dimen/empty_state_icon_size"
+                android:contentDescription="@string/applogo_description"
+                app:srcCompat="@mipmap/ic_launcher" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/vertical_margin_8"
+                android:text="@string/app_name"
+                android:textColor="@color/daynnightTextColor"
+                android:textSize="@dimen/text_size_22"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/vertical_margin_4"
+                android:text="@string/app_version"
+                android:textColor="@color/sectionHeaderColor"
+                android:textSize="@dimen/text_size_14" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/vertical_margin_4"
+                android:text="@string/yusuf_erman_ergoz"
+                android:textColor="@color/sectionHeaderColor"
+                android:textSize="@dimen/text_size_12" />
+        </LinearLayout>
+
+        <!-- Links Section -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/developer"
-            android:textSize="@dimen/text_size_24"
+            android:text="@string/section_links"
+            android:textColor="@color/sectionHeaderColor"
+            android:textSize="@dimen/text_size_12"
             android:textStyle="bold" />
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:text="@string/yusuf_erman_ergoz"
-            android:textSize="@dimen/text_size_18" />
+            android:layout_marginTop="@dimen/vertical_margin_8"
+            android:background="@drawable/button_frame"
+            android:orientation="vertical">
 
+            <!-- GitHub -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/horizontal_margin_16"
+                android:paddingTop="@dimen/padding_12"
+                android:paddingEnd="@dimen/horizontal_margin_16"
+                android:paddingBottom="@dimen/padding_12">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/github"
+                    android:textColor="@color/daynnightTextColor"
+                    android:textSize="@dimen/text_size_14" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/vertical_margin_4"
+                    android:autoLink="web"
+                    android:singleLine="true"
+                    android:text="@string/github_link"
+                    android:textSize="@dimen/text_size_12" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="@dimen/horizontal_margin_16"
+                android:layout_marginEnd="@dimen/horizontal_margin_16"
+                android:background="@color/cardStroke" />
+
+            <!-- Privacy Policy -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/horizontal_margin_16"
+                android:paddingTop="@dimen/padding_12"
+                android:paddingEnd="@dimen/horizontal_margin_16"
+                android:paddingBottom="@dimen/padding_12">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/privacy_policy"
+                    android:textColor="@color/daynnightTextColor"
+                    android:textSize="@dimen/text_size_14" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/vertical_margin_4"
+                    android:autoLink="web"
+                    android:singleLine="true"
+                    android:text="@string/privacy_policy_url"
+                    android:textSize="@dimen/text_size_12" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Icon Credits Section -->
         <TextView
-            android:layout_marginTop="@dimen/vertical_margin_16"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/version"
-            android:textSize="@dimen/text_size_24"
+            android:layout_marginTop="@dimen/vertical_margin_16"
+            android:text="@string/section_icon_credits"
+            android:textColor="@color/sectionHeaderColor"
+            android:textSize="@dimen/text_size_12"
             android:textStyle="bold" />
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:text="@string/app_version"
-            android:textSize="@dimen/text_size_18" />
+            android:layout_marginTop="@dimen/vertical_margin_8"
+            android:background="@drawable/button_frame"
+            android:orientation="vertical">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/vertical_margin_16"
-            android:text="@string/github"
-            android:textSize="@dimen/text_size_24"
-            android:textStyle="bold" />
+            <!-- Pixel Perfect -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/horizontal_margin_16"
+                android:paddingTop="@dimen/padding_12"
+                android:paddingEnd="@dimen/horizontal_margin_16"
+                android:paddingBottom="@dimen/padding_12">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:autoLink="web"
-            android:singleLine="true"
-            android:text="@string/github_link"
-            android:textSize="@dimen/text_size_18" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/icons_pix_perfect"
+                    android:textColor="@color/daynnightTextColor"
+                    android:textSize="@dimen/text_size_12" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/vertical_margin_16"
-            android:text="@string/privacy_policy"
-            android:textSize="@dimen/text_size_24"
-            android:textStyle="bold" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/vertical_margin_4"
+                    android:autoLink="web"
+                    android:singleLine="true"
+                    android:text="@string/pix_perfect_link"
+                    android:textSize="@dimen/text_size_12" />
+            </LinearLayout>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:autoLink="web"
-            android:singleLine="true"
-            android:text="@string/privacy_policy_url"
-            android:textSize="@dimen/text_size_18" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="@dimen/horizontal_margin_16"
+                android:layout_marginEnd="@dimen/horizontal_margin_16"
+                android:background="@color/cardStroke" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/vertical_margin_16"
-            android:text="@string/icons"
-            android:textSize="@dimen/text_size_24"
-            android:textStyle="bold" />
+            <!-- Freepic -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/horizontal_margin_16"
+                android:paddingTop="@dimen/padding_12"
+                android:paddingEnd="@dimen/horizontal_margin_16"
+                android:paddingBottom="@dimen/padding_12">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:text="@string/icons_pix_perfect"
-            android:textSize="@dimen/text_size_18" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/icons_freepic"
+                    android:textColor="@color/daynnightTextColor"
+                    android:textSize="@dimen/text_size_12" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:autoLink="web"
-            android:singleLine="true"
-            android:text="@string/pix_perfect_link"
-            android:textSize="@dimen/text_size_18" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/vertical_margin_4"
+                    android:autoLink="web"
+                    android:singleLine="true"
+                    android:text="@string/freepic_url"
+                    android:textSize="@dimen/text_size_12" />
+            </LinearLayout>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginTop="@dimen/vertical_margin_16"
-            android:text="@string/icons_freepic"
-            android:textSize="@dimen/text_size_18" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="@dimen/horizontal_margin_16"
+                android:layout_marginEnd="@dimen/horizontal_margin_16"
+                android:background="@color/cardStroke" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:autoLink="web"
-            android:singleLine="true"
-            android:text="@string/freepic_url"
-            android:textSize="@dimen/text_size_18" />
+            <!-- Those Icons -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/horizontal_margin_16"
+                android:paddingTop="@dimen/padding_12"
+                android:paddingEnd="@dimen/horizontal_margin_16"
+                android:paddingBottom="@dimen/padding_12">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginTop="@dimen/vertical_margin_16"
-            android:text="@string/icons_those_icons"
-            android:textSize="@dimen/text_size_18" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/icons_those_icons"
+                    android:textColor="@color/daynnightTextColor"
+                    android:textSize="@dimen/text_size_12" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:autoLink="web"
-            android:singleLine="true"
-            android:text="@string/those_icons_url"
-            android:textSize="@dimen/text_size_18" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/vertical_margin_4"
+                    android:autoLink="web"
+                    android:singleLine="true"
+                    android:text="@string/those_icons_url"
+                    android:textSize="@dimen/text_size_12" />
+            </LinearLayout>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginTop="@dimen/vertical_margin_16"
-            android:text="@string/icons_smashicons"
-            android:textSize="@dimen/text_size_18" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="@dimen/horizontal_margin_16"
+                android:layout_marginEnd="@dimen/horizontal_margin_16"
+                android:background="@color/cardStroke" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:autoLink="web"
-            android:singleLine="true"
-            android:text="@string/smashicons_url"
-            android:textSize="@dimen/text_size_18" />
+            <!-- Smashicons -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/horizontal_margin_16"
+                android:paddingTop="@dimen/padding_12"
+                android:paddingEnd="@dimen/horizontal_margin_16"
+                android:paddingBottom="@dimen/padding_12">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginTop="@dimen/vertical_margin_16"
-            android:text="@string/storage_icon"
-            android:textSize="@dimen/text_size_18" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/icons_smashicons"
+                    android:textColor="@color/daynnightTextColor"
+                    android:textSize="@dimen/text_size_12" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:autoLink="web"
-            android:singleLine="true"
-            android:text="@string/srip_url"
-            android:textSize="@dimen/text_size_18" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/vertical_margin_4"
+                    android:autoLink="web"
+                    android:singleLine="true"
+                    android:text="@string/smashicons_url"
+                    android:textSize="@dimen/text_size_12" />
+            </LinearLayout>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginTop="@dimen/vertical_margin_16"
-            android:text="@string/icons_roundicons"
-            android:textSize="@dimen/text_size_18" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="@dimen/horizontal_margin_16"
+                android:layout_marginEnd="@dimen/horizontal_margin_16"
+                android:background="@color/cardStroke" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:autoLink="web"
-            android:singleLine="true"
-            android:text="@string/round_icons_url"
-            android:textSize="@dimen/text_size_18" />
+            <!-- Roundicons -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/horizontal_margin_16"
+                android:paddingTop="@dimen/padding_12"
+                android:paddingEnd="@dimen/horizontal_margin_16"
+                android:paddingBottom="@dimen/padding_12">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginTop="@dimen/vertical_margin_16"
-            android:text="@string/icons_kiranshastry"
-            android:textSize="@dimen/text_size_18" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/icons_roundicons"
+                    android:textColor="@color/daynnightTextColor"
+                    android:textSize="@dimen/text_size_12" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:autoLink="web"
-            android:singleLine="true"
-            android:text="@string/kiranshastry_url"
-            android:textSize="@dimen/text_size_18" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/vertical_margin_4"
+                    android:autoLink="web"
+                    android:singleLine="true"
+                    android:text="@string/round_icons_url"
+                    android:textSize="@dimen/text_size_12" />
+            </LinearLayout>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginTop="@dimen/vertical_margin_16"
-            android:text="@string/icons_iconixar"
-            android:textSize="@dimen/text_size_18" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="@dimen/horizontal_margin_16"
+                android:layout_marginEnd="@dimen/horizontal_margin_16"
+                android:background="@color/cardStroke" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:autoLink="web"
-            android:singleLine="true"
-            android:text="@string/iconixar_url"
-            android:textSize="@dimen/text_size_18" />
+            <!-- Srip (Storage icon) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/horizontal_margin_16"
+                android:paddingTop="@dimen/padding_12"
+                android:paddingEnd="@dimen/horizontal_margin_16"
+                android:paddingBottom="@dimen/padding_12">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginTop="@dimen/vertical_margin_16"
-            android:text="@string/folder_icon"
-            android:textSize="@dimen/text_size_18" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/storage_icon"
+                    android:textColor="@color/daynnightTextColor"
+                    android:textSize="@dimen/text_size_12" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:text="@string/xnimrodx_url"
-            android:autoLink="web"
-            android:singleLine="true"
-            android:textSize="@dimen/text_size_18"
-            android:layout_marginBottom="@dimen/vertical_margin_32"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/vertical_margin_4"
+                    android:autoLink="web"
+                    android:singleLine="true"
+                    android:text="@string/srip_url"
+                    android:textSize="@dimen/text_size_12" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="@dimen/horizontal_margin_16"
+                android:layout_marginEnd="@dimen/horizontal_margin_16"
+                android:background="@color/cardStroke" />
+
+            <!-- Kiranshastry -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/horizontal_margin_16"
+                android:paddingTop="@dimen/padding_12"
+                android:paddingEnd="@dimen/horizontal_margin_16"
+                android:paddingBottom="@dimen/padding_12">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/icons_kiranshastry"
+                    android:textColor="@color/daynnightTextColor"
+                    android:textSize="@dimen/text_size_12" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/vertical_margin_4"
+                    android:autoLink="web"
+                    android:singleLine="true"
+                    android:text="@string/kiranshastry_url"
+                    android:textSize="@dimen/text_size_12" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="@dimen/horizontal_margin_16"
+                android:layout_marginEnd="@dimen/horizontal_margin_16"
+                android:background="@color/cardStroke" />
+
+            <!-- Iconixar -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/horizontal_margin_16"
+                android:paddingTop="@dimen/padding_12"
+                android:paddingEnd="@dimen/horizontal_margin_16"
+                android:paddingBottom="@dimen/padding_12">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/icons_iconixar"
+                    android:textColor="@color/daynnightTextColor"
+                    android:textSize="@dimen/text_size_12" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/vertical_margin_4"
+                    android:autoLink="web"
+                    android:singleLine="true"
+                    android:text="@string/iconixar_url"
+                    android:textSize="@dimen/text_size_12" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="@dimen/horizontal_margin_16"
+                android:layout_marginEnd="@dimen/horizontal_margin_16"
+                android:background="@color/cardStroke" />
+
+            <!-- Xnimrodx (Folder/File icons) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/horizontal_margin_16"
+                android:paddingTop="@dimen/padding_12"
+                android:paddingEnd="@dimen/horizontal_margin_16"
+                android:paddingBottom="@dimen/padding_12">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/folder_icon"
+                    android:textColor="@color/daynnightTextColor"
+                    android:textSize="@dimen/text_size_12" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/vertical_margin_4"
+                    android:autoLink="web"
+                    android:singleLine="true"
+                    android:text="@string/xnimrodx_url"
+                    android:textSize="@dimen/text_size_12" />
+            </LinearLayout>
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>
