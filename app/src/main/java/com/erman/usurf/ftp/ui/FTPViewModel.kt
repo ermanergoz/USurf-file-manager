@@ -22,7 +22,7 @@ class FTPViewModel(
                     username = ftpRepository.getUsername().orEmpty(),
                     password = ftpRepository.getPassword().orEmpty(),
                     port = ftpRepository.getPort().toString(),
-                    storagePaths = ftpRepository.getStoragePaths(),
+                    storagePaths = mapStoragePaths(ftpRepository.getStoragePaths()),
                     isConnectedToWifi = ftpRepository.getConnectionLiveData().value == true,
                     isServiceRunning = ftpRepository.getFtpServerRunningLiveData().value == true,
                 )
@@ -42,11 +42,28 @@ class FTPViewModel(
         _uiState.value = transform(_uiState.value ?: FtpUiState())
     }
 
+    private fun mapStoragePaths(paths: List<String>): List<StoragePathItem> {
+        return paths.map { path ->
+            StoragePathItem(
+                path = path,
+                displayName = ftpRepository.getStorageDisplayName(path),
+                isExternal = ftpRepository.isExternalStorage(path),
+            )
+        }
+    }
+
     fun onConnectClicked() {
         if (!ftpRepository.isServerRunning()) {
             ftpRepository.startServer()
         } else {
             ftpRepository.stopServer()
+        }
+    }
+
+    fun onCopyUrlClicked() {
+        val url: String = _uiState.value?.url.orEmpty()
+        if (url.isNotEmpty()) {
+            _uiEvents.value = Event(FtpUiEvent.CopyToClipboard(url))
         }
     }
 
@@ -94,8 +111,8 @@ class FTPViewModel(
     }
 
     fun onFtpPathSelected(checkedId: Int) {
-        val paths = _uiState.value?.storagePaths ?: emptyList()
-        ftpRepository.editFtpPath(paths.elementAtOrNull(checkedId))
+        val paths: List<StoragePathItem> = _uiState.value?.storagePaths ?: emptyList()
+        ftpRepository.editFtpPath(paths.elementAtOrNull(checkedId)?.path)
     }
 
     fun getFtpSelectedPath(): String? = ftpRepository.getFtpPath()

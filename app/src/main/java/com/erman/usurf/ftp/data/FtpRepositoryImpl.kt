@@ -25,6 +25,10 @@ class FtpRepositoryImpl(
 
     override fun getStoragePaths(): List<String> = storagePathsProvider.getStorageDirectories().toList()
 
+    override fun getStorageDisplayName(path: String): String = ftpModel.getStorageDisplayName(path)
+
+    override fun isExternalStorage(path: String): Boolean = ftpModel.isExternalStorage(path)
+
     override fun getFtpPath(): String? = ftpPreferenceProvider.getFtpPath()
 
     override fun getConnectionLiveData(): LiveData<Boolean> = connectionLiveData

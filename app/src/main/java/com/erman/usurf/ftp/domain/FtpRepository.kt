@@ -13,6 +13,10 @@ interface FtpRepository {
 
     fun getStoragePaths(): List<String>
 
+    fun getStorageDisplayName(path: String): String
+
+    fun isExternalStorage(path: String): Boolean
+
     fun getFtpPath(): String?
 
     fun getConnectionLiveData(): LiveData<Boolean>

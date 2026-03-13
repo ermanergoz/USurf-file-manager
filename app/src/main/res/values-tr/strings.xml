@@ -135,4 +135,19 @@
     <string name="hint_port">Port</string>
     <string name="hint_password">Şifre</string>
     <string name="hint_username">Kullanıcı adı</string>
+    <string name="section_storage">Depolama</string>
+    <string name="section_favorites">Favoriler</string>
+    <string name="empty_favorites_title">Henüz favori yok</string>
+    <string name="empty_favorites_subtitle">Favori eklemek için bir klasöre uzun basın</string>
+    <string name="internal_storage">Dahili Depolama</string>
+    <string name="sd_card">SD Kart</string>
+    <string name="root_storage">Root</string>
+    <string name="ftp_section_status">Bağlantı</string>
+    <string name="ftp_section_settings">Sunucu Ayarları</string>
+    <string name="ftp_section_storage">Depolama Yolu</string>
+    <string name="ftp_url_copied">URL panoya kopyalandı</string>
+    <string name="ftp_not_connected_hint">FTP sunucusunu başlatmak için WiFi\'ye bağlanın</string>
+    <string name="ftp_server_active">FTP Sunucusu Aktif</string>
+    <string name="wifi_icon">WiFi durum simgesi</string>
+    <string name="copy_url">URL\'yi kopyala</string>
 </resources>
