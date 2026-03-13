@@ -132,7 +132,7 @@ class DirectoryFragment : Fragment() {
         fileListRecyclerView.layoutManager = GridLayoutManager(context, 1)
         directoryRecyclerViewAdapter = DirectoryRecyclerViewAdapter(directoryViewModel)
         fileListRecyclerView.adapter = directoryRecyclerViewAdapter
-        fileListRecyclerView.itemAnimator!!.changeDuration = 0 //to avoid flickering
+        fileListRecyclerView.itemAnimator?.let { it.changeDuration = 0 } //to avoid flickering
 
         directoryViewModel.path.observe(viewLifecycleOwner, Observer {
             directoryRecyclerViewAdapter.updateData(directoryViewModel.getFileList())
