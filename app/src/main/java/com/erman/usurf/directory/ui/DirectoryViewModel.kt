@@ -307,6 +307,20 @@ class DirectoryViewModel(
         }
     }
 
+    fun onSwipeRefresh() {
+        updateState { it.copy(isRefreshing = true) }
+        launch {
+            val state = requireCurrentState()
+            val list =
+                if (state.isSearchMode) {
+                    directoryModel.getSearchedDeviceFiles(state.query)
+                } else {
+                    directoryModel.getFileModelsFromDirectory(state.currentPath)
+                }
+            updateState { it.copy(files = list, isRefreshing = false) }
+        }
+    }
+
     fun onFileCompressOkPressed(zipNameWithExtension: String) {
         val selection = requireNonEmptySelectionAndResetPanel() ?: return
         launchAction(
@@ -346,8 +360,7 @@ class DirectoryViewModel(
     fun showMoreOption() {
         val state = requireCurrentState()
         if (state.common.isMoreMenuVisible) {
-            turnOffOptionPanel()
-            clearMultipleSelection()
+            updateCommon { it.copy(isMoreMenuVisible = false) }
         } else {
             updateCommon { it.copy(isMoreMenuVisible = true) }
         }
