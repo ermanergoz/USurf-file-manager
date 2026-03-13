@@ -2,9 +2,11 @@ package com.erman.usurf.dialog.ui
 
 import android.app.AlertDialog
 import android.app.Dialog
+import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
@@ -31,6 +33,11 @@ class RenameDialog(val name: String?) : DialogFragment() {
             builder.setMessage(getString(R.string.rename))
                 .setPositiveButton(R.string.ok, DialogInterface.OnClickListener { _, _ ->
                     editDialogViewModel.onRenameOkPressed(editText.text.toString())
+
+                    val inputMethodManager: InputMethodManager =
+                        requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    if (inputMethodManager.isActive)
+                        inputMethodManager.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS)
                 })
             builder.setView(dialogView)
             builder.create()
