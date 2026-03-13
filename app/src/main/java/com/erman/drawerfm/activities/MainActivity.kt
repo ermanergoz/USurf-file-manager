@@ -30,16 +30,16 @@ import com.erman.drawerfm.R
 import com.erman.drawerfm.adapters.ShortcutRecyclerViewAdapter
 import com.erman.drawerfm.dialogs.AboutDrawerFMDialog
 import com.erman.drawerfm.dialogs.ErrorDialog
-import com.erman.drawerfm.dialogs.ShortcutOptions
+import com.erman.drawerfm.dialogs.ShortcutOptionsDialog
 import com.erman.drawerfm.interfaces.OnShortcutClickListener
-import getStorageDirectories
+import com.erman.drawerfm.utilities.getStorageDirectories
 import com.erman.drawerfm.utilities.getUsedStoragePercentage
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.storage_button.view.*
 import java.io.File
 
 class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShortcutListener,
-    ShortcutOptions.ShortcutOptionListener, OnShortcutClickListener {
+    ShortcutOptionsDialog.ShortcutOptionListener, OnShortcutClickListener {
 
     override fun dialogCreateShortcutListener(shortcutName: String, isCanceled: Boolean) {
         if (File(newShortcutPath).exists() && !isCanceled) {
@@ -259,8 +259,6 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         setClickListener()
 
         addShortcut.setOnClickListener {
-            /*val newFragment = CreateShortcutDialog()
-            newFragment.show(supportFragmentManager, "")*/
             isCreateShortcutMode = true
             Toast.makeText(this, getString(R.string.new_shortcut_instruction), Toast.LENGTH_LONG).show()
         }
@@ -279,8 +277,6 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
             R.id.settings -> startSettingsActivity()
             R.id.about -> AboutDrawerFMDialog().show(supportFragmentManager, "")
             android.R.id.home -> finish()
-            /*R.id.generalInfo ->
-                startGeneralStorageInfoActivity(storageDirectories)*/
         }
         return super.onOptionsItemSelected(item)
     }
@@ -322,7 +318,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     }
 
     override fun onLongClick(shortcut: TextView) {
-        val newFragment = ShortcutOptions(shortcut)
+        val newFragment = ShortcutOptionsDialog(shortcut)
         newFragment.show(supportFragmentManager, "")
     }
 

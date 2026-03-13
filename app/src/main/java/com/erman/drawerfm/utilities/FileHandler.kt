@@ -69,7 +69,6 @@ fun delete(context: Context, selectedDirectories: List<File>, updateFragment: ()
     }
     if (isSuccess) {
         Toast.makeText(context, context.getString(R.string.deleting_successful), Toast.LENGTH_LONG).show()
-
         updateFragment.invoke()
     }
 }
@@ -133,6 +132,7 @@ fun moveFile(context: Context,
              copyOrMoveSources: List<File>,
              copyOrMoveDestination: String,
              updateFragment: () -> Unit) {
+
     var isSuccess = false
 
     for (i in copyOrMoveSources.indices) {

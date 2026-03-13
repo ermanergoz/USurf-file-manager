@@ -12,7 +12,7 @@ import androidx.core.view.isGone
 import androidx.fragment.app.DialogFragment
 import com.erman.drawerfm.R
 
-class ShortcutOptions(var shortcut: TextView) : DialogFragment() {
+class ShortcutOptionsDialog(var shortcut: TextView) : DialogFragment() {
     private lateinit var listener: ShortcutOptionListener
     private lateinit var deleteButton: Button
     private lateinit var renameButton: Button
@@ -60,7 +60,6 @@ class ShortcutOptions(var shortcut: TextView) : DialogFragment() {
                 dialog?.cancel()
             }
 
-            // Create the AlertDialog object and return it
             builder.setView(dialogView)
             builder.create()
         } ?: throw IllegalStateException("Activity cannot be null")
