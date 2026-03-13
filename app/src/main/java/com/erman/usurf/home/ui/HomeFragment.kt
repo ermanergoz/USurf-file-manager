@@ -1,28 +1,42 @@
 package com.erman.usurf.home.ui
 
-import android.app.Activity
+import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import android.widget.FrameLayout
+import android.widget.Toast
+import androidx.activity.addCallback
+import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.erman.usurf.R
 import com.erman.usurf.databinding.FragmentHomeBinding
+import com.erman.usurf.dialog.ui.RenameDialog
+import com.erman.usurf.dialog.ui.ShortcutOptionsDialog
 import com.erman.usurf.directory.ui.DirectoryViewModel
-import com.erman.usurf.utils.ViewModelFactory
+import com.erman.usurf.home.model.FinishActivity
+import com.erman.usurf.utils.*
 import kotlinx.android.synthetic.main.fragment_home.*
+import java.io.File
 
 class HomeFragment : Fragment() {
     private lateinit var homeViewModel: HomeViewModel
     private lateinit var viewModelFactory: ViewModelFactory
     private lateinit var directoryViewModel: DirectoryViewModel
+    private lateinit var shortcutRecyclerViewAdapter: ShortcutRecyclerViewAdapter
+    private lateinit var dialogListener: ShowDialog
+    private lateinit var finishActivityListener: FinishActivity
+    private lateinit var safListener: StorageAccessFramework
+    private lateinit var storageButtonDimensions: HomeStorageButton
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         viewModelFactory = ViewModelFactory()
@@ -34,43 +48,101 @@ class HomeFragment : Fragment() {
             ViewModelProvider(requireActivity(), viewModelFactory).get(DirectoryViewModel::class.java)
 
         homeViewModel.navigateToDirectory.observe(viewLifecycleOwner, Observer {
-            it.getContentIfNotHandled()?.let {navId ->
+            it.getContentIfNotHandled()?.let { navId ->
                 findNavController().navigate(navId)
             }
         })
 
-        homeViewModel.storagePath.observe(viewLifecycleOwner, Observer {
+        homeViewModel.path.observe(viewLifecycleOwner, Observer {
             directoryViewModel.setPath(it)
         })
 
         homeViewModel.saf.observe(viewLifecycleOwner, Observer {
-            //https://developer.android.com/reference/android/support/v4/provider/DocumentFile
-            it.getContentIfNotHandled()?.let {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-                    //If you really do need full access to an entire subtree of documents,
-                    this.startActivityForResult(intent, 2)
-                }
+            safListener.launchSAF()
+        })
+
+        homeViewModel.storageButtons.observe(viewLifecycleOwner, Observer {
+            val sideMargin = 8
+            val dimensions = storageButtonDimensions.autoSizeButtonDimensions(it.size, sideMargin)
+            val buttonLayoutParams = FrameLayout.LayoutParams(dimensions.first, dimensions.second)
+            buttonLayoutParams.setMargins(sideMargin, 0, sideMargin, 0)
+            it.forEach {button ->
+                button.lifecycleOwner = this
+                button.viewModel = homeViewModel
+                storageUsageBarLayout.addView(button.root, buttonLayoutParams)
             }
         })
+
+        homeViewModel.onShortcutOption.observe(viewLifecycleOwner, Observer {
+            it.getContentIfNotHandled()?.let { args ->
+                dialogListener.showDialog(ShortcutOptionsDialog(args.view))
+            }
+        })
+
+        homeViewModel.onRename.observe(viewLifecycleOwner, Observer {
+            it.getContentIfNotHandled()?.let { args ->
+                dialogListener.showDialog(RenameDialog(args.name))
+            }
+        })
+
+        homeViewModel.openFile.observe(viewLifecycleOwner, Observer {
+            it.getContentIfNotHandled()?.let { args ->
+                logd("Open a shortcut file")
+                val intent = Intent(Intent.ACTION_VIEW)
+                intent.data = FileProvider.getUriForFile(requireContext(), requireContext().packageName, File(args.path))
+                intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                intent.resolveActivity(requireContext().packageManager)?.let { startActivity(intent) }
+                    ?: let { Toast.makeText(context, getString(R.string.unsupported_file), Toast.LENGTH_LONG).show() }
+            }
+        })
+
+        homeViewModel.toastMessage.observe(viewLifecycleOwner, Observer {
+            it.getContentIfNotHandled()?.let { messageId ->
+                Toast.makeText(context, getString(messageId), Toast.LENGTH_LONG).show()
+            }
+        })
+
+        requireActivity().onBackPressedDispatcher.addCallback(this) {
+            //workaround for displaying home fragment repeatedly until back stack is empty
+            finishActivityListener.finishActivity()
+        }
+
         binding.lifecycleOwner = this
         binding.viewModel = homeViewModel
         return binding.root
     }
 
+    private fun runRecyclerViewAnimation(recyclerView: RecyclerView) {
+        val context = recyclerView.context
+        val controller = AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_move_up)
+        recyclerView.layoutAnimation = controller
+        recyclerView.scheduleLayoutAnimation()
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        shortcutRecyclerViewAdapter = ShortcutRecyclerViewAdapter(homeViewModel)
+        shortcutRecyclerView.layoutManager = GridLayoutManager(context, 2)
+        shortcutRecyclerView.adapter = shortcutRecyclerViewAdapter
+        shortcutRecyclerView.itemAnimator?.let { it.changeDuration = 0 }//to avoid flickering
+
+        homeViewModel.shortcuts.observe(viewLifecycleOwner, Observer {
+            shortcutRecyclerViewAdapter.updateData(it)
+            runRecyclerViewAnimation(shortcutRecyclerView)
+        })
+    }
+
+    private fun refreshStorageButtons() {
+        storageUsageBarLayout.removeAllViews()
+        homeViewModel.createStorageButtons()
+    }
+
     override fun onResume() {
         super.onResume()
         //To avoid storage buttons from disappearing when resuming the app from background
-        homeViewModel.storageButtons.observe(viewLifecycleOwner, Observer {
-            val buttonLayoutParams =
-                FrameLayout.LayoutParams(520, 200)
-            buttonLayoutParams.setMargins(10, 0, 10, 0)
-            for (i in it.indices) {
-                it[i].lifecycleOwner = this
-                it[i].viewModel = homeViewModel
-                storageUsageBarLayout.addView(it[i].root, buttonLayoutParams)
-            }
-        })
+        //And also, to refresh it after preference change
+        refreshStorageButtons()
     }
 
     override fun onPause() {
@@ -80,18 +152,16 @@ class HomeFragment : Fragment() {
         storageUsageBarLayout.removeAllViews()
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (resultCode === Activity.RESULT_OK) {
-            val treeUri = data!!.data
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                requireContext().contentResolver.takePersistableUriPermission(treeUri!!,
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-            }
-            homeViewModel.saveDocumentTree(treeUri.toString())
-        } else {
-            return
+        try {
+            dialogListener = context as ShowDialog
+            finishActivityListener = context as FinishActivity
+            safListener = context as StorageAccessFramework
+            storageButtonDimensions = context as HomeStorageButton
+        } catch (err: ClassCastException) {
+            err.printStackTrace()
         }
-        super.onActivityResult(requestCode, resultCode, data)
     }
 }

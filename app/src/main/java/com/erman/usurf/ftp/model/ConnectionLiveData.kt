@@ -8,7 +8,9 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import androidx.lifecycle.LiveData
-import com.erman.usurf.MainApplication.Companion.appContext
+import com.erman.usurf.app.MainApplication.Companion.appContext
+import com.erman.usurf.utils.logd
+import com.erman.usurf.utils.loge
 
 class ConnectionLiveData : LiveData<Boolean>() {
 
@@ -20,6 +22,7 @@ class ConnectionLiveData : LiveData<Boolean>() {
 
     override fun onActive() {
         super.onActive()
+        logd("Register networkReceiver")
         appContext.registerReceiver(
             networkReceiver,
             IntentFilter("android.net.conn.CONNECTIVITY_CHANGE")
@@ -29,14 +32,15 @@ class ConnectionLiveData : LiveData<Boolean>() {
     override fun onInactive() {
         super.onInactive()
         try {
+            logd("Unregister networkReceiver")
             appContext.unregisterReceiver(networkReceiver)
         } catch (err: Exception) {
-            err.printStackTrace()
+            loge("onInactive $err")
         }
     }
 }
 
-val Context.isConnected: Boolean
+val Context.isConnected: Boolean?
     get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
         val connectivityManager =
             (getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager)
@@ -44,5 +48,5 @@ val Context.isConnected: Boolean
             connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
         activeNetwork?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ?: false
     } else {
-        (getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager)?.activeNetworkInfo!!.isConnected
+        (getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager)?.activeNetworkInfo?.isConnected
     }

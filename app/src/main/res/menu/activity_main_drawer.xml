@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <group android:checkableBehavior="single">
+    <group android:checkableBehavior="none">
 
         <item
             android:id="@+id/nav_home"
@@ -12,30 +12,22 @@
         <item
             android:id="@+id/nav_directory"
             android:icon="@drawable/ic_hdd"
-            android:title="@string/menu_directory" />
-        <item
-            android:id="@+id/nav_library"
-            android:icon="@drawable/ic_library"
-            android:title="@string/menu_library" />
-
-        <item
-            android:id="@+id/nav_device_search"
-            android:icon="@drawable/ic_search"
-            android:title="@string/device_wide_search" />
-
+            android:visible="false"
+            android:title="" />
         <item
             android:id="@+id/nav_ftp"
             android:icon="@drawable/ic_ftp"
             android:title="@string/menu_ftp" />
-
         <item
             android:id="@+id/nav_preferences"
             android:icon="@drawable/ic_preferences"
             android:title="@string/menu_preferences" />
-
         <item
             android:id="@+id/nav_info"
             android:icon="@drawable/ic_info"
             android:title="@string/menu_info" />
     </group>
+
+    <group android:checkableBehavior="none"
+        android:id="@+id/storage"/>
 </menu>

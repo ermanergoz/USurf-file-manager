@@ -21,8 +21,12 @@
             android:id="@+id/buttonText"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginLeft="@dimen/horizontal_margin_8"
+            android:layout_marginRight="@dimen/horizontal_margin_8"
+            android:ellipsize="start"
             android:gravity="center"
-            android:maxLines="1"
-            android:textSize="18sp" />
+            android:singleLine="true"
+            android:textColor="@color/daynnightTextColor"
+            android:textSize="@dimen/text_size_18" />
     </RelativeLayout>
 </layout>
