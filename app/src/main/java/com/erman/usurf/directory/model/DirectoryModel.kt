@@ -3,12 +3,11 @@ package com.erman.usurf.directory.model
 import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Build
-import android.system.Os
 import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import com.erman.usurf.activity.data.StorageDirectoryPreferenceProvider
 import com.erman.usurf.application.MainApplication.Companion.appContext
-import com.erman.usurf.directory.utils.SIMPLE_DATE_FORMAT_PATTERN
+import com.erman.usurf.directory.utils.*
 import com.erman.usurf.preference.data.PreferenceProvider
 import com.erman.usurf.utils.*
 import kotlinx.coroutines.CancellationException
@@ -16,56 +15,83 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.withContext
 import java.io.*
-import java.lang.reflect.Field
-import java.lang.reflect.Method
 import java.text.SimpleDateFormat
-import java.util.*
-import java.util.zip.ZipEntry
-import java.util.zip.ZipInputStream
-import java.util.zip.ZipOutputStream
 
-class DirectoryModel {
+class DirectoryModel(
+    private val preferenceProvider: PreferenceProvider,
+    private val storageDirectoryPreferenceProvider: StorageDirectoryPreferenceProvider,
+    private val rootHandler: RootHandler
+) {
     @SuppressLint("SimpleDateFormat")
     private val dateFormat = SimpleDateFormat(SIMPLE_DATE_FORMAT_PATTERN)
-    private val preferenceProvider = PreferenceProvider()
-    private val rootHandler = RootHandler()
 
-    suspend fun getFileModelsFromFiles(path: String): List<FileModel> = withContext(Dispatchers.IO) {
-        val showHidden = preferenceProvider.getShowHiddenPreference()
+    suspend fun getFileModelsFromFiles(path: String): List<FileModel> =
+        withContext(Dispatchers.IO) {
+            val showHidden = preferenceProvider.getShowHiddenPreference()
 
-        File(path).listFiles()?.let { fileList ->
-            var filteredFileList =
-                    fileList.filter { !it.isHidden || showHidden }.sortedWith(compareBy({ !it.isDirectory }, { it.name })).toList()
+            File(path).listFiles()?.let { fileList ->
+                var filteredFileList = fileList.filter { !it.isHidden || showHidden }
+                    .sortedWith(compareBy({ !it.isDirectory }, { it.name })).toList()
 
-            when (preferenceProvider.getFileSortPreference()) {
-                "Sort by name" -> filteredFileList = filteredFileList.sortedWith(compareBy({ !it.isDirectory }, { it.name })).toList()
-                "Sort by size" -> filteredFileList =
-                        filteredFileList.sortedWith(compareBy({ !it.isDirectory }, { it.length() }, { getFolderSize(it) })).toList()
-                "Sort by last modified" -> filteredFileList =
-                        filteredFileList.sortedWith(compareBy({ !it.isDirectory }, { it.lastModified() })).toList()
-            }
-
-            if (preferenceProvider.getDescendingOrderPreference())
-                filteredFileList = filteredFileList.sortedWith(compareBy { it.isDirectory }).reversed()
-
-            return@withContext filteredFileList.map {
-                FileModel(
-                        it.path, it.name, it.nameWithoutExtension, getConvertedFileSize(it), it.isDirectory,
-                        dateFormat.format(it.lastModified()), it.extension,
-                        (it.listFiles()?.size.toString() + " files"), getPermissions(it), it.isHidden, false
-                )
-            }
-        } ?: let {
-            //if it is null, it is most likely to be in a root directory
-            val rootHandler = RootHandler()
-            if (preferenceProvider.getRootAccessPreference() && rootHandler.isRootAccessGiven()) {
-                rootHandler.getFileList(path).filter { it.first() != '.' || showHidden }.map {
-                    FileModel("$path/$it", it, it, "", it.last() == '/', "", "", "", "", it.first() == '.', true)
+                when (preferenceProvider.getFileSortPreference()) {
+                    "Sort by name" -> filteredFileList =
+                        filteredFileList.sortedWith(compareBy({ !it.isDirectory }, { it.name }))
+                            .toList()
+                    "Sort by size" -> filteredFileList =
+                        filteredFileList.sortedWith(
+                            compareBy(
+                                { !it.isDirectory },
+                                { it.length() },
+                                { getFolderSize(it) })
+                        ).toList()
+                    "Sort by last modified" -> filteredFileList =
+                        filteredFileList.sortedWith(
+                            compareBy(
+                                { !it.isDirectory },
+                                { it.lastModified() })
+                        ).toList()
                 }
-            } else
-                emptyList()
+
+                if (preferenceProvider.getDescendingOrderPreference()) filteredFileList =
+                    filteredFileList.sortedWith(compareBy { it.isDirectory }).reversed()
+
+                return@withContext filteredFileList.map {
+                    FileModel(
+                        it.path,
+                        it.name,
+                        it.nameWithoutExtension,
+                        getConvertedFileSize(it),
+                        it.isDirectory,
+                        dateFormat.format(it.lastModified()),
+                        it.extension,
+                        (it.listFiles()?.size.toString() + " files"),
+                        getPermissions(it),
+                        it.isHidden,
+                        false
+                    )
+                }
+            } ?: let {
+                //if it is null, it is most likely to be in a root directory
+                val rootHandler = RootHandler()
+                if (preferenceProvider.getRootAccessPreference() && rootHandler.isRootAccessGiven()) {
+                    rootHandler.getFileList(path).filter { it.first() != '.' || showHidden }.map {
+                        FileModel(
+                            "$path/$it",
+                            it,
+                            it,
+                            "",
+                            it.last() == '/',
+                            "",
+                            "",
+                            "",
+                            "",
+                            it.first() == '.',
+                            true
+                        )
+                    }
+                } else emptyList()
+            }
         }
-    }
 
     private fun getPermissions(file: File): String {
         return when {
@@ -77,11 +103,10 @@ class DirectoryModel {
     }
 
     private fun getConvertedFileSize(file: File): String {
-        val size: Long = if (file.isFile)
-            file.length()
+        val size: Long = if (file.isFile) file.length()
         else getFolderSize(file).toLong()
 
-        var sizeStr = ""
+        val sizeStr: String
 
         val kilobyte = size / 1024.0
         val megabyte = size / (1024.0 * 1024.0)
@@ -99,14 +124,13 @@ class DirectoryModel {
     }
 
     private fun getFolderSize(file: File): Double {
-        if (file.exists() && file.parent != "/") {
+        if (file.exists() && file.parent != ROOT_DIRECTORY) {
             file.listFiles()?.let {
                 var size = 0.0
                 val fileList = it.toList()
 
                 for (i in fileList.indices) {
-                    if (fileList[i].isDirectory)
-                        size += getFolderSize(fileList[i])
+                    if (fileList[i].isDirectory) size += getFolderSize(fileList[i])
                     else size += fileList[i].length()
                 }
                 return size
@@ -115,7 +139,10 @@ class DirectoryModel {
         return 0.0
     }
 
-    fun manageMultipleSelectionList(file: FileModel, multipleSelection: MutableList<FileModel>): MutableList<FileModel> {
+    fun manageMultipleSelectionList(
+        file: FileModel,
+        multipleSelection: MutableList<FileModel>
+    ): MutableList<FileModel> {
         if (file.isSelected) {
             file.isSelected = false
             multipleSelection.remove(file)
@@ -136,15 +163,20 @@ class DirectoryModel {
 
     private fun getDocumentFile(file: File, isDirectory: Boolean): DocumentFile? {
         logd("getDocumentFile")
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT)
-            return DocumentFile.fromFile(file)
-
-        val getExtSdCardBaseFolder = StoragePaths().getStorageDirectories().elementAt(1)
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) return DocumentFile.fromFile(file)
+        val getExtSdCardBaseFolder: String
+        try {
+            getExtSdCardBaseFolder = StoragePaths().getStorageDirectories().elementAt(1)
+        } catch (err: IndexOutOfBoundsException) {
+            loge("getDocumentFile $err")
+            return null
+        }
         var originalDirectory = false
         var relativePathOfFile: String? = null
         try {
             val fullPath = file.canonicalPath
-            if (getExtSdCardBaseFolder != fullPath) relativePathOfFile = fullPath.substring(getExtSdCardBaseFolder.length + 1)
+            if (getExtSdCardBaseFolder != fullPath) relativePathOfFile =
+                fullPath.substring(getExtSdCardBaseFolder.length + 1)
             else originalDirectory = true
         } catch (err: IOException) {
             loge("getDocumentFile $err")
@@ -153,7 +185,7 @@ class DirectoryModel {
             originalDirectory = true
         }
 
-        val extSdCardChosenUri = StorageDirectoryPreferenceProvider().getChosenUri()
+        val extSdCardChosenUri = storageDirectoryPreferenceProvider.getChosenUri()
         var treeUri: Uri? = null
         if (extSdCardChosenUri != null) treeUri = Uri.parse(extSdCardChosenUri)
         if (treeUri == null) {
@@ -167,89 +199,88 @@ class DirectoryModel {
             return null
         }
         if (originalDirectory) return document
-        relativePathOfFile?.split("/".toRegex())?.dropLastWhile { it.isEmpty() }?.toTypedArray()?.let { parts ->
-            for (i in parts.indices) {
-                document?.let {
-                    var nextDocument = it.findFile(parts[i])
-                    if (nextDocument == null) {
-                        nextDocument = if (i < parts.size - 1 || isDirectory) {
-                            it.createDirectory(parts[i])
-                        } else {
-                            it.createFile("*/*", parts[i])
+        relativePathOfFile?.split("/".toRegex())?.dropLastWhile { it.isEmpty() }?.toTypedArray()
+            ?.let { parts ->
+                for (i in parts.indices) {
+                    document?.let {
+                        var nextDocument = it.findFile(parts[i])
+                        if (nextDocument == null) {
+                            nextDocument = if (i < parts.size - 1 || isDirectory) {
+                                it.createDirectory(parts[i])
+                            } else {
+                                it.createFile("*/*", parts[i])
+                            }
                         }
+                        document = nextDocument
                     }
-                    document = nextDocument
                 }
             }
-        }
         return document
     }
 
-    private suspend fun isRootDirectory(path: String): Boolean {
+    private suspend fun isRootDirectory(path: String): Boolean = withContext(Dispatchers.IO) {
         //check if the directory is in root
-        val dummyFileName = "usurfIsRootCheck.txt"
         val pathFile = File(path)
 
-        val dummyFilePath = if (pathFile.isDirectory) {
-            pathFile.path
-        } else {
-            pathFile.parent
-        }
-        var isRoot = false
+        val dummyFilePath = if (pathFile.isDirectory) pathFile.path
+        else "" + pathFile.parent
 
         try {
-            File(dummyFilePath + File.separator + dummyFileName).createNewFile()
+            withContext(Dispatchers.IO) { File(dummyFilePath + File.separator + DUMMY_FILE_NAME).createNewFile() }
         } catch (err: Exception) {
             err.printStackTrace()
-            getDocumentFile(File(dummyFilePath), File(dummyFilePath).isDirectory)?.createFile("*/*", dummyFileName)
+            getDocumentFile(File(dummyFilePath), File(dummyFilePath).isDirectory)?.createFile(
+                "*/*",
+                DUMMY_FILE_NAME
+            )
         }
-        isRoot = !File(dummyFilePath + File.separator + dummyFileName).exists()
+        val isRoot: Boolean = !File(dummyFilePath + File.separator + DUMMY_FILE_NAME).exists()
 
-        if (!isRoot && !File(dummyFilePath + File.separator + dummyFileName).delete()) {
+        if (!isRoot && !File(dummyFilePath + File.separator + DUMMY_FILE_NAME).delete()) {
             val documentFileToDelete = getDocumentFile(
-                    File(dummyFilePath + File.separator + dummyFileName),
-                    File(dummyFilePath + File.separator + dummyFileName).isDirectory
+                File(dummyFilePath + File.separator + DUMMY_FILE_NAME),
+                File(dummyFilePath + File.separator + DUMMY_FILE_NAME).isDirectory
             )
             documentFileToDelete?.let {
                 deleteFolderRecursively(it)
             }
         } else if (isRoot) {
-            val toDelete = getSearchedDeviceFiles("usurfIsRootCheck")
+            val toDelete = getSearchedDeviceFiles(DUMMY_FILE_NAME_WO_EXTENSION)
             if (toDelete.isNotEmpty()) delete(toDelete)
         }
         Log.e("isRoot", isRoot.toString())
-        return isRoot
+        return@withContext isRoot
     }
 
-    suspend fun rename(selectedDirectory: FileModel, newFileName: String) = withContext(Dispatchers.IO) {
-        val dirName = File(selectedDirectory.path).parent
-        logi("Attempt to rename " + selectedDirectory.path + " to " + newFileName)
-        if (selectedDirectory.name == newFileName)
-            cancel()
+    suspend fun rename(selectedDirectory: FileModel, newFileName: String) =
+        withContext(Dispatchers.IO) {
+            val dirName = File(selectedDirectory.path).parent
+            logi("Attempt to rename " + selectedDirectory.path + " to " + newFileName)
+            if (selectedDirectory.name == newFileName) cancel()
 
-        if (isRootDirectory(selectedDirectory.path)) {
-            //do it with root permissions
-            if (preferenceProvider.getRootAccessPreference() && rootHandler.isRootAccessGiven()) {
-                rootHandler.remountRootDirAs("rw")
-                val isSuccess = rootHandler.renameFile(selectedDirectory, newFileName)
-                rootHandler.remountRootDirAs("ro")
-                if (!isSuccess)
+            if (isRootDirectory(selectedDirectory.path)) {
+                //do it with root permissions
+                if (preferenceProvider.getRootAccessPreference() && rootHandler.isRootAccessGiven()) {
+                    rootHandler.remountRootDirAs("rw")
+                    val isSuccess = rootHandler.renameFile(selectedDirectory, newFileName)
+                    rootHandler.remountRootDirAs("ro")
+                    if (!isSuccess) cancel()
+                }
+            } else {
+                //normal way
+                val prev = File(dirName, selectedDirectory.name)
+                val new = File(dirName, newFileName)
+                if (!prev.renameTo(new)) {
+                    val documentFile =
+                        getDocumentFile(File(selectedDirectory.path), selectedDirectory.isDirectory)
+                    documentFile?.renameTo(newFileName)
+                }
+                //if the normal way doesn't work, try with SAF
+                if (!File("$dirName/$newFileName").exists()) {
                     cancel()
-            }
-        } else {
-            //normal way
-            val prev = File(dirName, selectedDirectory.name)
-            val new = File(dirName, newFileName)
-            if (!prev.renameTo(new)) {
-                val documentFile = getDocumentFile(File(selectedDirectory.path), selectedDirectory.isDirectory)
-                documentFile?.renameTo(newFileName)
-            }
-            //if the normal way doesn't work, try with SAF
-            if (!File("$dirName/$newFileName").exists()) {
-                cancel()
+                }
             }
         }
-    }
 
     suspend fun delete(selectedDirectories: List<FileModel>) = withContext(Dispatchers.IO) {
         if (isRootDirectory(selectedDirectories.first().path)) {
@@ -258,10 +289,8 @@ class DirectoryModel {
                 rootHandler.remountRootDirAs("rw")
                 val isSuccess = rootHandler.delete(selectedDirectories)
                 rootHandler.remountRootDirAs("ro")
-                if (!isSuccess)
-                    cancel()
-            } else
-                cancel()
+                if (!isSuccess) cancel()
+            } else cancel()
         } else {
             for (i in selectedDirectories.indices) {
                 logi("Attempt to delete " + selectedDirectories[i].path)
@@ -272,10 +301,15 @@ class DirectoryModel {
                     File(selectedDirectories[i].path).delete()
                 }
                 if (!isSuccess) {
-                    val documentFileToDelete = getDocumentFile(File(selectedDirectories[i].path), selectedDirectories[i].isDirectory)
+                    val documentFileToDelete = getDocumentFile(
+                        File(selectedDirectories[i].path),
+                        selectedDirectories[i].isDirectory
+                    )
                     //if the normal way doesn't work, try with SAF
-                    if (documentFileToDelete != null && !deleteFolderRecursively(documentFileToDelete))
-                        cancel()
+                    if (documentFileToDelete != null && !deleteFolderRecursively(
+                            documentFileToDelete
+                        )
+                    ) cancel()
                 }
             }
         }
@@ -300,10 +334,8 @@ class DirectoryModel {
                 rootHandler.remountRootDirAs("rw")
                 val isSuccess = rootHandler.createFolder(path, folderName)
                 rootHandler.remountRootDirAs("ro")
-                if (!isSuccess)
-                    cancel()
-            } else
-                cancel()
+                if (!isSuccess) cancel()
+            } else cancel()
         } else {
             if (!File("$path/$folderName").exists()) {
                 //normal way
@@ -315,8 +347,7 @@ class DirectoryModel {
                         cancel()
                     } else Unit
                 }
-            } else
-                cancel()
+            } else cancel()
         }
     }
 
@@ -331,8 +362,7 @@ class DirectoryModel {
                 rootHandler.remountRootDirAs("ro")
                 if (!isSuccess) cancel()
                 else Unit
-            } else
-                cancel()
+            } else cancel()
         } else {
             if (!File("$path/$fileName").exists()) {
                 try {//if wont work here. Throws IOException
@@ -346,61 +376,71 @@ class DirectoryModel {
                         cancel()
                     } else Unit
                 }
-            } else
-                cancel()
+            } else cancel()
         }
     }
 
     private fun doesFileExist(fileModel: FileModel, copyOrMoveDestination: String): Boolean {
-        File(copyOrMoveDestination).listFiles().let { fileList ->
-            for (file in fileList) {
-                if (file.name == fileModel.name)
-                    return true
+        val files = File(copyOrMoveDestination).listFiles()
+
+        if (files != null && files.isNotEmpty()) {
+            for (file in files) {
+                if (file.name == fileModel.name) return true
             }
         }
         return false
     }
 
-    suspend fun copyFile(copyOrMoveSources: List<FileModel>, copyOrMoveDestination: String) = withContext(Dispatchers.IO) {
-        Log.e("isRootDir", isRootDirectory(copyOrMoveDestination).toString())
-        if (isRootDirectory(copyOrMoveDestination)) {
-            //do it with root permissions
-            if (preferenceProvider.getRootAccessPreference() && rootHandler.isRootAccessGiven()) {
-                rootHandler.remountRootDirAs("rw")
-                val isSuccess = rootHandler.copyFile(copyOrMoveSources, copyOrMoveDestination)
-                rootHandler.remountRootDirAs("ro")
-                if (!isSuccess)
-                    cancel()
-            } else
-                cancel()
-        } else {
-            for (i in copyOrMoveSources.indices) {
-                logi("Attempt to copy: from " + copyOrMoveSources[i].path + " to " + copyOrMoveDestination)
-                if (!doesFileExist(copyOrMoveSources[i], copyOrMoveDestination)) {
-                    //normal way
-                    if (copyOrMoveSources[i].isDirectory) {
-                        try {
-                            File(copyOrMoveSources[i].path).copyRecursively(File(copyOrMoveDestination + File.separator + copyOrMoveSources[i].name))
-                        } catch (err: Exception) {
-                            if (!copyToExtCard(File(copyOrMoveSources[i].path), copyOrMoveDestination))
-                                cancel()
-                        }
-                    } else {
-                        try {
-                            File(copyOrMoveSources[i].path).copyTo(File(copyOrMoveDestination + File.separator + copyOrMoveSources[i].name))
-                        } catch (err: IOException) {
-                            //with SAF
-                            if (!copyToExtCard(File(copyOrMoveSources[i].path), copyOrMoveDestination))
-                                cancel()
-                        }
-                    }
+    suspend fun copyFile(copyOrMoveSources: List<FileModel>, copyOrMoveDestination: String) =
+        withContext(Dispatchers.IO) {
+            Log.e("isRootDir", isRootDirectory(copyOrMoveDestination).toString())
+            if (isRootDirectory(copyOrMoveDestination)) {
+                //do it with root permissions
+                if (preferenceProvider.getRootAccessPreference() && rootHandler.isRootAccessGiven()) {
+                    rootHandler.remountRootDirAs("rw")
+                    val isSuccess = rootHandler.copyFile(copyOrMoveSources, copyOrMoveDestination)
+                    rootHandler.remountRootDirAs("ro")
+                    if (!isSuccess) cancel()
                 } else cancel()
+            } else {
+                for (i in copyOrMoveSources.indices) {
+                    logi("Attempt to copy: from " + copyOrMoveSources[i].path + " to " + copyOrMoveDestination)
+                    if (!doesFileExist(copyOrMoveSources[i], copyOrMoveDestination)) {
+                        //normal way
+                        if (copyOrMoveSources[i].isDirectory) {
+                            try {
+                                File(copyOrMoveSources[i].path).copyRecursively(
+                                    File(
+                                        copyOrMoveDestination + File.separator + copyOrMoveSources[i].name
+                                    )
+                                )
+                            } catch (err: Exception) {
+                                if (!copyToExtCard(
+                                        File(copyOrMoveSources[i].path),
+                                        copyOrMoveDestination
+                                    )
+                                ) cancel()
+                            }
+                        } else {
+                            try {
+                                File(copyOrMoveSources[i].path).copyTo(File(copyOrMoveDestination + File.separator + copyOrMoveSources[i].name))
+                            } catch (err: IOException) {
+                                //with SAF
+                                if (!copyToExtCard(
+                                        File(copyOrMoveSources[i].path),
+                                        copyOrMoveDestination
+                                    )
+                                ) cancel()
+                            }
+                        }
+                    } else cancel()
+                }
             }
         }
-    }
 
     private fun copyToExtCard(sourceFile: File, copyOrMoveDestination: String): Boolean {
-        var documentFileDestination: DocumentFile? = getDocumentFile(File(copyOrMoveDestination), File(copyOrMoveDestination).isDirectory)
+        var documentFileDestination: DocumentFile? =
+            getDocumentFile(File(copyOrMoveDestination), File(copyOrMoveDestination).isDirectory)
         var fileInputStream: FileInputStream? = null
         var outputStream: OutputStream? = null
 
@@ -408,8 +448,11 @@ class DirectoryModel {
             documentFileDestination?.createDirectory(sourceFile.name)
             var isSuccess = false
 
-            for (i in sourceFile.listFiles()!!.indices) {
-                isSuccess = copyToExtCard(sourceFile.listFiles()!![i], copyOrMoveDestination + File.separator + sourceFile.name)
+            sourceFile.listFiles()?.let { sourceFiles ->
+                for (i in sourceFiles.indices) {
+                    isSuccess =
+                        copyToExtCard(sourceFiles[i], copyOrMoveDestination + File.separator + sourceFile.name)
+                }
             }
             return isSuccess
         } else {
@@ -418,7 +461,9 @@ class DirectoryModel {
             }
             try {
                 fileInputStream = FileInputStream(sourceFile)
-                outputStream = documentFileDestination?.uri?.let { appContext.contentResolver.openOutputStream(it) }
+                outputStream = documentFileDestination?.uri?.let {
+                    appContext.contentResolver.openOutputStream(it)
+                }
                 val buffer = 6144
                 val byteArray = ByteArray(buffer)
                 var bytesRead: Int
@@ -432,7 +477,6 @@ class DirectoryModel {
                     try {
                         fileInputStream.close()
                         outputStream?.close()
-                        return true
                     } catch (err: Exception) {
                         loge("copyToExtCard $err")
                     }
@@ -443,7 +487,6 @@ class DirectoryModel {
                 try {
                     fileInputStream?.close()
                     outputStream?.close()
-                    return true
                 } catch (err: Exception) {
                     loge("copyToExtCard $err")
                 }
@@ -452,58 +495,75 @@ class DirectoryModel {
         }
     }
 
-    suspend fun moveFile(copyOrMoveSources: List<FileModel>, copyOrMoveDestination: String) = withContext(Dispatchers.IO) {
-        if (isRootDirectory(copyOrMoveDestination)) {
-            //do it with root permissions
-            if (preferenceProvider.getRootAccessPreference() && rootHandler.isRootAccessGiven()) {
-                rootHandler.remountRootDirAs("rw")
-                val isSuccess = rootHandler.moveFile(copyOrMoveSources, copyOrMoveDestination)
-                rootHandler.remountRootDirAs("ro")
-                if (!isSuccess)
+    suspend fun moveFile(copyOrMoveSources: List<FileModel>, copyOrMoveDestination: String) =
+        withContext(Dispatchers.IO) {
+            if (isRootDirectory(copyOrMoveDestination)) {
+                //do it with root permissions
+                if (preferenceProvider.getRootAccessPreference() && rootHandler.isRootAccessGiven()) {
+                    rootHandler.remountRootDirAs("rw")
+                    val isSuccess = rootHandler.moveFile(copyOrMoveSources, copyOrMoveDestination)
+                    rootHandler.remountRootDirAs("ro")
+                    if (!isSuccess) cancel()
+                } else cancel()
+            } else {
+                for (i in copyOrMoveSources.indices) {
+                    logi("Attempt to move: from " + copyOrMoveSources[i].path + " to " + copyOrMoveDestination)
+                }
+                try {
+                    copyFile(copyOrMoveSources, copyOrMoveDestination)
+                } catch (err: CancellationException) {
                     cancel()
-            } else
-                cancel()
-        } else {
-            for (i in copyOrMoveSources.indices) {
-                logi("Attempt to move: from " + copyOrMoveSources[i].path + " to " + copyOrMoveDestination)
-            }
-            try {
-                copyFile(copyOrMoveSources, copyOrMoveDestination)
-            } catch (err: CancellationException) {
-                cancel()
-            }
-            try {
-                delete(copyOrMoveSources)
-            } catch (err: CancellationException) {
-                cancel()
+                }
+                try {
+                    delete(copyOrMoveSources)
+                } catch (err: CancellationException) {
+                    cancel()
+                }
             }
         }
-    }
 
-    suspend fun getSearchedDeviceFiles(searchQuery: String): List<FileModel> = withContext(Dispatchers.IO) {
-        val fileList = mutableListOf<File>()
-        try {
-            val storagePaths = StoragePaths().getStorageDirectories()
-            for (storagePath in storagePaths) {
-                if (storagePath != "/")
-                    fileList.addAll(getSubSearchedFiles(File(storagePath), searchQuery))
+    @SuppressLint("DefaultLocale")
+    suspend fun getSearchedDeviceFiles(searchQuery: String): List<FileModel> =
+        withContext(Dispatchers.IO) {
+            val fileList = mutableListOf<File>()
+            try {
+                val storagePaths = StoragePaths().getStorageDirectories()
+                for (storagePath in storagePaths) {
+                    if (storagePath != "/") fileList.addAll(
+                        getSubSearchedFiles(
+                            File(storagePath),
+                            searchQuery
+                        )
+                    )
+                }
+                return@withContext fileList.filter { file ->
+                    searchQuery.lowercase().toRegex()
+                        .containsMatchIn(file.nameWithoutExtension.lowercase())
+                }.map {
+                    FileModel(
+                        it.path,
+                        it.name,
+                        it.nameWithoutExtension,
+                        getConvertedFileSize(it),
+                        it.isDirectory,
+                        dateFormat.format(it.lastModified()),
+                        it.extension,
+                        (it.listFiles()?.size.toString() + " files"),
+                        getPermissions(it),
+                        it.isHidden
+                    )
+                }
+            } catch (err: java.lang.Exception) {
+                loge("getSearchedDeviceFiles $err")
             }
-            return@withContext fileList.filter { file ->
-                searchQuery.decapitalize().toRegex().containsMatchIn(file.nameWithoutExtension.decapitalize())
-            }.map {
-                FileModel(
-                        it.path, it.name, it.nameWithoutExtension, getConvertedFileSize(it), it.isDirectory,
-                        dateFormat.format(it.lastModified()), it.extension,
-                        (it.listFiles()?.size.toString() + " files"), getPermissions(it), it.isHidden
-                )
-            }
-        } catch (err: java.lang.Exception) {
-            loge("getSearchedDeviceFiles $err")
+            return@withContext emptyList<FileModel>()
         }
-        return@withContext emptyList<FileModel>()
-    }
 
-    private fun getSubSearchedFiles(directory: File, searchQuery: String, res: MutableSet<File> = mutableSetOf<File>()): Set<File> {
+    private fun getSubSearchedFiles(
+        directory: File,
+        searchQuery: String,
+        res: MutableSet<File> = mutableSetOf()
+    ): Set<File> {
         //Depth first search algorithm
         directory.listFiles()?.let { fileList ->
             for (file in fileList.toSet()) {
@@ -518,200 +578,25 @@ class DirectoryModel {
         return res
     }
 
-    private fun getInputStream(target: File): InputStream? {
-        var destination: InputStream? = null
-        target.parent?.let { parentTargetPath ->
-            if (File(parentTargetPath).canWrite()) {
-                destination = FileInputStream(target)
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                // if normal way doesn't work, do it with saf
-                val targetDocument: DocumentFile = getDocumentFile(target, target.isDirectory) ?: return null
-                destination = appContext.contentResolver.openInputStream(targetDocument.uri)
-            }
+    suspend fun compressFiles(multipleSelection: MutableList<FileModel>, compressedFileNameWithExtension: String) =
+        withContext(Dispatchers.IO) {
+            val parentPath: String = File(multipleSelection.first().path).parent ?: ""
+            val archiveType: String =
+                compressedFileNameWithExtension.substring(compressedFileNameWithExtension.lastIndexOf(".")).drop(1)
+
+            if (!FileCompressionHandler().compress(
+                    "$parentPath/$compressedFileNameWithExtension",
+                    multipleSelection,
+                    archiveType
+                ))
+                cancel()
         }
-        return destination
-    }
-
-    private fun getOutputStream(target: File): OutputStream? {
-        var destination: OutputStream? = null
-        target.parent?.let { parentTargetPath ->
-            if (File(parentTargetPath).canWrite()) {
-                destination = FileOutputStream(target)
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                //saf, same story as input stream
-                val targetDocument: DocumentFile = getDocumentFile(target, target.isDirectory) ?: return null
-                destination = appContext.contentResolver.openOutputStream(targetDocument.uri)
-            }
-        }
-        return destination
-    }
-
-    private suspend fun createSubDirectories(zipEntryName: String, baseFolderPath: String) {
-        var subPath = ""
-
-        for (i in zipEntryName.indices) {
-            if (zipEntryName[i] != File.separatorChar)
-                subPath += zipEntryName[i]
-            else {
-                try {
-                    subPath += File.separatorChar
-                    createFolder(baseFolderPath, subPath)
-                    subPath += File.separatorChar
-                } catch (err: Exception) {
-                }
-            }
-        }
-    }
-
-    private suspend fun cleanLeftover(baseFolderPath: String) {
-        val selectedDirectories: MutableList<FileModel> = mutableListOf()
-
-        for (file in File(baseFolderPath).listFiles()) {
-            if (file.isDirectory && file.name[0] == '_')
-                selectedDirectories.add(FileModel(file.path, "", "", "", true, "", "", "", "", false, false, false))
-        }
-        delete(selectedDirectories)
-    }
 
     suspend fun extractFiles(selectedDirectory: FileModel) = withContext(Dispatchers.IO) {
-        val buffer = 6144
-        val data = ByteArray(buffer)
-
-        try {
-            File(selectedDirectory.path).parent?.let { selectedDirectoryParentPath ->
-                val baseFolderPath = selectedDirectoryParentPath + File.separator + File(selectedDirectory.path).nameWithoutExtension
-
-                File(baseFolderPath).parent?.let { baseFolderParentPath ->
-                    createFolder(baseFolderParentPath, File(baseFolderPath).nameWithoutExtension)
-
-                    val inputStream = getInputStream(File(selectedDirectory.path))
-                    val zipInput = ZipInputStream(BufferedInputStream(inputStream))
-                    var zipContent: ZipEntry?
-
-                    while (zipInput.nextEntry.also { zipContent = it } != null) {
-                        if (zipContent!!.name.contains(File.separator)) {    //if it contains directory
-                            createSubDirectories(zipContent!!.name, baseFolderPath) //create all the subdirectories
-                        }
-                        val fileOutput = getOutputStream(File(baseFolderPath + File.separator + zipContent!!.name))
-
-                        var counter: Int = zipInput.read(data, 0, buffer)
-                        while (counter != -1) {
-                            fileOutput?.write(data, 0, counter)
-                            counter = zipInput.read(data, 0, buffer)
-                        }
-                        zipInput.closeEntry()
-                        fileOutput?.close()
-                    }
-                    zipInput.close()
-                    try {
-                        cleanLeftover(baseFolderPath)
-                    } catch (err: Exception) {
-                    }
-                }
-            }
-        } catch (err: Exception) {
-            loge("extractFiles $err")
+        val parentPath: String = File(selectedDirectory.path).parent ?: ""
+        val extractedFolderName = selectedDirectory.nameWithoutExtension + EXTRACTED_FOLDER_NAME_SUFFIX
+        createFolder(parentPath, extractedFolderName)
+        if (!FileCompressionHandler().extract(selectedDirectory.path, "$parentPath/$extractedFolderName"))
             cancel()
-        }
-    }
-
-    suspend fun compressFiles(zipSources: List<FileModel>, zipNameWithExtension: String) = withContext(Dispatchers.IO) {
-        File(zipSources.first().path).parent?.let { zipSourcesParentPath ->
-            val outputStream: OutputStream
-            val directory = zipSourcesParentPath + File.separator + zipNameWithExtension
-            val zipDirectory = File(directory)
-            var zipOutputStream: ZipOutputStream? = null
-            try {
-                outputStream = getOutputStream(zipDirectory)!!
-                zipOutputStream = ZipOutputStream(BufferedOutputStream(outputStream))
-                for (file in zipSources) {
-                    compressFile(File(file.path), "", zipOutputStream)
-                }
-            } catch (err: IOException) {
-                loge("compressFiles $err")
-                cancel()
-            } finally {
-                try {
-                    zipOutputStream?.let {
-                        zipOutputStream.flush()
-                        zipOutputStream.close()
-                    }
-                } catch (err: IOException) {
-                    loge("compressFiles $err")
-                    cancel()
-                }
-            }
-        }
-    }
-
-    private fun compressFile(file: File, path: String, zipOutputStream: ZipOutputStream?) {
-        if (!file.isDirectory) {
-            val buffer = 6144
-            val data = ByteArray(buffer)
-            var len: Int
-            val inputStream = BufferedInputStream(FileInputStream(file))
-            zipOutputStream!!.putNextEntry(ZipEntry(path + "/" + file.name))
-            try {
-                while (inputStream.read(data).also { len = it } > 0) {
-                    zipOutputStream.write(data, 0, len)
-                }
-            } catch (err: Exception) {
-                loge("compressFile $err")
-            } finally {
-                inputStream.close()
-            }
-            return
-        }
-        if (file.list() == null)
-            return
-
-        file.listFiles()?.let { fileList ->
-            for (currentFile in fileList) {
-                compressFile(currentFile, path + File.separator + file.name, zipOutputStream)
-            }
-        }
-    }
-
-    private fun getLastAccessTime(file: FileModel): Long {
-        var lastAccessTime: Long = 0
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            lastAccessTime = Os.lstat(file.path).st_atime
-        } else {
-            var field: Field = Class.forName("libcore.io.Libcore").getDeclaredField("os")
-            if (!field.isAccessible) {
-                field.isAccessible = true
-            }
-            field.get(null)?.let { os ->
-                val method: Method = os.javaClass.getMethod("lstat", String::class.java)
-                method.invoke(os, file.path)?.let { lstat ->
-                    field = lstat.javaClass.getDeclaredField("st_atime")
-                    if (!field.isAccessible) {
-                        field.isAccessible = true
-                    }
-                    lastAccessTime = field.getLong(lstat)
-                }
-            }
-        }
-        return lastAccessTime
-    }
-
-    private fun isLastAccessTimeValid(lastAccessTime: Long): Boolean {
-        //most of the devices don't keep track of last accessed time
-        val calendar = Calendar.getInstance()
-        calendar.timeInMillis = lastAccessTime
-        return calendar.get(Calendar.YEAR) != 1970
-    }
-
-    suspend fun getFilesToClean(): List<FileModel> = withContext(Dispatchers.IO) {
-        val deviceFileList = getSearchedDeviceFiles("")
-
-        if (isLastAccessTimeValid(getLastAccessTime(deviceFileList.shuffled().first()))) {
-            //unused files first. This doesn't work on some devices.
-            return@withContext deviceFileList.sortedWith(compareBy({ !it.isDirectory }, { getLastAccessTime(it) })).toList()
-        } else {
-            //largest file first
-            return@withContext deviceFileList.sortedWith(compareBy({ !it.isDirectory }, { it.size })).reversed().toList()
-        }
     }
 }
