@@ -22,8 +22,8 @@ class DirectoryRecyclerViewAdapter : RecyclerView.Adapter<DirectoryRecyclerViewA
     var isMultipleSelection = false
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return if (parent.context.getSharedPreferences("com.erman.draverfm", Context.MODE_PRIVATE).getBoolean("grid view",
-                                                                                                              false)) {
+        return if (parent.context.getSharedPreferences("com.erman.draverfm",
+                                                       Context.MODE_PRIVATE).getBoolean("grid view", false)) {
             ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.directory_recycler_grid_layout,
                                                                    parent,
                                                                    false))
@@ -90,19 +90,28 @@ class DirectoryRecyclerViewAdapter : RecyclerView.Adapter<DirectoryRecyclerViewA
             }
 
             if (directory.isDirectory) {
-                itemView.imageView.setImageResource(R.drawable.folder_icon)
+                //itemView.imageView.setImageResource(R.drawable.folder_icon)
                 itemView.extensionTextView.text = ""
                 if (directory.listFiles() != null) {
-                    if (directory.listFiles().isEmpty()) {
-                        itemView.totalSizeTextView.text = itemView.context.getString(R.string.empty_folder_size_text)
-                    } else {
-                        itemView.totalSizeTextView.text =
-                            directory.listFiles().size.toString() + " " + itemView.context.getString(R.string.files_num)
-                        itemView.lastModifiedTextView.text = dateFormat.format(directory.lastModified())
+
+                    when {
+                        directory.listFiles().isEmpty() -> {
+                            itemView.imageView.setImageResource(R.drawable.empty_folder_icon)
+                            itemView.totalSizeTextView.text = itemView.context.getString(R.string.empty_folder_size_text)
+                        }
+                        directory.isHidden -> {
+                            itemView.imageView.setImageResource(R.drawable.hidden_folder_icon)
+                        }
+                        else -> {
+                            itemView.imageView.setImageResource(R.drawable.non_empty_folder_icon)
+                            itemView.totalSizeTextView.text = directory.listFiles().size.toString() + " " + itemView.context.getString(R.string.files_num)
+                            itemView.lastModifiedTextView.text = dateFormat.format(directory.lastModified())
+                        }
                     }
                 }
             } else {
-                itemView.imageView.setImageResource(R.drawable.file_icon)
+                if (directory.isHidden) itemView.imageView.setImageResource(R.drawable.hidden_file_icon)
+                else itemView.imageView.setImageResource(R.drawable.file_icon)
                 itemView.totalSizeTextView.visibility = View.VISIBLE
                 itemView.totalSizeTextView.text = getConvertedFileSize(directory.length())
                 itemView.lastModifiedTextView.text = dateFormat.format(directory.lastModified())
