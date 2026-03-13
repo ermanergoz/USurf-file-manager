@@ -4,7 +4,7 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
-import android.widget.Toast
+import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.erman.usurf.*
 import com.erman.usurf.ftp.utils.*
@@ -18,6 +18,10 @@ import org.apache.ftpserver.usermanager.impl.BaseUser
 class FTPServer : Service() {
     private val serverFactory = FtpServerFactory()
     private val server: FtpServer? = serverFactory.createServer()
+
+    companion object {
+        var isFtpServerRunning: Boolean = false
+    }
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -48,8 +52,8 @@ class FTPServer : Service() {
         serverFactory.userManager.save(user)
         serverFactory.addListener("default", listenerFactory.createListener())
         server!!.start()
-        Toast.makeText(this, getString(R.string.connected), Toast.LENGTH_LONG).show()
         sendBroadcast()
+        isFtpServerRunning = true
 
         return START_STICKY //will restart if the android system terminates for any reason.
     }
@@ -58,12 +62,13 @@ class FTPServer : Service() {
         super.onDestroy()
         server!!.stop()
         sendBroadcast()
-        Toast.makeText(this, getString(R.string.disconnected), Toast.LENGTH_LONG).show()
+        isFtpServerRunning = false
+        Log.i("DefaultFtpServer", "FTP server stopped")
     }
 
     private fun sendBroadcast() {
         val broadcastIntent = Intent()
         broadcastIntent.action = applicationContext.getString(R.string.ftp_broadcast_receiver)
-        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent)
+        LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(broadcastIntent)
     }
 }
