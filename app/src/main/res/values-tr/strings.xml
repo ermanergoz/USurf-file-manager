@@ -15,12 +15,10 @@
     <string name="ascending_order">Artan</string>
     <string name="descending_order">Azalan</string>
     <string name="applogo_description">appLogo</string>
-    <string name="developer">Geliştirici:</string>
     <string name="yusuf_erman_ergoz">Yusuf Erman ERGÖZ</string>
-    <string name="version">Versiyon:</string>
     <string name="github">Github:</string>
     <string name="github_link">https://github.com/ermanergoz/USurf</string>
-    <string name="icons_those_icons">Device-wide Search icon and Menu icon by Those Icons from flaticon.com</string>
+    <string name="icons_those_icons">Device-wide Search icon by Those Icons from flaticon.com</string>
     <string name="those_icons_url">https://www.flaticon.com/authors/those-icons</string>
     <string name="icons_kiranshastry">Delete icon by Kiranshastry from flaticon.com</string>
     <string name="kiranshastry_url">https://www.flaticon.com/authors/kiranshastry</string>
@@ -36,16 +34,11 @@
     <string name="freepic_url">https://www.flaticon.com/authors/freepik</string>
     <string name="pix_perfect_link">https://www.flaticon.com/authors/pixel-perfect</string>
     <string name="icons_pix_perfect">Preferences icon, copy icon, favorite icon and FTP icon by Pixel perfect from flaticon.com</string>
-    <string name="icons">Icons:</string>
     <string name="xnimrodx_url">https://www.flaticon.com/authors/xnimrodx</string>
     <string name="url">URL:</string>
     <string name="folder_icon">Folder icon and file icon by xnimrodx from flaticon.com</string>
-    <string name="wifi_status">WiFi Durumu:</string>
-    <string name="port">Port:</string>
     <string name="connect">Bağlan</string>
     <string name="disconnect">Bağlantıyı Kes</string>
-    <string name="username">Kullanıcı adı:</string>
-    <string name="password">Şifre:</string>
     <string name="connected">Bağlandı</string>
     <string name="no_connection">Bağlantı yok</string>
     <string name="port_error">Daha kısa bir rakam girin! Varsayılan değer uygulandı.</string>
@@ -112,7 +105,6 @@
     <string name="favorite_renamed">Favori yeniden isimlendirildi</string>
     <string name="unable_to_rename_favorite">Favoriyi yeniden isimlendirirken hata</string>
     <string name="invalid_favorite">Favori gecersiz. Kaldirmayi deneyin!</string>
-    <string name="unable_to_create_favorite_no_name">Favorilere eklerken hata. Isim girilmedi!</string>
     <string name="ftp_server_is_running">Ftp Sunucusu çalışıyor</string>
     <string name="ftp_notification_channel_name">FTPNotificationChannel</string>
     <string name="ftp_notification_channel_description">FTP notification channel</string>
@@ -121,7 +113,6 @@
     <string name="share_directory">Şunlar için işlem yapılamıyor. Dosya değil </string>
     <string name="create_new">Create new</string>
     <string name="device_wide_search">Device-wide search</string>
-    <string name="i_understand">Anladım</string>
     <string name="manage_all_files_message">Bu uygulamanın çalışması için \"Tüm dosyaları yönetme erişimine izin ver\" ayarının açık olması gerekir.</string>
     <string name="storage_permission_not_granted">Depolama izni verilmedi.</string>
     <string name="storage_permission_rationale">Dosya yöneticisinin dosyalarınıza erişebilmesi için depolama izni gereklidir.</string>
@@ -137,6 +128,8 @@
     <string name="hint_username">Kullanıcı adı</string>
     <string name="section_storage">Depolama</string>
     <string name="section_favorites">Favoriler</string>
+    <string name="section_links">Bağlantılar</string>
+    <string name="section_icon_credits">İkon Kredileri</string>
     <string name="empty_favorites_title">Henüz favori yok</string>
     <string name="empty_favorites_subtitle">Favori eklemek için bir klasöre uzun basın</string>
     <string name="internal_storage">Dahili Depolama</string>
