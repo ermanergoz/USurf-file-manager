@@ -6,6 +6,7 @@
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
+    <string name="dash">-</string>
 
     <!--drawer menu-->
     <string name="menu_home">Home</string>
@@ -78,7 +79,7 @@
     <string name="folder_icon">Folder Icon:</string>
 
     <!--FTP stuff-->
-    <string name="status">Status:</string>
+    <string name="wifi_status">WiFi Status:</string>
     <string name="URL">URL:</string>
     <string name="port">Port:</string>
     <string name="shared_path">Shared Path:</string>
@@ -97,6 +98,9 @@
     <string name="edit_password" >Edit password</string>
     <string name="edit_port" >Edit port</string>
     <string name="no_connection">No Connection</string>
+    <string name="settings">Settings</string>
+    <string name="done">Done</string>
+    <string name="port_error">Try entering shorter number! The value is set to default.</string>
 
     <!--broadcast receiver-->
     <string name="file_broadcast_receiver">com.erman.usurf.fileBroadcastReceiver</string>
