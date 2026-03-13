@@ -3,7 +3,7 @@ package com.erman.usurf.preference.data
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
-import com.erman.usurf.app.MainApplication
+import com.erman.usurf.application.MainApplication
 import com.erman.usurf.preference.utils.*
 import com.erman.usurf.utils.SHARED_PREF_FILE
 import com.erman.usurf.utils.logd
