@@ -91,7 +91,7 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
         val navController = findNavController(R.id.nav_host_fragment)
 
         setupNavDrawer(navView, navController, drawerLayout)
-        addStoragesToDrawer(navView, navController, drawerLayout)
+        addStoragesToDrawer(navView, drawerLayout)
         requestPermissions()
 
         if (intent.getBooleanExtra(KEY_INTENT_IS_FTP_NOTIFICATION_CLICKED, INTENT_IS_FTP_NOTIFICATION_CLICKED_DEF_VAL))
@@ -147,7 +147,7 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
         drawerToggle.syncState()
     }
 
-    private fun addStoragesToDrawer(navView: NavigationView, navController: NavController, drawerLayout: DrawerLayout) {
+    private fun addStoragesToDrawer(navView: NavigationView, drawerLayout: DrawerLayout) {
         val storageDirectories = StoragePaths().getStorageDirectories()
 
         for (path in storageDirectories) {
@@ -156,19 +156,19 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
                 storage.icon = ContextCompat.getDrawable(this, R.drawable.ic_hdd)
             }
             storage.setOnMenuItemClickListener {
-                onStorageButtonClick(path, navController)
+                onStorageButtonClick(path)
                 drawerLayout.closeDrawers()
                 true
             }
         }
     }
 
-    private fun refreshNavDrawer(navView: NavigationView, navController: NavController, drawerLayout: DrawerLayout) {
+    private fun refreshNavDrawer(navView: NavigationView, drawerLayout: DrawerLayout) {
         navView.menu.removeGroup(R.id.storage)
-        addStoragesToDrawer(navView, navController, drawerLayout)
+        addStoragesToDrawer(navView, drawerLayout)
     }
 
-    private fun onStorageButtonClick(path: String, navController: NavController) {
+    private fun onStorageButtonClick(path: String) {
         directoryViewModel.setPath(path)
         destination = MobileNavigationDirections.globalActionNavDirectory()
         if (path != ROOT_DIRECTORY && !File(path).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q
@@ -191,8 +191,7 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         if (drawerLayout.isDrawerOpen(GravityCompat.START))
             drawerLayout.closeDrawers()
-        else
-            super.onBackPressed()
+        else super.onBackPressed()
     }
 
     override fun finishActivity() {
@@ -202,9 +201,7 @@ class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNav
     override fun refreshStorageButtons() {
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         val navView: NavigationView = findViewById(R.id.nav_view)
-        val navController = findNavController(R.id.nav_host_fragment)
-
-        refreshNavDrawer(navView, navController, drawerLayout)
+        refreshNavDrawer(navView, drawerLayout)
     }
 
     override fun launchSAF() {

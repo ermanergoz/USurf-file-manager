@@ -74,10 +74,10 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
     val updateDirectoryList: LiveData<List<FileModel>> = _updateDirectoryList
 
-    private val _moreOptionMode = MutableLiveData<Boolean>().apply {
+    private val _moreMenuMode = MutableLiveData<Boolean>().apply {
         value = false
     }
-    val moreOptionMode: LiveData<Boolean> = _moreOptionMode
+    val moreMenuMode: LiveData<Boolean> = _moreMenuMode
 
     private val _isRootMode = MutableLiveData<Boolean>().apply {
         value = false
@@ -123,7 +123,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
 
     fun turnOffOptionPanel() {
         _optionMode.value = false
-        _moreOptionMode.value = false
+        _moreMenuMode.value = false
         multiSelectionMode = false
         _copyMode.value = false
         _moveMode.value = false
@@ -281,20 +281,20 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
 
     fun showMoreOption() {
-        _moreOptionMode.value?.let {
-            _moreOptionMode.value = !it
+        _moreMenuMode.value?.let {
+            _moreMenuMode.value = !it
         }
     }
 
     fun copy() {
         _copyMode.value = true
-        _moreOptionMode.value = false
+        _moreMenuMode.value = false
         multiSelectionMode = false
     }
 
     fun move() {
         _moveMode.value = true
-        _moreOptionMode.value = false
+        _moreMenuMode.value = false
         multiSelectionMode = false
     }
 
