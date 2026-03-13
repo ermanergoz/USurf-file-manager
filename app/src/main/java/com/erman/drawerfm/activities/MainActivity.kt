@@ -13,17 +13,21 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.DisplayMetrics
-import android.view.ViewGroup
-import android.widget.Button
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import android.widget.FrameLayout
-import android.widget.ProgressBar
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import com.erman.drawerfm.R
+import com.erman.drawerfm.dialogs.AboutDrawerFMDialog
 import com.erman.drawerfm.dialogs.ErrorDialog
 import getStorageDirectories
 import getUsedStoragePercentage
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.storage_button.view.*
 import java.io.File
 import java.util.ArrayList
 
@@ -36,14 +40,13 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
     lateinit var layoutManager: GridLayoutManager
     lateinit var adapter: ShortcutRecyclerViewAdapter
 
-    var storageProgressBarHeight = 3f
+    var storageProgressBarHeight = 20f
     var buttonSideMargin = 7
     var storageProgressBarColor: Int = 0
 
     private var buttonBorder: Int = 0
 
-    private lateinit var buttons: MutableList<Button>
-    private lateinit var storageBars: MutableList<ProgressBar>
+    private lateinit var storageButtons: MutableList<View>
     private lateinit var storageDirectories: ArrayList<String>
     private var screenWidth = R.drawable.button_style_light
 
@@ -55,7 +58,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         "Music" to "/storage/emulated/0/Music"
     )
 
-    private fun setColorTheme() {
+    private fun setButtonBorderColor() {
         if (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES) {
             storageProgressBarColor = Color.parseColor("#168DDA")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -78,7 +81,7 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         )
     }
 
-    private fun nameStorageButtons(button: Button) {
+    private fun setStorageButtonName(button: View) {
         var name = ""
 
         for (i in button.tag.toString().length - 1 downTo 1) {
@@ -92,33 +95,28 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         else if (name == "")
             name = "/"
 
-        button.text = name
+        button.linkText.text = name
     }
 
-    private fun createButtons() {
-        buttons = mutableListOf()
+    private fun createStorageButtons() {
+        storageButtons = mutableListOf()
 
         for (i in 0 until storageDirectories.size) {
-            buttons.add(Button(this))
-            buttons[i].tag = storageDirectories[i]
-            nameStorageButtons(buttons[i])
-            buttons[i].isSingleLine = true
-            buttons[i].setBackgroundResource(buttonBorder)
-        }
-    }
+            val layoutInflater: LayoutInflater = LayoutInflater.from(this)
+            val storageButtonLayout: View =
+                layoutInflater.inflate(R.layout.storage_button, null, false)
 
-    private fun createStorageBar() {
-        storageBars = mutableListOf()
-
-        for (i in 0 until buttons.size) {
-            storageBars.add(ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal))
-            storageBars[i].scaleY = storageProgressBarHeight
+            storageButtons.add(storageButtonLayout)
+            storageButtons[i].tag = storageDirectories[i]
+            setStorageButtonName(storageButtons[i])
+            storageButtons[i].linkText.isSingleLine = true
+            storageButtons[i].setBackgroundResource(buttonBorder)
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                storageBars[i].progressDrawable.colorFilter =
+                storageButtons[i].progressBar.progressDrawable.colorFilter =
                     BlendModeColorFilter(storageProgressBarColor, BlendMode.SRC_ATOP)
             } else {
-                storageBars[i].progressDrawable.setColorFilter(
+                storageButtons[i].progressBar.progressDrawable.setColorFilter(
                     storageProgressBarColor, PorterDuff.Mode.SRC_ATOP
                 )
             }
@@ -132,39 +130,35 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
 
         val buttonLayoutParams = FrameLayout.LayoutParams(
             ((screenWidth - ((buttonSideMargin * 2) * storageDirectories.size)) / storageDirectories.size),
-            (ViewGroup.LayoutParams.WRAP_CONTENT)
+            (170)
+            //TODO: Change button height in such way that  it will look nice on different screen sizes
         )
         buttonLayoutParams.setMargins(buttonSideMargin, 0, buttonSideMargin, 0)
 
         for (i in 0 until storageDirectories.size) {
-            storageButtonLayout.addView(buttons.get(i), buttonLayoutParams)
-        }
-
-        for (i in 0 until storageDirectories.size) {
-            storageUsageBarLayout.addView(storageBars[i], buttonLayoutParams)
+            storageButtons[i].progressBar.scaleY = storageProgressBarHeight
+            storageUsageBarLayout.addView(storageButtons[i], buttonLayoutParams)
         }
     }
 
     private fun displayUsedSpace() {
         for (i in 0 until storageDirectories.size) {
-            storageBars[i].progress = getUsedStoragePercentage(storageDirectories[i])
+            storageButtons[i].progressBar.progress = getUsedStoragePercentage(storageDirectories[i])
         }
     }
 
     private fun createShortcutGrid() {
         layoutManager = GridLayoutManager(this, 2/*number of columns*/)
         shortcutRecyclerView.layoutManager = layoutManager
-
-        adapter = ShortcutRecyclerViewAdapter(this, buttonBorder)
-
+        adapter = ShortcutRecyclerViewAdapter(buttonBorder)
         shortcutRecyclerView.adapter = adapter
         adapter.updateData(shortcuts)
     }
 
     private fun setClickListener() {
-        for (i in 0 until buttons.size) {
-            buttons[i].setOnClickListener {
-                startFragmentActivity(buttons[i].tag.toString())
+        for (i in 0 until storageButtons.size) {
+            storageButtons[i].setOnClickListener {
+                startFragmentActivity(storageButtons[i].tag.toString())
             }
         }
     }
@@ -194,10 +188,9 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
 
         storageDirectories = getStorageDirectories(this)
 
-        setColorTheme()
+        setButtonBorderColor()
         createShortcutGrid()
-        createButtons()
-        createStorageBar()
+        createStorageButtons()
         addItemsToActivity()
         displayUsedSpace()
         setClickListener()
@@ -208,9 +201,35 @@ class MainActivity : AppCompatActivity(), CreateShortcutDialog.DialogCreateShort
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_activity_option_menu, menu)
+
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.deviceWideSearch ->
+                Log.e("option", "deviceWideSearch")
+
+            R.id.settings ->
+                startSettingsActivity()
+
+            R.id.about ->
+                AboutDrawerFMDialog().show(supportFragmentManager, "")
+        }
+        return super.onOptionsItemSelected(item)
+
+    }
+
     private fun startFragmentActivity(path: String) {
         val intent = Intent(this, FragmentActivity::class.java)
         intent.putExtra("path", path)
+        startActivity(intent)
+    }
+
+    private fun startSettingsActivity() {
+        val intent = Intent(this, PreferencesActivity::class.java)
         startActivity(intent)
     }
 }
