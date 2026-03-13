@@ -21,7 +21,7 @@ class FileInformationDialog(var file: FileModel) : DialogFragment() {
             binding.setVariable(BR.file, file)
             binding.lifecycleOwner = this
 
-            builder.setMessage(file.name + " " + getString(R.string.information))
+            builder.setTitle(file.name + " " + getString(R.string.information))
                 .setPositiveButton(R.string.ok) { _, _ ->
                 }
 

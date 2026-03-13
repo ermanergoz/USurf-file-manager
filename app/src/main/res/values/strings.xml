@@ -25,7 +25,7 @@
     <string name="those_icons_url">https://www.flaticon.com/authors/those-icons</string>
     <string name="icons_kiranshastry">Delete icon by Kiranshastry from flaticon.com</string>
     <string name="kiranshastry_url">https://www.flaticon.com/authors/kiranshastry</string>
-    <string name="icons_iconixar">Move icon and zip icon by iconixar from flaticon.com</string>
+    <string name="icons_iconixar">Move icon and compress icon by iconixar from flaticon.com</string>
     <string name="iconixar_url">https://www.flaticon.com/authors/iconixar</string>
     <string name="icons_smashicons">Home icon by Smashicons from flaticon.com</string>
     <string name="smashicons_url">https://www.flaticon.com/authors/smashicons</string>
@@ -33,7 +33,7 @@
     <string name="srip_url">https://www.flaticon.com/authors/srip</string>
     <string name="icons_roundicons">Up and down arrow icons by Roundicons from flaticon.com</string>
     <string name="round_icons_url">https://www.flaticon.com/authors/roundicons</string>
-    <string name="icons_freepic">Information icon, rename icon, share icon and unzip icon by Freepic from flaticon.com</string>
+    <string name="icons_freepic">Information icon, rename icon, share icon and extract icon by Freepic from flaticon.com</string>
     <string name="freepic_url">https://www.flaticon.com/authors/freepik</string>
     <string name="pix_perfect_link">https://www.flaticon.com/authors/pixel-perfect</string>
     <string name="icons_pix_perfect">Preferences icon, copy icon, favorite icon and FTP icon by Pixel perfect from flaticon.com</string>
@@ -67,10 +67,10 @@
     <string name="error_while_copying">Error while copying</string>
     <string name="moving_successful">Moved</string>
     <string name="error_while_moving">Error while moving</string>
-    <string name="compressing_successful">Zipped</string>
-    <string name="error_while_compressing">Error while zipping</string>
-    <string name="extracting_successful">Unzipped</string>
-    <string name="error_while_extracting">Error while unzipping</string>
+    <string name="compressing_successful">Compressed</string>
+    <string name="error_while_compressing">Error while compressing</string>
+    <string name="extracting_successful">Extracted</string>
+    <string name="error_while_extracting">Error while extracting</string>
     <string name="cleared">Cleared</string>
     <string name="su_not_found">Device is not rooted.</string>
     <string name="name">Name:</string>
@@ -86,8 +86,8 @@
     <string name="rename">Rename</string>
     <string name="create_file">Create new file</string>
     <string name="delete">Delete</string>
-    <string name="compress">Zip</string>
-    <string name="extract">Unzip</string>
+    <string name="compress">Compress</string>
+    <string name="extract">Extract</string>
     <string name="information">Information</string>
     <string name="share">Share</string>
     <string name="create_new_folder">Create new folder</string>
@@ -99,9 +99,8 @@
     <string name="ok">OK</string>
     <string name="favorite">Favorite</string>
     <string name="addFavorite">Add Favorite</string>
-    <string name="compressing">Zipping</string>
-    <string name="extracting">Unzipping</string>
-    <string name="invalid_extension">Invalid extension. Please choose a zip file!</string>
+    <string name="compressing">Compressing</string>
+    <string name="extracting">Extracting</string>
     <string name="deleting">Deleting</string>
     <string name="copying">Copying</string>
     <string name="moving">Moving</string>
@@ -130,4 +129,5 @@
     <string name="kitkat_removable_storage_warning">Due to the decisions made by Google regarding Android 4.4 KitKat, file operations in the removable storage may not work on most of the devices.</string>
     <string name="manage_all_files_message">In order this application to work, \"Allow access to manage all files\" setting needs to be turned on.</string>
     <string name="saf_access_message">Please choose the root directory of the removable storage to grant write permission to operate.</string>
+    <string name="supported_compression_formats">Supported extensions are: 7z bz2 bzip2 tbz2 tbz gz gzip tgz tar wim swm xz txz zip zipx jar xpi odt ods docx xlsx epub</string>
 </resources>

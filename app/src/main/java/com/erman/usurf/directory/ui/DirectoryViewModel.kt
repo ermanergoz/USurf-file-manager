@@ -16,7 +16,8 @@ import java.io.File
 import java.lang.Exception
 import kotlin.coroutines.CoroutineContext
 
-class DirectoryViewModel(private val directoryModel: DirectoryModel, private val preferenceProvider: PreferenceProvider) : ViewModel(), CoroutineScope {
+class DirectoryViewModel(private val directoryModel: DirectoryModel, private val preferenceProvider: PreferenceProvider) :
+    ViewModel(), CoroutineScope {
     private var multiSelectionMode: Boolean = false
 
     private val _path = MutableLiveData<String>()
@@ -243,25 +244,20 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel, private val
     fun extract() {
         turnOffOptionPanel()
         multipleSelection.value?.let { multipleSelection ->
-            if (multipleSelection.first().extension == "zip") {
-                _toastMessage.value = Event(R.string.extracting)
-                logd("extract")
-                launch {
-                    try {
-                        directoryModel.extractFiles(multipleSelection.first())
-                        refreshFileList()
-                        _toastMessage.value = Event(R.string.extracting_successful)
+            _toastMessage.value = Event(R.string.extracting)
+            logd("extract")
+            launch {
+                try {
+                    directoryModel.extractFiles(multipleSelection.first())
+                    refreshFileList()
+                    _toastMessage.value = Event(R.string.extracting_successful)
 
-                    } catch (err: CancellationException) {
-                        _toastMessage.value = Event(R.string.error_while_extracting)
-                        loge("extract $err")
-                    } finally {
-                        clearMultipleSelection()
-                    }
+                } catch (err: CancellationException) {
+                    _toastMessage.value = Event(R.string.error_while_extracting)
+                    loge("extract $err")
+                } finally {
+                    clearMultipleSelection()
                 }
-            } else {
-                _toastMessage.value = Event(R.string.invalid_extension)
-                clearMultipleSelection()
             }
         }
     }

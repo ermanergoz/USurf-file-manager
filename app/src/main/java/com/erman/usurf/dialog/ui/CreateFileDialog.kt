@@ -2,10 +2,8 @@ package com.erman.usurf.dialog.ui
 
 import android.app.AlertDialog
 import android.app.Dialog
-import android.content.Context
 import android.os.Bundle
 import android.view.View
-import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.fragment.app.DialogFragment
 import com.erman.usurf.R
@@ -25,14 +23,9 @@ class CreateFileDialog : DialogFragment() {
             this.editText = dialogView.findViewById(R.id.editText)
             editText.setText(R.string.new_file)
 
-            builder.setMessage(getString(R.string.create_file))
+            builder.setTitle(getString(R.string.create_file))
                 .setPositiveButton(R.string.ok) { _, _ ->
                     editDialogViewModel.onFileCreateOkPressed(editText.text.toString())
-
-                    val inputMethodManager: InputMethodManager =
-                        requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                    if (inputMethodManager.isActive)
-                        inputMethodManager.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS)
                 }
             builder.setView(dialogView)
             builder.create()
