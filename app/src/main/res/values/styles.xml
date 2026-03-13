@@ -6,6 +6,16 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="preferenceCategoryTitleTextAppearance">@style/PreferenceCategoryStyle</item>
+        <item name="alertDialogTheme">@style/AppTheme.Dialog</item>
+    </style>
+
+    <style name="AppTheme.Dialog" parent="ThemeOverlay.AppCompat.Dialog.Alert">
+        <item name="android:windowBackground">@drawable/dialog_background</item>
+        <item name="android:colorAccent">@color/colorPrimary</item>
+        <item name="android:textColorPrimary">@color/daynnightTextColor</item>
+        <item name="android:textColorSecondary">@color/sectionHeaderColor</item>
+        <item name="android:windowMinWidthMajor">85%</item>
+        <item name="android:windowMinWidthMinor">95%</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
