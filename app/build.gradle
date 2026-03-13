@@ -15,7 +15,7 @@ android {
         applicationId = "com.erman.usurf"
         minSdk = 21
         targetSdk = 36
-        versionCode = 14
+        versionCode = 12
         versionName = "2.1.0"
         //https://semver.org/spec/v2.0.0.html
         //major.minor.patch
