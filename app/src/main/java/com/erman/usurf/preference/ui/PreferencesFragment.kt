@@ -11,17 +11,17 @@ import com.erman.usurf.preference.data.PreferenceProvider
 import com.erman.usurf.preference.utils.*
 import com.erman.usurf.activity.model.RefreshNavDrawer
 import com.erman.usurf.utils.loge
+import org.koin.android.ext.android.inject
 import java.io.File
 
 class MainPreferencesFragment : PreferenceFragmentCompat() {
-    lateinit var preferenceProvider: PreferenceProvider
-    lateinit var navDrawerRefreshListener: RefreshNavDrawer
+    private lateinit var navDrawerRefreshListener: RefreshNavDrawer
+    private val preferenceProvider: PreferenceProvider by inject()
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences_main, rootKey)
-        preferenceProvider = PreferenceProvider()
 
-        val rootAccessPreference = findPreference<SwitchPreference>("root_access")
+        val rootAccessPreference = findPreference<SwitchPreference>(KEY_PREFERENCE_ROOT_ACCESS)
         rootAccessPreference?.setOnPreferenceChangeListener { _, newValue ->
             if(RootHandler().isDeviceRooted()) {
                 preferenceProvider.editRootAccessPreference(newValue as Boolean)
@@ -31,18 +31,6 @@ class MainPreferencesFragment : PreferenceFragmentCompat() {
                 Toast.makeText(context, getString(R.string.su_not_found), Toast.LENGTH_LONG).show()
                 false
             }
-        }
-
-        val cleanStorageReminderPreference = findPreference<SwitchPreference>("cleanStorageReminderSwitch")
-        cleanStorageReminderPreference?.setOnPreferenceChangeListener { _, newValue ->
-                preferenceProvider.editCleanStorageReminderPreference(newValue as Boolean)
-                true
-        }
-
-        findPreference<Preference>("clear_logs")?.setOnPreferenceClickListener {
-            if (File(MainApplication.appContext.getExternalFilesDir(null)?.absolutePath + File.separator + "logs").deleteRecursively())
-                Toast.makeText(context, getString(R.string.cleared), Toast.LENGTH_LONG).show()
-            true
         }
 
         val sortListPreference = findPreference<ListPreference>(KEY_SORT_FILES_LIST_PREFERENCE)
@@ -55,6 +43,11 @@ class MainPreferencesFragment : PreferenceFragmentCompat() {
 
         findPreference<SwitchPreference>(KEY_SHOW_HIDDEN_SWITCH)?.setOnPreferenceChangeListener { _, newValue ->
             preferenceProvider.editShowHiddenPreference(newValue as Boolean)
+            true
+        }
+
+        findPreference<SwitchPreference>(KEY_SHOW_THUMBNAILS_SWITCH)?.setOnPreferenceChangeListener { _, newValue ->
+            preferenceProvider.editShowThumbnailsPreference(newValue as Boolean)
             true
         }
 

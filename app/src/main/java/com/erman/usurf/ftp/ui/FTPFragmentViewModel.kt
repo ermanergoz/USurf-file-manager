@@ -1,5 +1,6 @@
 package com.erman.usurf.ftp.ui
 
+import android.util.Log
 import android.widget.RadioGroup
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -14,9 +15,7 @@ import com.erman.usurf.ftp.utils.DEFAULT_PORT
 import com.erman.usurf.utils.StoragePaths
 import com.erman.usurf.utils.loge
 
-class FTPViewModel(private val ftpModel: FtpModel) : ViewModel() {
-    private var preferenceProvider = FtpPreferenceProvider()
-
+class FTPViewModel(private val ftpModel: FtpModel, private val preferenceProvider: FtpPreferenceProvider) : ViewModel() {
     val url = MutableLiveData<String>().apply {
         value = ftpModel.getIpAddress()
     }
@@ -41,12 +40,13 @@ class FTPViewModel(private val ftpModel: FtpModel) : ViewModel() {
         value = FTPLiveData()
     }
 
-    private val _storagePaths = MutableLiveData<List<String>>().apply {
+    private val _storagePaths = MutableLiveData<Set<String>>().apply {
         value = StoragePaths().getStorageDirectories()
     }
-    val storagePaths: MutableLiveData<List<String>> = _storagePaths
+    val storagePaths: MutableLiveData<Set<String>> = _storagePaths
 
     fun onConnectClicked() {
+        Log.e("connection stat", FtpServer.isFtpServerRunning.toString())
         if (!FtpServer.isFtpServerRunning) ftpModel.startFTPServer()
         else ftpModel.stopFTPServer()
     }
@@ -67,11 +67,10 @@ class FTPViewModel(private val ftpModel: FtpModel) : ViewModel() {
     }
 
     fun onPortChanged(port: CharSequence, start: Int, before: Int, count: Int) {
-        var newPort = DEFAULT_PORT
+        var newPort: Int
         try {
             newPort = port.toString().toInt()
-        }catch (err: NumberFormatException)
-        {
+        } catch (err: NumberFormatException) {
             loge("onPortChanged $err")
             newPort = DEFAULT_PORT
             _toastMessage.value = Event(R.string.port_error)
@@ -79,8 +78,8 @@ class FTPViewModel(private val ftpModel: FtpModel) : ViewModel() {
         preferenceProvider.editPort(newPort)
     }
 
-    fun onFtpPathSelected(radioGroup :RadioGroup, id: Int) {
-        preferenceProvider.editFtpPath(_storagePaths.value?.let { it[id] })
+    fun onFtpPathSelected(radioGroup: RadioGroup, id: Int) {
+        preferenceProvider.editFtpPath(_storagePaths.value?.elementAt(id))
     }
 
     fun getFtpSelectedPath(): String? {
