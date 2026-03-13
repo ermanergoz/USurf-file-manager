@@ -11,5 +11,5 @@ const val KEY_INTENT_PATH_FOR_BROADCAST: String = "path for broadcast"
 const val KEY_INTENT_EXTCARD_CHOSEN_URI: String = "extSdCardChosenUri"
 const val REALM_FIELD_NAME_PATH: String = "path"
 const val REALM_CONFIG_FILE_NAME: String = "usurf.realm"
-const val SHARED_PREF_FILE: String = "com.erman.draverfm"
+const val SHARED_PREF_FILE: String = "com.erman.usurf"
 
