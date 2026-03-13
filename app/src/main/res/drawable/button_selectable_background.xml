@@ -9,4 +9,7 @@
             <solid android:color="@color/lightBlue" />
         </shape>
     </item>
+    <item
+        android:drawable="@drawable/button_frame"
+        android:state_checked="false" />
 </ripple>

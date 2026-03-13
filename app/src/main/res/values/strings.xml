@@ -6,7 +6,7 @@
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
-    <string name="dash">-</string>
+    <string name="empty"></string>
 
     <!--drawer menu-->
     <string name="menu_home">Home</string>
@@ -75,6 +75,7 @@
     <string name="designed_by_pixel_perfect_from_flaticon">Designed by Pixel perfect from Flaticon</string>
     <string name="plus_icon">Plus Icon:</string>
     <string name="designed_by_hirschwolf_from_flaticon">Designed by hirschwolf from Flaticon</string>
+    <string name="designed_by_xnimrodx_from_flaticon">Designed by xnimrodx from Flaticon</string>
     <string name="url">URL:</string>
     <string name="folder_icon">Folder Icon:</string>
 
@@ -128,6 +129,7 @@
     <string name="error_while_compressing">Error while compressing</string>
     <string name="extracting_successful">Extracted</string>
     <string name="error_while_extracting">Error while extracting</string>
+    <string name="press_back_again">Press back button again to go to the home screen.</string>
 
     <!--create shortcut dialog-->
     <string name="name">Name:</string>
@@ -171,6 +173,8 @@
     <string name="information">Information</string>
     <string name="share">Share</string>
     <string name="more">More</string>
-    <string name="collapse">Collapse</string>
+    <string name="less">Less</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
 
 </resources>
