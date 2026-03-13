@@ -8,7 +8,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import androidx.lifecycle.LiveData
-import com.erman.usurf.app.MainApplication.Companion.appContext
+import com.erman.usurf.application.MainApplication.Companion.appContext
 import com.erman.usurf.utils.logd
 import com.erman.usurf.utils.loge
 
@@ -48,5 +48,5 @@ val Context.isConnected: Boolean?
             connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
         activeNetwork?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ?: false
     } else {
-        (getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager)?.activeNetworkInfo?.isConnected
+        (getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager)?.getNetworkInfo(ConnectivityManager.TYPE_WIFI)?.isConnected
     }

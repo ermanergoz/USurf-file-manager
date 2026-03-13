@@ -27,7 +27,6 @@ class ViewModelFactory : ViewModelProvider.Factory {
                     HomeViewModel(HomeModel())
                 isAssignableFrom(DirectoryViewModel::class.java) ->
                     DirectoryViewModel(DirectoryModel())
-                //TODO: Add rest of the view models
                 else ->
                     throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
             }
