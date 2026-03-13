@@ -15,7 +15,7 @@ import org.apache.ftpserver.FtpServerFactory
 import org.apache.ftpserver.listener.ListenerFactory
 import org.apache.ftpserver.usermanager.impl.BaseUser
 
-class FTPServer : Service() {
+class FtpServer : Service() {
     private val serverFactory = FtpServerFactory()
     private val server: FtpServer? = serverFactory.createServer()
 
@@ -27,11 +27,8 @@ class FTPServer : Service() {
         return null
     }
 
-    override fun onStartCommand(
-        intent: Intent?,
-        flags: Int,
-        startId: Int
-    ): Int { // Let it continue running until it is stopped.
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        // Let it continue running until it is stopped.
         val listenerFactory = ListenerFactory()
         val connectionConfigFactory = ConnectionConfigFactory()
         //connectionConfigFactory.isAnonymousLoginEnabled = true
@@ -40,13 +37,9 @@ class FTPServer : Service() {
 
         val user = BaseUser()
         user.name = getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE).getString(
-            USERNAME_KEY,
-            DEFAULT_USER_NAME
-        )!!
+            USERNAME_KEY, DEFAULT_USER_NAME)!!
         user.password = getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE).getString(
-            PASSWORD_KEY,
-            PASSWORD_DEF_VAL
-        )!!
+            PASSWORD_KEY, PASSWORD_DEF_VAL)!!
         user.homeDirectory = "storage/emulated/0"/*intent!!.getStringExtra(KEY_INTENT_CHOSEN_PATH)*/
 
         serverFactory.userManager.save(user)

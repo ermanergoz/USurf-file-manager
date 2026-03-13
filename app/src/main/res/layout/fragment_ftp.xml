@@ -84,6 +84,7 @@
                 android:importantForAutofill="no"
                 android:inputType="textPersonName"
                 android:onTextChanged="@{viewModel.onUsernameChanged}"
+                android:text="@{viewModel.username}"
                 android:textSize="16sp"
                 tools:ignore="LabelFor" />
 
@@ -109,6 +110,7 @@
                 android:ems="10"
                 android:inputType="textPassword"
                 android:onTextChanged="@{viewModel.onPasswordChanged}"
+                android:text="@{viewModel.password}"
                 android:textSize="16sp"
                 tools:ignore="LabelFor" />
 
@@ -135,6 +137,7 @@
                 android:importantForAutofill="no"
                 android:inputType="numberDecimal"
                 android:onTextChanged="@{viewModel.onPortChanged}"
+                android:text="@{viewModel.port}"
                 android:textSize="16sp"
                 tools:ignore="LabelFor" />
 
