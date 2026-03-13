@@ -52,7 +52,7 @@ val appModule =
         single { DirectoryModel(get(), get(), get(), get(), get(), get()) }
         viewModel { DirectoryViewModel(get(), get()) }
 
-        single { HomeModel(get()) }
+        single { HomeModel(get(), get()) }
         single<FavoriteRepository> { FavoriteRepositoryImpl(get(), get()) }
         viewModel { HomeViewModel(get(), get(), get(), get()) }
 

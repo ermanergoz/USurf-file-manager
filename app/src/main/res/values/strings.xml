@@ -140,4 +140,12 @@
     <string name="hint_port">Port</string>
     <string name="hint_password">Password</string>
     <string name="hint_username">Username</string>
+    <string name="section_storage">Storage</string>
+    <string name="section_favorites">Favorites</string>
+    <string name="empty_favorites_title">No favorites yet</string>
+    <string name="empty_favorites_subtitle">Long press a folder to add it as a favorite</string>
+    <string name="internal_storage">Internal Storage</string>
+    <string name="sd_card">SD Card</string>
+    <string name="root_storage">Root</string>
+    <string name="storage_usage_format" translatable="false">%1$s / %2$s</string>
 </resources>
