@@ -14,4 +14,5 @@ sealed class UIEventArgs {
     object SAFActivityArgs : UIEventArgs()
     data class ShortcutDialogArgs(val path: String)
     data class ShortcutOptionsDialogArgs(val view: TextView) : UIEventArgs()
+    object FileSearchDialogArgs : UIEventArgs()
 }
