@@ -4,4 +4,5 @@ data class FavoriteItem(
     val id: String,
     val name: String,
     val path: String,
+    val isDirectory: Boolean,
 )
