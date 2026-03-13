@@ -27,11 +27,11 @@
         android:title="Show thumbnails" />
     <SwitchPreference
         android:defaultValue="false"
-        android:key="root_access"
+        android:key="rootAccess"
         android:summary="@string/root_explorer_summary"
         android:title="@string/root_explorer" />
 
     <Preference android:title="@string/clear_logs"
-        android:key="clear_logs" />
+        android:key="clearLogs" />
 
 </PreferenceScreen>
