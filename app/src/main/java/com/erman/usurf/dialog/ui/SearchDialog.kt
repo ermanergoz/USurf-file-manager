@@ -1,6 +1,6 @@
 package com.erman.usurf.dialog.ui
 
-import android.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import android.app.Dialog
 import android.os.Bundle
 import android.view.View
