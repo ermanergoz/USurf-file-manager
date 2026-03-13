@@ -7,7 +7,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.SearchView
@@ -27,10 +26,14 @@ import com.erman.drawerfm.dialogs.*
 import com.erman.drawerfm.interfaces.OnFileClickListener
 import android.app.Activity
 import android.content.SharedPreferences
+import androidx.core.view.isGone
 import com.erman.drawerfm.R
+import java.io.BufferedOutputStream
+import java.io.FileOutputStream
+import java.util.zip.ZipOutputStream
 
 class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFragment.OnItemClickListener, RenameDialog.DialogRenameFileListener,
-    CreateFileDialog.DialogCreateFileListener, CreateFolderDialog.DialogCreateFolderListener, SearchView.OnQueryTextListener {
+    CreateNew.DialogCreateFolderListener, SearchView.OnQueryTextListener {
     private var newShortcutPath = ""
     private var isCreateShortcutMode = false
     lateinit var path: String
@@ -169,11 +172,11 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
             }
         }
         newFolderFloatingButton.setOnClickListener {
-            val newFragment = CreateFolderDialog(getString(R.string.new_directory_name))
+            val newFragment = CreateNew(getString(R.string.new_directory_name), "folder")
             newFragment.show(fragmentManager, "")
         }
         newFileFloatingButton.setOnClickListener {
-            val newFragment = CreateFileDialog(getString(R.string.new_file_name))
+            val newFragment = CreateNew(getString(R.string.new_file_name), "file")
             newFragment.show(fragmentManager, "")
         }
 
@@ -191,6 +194,15 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
                 type = "*/*"
             }
             startActivity(Intent.createChooser(shareIntent, getString(R.string.share)))
+        }
+
+        compressButton.setOnClickListener {
+            val newFragment = CreateNew(getString(R.string.name), "zip")
+            newFragment.show(fragmentManager, "")
+        }
+
+        extractButton.setOnClickListener {
+            unzip(this, multipleSelectionList) {finishAndUpdate()}
         }
     }
 
@@ -283,10 +295,15 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
     }
 
     private fun showOptionButtons(isExtensionZip: Boolean) {
-        optionButtonBar.isVisible = true
-        confirmationButtonBar.isVisible = false
-        if (isExtensionZip) compressButton.isVisible = false
-        else extractButton.isVisible = false
+        optionButtonBar.isGone = false
+        confirmationButtonBar.isGone = true
+        if (isExtensionZip) {
+            compressButton.isGone = true
+            extractButton.isGone = false
+        } else {
+            extractButton.isGone = true
+            compressButton.isGone = false
+        }
     }
 
     override fun onLongClick(directory: File) {
@@ -342,14 +359,13 @@ class FragmentActivity : AppCompatActivity(), OnFileClickListener, FileSearchFra
         rename(this, multipleSelectionList, newFileName, isExtSdCard) { finishAndUpdate() }
     }
 
-    override fun dialogCreateFileListener(newFileName: String) {
-        createFile(this, path, newFileName, isExtSdCard) { updateFragment() }
-        newFileFloatingButton.isVisible = false
-        newFolderFloatingButton.isVisible = false
-    }
+    override fun dialogCreateNewListener(newFileName: String, whatToCreate: String) {
+        if (whatToCreate == "folder") createFolder(this, path, newFileName, isExtSdCard) { finishAndUpdate() }
 
-    override fun dialogCreateFolderListener(newFileName: String) {
-        createFolder(this, path, newFileName, isExtSdCard) { updateFragment() }
+        if (whatToCreate == "file") createFile(this, path, newFileName, isExtSdCard) { finishAndUpdate() }
+
+        if (whatToCreate == "zip") zipFile(this, multipleSelectionList, newFileName) { finishAndUpdate() }
+
         newFileFloatingButton.isVisible = false
         newFolderFloatingButton.isVisible = false
     }
