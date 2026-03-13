@@ -171,11 +171,16 @@ class RootHandler {
         return isSuccess
     }
 
-    fun copyFile(selectedDirectories: List<FileModel>): Boolean {
+    fun copyFile(selectedDirectories: List<FileModel>, copyOrMoveDestination: String): Boolean {
         var isSuccess = false
 
         for (source in selectedDirectories) {
-            val command: Command = object : Command(0, "cp -r '${source.path}'") {
+            val sourcePath = if (source.path.last() == '/')
+                source.path.dropLast(1)
+            else
+                source.path
+
+            val command: Command = object : Command(0, "cp -a '${sourcePath}' '$copyOrMoveDestination'") {
                 override fun commandCompleted(id: Int, exitcode: Int) {
                     super.commandCompleted(id, exitcode)
                     isSuccess = true
@@ -197,7 +202,12 @@ class RootHandler {
         var isSuccess = false
 
         for (source in selectedDirectories) {
-            val command: Command = object : Command(0, "mv '${source.path}' '$copyOrMoveDestination'") {
+            val sourcePath = if (source.path.last() == '/')
+                source.path.dropLast(1)
+            else
+                source.path
+
+            val command: Command = object : Command(0, "mv '${sourcePath}' '$copyOrMoveDestination'") {
                 override fun commandCompleted(id: Int, exitcode: Int) {
                     super.commandCompleted(id, exitcode)
                     isSuccess = true
