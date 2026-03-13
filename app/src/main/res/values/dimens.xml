@@ -31,6 +31,10 @@
     <dimen name="progress_bar_size">50dp</dimen>
     <dimen name="more_button_width">60dp</dimen>
 
+    <!-- Corner radii -->
+    <dimen name="corner_radius_8">8dp</dimen>
+    <dimen name="corner_radius_12">12dp</dimen>
+
     <!-- Paddings -->
     <dimen name="padding_128">128dp</dimen>
 </resources>
