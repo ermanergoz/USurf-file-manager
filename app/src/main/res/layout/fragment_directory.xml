@@ -70,7 +70,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
-                android:onClick="@{() -> viewModel.turnOffOptionMode()}"
+                android:onClick="@{() -> viewModel.turnOffOptionPanel()}"
                 android:text="@string/cancel"
                 android:textColor="@color/textColorDark"
                 android:textSize="12sp" />
