@@ -6,19 +6,19 @@
     app:startDestination="@+id/nav_home">
 
     <action
-        android:id="@+id/global_action_nav_directory_to_nav_home"
+        android:id="@+id/global_action_nav_home"
         app:destination="@id/nav_home" />
     <action
-        android:id="@+id/global_action_nav_home_to_nav_directory"
+        android:id="@+id/global_action_nav_directory"
         app:destination="@id/nav_directory" />
     <action
-        android:id="@+id/global_action_nav_home_to_nav_ftp"
+        android:id="@+id/global_action_to_nav_ftp"
         app:destination="@id/nav_ftp" />
     <action
-        android:id="@+id/global_action_nav_home_to_nav_preferences"
+        android:id="@+id/global_action_nav_preferences"
         app:destination="@id/nav_preferences" />
     <action
-        android:id="@+id/global_action_nav_home_to_nav_info"
+        android:id="@+id/global_action_nav_info"
         app:destination="@id/nav_info" />
 
     <fragment

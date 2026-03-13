@@ -1,32 +1,23 @@
 package com.erman.usurf.preference.ui
 
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import androidx.preference.Preference
-import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.SwitchPreference
+import androidx.preference.*
 import com.erman.usurf.MainApplication
 import com.erman.usurf.R
+import com.erman.usurf.preference.data.PreferenceProvider
+import com.erman.usurf.preference.utils.*
 import java.io.File
 
-
 class MainPreferencesFragment : PreferenceFragmentCompat() {
-    private lateinit var preferences: SharedPreferences
-    private var sharedPrefFile: String = "com.erman.usurf"
-    lateinit var preferencesEditor: SharedPreferences.Editor
+    lateinit var preferenceProvider: PreferenceProvider
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences_main, rootKey)
+        preferenceProvider = PreferenceProvider()
 
-        preferences = requireContext().getSharedPreferences(sharedPrefFile, AppCompatActivity.MODE_PRIVATE)
-
-        findPreference<SwitchPreference>("root_access")?.setOnPreferenceChangeListener { preference, newValue ->
-            preferencesEditor = preferences.edit()
-            preferencesEditor.putBoolean("root access", newValue as Boolean)
-            preferencesEditor.apply()
-
+        findPreference<SwitchPreference>("root_access")?.setOnPreferenceChangeListener { _, newValue ->
+            preferenceProvider.editRootAccessPreference(newValue as Boolean)
             true
         }
 
@@ -34,6 +25,38 @@ class MainPreferencesFragment : PreferenceFragmentCompat() {
             if (File(MainApplication.appContext.getExternalFilesDir(null)?.absolutePath + File.separator + "logs").deleteRecursively())
                 Toast.makeText(context, getString(R.string.cleared), Toast.LENGTH_LONG).show()
             true
+        }
+
+        val sortListPreference = findPreference<ListPreference>(KEY_SORT_FILES_LIST_PREFERENCE)
+
+        sortListPreference?.setOnPreferenceChangeListener { _, newValue ->
+            sortListPreference.title = newValue.toString()
+            preferenceProvider.editFileSortPreference(newValue.toString())
+            true
+        }
+
+        findPreference<SwitchPreference>(KEY_SHOW_HIDDEN_SWITCH)?.setOnPreferenceChangeListener { _, newValue ->
+            preferenceProvider.editShowHiddenPreference(newValue as Boolean)
+            true
+        }
+
+        val ascendingOrderPreference = findPreference<CheckBoxPreference>(KEY_ASCENDING_ORDER_CHECKBOX)
+        val descendingOrderPreference = findPreference<CheckBoxPreference>(KEY_DESCENDING_ORDER_CHECKBOX)
+
+        ascendingOrderPreference?.setOnPreferenceChangeListener { _, newValue ->
+            if (descendingOrderPreference!!.isChecked) {
+                descendingOrderPreference.isChecked = false
+                preferenceProvider.editAscendingOrderPreference(newValue as Boolean)
+                true
+            } else false
+        }
+
+        descendingOrderPreference?.setOnPreferenceChangeListener { _, newValue ->
+            if (ascendingOrderPreference!!.isChecked) {
+                ascendingOrderPreference.isChecked = false
+                preferenceProvider.editDescendingOrderPreference(newValue as Boolean)
+                true
+            } else false
         }
     }
 }
