@@ -27,13 +27,17 @@ class MainApplication : Application() {
 
         //Documentation: https://realm.io/docs/kotlin/latest/#realms
         Realm.init(this)
-        val config = RealmConfiguration.Builder().name(REALM_CONFIG_FILE_NAME).deleteRealmIfMigrationNeeded().build()
+        val config = RealmConfiguration.Builder()
+            .name(REALM_CONFIG_FILE_NAME)
+            .deleteRealmIfMigrationNeeded()
+            .build()
+
         Realm.setDefaultConfiguration(config)
         val realm = Realm.getDefaultInstance()
         val preferenceProvider = ApplicationPreferenceProvider()
 
         if (preferenceProvider.getIsFirstLaunch()) {
-            ApplicationDao(realm).addInitialShortcuts()
+            ApplicationDao(realm).addInitialFavorites()
             preferenceProvider.editIsFirstLaunch(false)
         }
 

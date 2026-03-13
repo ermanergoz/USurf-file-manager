@@ -15,12 +15,12 @@
         android:background="@drawable/button_selectable_background"
         android:clickable="true"
         android:focusable="true"
-        android:onClick="@{() -> viewModel.onShortcutClick(shortcut)}"
-        android:onLongClick="@{() -> viewModel.onShortcutLongClick(shortcut)}"
+        android:onClick="@{() -> viewModel.onFavoriteClick(favorite)}"
+        android:onLongClick="@{() -> viewModel.onFavoriteLongClick(favorite)}"
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/shortcut"
+            android:id="@+id/favorite"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_margin="@dimen/layout_margin_4"
