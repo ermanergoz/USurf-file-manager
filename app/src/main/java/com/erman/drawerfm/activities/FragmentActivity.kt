@@ -1,28 +1,42 @@
 package com.erman.drawerfm.activities
 
+import android.app.SearchManager
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
+import android.view.Menu
 import android.view.MenuItem
+import android.widget.SearchView
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.core.view.isVisible
+import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.FragmentManager
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.erman.drawerfm.R
 import com.erman.drawerfm.dialogs.CreateFileDialog
 import com.erman.drawerfm.dialogs.CreateFolderDialog
+import com.erman.drawerfm.dialogs.ErrorDialog
 import com.erman.drawerfm.dialogs.RenameDialog
+import com.erman.drawerfm.fragments.FileSearchFragment
 import com.erman.drawerfm.fragments.ListDirFragment
 import com.erman.drawerfm.utilities.*
 import kotlinx.android.synthetic.main.activity_fragment.*
 import java.io.File
+import java.nio.file.Files.isWritable
+import android.view.inputmethod.InputMethodManager
 
 class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListener,
+    FileSearchFragment.OnItemClickListener,
     RenameDialog.DialogRenameFileListener, CreateFileDialog.DialogCreateFileListener,
-    CreateFolderDialog.DialogCreateFolderListener {
+    CreateFolderDialog.DialogCreateFolderListener, SearchView.OnQueryTextListener {
     lateinit var path: String
     private lateinit var filesListFragment: ListDirFragment
+    private lateinit var filesSearchFragment: FileSearchFragment
     private val fragmentManager: FragmentManager = supportFragmentManager
     private var openedDirectories = mutableListOf<String>()
     var isMoveOperation = false
@@ -52,18 +66,28 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         if (optionButtonBar.isVisible)
             optionButtonBar.isVisible = false
 
-        filesListFragment = ListDirFragment.buildFragment(
-            path,
-            getSharedPreferences(
-                "com.erman.draverfm",
-                Context.MODE_PRIVATE
-            ).getBoolean("marquee choice", true)
-        )
+        filesListFragment = ListDirFragment.buildFragment(path)
         openedDirectories.add(path)
-        supportActionBar?.title = path
+        pathTextView.text = path
 
         fragmentManager.beginTransaction()
             .add(R.id.fragmentContainer, filesListFragment)
+            .addToBackStack(path)
+            .commit()
+    }
+
+    private fun launchSearchFragment(path: String, fileSearchQuery: String) {
+        if (optionButtonBar.isVisible)
+            optionButtonBar.isVisible = false
+
+        pathTextView.text = getString(R.string.results_for) + " " + fileSearchQuery
+
+        filesSearchFragment = FileSearchFragment.buildSearchFragment(
+            getSearchedFiles(path, fileSearchQuery)
+        )
+
+        fragmentManager.beginTransaction()
+            .add(R.id.fragmentContainer, filesSearchFragment)
             .addToBackStack(path)
             .commit()
     }
@@ -75,6 +99,8 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         setContentView(R.layout.activity_fragment)
         this.path = intent.getStringExtra("path")
         optionButtonBar.isVisible = false
+        moreOptionButtonBar.isVisible = false
+        confirmationButtonBar.isVisible = false
         newFileFloatingButton.isVisible = false
         newFolderFloatingButton.isVisible = false
 
@@ -87,6 +113,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
 
         moveButton.setOnClickListener {
             isMoveOperation = true
+            isMultipleSelection = false
             showConfirmationButtons()
         }
 
@@ -96,14 +123,14 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         }
 
         deleteButton.setOnClickListener {
-            delete(multipleSelectionList) { updateFragment() }
+            delete(multipleSelectionList) { finishAndUpdate() }
         }
 
         OKButton.setOnClickListener {
             if (isCopyOperation)
-                copyFile(multipleSelectionList, path) { updateFragment() }
+                copyFile(multipleSelectionList, path) { finishAndUpdate() }
             if (isMoveOperation) {
-                moveFile(multipleSelectionList, path) { updateFragment() }
+                moveFile(multipleSelectionList, path) { finishAndUpdate() }
                 isMoveOperation = false
             }
             updateFragment()
@@ -111,7 +138,17 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         }
 
         cancelButton.setOnClickListener {
-            cancelOperation()
+            finishAndUpdate()
+        }
+
+        moreButton.setOnClickListener {
+            if (moreOptionButtonBar.isVisible) {
+                moreOptionButtonBar.isVisible = false
+                moreButton.text = getString(R.string.more)
+            } else {
+                moreOptionButtonBar.isVisible = true
+                moreButton.text = getString(R.string.collapse)
+            }
         }
 
         createNewFloatingButton.setOnClickListener {
@@ -131,29 +168,75 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
             val newFragment = CreateFileDialog(getString(R.string.new_file_name))
             newFragment.show(fragmentManager, "")
         }
-        tempRefreshButton.setOnClickListener {
-            updateFragment()
-        }
     }
 
-    private fun cancelOperation() {
+    private fun finishAndUpdate() {
         isMoveOperation = false
         isCopyOperation = false
         multipleSelectionList.clear()
         isMultipleSelection = false
         optionButtonBar.isVisible = false
+        moreOptionButtonBar.isVisible = false
+        confirmationButtonBar.isVisible = false
+
+        multipleSelectionList.clear()
+        updateFragment()
     }
 
     private fun showConfirmationButtons() {
-        OKButton.isVisible = true
-        cancelButton.isVisible = true
-        copyButton.isVisible = false
-        moveButton.isVisible = false
-        renameButton.isVisible = false
-        deleteButton.isVisible = false
-        zipButton.isVisible = false
-        unzipButton.isVisible = false
+        optionButtonBar.isVisible = false
+        moreOptionButtonBar.isVisible = false
+        confirmationButtonBar.isVisible = true
     }
+
+    private fun displayErrorDialog(errorMessage: String) {
+        val newFragment = ErrorDialog(errorMessage)
+        newFragment.show(supportFragmentManager, "")
+    }
+
+    override fun onClick(directory: File) {
+        if (isMultipleSelection) {
+            if (multipleSelectionList.contains(directory)) {
+                multipleSelectionList.removeAt(multipleSelectionList.indexOf(directory))
+            } else {
+                multipleSelectionList.add(directory)
+            }
+            if (multipleSelectionList.isEmpty()) {
+                finishAndUpdate()
+            }
+        } else {
+            path = directory.path
+
+            if (directory.isDirectory) {
+                launchFragment(directory.path)
+            } else {
+                val intent = Intent(Intent.ACTION_VIEW)
+                intent.data =
+                    FileProvider.getUriForFile(this, "com.erman.drawerfm", File(directory.path))
+                try {
+                    intent.flags =
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                    startActivity(intent)
+                } catch (err: ActivityNotFoundException) {
+                    displayErrorDialog("This extension is not supported.")
+                }
+            }
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_fragment_activity, menu)
+
+        val searchManager =
+            getSystemService(Context.SEARCH_SERVICE) as SearchManager
+        val search =
+            menu!!.findItem(R.id.fileSearch).actionView as SearchView
+        search.setSearchableInfo(searchManager.getSearchableInfo(componentName))
+        search.setOnQueryTextListener(this)
+
+        return super.onCreateOptionsMenu(menu)
+    }
+
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
@@ -163,45 +246,35 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onClick(directoryData: File) {
-        if (isMultipleSelection) {
-            multipleSelectionList.add(directoryData)
-        } else {
-            path = directoryData.path
-
-            if (directoryData.isDirectory) {
-                launchFragment(directoryData.path)
-            } else {
-                val intent = Intent(Intent.ACTION_VIEW)
-                intent.data =
-                    FileProvider.getUriForFile(this, "com.erman.drawerfm", File(directoryData.path))
-                intent.flags =
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-                startActivity(intent)
-            }
-        }
-    }
-
     private fun showOptionButtons(isExtensionZip: Boolean) {
         optionButtonBar.isVisible = true
-        OKButton.isVisible = false
-        cancelButton.isVisible = false
+        confirmationButtonBar.isVisible = false
         if (isExtensionZip)
             zipButton.isVisible = false
         else
             unzipButton.isVisible = false
     }
 
-    override fun onLongClick(directoryData: File) {
+    fun triggerStorageAccessFramework() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        this.startActivityForResult(intent, 3);
+    }
+
+    override fun onLongClick(directory: File) {
         isMultipleSelection = true
-        multipleSelectionList.add(directoryData)
-        showOptionButtons(directoryData.extension == "zip")
+
+        if (multipleSelectionList.contains(directory)) {
+            multipleSelectionList.removeAt(multipleSelectionList.indexOf(directory))
+        } else {
+            multipleSelectionList.add(directory)
+        }
+        showOptionButtons(directory.extension == "zip")
     }
 
     private fun backButtonPressed() {
-        if (optionButtonBar.isVisible && !isMoveOperation && !isCopyOperation)
-            cancelOperation()
-        else if (newFileFloatingButton.isVisible && newFolderFloatingButton.isVisible) {
+        if (optionButtonBar.isVisible && !isMoveOperation && !isCopyOperation) {
+            finishAndUpdate()
+        } else if (newFileFloatingButton.isVisible && newFolderFloatingButton.isVisible) {
             newFileFloatingButton.isVisible = false
             newFolderFloatingButton.isVisible = false
         } else if (openedDirectories.size > 1) {
@@ -211,6 +284,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
             )
             openedDirectories.removeAt(openedDirectories.size - 1)
             path = openedDirectories[openedDirectories.size - 1]
+            pathTextView.text = path
         } else {
             fragmentManager.popBackStack()
             super.onBackPressed()
@@ -222,7 +296,7 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
     }
 
     override fun dialogRenameFileListener(newFileName: String) {
-        rename(multipleSelectionList, newFileName) { updateFragment() }
+        rename(multipleSelectionList, newFileName) { finishAndUpdate() }
     }
 
     override fun dialogCreateFileListener(newFileName: String) {
@@ -250,5 +324,44 @@ class FragmentActivity : AppCompatActivity(), ListDirFragment.OnItemClickListene
             openedDirectories[openedDirectories.size - 1]
         )
         LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent)
+
+        // On Android 5, trigger storage access framework.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            //TODO:this function should be moved to proper location before calling this function which launches the files app
+            //TODO:we need to saved the data we need to do that operatiın we want by assigning them to the variables
+            //triggerStorageAccessFramework()
+        }
+
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        //TODO:this lifecycle func is called afteer launching the files app for ext storage
+        //TODO: and we need to do the operations on those files here
+        //TODO:and also check if we have values for the variables
+
+        super.onActivityResult(requestCode, resultCode, data)
+
+        //TODO:WE NEED TO make the variables we assigned in line 315 we need to reset them after we are done with the operation
+    }
+
+    private fun hideKeyboard() {
+        val inputManager: InputMethodManager =
+            getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputManager.hideSoftInputFromWindow(
+            currentFocus?.windowToken,
+            InputMethodManager.SHOW_FORCED
+        )
+    }
+
+    override fun onQueryTextSubmit(query: String?): Boolean {
+        if (query != null) {
+            launchSearchFragment(path, query)
+            hideKeyboard()
+        }
+        return true
+    }
+
+    override fun onQueryTextChange(newText: String?): Boolean {
+        return true
     }
 }
