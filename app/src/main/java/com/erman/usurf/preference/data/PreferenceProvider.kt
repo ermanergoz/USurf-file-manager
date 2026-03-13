@@ -1,10 +1,17 @@
 package com.erman.usurf.preference.data
 
+import android.content.Context
 import android.content.SharedPreferences
+import androidx.appcompat.app.AppCompatActivity
+import com.erman.usurf.application.MainApplication
 import com.erman.usurf.preference.utils.*
+import com.erman.usurf.utils.SHARED_PREF_FILE
 import com.erman.usurf.utils.logd
 
-class PreferenceProvider(private val preferences: SharedPreferences) {
+class PreferenceProvider {
+    private var preferences: SharedPreferences = MainApplication.appContext
+        .getSharedPreferences(SHARED_PREF_FILE, AppCompatActivity.MODE_PRIVATE)
+
     fun editRootAccessPreference(choice: Boolean) {
         logd("editRootAccessPreference")
         preferences.edit().putBoolean(KEY_PREFERENCE_ROOT_ACCESS, choice).apply()
@@ -12,7 +19,8 @@ class PreferenceProvider(private val preferences: SharedPreferences) {
 
     fun getRootAccessPreference(): Boolean {
         logd("getRootAccessPreference")
-        return preferences.getBoolean(KEY_PREFERENCE_ROOT_ACCESS, ROOT_ACCESS_PREF_DEF_VAL)
+        return MainApplication.appContext.getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE)
+            .getBoolean(KEY_PREFERENCE_ROOT_ACCESS, ROOT_ACCESS_PREF_DEF_VAL)
     }
 
     fun editFileSortPreference(choice: String) {
@@ -22,7 +30,8 @@ class PreferenceProvider(private val preferences: SharedPreferences) {
 
     fun getFileSortPreference(): String? {
         logd("getFileSortPreference")
-        return preferences.getString(KEY_PREFERENCE_FILE_SORT, FILE_SORT_MODE_DEF_VAL)
+        return MainApplication.appContext.getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE)
+            .getString(KEY_PREFERENCE_FILE_SORT, FILE_SORT_MODE_DEF_VAL)
     }
 
     fun editShowHiddenPreference(choice: Boolean) {
@@ -32,17 +41,8 @@ class PreferenceProvider(private val preferences: SharedPreferences) {
 
     fun getShowHiddenPreference(): Boolean {
         logd("getShowHiddenPreference")
-        return preferences.getBoolean(KEY_PREFERENCE_SHOW_HIDDEN, SHOW_HIDDEN_PREF_DEF_VAL)
-    }
-
-    fun editShowThumbnailsPreference(choice: Boolean) {
-        logd("editShowThumbnailsPreference")
-        preferences.edit().putBoolean(KEY_PREFERENCE_SHOW_THUMBNAILS, choice).apply()
-    }
-
-    fun getShowThumbnailsPreference(): Boolean {
-        logd("getShowThumbnailsPreference")
-        return preferences.getBoolean(KEY_PREFERENCE_SHOW_THUMBNAILS, SHOW_THUMBNAILS_PREF_DEF_VAL)
+        return MainApplication.appContext.getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE)
+            .getBoolean(KEY_PREFERENCE_SHOW_HIDDEN, SHOW_HIDDEN_PREF_DEF_VAL)
     }
 
     fun editAscendingOrderPreference(choice: Boolean) {
@@ -57,6 +57,18 @@ class PreferenceProvider(private val preferences: SharedPreferences) {
 
     fun getDescendingOrderPreference(): Boolean {
         logd("getAscendingOrderPreference")
-        return preferences.getBoolean(KEY_PREFERENCE_DESCENDING_ORDER, DESCENDING_ORDER_PREF_DEF_VAL)
+        return MainApplication.appContext.getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE)
+            .getBoolean(KEY_PREFERENCE_DESCENDING_ORDER, DESSCENDING_ORDER_PREF_DEF_VAL)
+    }
+
+    fun editCleanStorageReminderPreference(choice: Boolean) {
+        logd("editCleanStorageReminderPreference")
+        preferences.edit().putBoolean(KEY_CLEAN_STORAGE_REMINDER, choice).apply()
+    }
+
+    fun getCleanStorageReminderPreference(): Boolean {
+        logd("getCleanStorageReminderPreference")
+        return MainApplication.appContext.getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE)
+            .getBoolean(KEY_CLEAN_STORAGE_REMINDER, CLEAN_STORAGE_REMINDER_PREF_DEF_VAL)
     }
 }
