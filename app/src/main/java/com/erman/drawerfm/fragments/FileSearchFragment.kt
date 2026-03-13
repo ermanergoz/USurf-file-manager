@@ -29,10 +29,7 @@ class FileSearchFragment : Fragment() {
             val fragment = FileSearchFragment()
             val argumentBundle = Bundle()
             val fileArrayList = ArrayList<File>(fileList)
-            argumentBundle.putParcelableArrayList(
-                "files",
-                fileArrayList as ArrayList<out Parcelable>
-            )
+            argumentBundle.putParcelableArrayList("files", fileArrayList as ArrayList<out Parcelable>)
             fragment.arguments = argumentBundle
             return fragment
         }
@@ -54,11 +51,7 @@ class FileSearchFragment : Fragment() {
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_file_list, container, false)
     }
 
@@ -83,16 +76,11 @@ class FileSearchFragment : Fragment() {
             if (fileList!!.isEmpty()) {
                 emptyFolderTextView.isVisible = true
                 emptyFolderTextView.text = getString(R.string.unsuccessful_search)
-            } else
-                emptyFolderTextView.isVisible = false
+            } else emptyFolderTextView.isVisible = false
 
             directoryRecyclerViewAdapter.updateData(fileList as List<File>)
         } catch (err: IllegalStateException) {
-            Toast.makeText(
-                context,
-                getString(R.string.unable_to_execute_search_query),
-                Toast.LENGTH_LONG
-            ).show()
+            Toast.makeText(context, getString(R.string.unable_to_execute_search_query), Toast.LENGTH_LONG).show()
         }
     }
 }

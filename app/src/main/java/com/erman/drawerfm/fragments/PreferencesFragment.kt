@@ -17,12 +17,12 @@ class PreferencesFragment : PreferenceFragmentCompat() {
     lateinit var preferencesEditor: SharedPreferences.Editor
     var isMarqueeEnabled: Boolean = true
     var isRootAccessEnabled: Boolean = false
+    var isGridViewEnabled: Boolean = false
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences, rootKey)
 
-        preferences =
-            context!!.getSharedPreferences(sharedPrefFile, AppCompatActivity.MODE_PRIVATE)
+        preferences = context!!.getSharedPreferences(sharedPrefFile, AppCompatActivity.MODE_PRIVATE)
 
         findPreference<ListPreference>("theme_list_preference")?.setOnPreferenceChangeListener { preference, newValue ->
             this.selectedTheme = newValue.toString()
@@ -53,13 +53,22 @@ class PreferencesFragment : PreferenceFragmentCompat() {
 
             true
         }
+
+        findPreference<SwitchPreference>("grid_view")?.setOnPreferenceChangeListener { preference, newValue ->
+            this.isGridViewEnabled = newValue as Boolean
+
+            preferencesEditor = preferences.edit()
+            preferencesEditor.putBoolean("grid view", isGridViewEnabled)
+            preferencesEditor.apply()
+
+            true
+        }
     }
 
     override fun onPause() {
         super.onPause()
 
-        val intent: Intent? = context!!.packageManager
-            .getLaunchIntentForPackage(context!!.packageName)
+        val intent: Intent? = context!!.packageManager.getLaunchIntentForPackage(context!!.packageName)
         intent!!.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
 
         MainActivity.mainActivity.finish()

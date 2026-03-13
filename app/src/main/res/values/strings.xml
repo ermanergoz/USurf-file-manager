@@ -10,18 +10,19 @@
     <string name="unable_to_execute_search_query">Unable to execute search query</string>
     <string name="file_unsupported_or_no_application">Cannot open file. Either we cannot open the file, or there is no application supports it.</string>
     <string name="error_while_renaming">"Error while renaming: "</string>
-    <string name="renaming_successful">Renaming successful</string>
+    <string name="renaming_successful">Renamed</string>
     <string name="error_while_deleting">"Error while deleting: "</string>
-    <string name="deleting_successful">Deleting successful</string>
-    <string name="folder_creation_successful">"New folder created successfully: "</string>
+    <string name="deleting_successful">Deleted</string>
+    <string name="folder_creation_successful">"New folder created: "</string>
     <string name="error_when_creating_folder">"Error while creating new folder: "</string>
-    <string name="file_creation_successful">"New file created successfully: "</string>
+    <string name="file_creation_successful">"New file created: "</string>
     <string name="error_when_creating_file">"Error while creating new file: "</string>
-    <string name="copy_successful">Copying successful</string>
+    <string name="copy_successful">Copied</string>
     <string name="error_while_copying">Error while copying</string>
-    <string name="moving_successful">Moving successful</string>
+    <string name="moving_successful">Moved</string>
     <string name="error_while_moving">Error while moving</string>
-
+    <string name="new_shortcut_instruction">To create a shortcut, navigate to the file/folder and long press it to choose. Press back button to cancel.</string>
+    <string name="canceled">Canceled</string>
 
     <!--create shortcut dialog-->
     <string name="name">Name:</string>
@@ -51,9 +52,12 @@
     <string name="this_file_is_hidden">This file is hidden.</string>
 
     <!--preferences-->
-    <string name="dark_theme_title">Dark theme</string>
-    <string name="dark_theme_summary">Check this box to enable the dark theme</string>
-    <string name="get_root_access">Get root access</string>
+    <string name="change_theme">Change theme</string>
+    <string name="enable_sliding_texts">Enable sliding texts</string>
+    <string name="sliding_texts_summary">If enabled, long file/folder names will slide</string>
+    <string name="root_explorer">Root explorer</string>
+    <string name="root_explorer_summary">Check this box to gain access to root directory</string>
+    <string name="grid_view">Grid view</string>
 
     <!--broadcast receiver-->
     <string name="file_broadcast_receiver">com.erman.drawerfm.fileBroadcastReceiver</string>
