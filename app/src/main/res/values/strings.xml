@@ -14,13 +14,11 @@
     <string name="ascending_order">Ascending order</string>
     <string name="descending_order">Descending order</string>
     <string name="applogo_description">appLogo</string>
-    <string name="developer">Developer:</string>
     <string name="yusuf_erman_ergoz">Yusuf Erman ERGÖZ</string>
-    <string name="version">Version:</string>
     <string name="app_version" translatable="false">2.0.0</string>
     <string name="github">Github:</string>
     <string name="github_link">https://github.com/ermanergoz/USurf</string>
-    <string name="icons_those_icons">Device-wide Search icon and Menu icon by Those Icons from flaticon.com</string>
+    <string name="icons_those_icons">Device-wide Search icon by Those Icons from flaticon.com</string>
     <string name="those_icons_url">https://www.flaticon.com/authors/those-icons</string>
     <string name="icons_kiranshastry">Delete icon by Kiranshastry from flaticon.com</string>
     <string name="kiranshastry_url">https://www.flaticon.com/authors/kiranshastry</string>
@@ -36,16 +34,11 @@
     <string name="freepic_url">https://www.flaticon.com/authors/freepik</string>
     <string name="pix_perfect_link">https://www.flaticon.com/authors/pixel-perfect</string>
     <string name="icons_pix_perfect">Preferences icon, copy icon, favorite icon and FTP icon by Pixel perfect from flaticon.com</string>
-    <string name="icons">Icons:</string>
     <string name="xnimrodx_url">https://www.flaticon.com/authors/xnimrodx</string>
     <string name="url">URL:</string>
     <string name="folder_icon">Folder icon and file icon by xnimrodx from flaticon.com</string>
-    <string name="wifi_status">WiFi Status:</string>
-    <string name="port">Port:</string>
     <string name="connect">Connect</string>
     <string name="disconnect">Disconnect</string>
-    <string name="username">Username:</string>
-    <string name="password">Password:</string>
     <string name="connected">Connected</string>
     <string name="no_connection">No Connection</string>
     <string name="port_error">Try entering shorter number! The value is set to default.</string>
@@ -107,7 +100,6 @@
     <string name="cancel">Cancel</string>
     <string name="favorite_created">Added to favorites</string>
     <string name="unable_to_create_favorite">Unable to add to favorites</string>
-    <string name="unable_to_create_favorite_no_name">Unable to add to favorites. Name is not provided!</string>
     <string name="favorite_deleted">Favorite deleted</string>
     <string name="unable_to_delete_favorite">Unable to delete the favorite</string>
     <string name="favorite_renamed">Favorite renamed</string>
@@ -121,7 +113,6 @@
     <string name="share_directory">Operation not supported for following. Not a file </string>
     <string name="create_new">Create new</string>
     <string name="device_wide_search">Device-wide search</string>
-    <string name="i_understand">I understand</string>
     <string name="manage_all_files_message">In order this application to work, \"Allow access to manage all files\" setting needs to be turned on.</string>
     <string name="storage_permission_not_granted">Storage permission is not granted.</string>
     <string name="storage_permission_rationale">Storage permission is required for the file manager to access your files.</string>
@@ -142,6 +133,8 @@
     <string name="hint_username">Username</string>
     <string name="section_storage">Storage</string>
     <string name="section_favorites">Favorites</string>
+    <string name="section_links">Links</string>
+    <string name="section_icon_credits">Icon Credits</string>
     <string name="empty_favorites_title">No favorites yet</string>
     <string name="empty_favorites_subtitle">Long press a folder to add it as a favorite</string>
     <string name="internal_storage">Internal Storage</string>
