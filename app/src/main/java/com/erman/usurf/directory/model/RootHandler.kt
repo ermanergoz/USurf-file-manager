@@ -22,6 +22,10 @@ class RootHandler {
         }
     }
 
+    fun isDeviceRooted(): Boolean {
+        return RootTools.isRootAvailable()
+    }
+
     fun isRootAccessGiven(): Boolean {
         return RootTools.isAccessGiven()
     }
