@@ -1,5 +1,6 @@
 package com.erman.usurf.home.ui
 
+import android.annotation.SuppressLint
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -44,6 +45,7 @@ class FavoriteRecyclerViewAdapter(var viewModel: HomeViewModel) :
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun updateData(favorites: List<Favorite>) {
         this.favorites = favorites
         notifyDataSetChanged()

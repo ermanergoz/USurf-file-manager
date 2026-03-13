@@ -10,9 +10,9 @@ import com.erman.usurf.databinding.StorageButtonBinding
 import com.erman.usurf.home.utils.ROOT_DIRECTORY
 import com.erman.usurf.utils.StoragePaths
 
-class HomeModel() {
+class HomeModel {
     fun createStorageButtons(): MutableList<StorageButtonBinding> {
-        val storageButtons: MutableList<StorageButtonBinding> = mutableListOf<StorageButtonBinding>()
+        val storageButtons: MutableList<StorageButtonBinding> = mutableListOf()
         val storageDirectories = StoragePaths().getStorageDirectories()
 
         for (i in storageDirectories.indices) {

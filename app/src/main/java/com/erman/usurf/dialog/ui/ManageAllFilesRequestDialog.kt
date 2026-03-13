@@ -3,7 +3,6 @@ package com.erman.usurf.dialog.ui
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
-import android.content.DialogInterface
 import android.os.Bundle
 import androidx.fragment.app.DialogFragment
 import com.erman.usurf.R
@@ -16,11 +15,11 @@ class ManageAllFilesRequestDialog : DialogFragment() {
         return activity?.let {
             val builder = AlertDialog.Builder(it)
             builder.setMessage(getString(R.string.manage_all_files_message))
-                .setPositiveButton(R.string.ok, DialogInterface.OnClickListener { _, _ ->
+                .setPositiveButton(R.string.ok) { _, _ ->
                     listener.manageAllFilesRequestListener()
-                }).setNegativeButton(R.string.cancel, DialogInterface.OnClickListener { _, _ ->
+                }.setNegativeButton(R.string.cancel) { _, _ ->
                     dialog?.cancel()
-                })
+                }
 
             builder.create()
         } ?: throw IllegalStateException("Activity cannot be null")

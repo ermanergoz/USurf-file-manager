@@ -1,5 +1,6 @@
 package com.erman.usurf.utils
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Environment
 import com.erman.usurf.application.MainApplication
@@ -10,19 +11,19 @@ import java.io.IOException
 class StoragePaths {
     private val preferenceProvider = PreferenceProvider()
 
+    @SuppressLint("SdCardPath")
     fun getStorageDirectories(): Set<String> {
         val paths = mutableSetOf<String>()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             for (file in MainApplication.appContext.getExternalFilesDirs("external")) {
-                if (file != null) {
-                    val index = file.absolutePath.lastIndexOf("/Android/data")
-                    var path = file.absolutePath.substring(0, index)
+                file?.let {
+                    val index = it.absolutePath.lastIndexOf("/Android/data")
+                    var path = it.absolutePath.substring(0, index)
                     try {
                         path = File(path).canonicalPath
-
                     } catch (err: IOException) {
-                        err.printStackTrace()
+                        loge(""+err.localizedMessage)
                     }
                     paths.add(path)
                 }
@@ -60,20 +61,12 @@ class StoragePaths {
             if (File("/storage/extsd").exists() && File("/storage/extsd").canRead()) {
                 paths.add("/storage/extsd")
             }
-            if (!(paths.contains("/storage/emulated/0") || paths.contains("/storage/sdcard")) && File(
-                    "/storage/sdcard1"
-                ).exists() && File(
-                    "/storage/sdcard1"
-                ).canRead()
-            ) {
+            if (!(paths.contains("/storage/emulated/0") || paths.contains("/storage/sdcard")) &&
+                File("/storage/sdcard1").exists() && File("/storage/sdcard1").canRead()) {
                 paths.add("/storage/sdcard1")
             }
-            if (!(paths.contains("/storage/emulated/0") || paths.contains("/storage/sdcard")) && File(
-                    "/storage/sdcard0"
-                ).exists() && File(
-                    "/storage/sdcard0"
-                ).canRead()
-            ) {
+            if (!(paths.contains("/storage/emulated/0") || paths.contains("/storage/sdcard")) &&
+                File("/storage/sdcard0").exists() && File("/storage/sdcard0").canRead()) {
                 paths.add("/storage/sdcard0")
             }
             if (File("/storage/sdcard").exists() && File("/storage/sdcard").canRead()) {
@@ -105,12 +98,8 @@ class StoragePaths {
             if (File("/mnt/sdcard1").exists() && File("/mnt/sdcard1").canRead()) {
                 paths.add("/mnt/sdcard1")
             }
-            if (!(paths.contains("/storage/emulated/0") || paths.contains("/storage/sdcard")) && File(
-                    "/mnt/sdcard"
-                ).exists() && File(
-                    "/mnt/sdcard"
-                ).canRead()
-            ) {
+            if (!(paths.contains("/storage/emulated/0") || paths.contains("/storage/sdcard")) &&
+                File("/mnt/sdcard").exists() && File("/mnt/sdcard").canRead()) {
                 paths.add("/mnt/sdcard")
             }
         }
