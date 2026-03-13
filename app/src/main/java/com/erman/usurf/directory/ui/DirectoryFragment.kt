@@ -25,7 +25,6 @@ import com.erman.usurf.utils.*
 import kotlinx.android.synthetic.main.fragment_directory.*
 import java.io.File
 
-
 class DirectoryFragment : Fragment() {
     private lateinit var viewModelFactory: ViewModelFactory
     private lateinit var directoryViewModel: DirectoryViewModel
@@ -54,6 +53,7 @@ class DirectoryFragment : Fragment() {
                 val intent = Intent(Intent.ACTION_VIEW)
                 intent.data = FileProvider.getUriForFile(requireContext(), requireContext().packageName, File(args.path))
                 intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                intent.addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT)
                 intent.resolveActivity(requireContext().packageManager)?.let { startActivity(intent) }
                     ?: let {
                         Toast.makeText(context, getString(R.string.unsupported_file), Toast.LENGTH_LONG).show()
@@ -117,9 +117,15 @@ class DirectoryFragment : Fragment() {
             }
         })
 
+        directoryViewModel.onFileSearch.observe(viewLifecycleOwner, Observer {
+            it.getContentIfNotHandled()?.let { args ->
+                dialogListener.showDialog(SearchDialog())
+            }
+        })
+
         directoryViewModel.updateDirectoryList.observe(viewLifecycleOwner, Observer {
-            directoryRecyclerViewAdapter.updateData(it)
-            runRecyclerViewAnimation(fileListRecyclerView)
+                directoryRecyclerViewAdapter.updateData(it)
+                runRecyclerViewAnimation(fileListRecyclerView)
         })
 
         requireActivity().onBackPressedDispatcher.addCallback(this) {
@@ -145,10 +151,14 @@ class DirectoryFragment : Fragment() {
         fileListRecyclerView.layoutManager = GridLayoutManager(context, 1)
         directoryRecyclerViewAdapter = DirectoryRecyclerViewAdapter(directoryViewModel)
         fileListRecyclerView.adapter = directoryRecyclerViewAdapter
-        //fileListRecyclerView.itemAnimator?.let { it.changeDuration = 0 } //to avoid flickering
 
         directoryViewModel.path.observe(viewLifecycleOwner, Observer {
-            directoryRecyclerViewAdapter.updateData(directoryViewModel.getFileList())
+            directoryViewModel.getFileList()
+            runRecyclerViewAnimation(fileListRecyclerView)
+        })
+
+        directoryViewModel.fileSearchQuery.observe(viewLifecycleOwner, Observer {
+            directoryViewModel.getSearchedFiles()
             runRecyclerViewAnimation(fileListRecyclerView)
         })
     }
@@ -166,7 +176,7 @@ class DirectoryFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         directoryViewModel.turnOffOptionPanel()
-        directoryRecyclerViewAdapter.updateData(directoryViewModel.getFileList())
+        directoryViewModel.getFileList()
         runRecyclerViewAnimation(fileListRecyclerView)
     }
 }
