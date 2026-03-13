@@ -11,16 +11,12 @@
         app:actionViewClass="android.widget.SearchView"
         app:showAsAction="always" />
 
-    <!--<item
+    <item
         android:id="@+id/subMenu"
-        android:icon="@android:drawable/ic_menu_add"
+        android:icon="@android:drawable/ic_menu_sort_by_size"
         android:title="Options"
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction">
-        <menu>
-            <item
-                android:id="@+id/sortFiles"
-                android:title="Sort Files" />
-        </menu>
-    </item>-->
+
+    </item>
 </menu>

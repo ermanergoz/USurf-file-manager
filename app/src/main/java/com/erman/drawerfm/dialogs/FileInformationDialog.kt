@@ -26,7 +26,7 @@ class FileInformationDialog(var file: File) : DialogFragment() {
     private lateinit var usedStorageProgressBar: ProgressBar
     private lateinit var fileSizePercentTextView: TextView
     private lateinit var usedStoragePercentTextView: TextView
-    private val dateFormat = SimpleDateFormat("dd MMMM | HH:mm:ss")
+    private val dateFormat = SimpleDateFormat("dd MMMM yyyy | HH:mm:ss")
     private var fileSizePercentage: Double = 0.0
     private var usedStoragePercentage = 0
 
