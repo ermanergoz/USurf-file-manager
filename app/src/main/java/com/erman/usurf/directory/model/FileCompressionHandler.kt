@@ -2,7 +2,6 @@ package com.erman.usurf.directory.model
 
 import com.erman.usurf.utils.logd
 import com.erman.usurf.utils.loge
-import com.hzy.libp7zip.P7ZipApi
 
 class FileCompressionHandler {
     fun compress(
