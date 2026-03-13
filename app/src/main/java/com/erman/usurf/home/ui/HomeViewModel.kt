@@ -1,7 +1,6 @@
 package com.erman.usurf.home.ui
 
 import android.os.Build
-import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.lifecycle.LiveData
@@ -16,6 +15,8 @@ import com.erman.usurf.home.data.ShortcutDao
 import com.erman.usurf.utils.DirectoryPreferenceProvider
 import com.erman.usurf.home.model.HomeModel
 import com.erman.usurf.utils.Event
+import com.erman.usurf.utils.logd
+import com.erman.usurf.utils.logi
 import io.realm.Realm
 import java.io.File
 
@@ -69,6 +70,7 @@ class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
     }
 
     fun onShortcutAdd(path: String, name: String) {
+        logi("Add shortcut: $name")
         shortcutDao.addShortcut(path, name)
     }
 
@@ -76,19 +78,19 @@ class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
         val shortcutPath = view.tag.toString()
 
         if (File(shortcutPath).isDirectory) {
+            logd("Open a shortcut directory")
             _path.value = shortcutPath
             _navigateToDirectory.value = Event(R.id.action_nav_home_to_nav_directory)
-        }
-        else _openFile.value = Event(UIEventArgs.OpenFileActivityArgs(shortcutPath))
+        } else _openFile.value = Event(UIEventArgs.OpenFileActivityArgs(shortcutPath))
     }
 
     fun onShortcutLongClick(view: TextView): Boolean {
         _onShortcutOption.value = Event(UIEventArgs.ShortcutOptionsDialogArgs(view))
-        Log.e("long clicked", view.tag.toString())
         return true
     }
 
     fun deleteShortcut(shortcutView: TextView) {
+        logi("Delete shortcut: " + shortcutView.text)
         shortcutDao.removeShortcut(shortcutView)
     }
 
@@ -102,6 +104,7 @@ class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
     }
 
     fun onRenameShortcutOkPressed(shortcutView: TextView, shortcutName: String) {
+        logi("Rename shortcut: " + shortcutView.text + " to " + shortcutName)
         shortcutDao.renameShortcut(shortcutView, shortcutName)
     }
 }

@@ -19,9 +19,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.erman.usurf.R
 import com.erman.usurf.databinding.FragmentDirectoryBinding
 import com.erman.usurf.dialog.ui.*
-import com.erman.usurf.utils.EventObserver
-import com.erman.usurf.utils.ShowDialog
-import com.erman.usurf.utils.ViewModelFactory
+import com.erman.usurf.utils.*
 import kotlinx.android.synthetic.main.fragment_directory.*
 import java.io.File
 
@@ -49,11 +47,15 @@ class DirectoryFragment : Fragment() {
 
         directoryViewModel.openFile.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.let { args ->
+                logd("Opening a file")
                 val intent = Intent(Intent.ACTION_VIEW)
                 intent.data = FileProvider.getUriForFile(requireContext(), requireContext().packageName, File(args.path))
                 intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION.or(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
                 intent.resolveActivity(requireContext().packageManager)?.let { startActivity(intent) }
-                    ?: let { Toast.makeText(context, getString(R.string.unsupported_file), Toast.LENGTH_LONG).show() }
+                    ?: let {
+                        Toast.makeText(context, getString(R.string.unsupported_file), Toast.LENGTH_LONG).show()
+                        loge("Error when opening a file")
+                    }
             }
         })
 
@@ -68,10 +70,12 @@ class DirectoryFragment : Fragment() {
                 val fileUris: ArrayList<Uri> = arrayListOf()
 
                 for (fileModel in args.multipleSelectionList) {
+                    logi("Share: " + fileModel.name)
                     fileUris.add(FileProvider.getUriForFile(requireContext(), requireContext().packageName, //(use your app signature + ".provider" )
                         File(fileModel.path)))  //used this instead of File().toUri to avoid FileUriExposedException
                 }
                 val shareIntent = Intent().apply {
+                    logd("Start share activity")
                     action = Intent.ACTION_SEND_MULTIPLE
                     putParcelableArrayListExtra(Intent.EXTRA_STREAM, fileUris)
                     type = "*/*"
@@ -141,7 +145,7 @@ class DirectoryFragment : Fragment() {
         try {
             dialogListener = context as ShowDialog
         } catch (err: ClassCastException) {
-            err.printStackTrace()
+            loge("onAttach $err")
         }
     }
 }
