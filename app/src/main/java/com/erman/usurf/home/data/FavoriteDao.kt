@@ -22,9 +22,14 @@ class FavoriteDao(var realm: Realm) {
         logd("Add favorite")
         realm.beginTransaction()
         try {
-            val favorite: Favorite = realm.createObject<Favorite>(favoritePath)
-            favorite.name = favoriteName
-            favorite.path = favoritePath
+            if(favoriteName.isNotEmpty()) {
+                val favorite: Favorite = realm.createObject<Favorite>(favoritePath)
+                favorite.name = favoriteName
+                favorite.path = favoritePath
+            } else {
+                displayToast(R.string.unable_to_create_favorite_no_name)
+                return false
+            }
         } catch (err: RealmPrimaryKeyConstraintException) {
             loge("addFavorite $err")
             displayToast(R.string.unable_to_create_favorite)
