@@ -1,20 +1,16 @@
 package com.erman.usurf.home.data
 
-import android.widget.TextView
-import android.widget.Toast
-import com.erman.usurf.R
-import com.erman.usurf.application.MainApplication.Companion.appContext
-import com.erman.usurf.home.utils.REALM_FIELD_NAME_PATH
-import com.erman.usurf.utils.logd
+import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
 import io.realm.Realm
 import io.realm.exceptions.RealmPrimaryKeyConstraintException
 import io.realm.kotlin.createObject
 import io.realm.kotlin.where
 
-class FavoriteDao(var realm: Realm) {
+private const val REALM_FIELD_NAME_PATH: String = "path"
+
+class FavoriteDao(private val realm: Realm) {
     fun getFavorites(): RealmLiveData<Favorite> {
-        logd("Get favorites")
         return realm.where(Favorite::class.java).findAllAsync().asLiveData()
     }
 
@@ -22,65 +18,52 @@ class FavoriteDao(var realm: Realm) {
         favoritePath: String,
         favoriteName: String,
     ): Boolean {
-        logd("Add favorite")
+        if (favoriteName.isEmpty()) {
+            return false
+        }
         realm.beginTransaction()
         try {
-            if (favoriteName.isNotEmpty()) {
-                val favorite: Favorite = realm.createObject(favoritePath)
-                favorite.name = favoriteName
-                favorite.path = favoritePath
-            } else {
-                displayToast(R.string.unable_to_create_favorite_no_name)
-                return false
-            }
-        } catch (err: RealmPrimaryKeyConstraintException) {
-            loge("addFavorite $err")
-            displayToast(R.string.unable_to_create_favorite)
-            return false
-        } finally {
+            val favorite: Favorite = realm.createObject(favoritePath)
+            favorite.name = favoriteName
+            favorite.path = favoritePath
             realm.commitTransaction()
+            return true
+        } catch (err: RealmPrimaryKeyConstraintException) {
+            loge(err.localizedMessage ?: UNKNOWN_ERROR)
+            realm.cancelTransaction()
+            return false
         }
-        displayToast(R.string.favorite_created)
-        return true
     }
 
-    fun removeFavorite(favorite: TextView): Boolean {
-        logd("Remove favorite")
-        try {
-            val results = realm.where<Favorite>().equalTo(REALM_FIELD_NAME_PATH, favorite.tag.toString()).findAllAsync()
+    fun removeFavorite(favoritePath: String): Boolean {
+        return try {
+            val results =
+                realm.where<Favorite>().equalTo(REALM_FIELD_NAME_PATH, favoritePath).findAll()
             realm.executeTransaction {
-                results.deleteFirstFromRealm()
+                results.deleteAllFromRealm()
             }
-        } catch (err: Error) {
-            loge("removeFavorite $err")
-            displayToast(R.string.unable_to_delete_favorite)
-            return false
+            true
+        } catch (err: Exception) {
+            loge(err.localizedMessage ?: UNKNOWN_ERROR)
+            false
         }
-        displayToast(R.string.favorite_deleted)
-        return true
     }
 
     fun renameFavorite(
-        favorite: TextView,
+        favoritePath: String,
         newName: String,
     ): Boolean {
-        logd("Rename favorite")
-        try {
-            val favoriteToRename = realm.where<Favorite>().equalTo(REALM_FIELD_NAME_PATH, favorite.tag.toString()).findFirst()
+        return try {
+            val favoriteToRename =
+                realm.where<Favorite>().equalTo(REALM_FIELD_NAME_PATH, favoritePath).findFirst()
             realm.beginTransaction()
-            favoriteToRename?.let { it.name = newName }
-        } catch (err: Error) {
-            loge("renameFavorite $err")
-            displayToast(R.string.unable_to_rename_favorite)
-            return false
-        } finally {
+            favoriteToRename?.name = newName
             realm.commitTransaction()
+            true
+        } catch (err: Exception) {
+            loge(err.localizedMessage ?: UNKNOWN_ERROR)
+            realm.cancelTransaction()
+            false
         }
-        displayToast(R.string.favorite_renamed)
-        return true
-    }
-
-    private fun displayToast(messageId: Int) {
-        Toast.makeText(appContext, appContext.getString(messageId), Toast.LENGTH_LONG).show()
     }
 }

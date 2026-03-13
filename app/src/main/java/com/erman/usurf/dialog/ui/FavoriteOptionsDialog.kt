@@ -6,53 +6,80 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
-import android.widget.TextView
+import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
-import androidx.databinding.library.baseAdapters.BR
 import androidx.fragment.app.DialogFragment
 import com.erman.usurf.R
 import com.erman.usurf.databinding.DialogEditFavoriteBinding
-import com.erman.usurf.home.ui.HomeViewModel
-import org.koin.android.viewmodel.ext.android.viewModel
+import com.erman.usurf.dialog.model.FavoriteOptionsDialogListener
 
-class FavoriteOptionsDialog(private val favoriteView: TextView) : DialogFragment() {
-    private lateinit var okButton: Button
-    private lateinit var deleteButton: Button
-    private lateinit var renameEditText: EditText
-    private val viewModel by viewModel<HomeViewModel>()
+private const val FAVORITE_OPTIONS_DIALOG_ARG_FAVORITE_PATH: String = "arg_favorite_path"
+private const val FAVORITE_OPTIONS_DIALOG_ARG_FAVORITE_NAME: String = "arg_favorite_name"
+
+class FavoriteOptionsDialog : DialogFragment() {
+    private lateinit var favoritePath: String
+    private lateinit var favoriteName: String
+    var listener: FavoriteOptionsDialogListener? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
             val builder = AlertDialog.Builder(it)
             val inflater = requireActivity().layoutInflater
-
             val binding: DialogEditFavoriteBinding =
                 DataBindingUtil.inflate(inflater, R.layout.dialog_edit_favorite, null, false)
-            binding.setVariable(BR.favoriteView, favoriteView)
+            binding.favoriteName = favoriteName
             binding.lifecycleOwner = this
-            binding.viewModel = viewModel
-
-            this.okButton = binding.root.findViewById(R.id.okButton)
-            this.renameEditText = binding.root.findViewById(R.id.renameEditText)
-            this.deleteButton = binding.root.findViewById(R.id.deleteButton)
-
+            binding.uiState = listener?.getUiState()?.value ?: binding.uiState
+            listener?.getUiState()?.observe(
+                this,
+            ) { state ->
+                binding.uiState = state
+            }
+            val okButton = binding.root.findViewById<Button>(R.id.okButton)
+            val renameButton = binding.root.findViewById<Button>(R.id.renameButton)
+            val renameEditText = binding.root.findViewById<EditText>(R.id.renameEditText)
+            val deleteButton = binding.root.findViewById<Button>(R.id.deleteButton)
+            renameEditText.setText(favoriteName)
+            renameButton.setOnClickListener {
+                dismiss()
+                listener?.onRenameButtonClick(favoritePath, favoriteName)
+            }
             okButton.setOnClickListener {
-                viewModel.onRenameFavoriteOkPressed(favoriteView, renameEditText.text.toString())
+                listener?.onRename(favoritePath, renameEditText.text.toString())
                 dismiss()
             }
-
             deleteButton.setOnClickListener {
-                viewModel.deleteFavorites(favoriteView)
+                listener?.onDelete(favoritePath)
                 dismiss()
             }
-
             builder.setView(binding.root)
             builder.create()
-        } ?: throw IllegalStateException("Activity cannot be null")
+        } ?: error("Activity cannot be null")
     }
 
     override fun onDismiss(dialog: DialogInterface) {
-        viewModel.turnOffRenameMode()
+        listener?.onDismiss()
         super.onDismiss(dialog)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        favoritePath = requireArguments().getString(FAVORITE_OPTIONS_DIALOG_ARG_FAVORITE_PATH, "")
+        favoriteName = requireArguments().getString(FAVORITE_OPTIONS_DIALOG_ARG_FAVORITE_NAME, "")
+    }
+
+    companion object {
+        fun newInstance(
+            favoritePath: String,
+            favoriteName: String,
+        ): FavoriteOptionsDialog {
+            val fragment = FavoriteOptionsDialog()
+            fragment.arguments =
+                bundleOf(
+                    FAVORITE_OPTIONS_DIALOG_ARG_FAVORITE_PATH to favoritePath,
+                    FAVORITE_OPTIONS_DIALOG_ARG_FAVORITE_NAME to favoriteName,
+                )
+            return fragment
+        }
     }
 }
