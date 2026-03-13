@@ -57,8 +57,10 @@ class HomeViewModel(private val homeModel: HomeModel) : ViewModel() {
     fun onStorageButtonClick(view: View) {
         _path.value = view.tag.toString()
         _navigateToDirectory.value = Event(R.id.action_nav_home_to_nav_directory)
-        if (!File(path.value!!).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.P)
-            _saf.value = Event(UIEventArgs.SAFActivityArgs)
+        path.value?.let { path ->
+            if (!File(path).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.P)
+                _saf.value = Event(UIEventArgs.SAFActivityArgs)
+        }
     }
 
     fun getUsedStoragePercentage(view: View): Int {
