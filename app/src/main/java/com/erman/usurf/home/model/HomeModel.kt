@@ -1,18 +1,14 @@
 package com.erman.usurf.home.model
 
-import android.content.Context
 import android.os.Build
-import android.os.Environment
 import android.os.StatFs
 import android.view.LayoutInflater
 import androidx.databinding.DataBindingUtil
-import com.erman.usurf.MainApplication.Companion.appContext
+import com.erman.usurf.app.MainApplication.Companion.appContext
 import com.erman.usurf.R
 import com.erman.usurf.databinding.StorageButtonBinding
 import com.erman.usurf.utils.StoragePaths
 import kotlinx.android.synthetic.main.storage_button.view.*
-import java.io.File
-import java.io.IOException
 
 class HomeModel() {
     fun createStorageButtons(): MutableList<StorageButtonBinding> {
@@ -24,14 +20,14 @@ class HomeModel() {
             val binding: StorageButtonBinding = DataBindingUtil.inflate(LayoutInflater.from(appContext), R.layout.storage_button, null, false)
             storageButtons.add(binding)
             storageButtons[i].root.tag = storageDirectories.elementAt(i)
-            storageButtons[i].root.buttonText.text=storageDirectories.elementAt(i)
+            storageButtons[i].root.buttonText.text =storageDirectories.elementAt(i)
             storageButtons[i].root.progressBar?.scaleY=20f
             //It is null on older versions of android because I removed it from the layout
         }
         return storageButtons
     }
 
-    fun getTotalStorage(path: String): Long {
+    private fun getTotalStorage(path: String): Long {
         val stat = StatFs(path)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             return stat.totalBytes
@@ -39,7 +35,7 @@ class HomeModel() {
         return 0
     }
 
-    fun getUsedStorage(path: String): Long {
+    private fun getUsedStorage(path: String): Long {
         val stat = StatFs(path)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             val free = stat.availableBlocksLong

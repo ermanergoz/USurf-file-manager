@@ -1,13 +1,15 @@
 package com.erman.usurf.utils
 
-import android.content.Context
 import android.os.Build
 import android.os.Environment
-import com.erman.usurf.MainApplication
+import com.erman.usurf.app.MainApplication
+import com.erman.usurf.preference.data.PreferenceProvider
 import java.io.File
 import java.io.IOException
 
 class StoragePaths {
+    private val preferenceProvider = PreferenceProvider()
+
     fun getStorageDirectories(): ArrayList<String> {
         val paths = arrayListOf<String>()
 
@@ -113,14 +115,7 @@ class StoragePaths {
             }
         }
 
-        if (File("/").exists() && File("/").canRead() && MainApplication.appContext.getSharedPreferences(
-                "com.erman.draverfm",
-                Context.MODE_PRIVATE
-            ).getBoolean(
-                "root access",
-                false
-            )
-        ) {
+        if (File("/").exists() && File("/").canRead() && preferenceProvider.getRootAccessPreference()) {
             paths.add("/")
         }
         return paths
