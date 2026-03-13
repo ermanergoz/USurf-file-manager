@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.erman.usurf.R
 import com.erman.usurf.dialog.model.DialogArgs
 import com.erman.usurf.directory.model.*
+import com.erman.usurf.directory.utils.ROOT_DIRECTORY
 import com.erman.usurf.preference.data.PreferenceProvider
 import com.erman.usurf.utils.Event
 import com.erman.usurf.utils.logd
@@ -15,7 +16,8 @@ import java.io.File
 import java.lang.Exception
 import kotlin.coroutines.CoroutineContext
 
-class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel(), CoroutineScope {
+class DirectoryViewModel(private val directoryModel: DirectoryModel, private val preferenceProvider: PreferenceProvider) :
+    ViewModel(), CoroutineScope {
     private var multiSelectionMode: Boolean = false
 
     private val _path = MutableLiveData<String>()
@@ -24,29 +26,8 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     private val _toastMessage = MutableLiveData<Event<Int>>()
     val toastMessage: LiveData<Event<Int>> = _toastMessage
 
-    private val _openFile = MutableLiveData<Event<DialogArgs.OpenFileActivityArgs>>()
-    val openFile: LiveData<Event<DialogArgs.OpenFileActivityArgs>> = _openFile
-
-    private val _onShare = MutableLiveData<Event<DialogArgs.ShareActivityArgs>>()
-    val onShare: LiveData<Event<DialogArgs.ShareActivityArgs>> = _onShare
-
-    private val _onRename = MutableLiveData<Event<DialogArgs.RenameDialogArgs>>()
-    val onRename: LiveData<Event<DialogArgs.RenameDialogArgs>> = _onRename
-
-    private val _onCompress = MutableLiveData<Event<DialogArgs.CompressDialogArgs>>()
-    val onCompress: LiveData<Event<DialogArgs.CompressDialogArgs>> = _onCompress
-
-    private val _onCreateFile = MutableLiveData<Event<DialogArgs.CreateFileDialogArgs>>()
-    val onCreateFile: LiveData<Event<DialogArgs.CreateFileDialogArgs>> = _onCreateFile
-
-    private val _onCreateFolder = MutableLiveData<Event<DialogArgs.CreateFolderDialogArgs>>()
-    val onCreateFolder: LiveData<Event<DialogArgs.CreateFolderDialogArgs>> = _onCreateFolder
-
-    private val _onInformation = MutableLiveData<Event<DialogArgs.InformationDialogArgs>>()
-    val onInformation: LiveData<Event<DialogArgs.InformationDialogArgs>> = _onInformation
-
-    private val _onAddFavorite = MutableLiveData<Event<DialogArgs.FavoriteDialogArgs>>()
-    val onAddFavorite: LiveData<Event<DialogArgs.FavoriteDialogArgs>> = _onAddFavorite
+    private val _dialog = MutableLiveData<Event<DialogArgs>>()
+    val dialog: LiveData<Event<DialogArgs>> = _dialog
 
     private val _isSingleOperationMode = MutableLiveData<Boolean>()
     val isSingleOperationMode: LiveData<Boolean> = _isSingleOperationMode
@@ -59,18 +40,10 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
     val loading: LiveData<Boolean> = _loading
 
-    private val _showLoadingMessage = MutableLiveData<Boolean>().apply {
-        value = false
-    }
-    val showLoadingMessage: LiveData<Boolean> = _showLoadingMessage
-
     private val _fileSearchMode = MutableLiveData<Boolean>().apply {
         value = false
     }
     val fileSearchMode: LiveData<Boolean> = _fileSearchMode
-
-    private val _onFileSearch = MutableLiveData<Event<DialogArgs.FileSearchDialogArgs>>()
-    val onFileSearch: LiveData<Event<DialogArgs.FileSearchDialogArgs>> = _onFileSearch
 
     private val _copyMode = MutableLiveData<Boolean>().apply {
         value = false
@@ -102,10 +75,10 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
     val updateDirectoryList: LiveData<List<FileModel>> = _updateDirectoryList
 
-    private val _moreOptionMode = MutableLiveData<Boolean>().apply {
+    private val _moreMenuMode = MutableLiveData<Boolean>().apply {
         value = false
     }
-    val moreOptionMode: LiveData<Boolean> = _moreOptionMode
+    val moreMenuMode: LiveData<Boolean> = _moreMenuMode
 
     private val _isRootMode = MutableLiveData<Boolean>().apply {
         value = false
@@ -127,17 +100,17 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
         } else {
             _fileSearchMode.value = false
             if (file.isDirectory) _path.value = file.path
-            else _openFile.value = Event(DialogArgs.OpenFileActivityArgs(file.path))
+            else _dialog.value = Event(DialogArgs.OpenFileActivityArgs(file.path))
         }
         _isRootMode.value = file.isInRoot
     }
 
     fun onFileLongClick(file: FileModel): Boolean {
         copyMode.value?.let {
-            if(it) return false
+            if (it) return false
         }
         moveMode.value?.let {
-            if(it) return false
+            if (it) return false
         }
         multipleSelection.value?.let { multipleSelection ->
             _multipleSelection.value = directoryModel.manageMultipleSelectionList(file, multipleSelection)
@@ -151,7 +124,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
 
     fun turnOffOptionPanel() {
         _optionMode.value = false
-        _moreOptionMode.value = false
+        _moreMenuMode.value = false
         multiSelectionMode = false
         _copyMode.value = false
         _moveMode.value = false
@@ -180,7 +153,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                 path.value?.let { path ->
                     File(path).parent?.let { parent ->
                         val prevFile = File(parent)
-                        if ((prevFile.canRead() && prevFile.path != "/") || PreferenceProvider().getRootAccessPreference()) {
+                        if ((prevFile.canRead() && prevFile.path != ROOT_DIRECTORY) || preferenceProvider.getRootAccessPreference()) {
                             _path.value = prevFile.path
                             return true
                         }
@@ -194,70 +167,54 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
         return false
     }
 
-    fun setPath(path: String?) {
+    fun setPath(path: String) {
         _path.value = path
-        _fileSearchQuery.value = null
     }
 
     fun getFileList() {
-        if (!path.value.isNullOrEmpty()) {
-            try {
-                _loading.value = true
-                launch {
-                    path.value?.let { path ->
-                        val directory = directoryModel.getFileModelsFromFiles(path)
-                        if (directory.isNullOrEmpty())
-                            _toastMessage.value = Event(R.string.empty_folder)
-                        _updateDirectoryList.value = directory
-                    }
-                    _loading.value = false
-                }
-            } catch (err: IllegalStateException) {
-                _toastMessage.value = Event(R.string.unable_to_open_directory)
-                loge("getFileList $err")
-            }
-        } else {
+        try {
             _loading.value = true
-            _showLoadingMessage.value = true
             launch {
-                _updateDirectoryList.value = directoryModel.getFilesToClean()
+                path.value?.let { path ->
+                    val directory = directoryModel.getFileModelsFromFiles(path)
+                    if (directory.isEmpty())
+                        _toastMessage.value = Event(R.string.empty_folder)
+                    _updateDirectoryList.value = directory
+                }
                 _loading.value = false
-                _showLoadingMessage.value = false
             }
+        } catch (err: IllegalStateException) {
+            _toastMessage.value = Event(R.string.unable_to_open_directory)
+            loge("getFileList $err")
         }
     }
 
     fun getSearchedFiles() {
         fileSearchQuery.value?.let {
             _loading.value = true
-            _showLoadingMessage.value = true
             launch {
                 val fileList = directoryModel.getSearchedDeviceFiles(it)
-                if (fileList.isNullOrEmpty())
+                if (fileList.isEmpty())
                     _toastMessage.value = Event(R.string.empty_folder)
                 _updateDirectoryList.value = fileList
                 _menuMode.value = false
                 _loading.value = false
-                _showLoadingMessage.value = false
             }
         }
     }
 
     fun compress() {
-        _onCompress.value = Event(DialogArgs.CompressDialogArgs)
+        _dialog.value = Event(DialogArgs.CompressDialogArgs)
     }
 
     private fun refreshFileList() {
         launch {
             fileSearchMode.value?.let { isFileSearchMode ->
-                if (isFileSearchMode) {
-                    fileSearchQuery.value?.let { fileSearchQuery ->
-                        _updateDirectoryList.value = directoryModel.getSearchedDeviceFiles(fileSearchQuery)
-                    }
-                } else {
-                    path.value?.let { path ->
-                        _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path)
-                    }
+                if (isFileSearchMode) fileSearchQuery.value?.let { fileSearchQuery ->
+                    _updateDirectoryList.value = directoryModel.getSearchedDeviceFiles(fileSearchQuery)
+                }
+                else path.value?.let { path ->
+                    _updateDirectoryList.value = directoryModel.getFileModelsFromFiles(path)
                 }
             }
         }
@@ -286,25 +243,20 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     fun extract() {
         turnOffOptionPanel()
         multipleSelection.value?.let { multipleSelection ->
-            if (multipleSelection.first().extension == "zip") {
-                _toastMessage.value = Event(R.string.extracting)
-                logd("extract")
-                launch {
-                    try {
-                        directoryModel.extractFiles(multipleSelection.first())
-                        refreshFileList()
-                        _toastMessage.value = Event(R.string.extracting_successful)
+            _toastMessage.value = Event(R.string.extracting)
+            logd("extract")
+            launch {
+                try {
+                    directoryModel.extractFiles(multipleSelection.first())
+                    refreshFileList()
+                    _toastMessage.value = Event(R.string.extracting_successful)
 
-                    } catch (err: CancellationException) {
-                        _toastMessage.value = Event(R.string.error_while_extracting)
-                        loge("extract $err")
-                    } finally {
-                        clearMultipleSelection()
-                    }
+                } catch (err: CancellationException) {
+                    _toastMessage.value = Event(R.string.error_while_extracting)
+                    loge("extract $err")
+                } finally {
+                    clearMultipleSelection()
                 }
-            } else {
-                _toastMessage.value = Event(R.string.invalid_extension)
-                clearMultipleSelection()
             }
         }
     }
@@ -312,75 +264,83 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     fun showFileInformation() {
         multipleSelection.value?.let { multipleSelection ->
             for (file in multipleSelection) {
-                _onInformation.value = Event(DialogArgs.InformationDialogArgs(file))
+                _dialog.value = Event(DialogArgs.InformationDialogArgs(file))
             }
         }
     }
 
     fun share() {
         multipleSelection.value?.let { multipleSelection ->
-            _onShare.value = Event(DialogArgs.ShareActivityArgs(multipleSelection))
+            _dialog.value = Event(DialogArgs.ShareActivityArgs(multipleSelection))
         }
     }
 
     fun showMoreOption() {
-        _moreOptionMode.value?.let {
-            _moreOptionMode.value = !it
+        _moreMenuMode.value?.let {
+            _moreMenuMode.value = !it
         }
     }
 
     fun copy() {
         _copyMode.value = true
-        _moreOptionMode.value = false
+        _moreMenuMode.value = false
         multiSelectionMode = false
     }
 
     fun move() {
         _moveMode.value = true
-        _moreOptionMode.value = false
+        _moreMenuMode.value = false
         multiSelectionMode = false
+    }
+
+    private fun launchCopy() {
+        _toastMessage.value = Event(R.string.copying)
+        logd("copy - copyMode")
+        launch {
+            try {
+                path.value?.let { path ->
+                    multipleSelection.value?.let { multipleSelection ->
+                        directoryModel.copyFile(multipleSelection, path)
+                        refreshFileList()
+                        _toastMessage.value = Event(R.string.copy_successful)
+                    }
+                }
+            } catch (err: CancellationException) {
+                _toastMessage.value = Event(R.string.error_while_copying)
+                loge("confirmAction-copyMode $err")
+            }
+        }
+    }
+
+    private fun launchMove() {
+        _toastMessage.value = Event(R.string.moving)
+        logd("move - moveMode")
+        launch {
+            try {
+                multipleSelection.value?.let { multipleSelection ->
+                    path.value?.let { path ->
+                        directoryModel.moveFile(multipleSelection, path)
+                        refreshFileList()
+                        _toastMessage.value = Event(R.string.moving_successful)
+                    }
+                }
+            } catch (err: CancellationException) {
+                _toastMessage.value = Event(R.string.error_while_moving)
+                loge("confirmAction-moveMode $err")
+            } finally {
+                clearMultipleSelection()
+            }
+        }
     }
 
     fun confirmAction() {
         when {
             copyMode.value!! -> {
-                _toastMessage.value = Event(R.string.copying)
-                logd("copy - copyMode")
-                launch {
-                    try {
-                        path.value?.let { path ->
-                            multipleSelection.value?.let { multipleSelection ->
-                                directoryModel.copyFile(multipleSelection, path)
-                                refreshFileList()
-                                _toastMessage.value = Event(R.string.copy_successful)
-                            }
-                        }
-                    } catch (err: CancellationException) {
-                        _toastMessage.value = Event(R.string.error_while_copying)
-                        loge("confirmAction-copyMode $err")
-                    }
-                }
+                launchCopy()
             }
             moveMode.value!! -> {
                 turnOffOptionPanel()
-                _toastMessage.value = Event(R.string.moving)
-                logd("move - moveMode")
-                launch {
-                    try {
-                        multipleSelection.value?.let { multipleSelection ->
-                            path.value?.let { path ->
-                                directoryModel.moveFile(multipleSelection, path)
-                                refreshFileList()
-                                _toastMessage.value = Event(R.string.moving_successful)
-                            }
-                        }
-                    } catch (err: CancellationException) {
-                        _toastMessage.value = Event(R.string.error_while_moving)
-                        loge("confirmAction-moveMode $err")
-                    } finally {
-                        clearMultipleSelection()
-                    }
-                }
+                launchMove()
             }
         }
     }
@@ -407,7 +367,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
 
     fun rename() {
         multipleSelection.value?.let { multipleSelection ->
-            _onRename.value = Event(DialogArgs.RenameDialogArgs(multipleSelection.last().name))
+            _dialog.value = Event(DialogArgs.RenameDialogArgs(multipleSelection.last().name))
         }
     }
 
@@ -438,11 +398,11 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
 
     fun createFolder() {
-        _onCreateFolder.value = Event(DialogArgs.CreateFolderDialogArgs)
+        _dialog.value = Event(DialogArgs.CreateFolderDialogArgs)
     }
 
     fun createFile() {
-        _onCreateFile.value = Event(DialogArgs.CreateFileDialogArgs)
+        _dialog.value = Event(DialogArgs.CreateFileDialogArgs)
     }
 
     fun onFolderCreateOkPressed(folderName: String) {
@@ -491,14 +451,14 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
     }
 
     fun deviceWideSearch() {
-        _onFileSearch.value = Event(DialogArgs.FileSearchDialogArgs)
+        _dialog.value = Event(DialogArgs.FileSearchDialogArgs)
     }
 
     fun onFavoriteButtonPressed() {
         logd("favoriteButton")
         multipleSelection.value?.let {
             val file = it.last()
-            _onAddFavorite.value = Event(DialogArgs.FavoriteDialogArgs(file.path))
+            _dialog.value = Event(DialogArgs.AddFavoriteDialogArgs(file.path))
         }
     }
 

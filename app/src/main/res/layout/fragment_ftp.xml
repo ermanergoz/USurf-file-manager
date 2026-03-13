@@ -86,7 +86,7 @@
                 android:enabled="@{viewModel.isServiceRunning ? false : true}"
                 android:importantForAutofill="no"
                 android:inputType="textPersonName"
-                android:onTextChanged="@{viewModel.onUsernameChanged}"
+                android:onTextChanged="@{viewModel::onUsernameChanged}"
                 android:text="@{viewModel.username}"
                 android:textSize="@dimen/text_size_16"
                 tools:ignore="LabelFor" />
@@ -113,7 +113,7 @@
                 android:ems="10"
                 android:enabled="@{viewModel.isServiceRunning ? false : true}"
                 android:inputType="textPassword"
-                android:onTextChanged="@{viewModel.onPasswordChanged}"
+                android:onTextChanged="@{viewModel::onPasswordChanged}"
                 android:text="@{viewModel.password}"
                 android:textSize="@dimen/text_size_16"
                 tools:ignore="LabelFor" />
@@ -141,7 +141,7 @@
                 android:enabled="@{viewModel.isServiceRunning ? false : true}"
                 android:importantForAutofill="no"
                 android:inputType="numberDecimal"
-                android:onTextChanged="@{viewModel.onPortChanged}"
+                android:onTextChanged="@{viewModel::onPortChanged}"
                 android:text="@{viewModel.port}"
                 android:textSize="@dimen/text_size_16"
                 tools:ignore="LabelFor" />
@@ -153,7 +153,7 @@
                 android:layout_margin="@dimen/layout_margin_8"
                 android:layout_marginTop="@dimen/vertical_margin_16"
                 android:layout_marginBottom="@dimen/vertical_margin_16"
-                android:onCheckedChanged="@{viewModel.onFtpPathSelected}"
+                android:onCheckedChanged="@{viewModel::onFtpPathSelected}"
                 android:visibility="@{viewModel.isServiceRunning ? View.GONE : View.VISIBLE}" />
 
             <Button

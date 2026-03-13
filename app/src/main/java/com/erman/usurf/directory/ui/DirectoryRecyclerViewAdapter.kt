@@ -1,5 +1,6 @@
 package com.erman.usurf.directory.ui
 
+import android.annotation.SuppressLint
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -7,7 +8,6 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.erman.usurf.R
 import com.erman.usurf.directory.utils.MARQUEE_REPEAT_LIM
-import kotlinx.android.synthetic.main.recycler_directory_layout.view.*
 import androidx.databinding.library.baseAdapters.BR
 import com.erman.usurf.databinding.RecyclerDirectoryLayoutBinding
 import com.erman.usurf.directory.model.FileModel
@@ -39,13 +39,14 @@ class DirectoryRecyclerViewAdapter(var viewModel: DirectoryViewModel) :
 
         fun bindDirectory(directory: FileModel) {
             binding.setVariable(BR.file, directory)
-            itemView.nameTextView.ellipsize = TextUtils.TruncateAt.MARQUEE
+            binding.nameTextView.ellipsize = TextUtils.TruncateAt.MARQUEE
             //for sliding names if the length is longer than 1 line
-            itemView.nameTextView.isSelected = true
-            itemView.nameTextView.marqueeRepeatLimit = MARQUEE_REPEAT_LIM   //-1 is for forever
+            binding.nameTextView.isSelected = true
+            binding.nameTextView.marqueeRepeatLimit = MARQUEE_REPEAT_LIM   //-1 is for forever
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun updateData(filesList: List<FileModel>) {
         this.directoryList = filesList
         notifyDataSetChanged()

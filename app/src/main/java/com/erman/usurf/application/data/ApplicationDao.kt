@@ -18,7 +18,7 @@ class ApplicationDao(val realm: Realm) {
             if (File(favoritePath).exists()) {
                 realm.beginTransaction()
                 try {
-                    val favorite: Favorite = realm.createObject<Favorite>(favoritePath)
+                    val favorite: Favorite = realm.createObject(favoritePath)
                     favorite.name = favoriteName
                     favorite.path = favoritePath
                 } catch (err: Error) {
