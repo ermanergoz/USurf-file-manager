@@ -68,13 +68,9 @@ class HomeViewModel(
     fun onFavoriteAdd(
         path: String,
         name: String,
-    ) {
+    ): Boolean {
         logi("Add favorite: $name")
-        if (favoriteRepository.addFavorite(path, name)) {
-            _uiEvents.value = Event(HomeUiEvent.ShowSnackbar(R.string.favorite_created))
-        } else {
-            _uiEvents.value = Event(HomeUiEvent.ShowSnackbar(R.string.unable_to_create_favorite))
-        }
+        return favoriteRepository.addFavorite(path, name)
     }
 
     fun onFavoriteClick(favoritePath: String) {
