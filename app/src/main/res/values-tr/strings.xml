@@ -150,4 +150,10 @@
     <string name="ftp_server_active">FTP Sunucusu Aktif</string>
     <string name="wifi_icon">WiFi durum simgesi</string>
     <string name="copy_url">URL\'yi kopyala</string>
+    <string name="show_thumbnails">Küçük resimleri göster</string>
+    <string name="show_thumbnails_summary">Resim ve video önizlemelerini göster</string>
+    <string name="show_hidden_files_summary">Nokta ile başlayan dosyaları göster</string>
+    <string name="pref_category_sorting">Sıralama</string>
+    <string name="pref_category_display">Görünüm</string>
+    <string name="pref_category_advanced">Gelişmiş</string>
 </resources>
