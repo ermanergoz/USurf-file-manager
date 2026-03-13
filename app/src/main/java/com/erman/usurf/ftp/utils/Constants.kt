@@ -8,6 +8,6 @@ const val USERNAME_KEY: String = "username"
 const val PASSWORD_DEF_VAL: String = ""
 const val KEY_INTENT_CHOSEN_PATH: String = "ftpChosenPath"
 const val FTP_NOTIFICATION_CHANNEL_ID: String = "FtpNotificationChannel"
-const val KEY_INTENT_IS_FTP_NOTIFICATION_CLICKED: String = "isNotificationClicked"
 const val PENDING_INTENT_REQUEST_CODE = 0
 const val FTP_NOTIFICATION_ID: Int = 1
+const val URL_SCHEME: String = "ftps://"

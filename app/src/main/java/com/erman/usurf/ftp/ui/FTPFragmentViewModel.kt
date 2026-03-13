@@ -41,7 +41,7 @@ class FTPViewModel(private val ftpModel: FtpModel, private val preferenceProvide
     }
 
     private val _storagePaths = MutableLiveData<Set<String>>().apply {
-        value = StoragePaths().getStorageDirectories()
+        value = StoragePaths.getStorageDirectories()
     }
     val storagePaths: MutableLiveData<Set<String>> = _storagePaths
 

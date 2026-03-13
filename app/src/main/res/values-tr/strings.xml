@@ -128,4 +128,6 @@
     <string name="supported_compression_formats">Desteklenen dosya biçimleri: 7z bzip2 gzip tar wim xz zip</string>
     <string name="privacy_policy">Gizlilik Politikası</string>
     <string name="privacy_policy_url">https://www.ermanergoz.com/usurf-privacy-policy.html</string>
+    <string name="bytes">Bayt</string>
+    <string name="file_count">Tane dosyalar</string>
 </resources>
