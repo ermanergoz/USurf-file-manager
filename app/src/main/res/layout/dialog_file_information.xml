@@ -185,7 +185,7 @@
                 android:layout_marginLeft="@dimen/horizontal_margin_8"
                 android:layout_marginEnd="@dimen/vertical_margin_8"
                 android:layout_marginRight="@dimen/horizontal_margin_8"
-                android:text="@{file.permission}"
+                android:text="@{file.permission.option}"
                 app:layout_constraintBottom_toTopOf="@+id/textView4"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

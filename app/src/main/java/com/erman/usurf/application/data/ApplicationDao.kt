@@ -10,7 +10,7 @@ import java.io.File
 
 class ApplicationDao(val realm: Realm) {
     fun addInitialFavorites() {
-        val directory = StoragePaths().getStorageDirectories().first()
+        val directory = StoragePaths.getStorageDirectories().first()
 
         for (favoriteName in INITIAL_FAVORITES_LIST) {
             val favoritePath = directory + File.separator + favoriteName
