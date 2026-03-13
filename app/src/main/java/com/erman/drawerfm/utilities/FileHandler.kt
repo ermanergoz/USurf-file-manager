@@ -1,11 +1,24 @@
 package com.erman.drawerfm.utilities
 
-import android.content.Context
-import com.erman.drawerfm.fragments.ListDirFragment
+import android.util.Log
 import java.io.File
 
 fun getFiles(path: String): List<File> {
-    return File(path).listFiles().sorted().toList()
+    try {
+        return File(path).listFiles().sorted().toList()
+    } catch (err: IllegalStateException) {
+        Log.e("IllegalStateException", "File(path).listFiles must not be null")
+    }
+    return emptyList()
+}
+
+fun getSearchedFiles(path: String, searchQuery: String): List<File> {
+    try {
+        return File(path).listFiles(FileSearchFilter(searchQuery)).toList()
+    } catch (err: IllegalStateException) {
+        Log.e("IllegalStateException", "File(path).listFiles must not be null")
+    }
+    return emptyList()
 }
 
 fun rename(selectedDirectories: List<File>, newNameToBe: String, updateFragment: () -> Unit) {
