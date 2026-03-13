@@ -70,7 +70,7 @@ class HomeFragment : Fragment() {
             val dimensions = storageButtonDimensions.autoSizeButtonDimensions(it.size, sideMargin)
             val buttonLayoutParams = FrameLayout.LayoutParams(dimensions.first, dimensions.second)
             buttonLayoutParams.setMargins(sideMargin, 0, sideMargin, 0)
-            it.forEach {button ->
+            it.forEach { button ->
                 button.lifecycleOwner = this
                 button.viewModel = homeViewModel
                 binding.storageUsageBarLayout.addView(button.root, buttonLayoutParams)
@@ -92,7 +92,6 @@ class HomeFragment : Fragment() {
                     is DialogArgs.FavoriteOptionsDialogArgs -> dialogListener.showDialog(FavoriteOptionsDialog(args.view))
                     else -> loge("HomeFragment $args")
                 }
-
             }
         })
 
