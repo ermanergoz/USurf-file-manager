@@ -7,22 +7,18 @@ import androidx.lifecycle.ViewModel
 import com.erman.usurf.R
 import com.erman.usurf.dialog.model.DialogArgs
 import com.erman.usurf.home.domain.FavoriteRepository
-import com.erman.usurf.home.domain.HomePreferencesRepository
 import com.erman.usurf.home.model.FavoriteItem
 import com.erman.usurf.home.model.HomeModel
 import com.erman.usurf.storage.domain.StorageDirectoryRepository
 import com.erman.usurf.storage.domain.StoragePathsProvider
-import com.erman.usurf.utils.EXTERNAL_SD_STORAGE_INDEX
 import com.erman.usurf.utils.Event
 import com.erman.usurf.utils.ROOT_DIRECTORY
-import com.erman.usurf.utils.SINGLE_STORAGE_COUNT
 import com.erman.usurf.utils.logi
 import java.io.File
 
 class HomeViewModel(
     private val homeModel: HomeModel,
     private val storageDirectoryRepository: StorageDirectoryRepository,
-    private val homePreferencesRepository: HomePreferencesRepository,
     private val favoriteRepository: FavoriteRepository,
     private val storagePathsProvider: StoragePathsProvider,
 ) : ViewModel() {
@@ -43,7 +39,6 @@ class HomeViewModel(
         updateState { it.copy(path = path) }
         navigateToDirectory(path)
         showSafDialogIfNeeded(path)
-        showKitkatWarningIfNeeded(path)
     }
 
     private fun navigateToDirectory(path: String) {
@@ -54,21 +49,6 @@ class HomeViewModel(
         if (shouldShowSafDialog(path)) {
             _uiEvents.value = Event(HomeUiEvent.ShowDialog(DialogArgs.SAFActivityArgs))
         }
-    }
-
-    private fun showKitkatWarningIfNeeded(path: String) {
-        if (!isKitkatRemovableStorage(path)) return
-        if (homePreferencesRepository.getIsKitkatRemovableStorageWarningDisplayed()) return
-        _uiEvents.value =
-            Event(HomeUiEvent.ShowDialog(DialogArgs.KitkatRemovableStorageDialogArgs(true)))
-        homePreferencesRepository.setKitkatRemovableStorageWarningDisplayed(true)
-    }
-
-    private fun isKitkatRemovableStorage(path: String): Boolean {
-        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.KITKAT) return false
-        val storageDirectories = storagePathsProvider.getStorageDirectories()
-        return storageDirectories.size > SINGLE_STORAGE_COUNT &&
-            path == storageDirectories.elementAt(EXTERNAL_SD_STORAGE_INDEX)
     }
 
     private fun shouldShowSafDialog(path: String): Boolean {

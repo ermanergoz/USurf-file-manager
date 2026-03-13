@@ -122,7 +122,6 @@
     <string name="create_new">Create new</string>
     <string name="device_wide_search">Device-wide search</string>
     <string name="i_understand">Anladım</string>
-    <string name="kitkat_removable_storage_warning">Google\'ın Android 4.4 KitKat ile ilgili aldığı kararlar nedeniyle, çıkarılabilir depolama alanındaki dosya işlemleri çoğu cihazda çalışmayabilir.</string>
     <string name="manage_all_files_message">Bu uygulamanın çalışması için \"Tüm dosyaları yönetme erişimine izin ver\" ayarının açık olması gerekir.</string>
     <string name="storage_permission_not_granted">Depolama izni verilmedi.</string>
     <string name="storage_permission_rationale">Dosya yöneticisinin dosyalarınıza erişebilmesi için depolama izni gereklidir.</string>
