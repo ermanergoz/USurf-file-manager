@@ -1,3 +1,5 @@
+package com.erman.drawerfm.dialogs
+
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
@@ -8,33 +10,27 @@ import android.widget.EditText
 import androidx.fragment.app.DialogFragment
 import com.erman.drawerfm.R
 
-class CreateShortcutDialog : DialogFragment() {
-    private lateinit var shortcutPath: String
-    private lateinit var shortcutName: String
-    private lateinit var listener: DialogCreateShortcutListener
-
-    private lateinit var pathEditText: EditText
+class CreateFolderDialog(var title: String) : DialogFragment() {
+    private lateinit var newFileName: String
+    private lateinit var listener: DialogCreateFolderListener
     private lateinit var nameEditText: EditText
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
             val builder = AlertDialog.Builder(it)
             val inflater = requireActivity().layoutInflater
-            val dialogView: View = inflater.inflate(R.layout.dialog_create_shortcut, null)
+            val dialogView: View = inflater.inflate(R.layout.dialog_rename_file, null)
 
-            this.pathEditText = dialogView.findViewById(R.id.pathEditText)
             this.nameEditText = dialogView.findViewById(R.id.nameEditText)
 
             // Create the AlertDialog object and return it
-            builder.setMessage(R.string.create_shortcut)
+            builder.setMessage(title)
 
                 .setPositiveButton(R.string.ok,
                     DialogInterface.OnClickListener { dialog, id ->
                         // Send the positive button event back to the host activity
-                        shortcutPath = this.pathEditText.text.toString()
-                        shortcutName = this.nameEditText.text.toString()
-
-                        listener.dialogCreateShortcutListener(shortcutPath, shortcutName)
+                        newFileName = this.nameEditText.text.toString()
+                        listener.dialogCreateFolderListener(newFileName)
                     })
                 .setNegativeButton(R.string.cancel,
                     DialogInterface.OnClickListener { dialog, id ->
@@ -50,15 +46,15 @@ class CreateShortcutDialog : DialogFragment() {
         super.onAttach(context)
 
         try {
-            listener = context as DialogCreateShortcutListener
+            listener = context as DialogCreateFolderListener
         } catch (err: ClassCastException) {
             throw ClassCastException(
-                (context.toString() + " must implement CreateShortcutDialogListener")
+                (context.toString() + " must implement DialogRenameFileListener")
             )
         }
     }
 
-    interface DialogCreateShortcutListener {
-        fun dialogCreateShortcutListener(shortcutPath: String, shortcutName: String)
+    interface DialogCreateFolderListener {
+        fun dialogCreateFolderListener(newFileName: String)
     }
 }
