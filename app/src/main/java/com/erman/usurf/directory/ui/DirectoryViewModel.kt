@@ -210,6 +210,13 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel) : ViewModel
                 loge("getFileList $err")
             }
         }
+        else {
+            _loading.value = true
+            launch {
+                _updateDirectoryList.value = directoryModel.getFilesToClean()
+                _loading.value = false
+            }
+        }
     }
 
     fun getSearchedFiles() {
