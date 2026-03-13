@@ -48,4 +48,9 @@
         android:name="com.erman.usurf.preference.ui.MainPreferencesFragment"
         android:label="@string/menu_preferences" />
 
+    <fragment
+        android:id="@+id/nav_history"
+        android:name="com.erman.usurf.history.ui.HistoryFragment"
+        android:label="@string/menu_history" />
+
 </navigation>
