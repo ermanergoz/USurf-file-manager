@@ -126,4 +126,6 @@
     <string name="manage_all_files_message">Bu uygulamanın çalışması için \"Tüm dosyaları yönetme erişimine izin ver\" ayarının açık olması gerekir.</string>
     <string name="saf_access_message">Uygulamaya yazma izni vermek için lütfen çıkarılabilir depolamanın kök dizinini seçin.</string>
     <string name="supported_compression_formats">Desteklenen dosya biçimleri: 7z bzip2 gzip tar wim xz zip</string>
+    <string name="privacy_policy">Gizlilik Politikası</string>
+    <string name="privacy_policy_url">https://www.ermanergoz.com/usurf-privacy-policy.html</string>
 </resources>
