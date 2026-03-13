@@ -68,6 +68,7 @@ class DirectoryFragment : Fragment() {
 
         directoryViewModel.uiState.observe(viewLifecycleOwner) { state ->
             binding.uiState = state
+            binding.swipeRefreshLayout.isRefreshing = state.isRefreshing
             if (::directoryRecyclerViewAdapter.isInitialized) {
                 directoryRecyclerViewAdapter.updateData(state.fileList)
                 directoryRecyclerViewAdapter.updateSelection()
@@ -270,6 +271,9 @@ class DirectoryFragment : Fragment() {
             }
         binding.fileListRecyclerView.adapter = directoryRecyclerViewAdapter
         binding.fileListRecyclerView.itemAnimator = null
+        binding.swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary)
+        binding.swipeRefreshLayout.setDistanceToTriggerSync(resources.getDimensionPixelSize(R.dimen.swipe_refresh_trigger_distance))
+        binding.swipeRefreshLayout.setOnRefreshListener { directoryViewModel.onSwipeRefresh() }
     }
 
     override fun onAttach(context: Context) {
