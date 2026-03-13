@@ -33,7 +33,7 @@ class PushNotificationIntentService : IntentService(INTENT_SERVICE_NAME) {
 
         val builder =
             NotificationCompat.Builder(this, PUSH_NOTIFICATION_CHANNEL_ID).setSmallIcon(R.drawable.ic_notification)
-                .setContentTitle(getString(R.string.free_up_space))
+                .setContentTitle(getString(R.string.push_notification_title))
                 .setContentIntent(pendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
 
