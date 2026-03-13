@@ -195,13 +195,14 @@ class MainActivity :
     override fun autoSizeButtonDimensions(
         storageButtonCount: Int,
         sideMargin: Int,
+        containerHorizontalPadding: Int,
     ): Pair<Int, Int> {
         val windowMetrics = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(this)
         val currentBounds = windowMetrics.bounds
-        val screenWidth: Int = currentBounds.width()
+        val availableWidth: Int = currentBounds.width() - containerHorizontalPadding
         val screenHeight: Int = currentBounds.height()
         return Pair(
-            ((screenWidth - ((sideMargin * SIDE_MARGIN_MULTIPLIER) * storageButtonCount)) / storageButtonCount),
+            ((availableWidth - ((sideMargin * SIDE_MARGIN_MULTIPLIER) * storageButtonCount)) / storageButtonCount),
             (screenHeight / (STORAGE_BUTTON_HEIGHT_DIVISOR_OFFSET + storageButtonCount)),
         )
     }
