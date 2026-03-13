@@ -21,6 +21,7 @@ data class DirectoryUiState(
     val actionType: ActionType = ActionType.BROWSE,
     val activeActionCount: Int = 0,
     val isSearchMode: Boolean = false,
+    val isRefreshing: Boolean = false,
     val query: String = "",
     val previousPath: String = "",
 ) {

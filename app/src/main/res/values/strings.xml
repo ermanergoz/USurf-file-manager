@@ -162,4 +162,10 @@
     <string name="pref_category_sorting">Sorting</string>
     <string name="pref_category_display">Display</string>
     <string name="pref_category_advanced">Advanced</string>
+    <string name="empty_folder_title">This folder is empty</string>
+    <string name="empty_folder_subtitle">Create files or folders using the + button</string>
+    <string name="path_icon">Path icon</string>
+    <string name="loading_text">Loading…</string>
+    <string name="loading_description">Loading</string>
+    <string name="action_progress_description">Operation in progress</string>
 </resources>
