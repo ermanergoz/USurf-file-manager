@@ -30,8 +30,8 @@ import com.erman.usurf.utils.loge
 import com.google.android.material.snackbar.Snackbar
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-private const val STORAGE_BUTTON_HORIZONTAL_MARGIN: Int = 8
-private const val STORAGE_BUTTON_VERTICAL_MARGIN: Int = 0
+private const val STORAGE_BUTTON_HORIZONTAL_MARGIN: Int = 4
+private const val STORAGE_BUTTON_VERTICAL_MARGIN: Int = 4
 private const val FAVORITE_GRID_SPAN_COUNT: Int = 2
 
 class HomeFragment : Fragment() {
@@ -86,10 +86,12 @@ class HomeFragment : Fragment() {
     }
 
     private fun createStorageButtons(items: List<StorageItem>) {
+        val containerHorizontalPadding: Int = binding.root.paddingStart + binding.root.paddingEnd
         val dimensions =
             storageButtonDimensions.autoSizeButtonDimensions(
                 items.size,
                 STORAGE_BUTTON_HORIZONTAL_MARGIN,
+                containerHorizontalPadding,
             )
         val buttonLayoutParams = FrameLayout.LayoutParams(dimensions.first, dimensions.second)
         buttonLayoutParams.setMargins(
@@ -192,9 +194,15 @@ class HomeFragment : Fragment() {
         binding.favoriteRecyclerView.adapter = favoriteRecyclerViewAdapter
         binding.favoriteRecyclerView.itemAnimator = null
 
-        homeViewModel.favorites.observe(viewLifecycleOwner) {
-            favoriteRecyclerViewAdapter.updateData(it)
+        homeViewModel.favorites.observe(viewLifecycleOwner) { favorites ->
+            favoriteRecyclerViewAdapter.updateData(favorites)
+            updateEmptyState(favorites.isEmpty())
         }
+    }
+
+    private fun updateEmptyState(isEmpty: Boolean) {
+        binding.emptyFavoritesContainer.visibility = if (isEmpty) View.VISIBLE else View.GONE
+        binding.favoriteRecyclerView.visibility = if (isEmpty) View.GONE else View.VISIBLE
     }
 
     private fun refreshStorageButtons() {

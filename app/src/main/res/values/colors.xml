@@ -7,5 +7,9 @@
     <color name="textColorLight">#3c3c3c</color>
     <color name="textColorDark">#ffffff</color>
     <color name="daynnightTextColor">#3c3c3c</color>
-    <color name="separatorColor">#ABB2B9</color>
+    <color name="cardSurface">#FFFFFF</color>
+    <color name="cardStroke">#E2E8F0</color>
+    <color name="progressTrack">#E2E8F0</color>
+    <color name="sectionHeaderColor">#64748B</color>
+    <color name="emptyStateColor">#94A3B8</color>
 </resources>
