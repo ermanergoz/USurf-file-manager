@@ -68,6 +68,7 @@ class DirectoryFragment : Fragment() {
 
         directoryViewModel.uiState.observe(viewLifecycleOwner) { state ->
             binding.uiState = state
+            binding.swipeRefreshLayout.isRefreshing = state.isRefreshing
             if (::directoryRecyclerViewAdapter.isInitialized) {
                 directoryRecyclerViewAdapter.updateData(state.fileList)
                 directoryRecyclerViewAdapter.updateSelection()
@@ -219,7 +220,10 @@ class DirectoryFragment : Fragment() {
                     path: String,
                     name: String,
                 ) {
-                    homeViewModel.onFavoriteAdd(path, name)
+                    val isSuccess: Boolean = homeViewModel.onFavoriteAdd(path, name)
+                    val messageResId: Int =
+                        if (isSuccess) R.string.favorite_created else R.string.unable_to_create_favorite
+                    Snackbar.make(binding.root, getString(messageResId), Snackbar.LENGTH_LONG).show()
                 }
             }
         dialogListener.showDialog(dialog)
@@ -270,6 +274,9 @@ class DirectoryFragment : Fragment() {
             }
         binding.fileListRecyclerView.adapter = directoryRecyclerViewAdapter
         binding.fileListRecyclerView.itemAnimator = null
+        binding.swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary)
+        binding.swipeRefreshLayout.setDistanceToTriggerSync(resources.getDimensionPixelSize(R.dimen.swipe_refresh_trigger_distance))
+        binding.swipeRefreshLayout.setOnRefreshListener { directoryViewModel.onSwipeRefresh() }
     }
 
     override fun onAttach(context: Context) {

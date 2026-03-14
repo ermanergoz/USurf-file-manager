@@ -5,6 +5,7 @@ import androidx.lifecycle.MediatorLiveData
 import com.erman.usurf.home.domain.FavoriteRepository
 import com.erman.usurf.home.model.FavoriteItem
 import io.realm.Realm
+import java.io.File
 
 class FavoriteRepositoryImpl(
     private val favoriteDao: FavoriteDao,
@@ -19,6 +20,7 @@ class FavoriteRepositoryImpl(
                         id = favorite.id,
                         name = favorite.name,
                         path = favorite.path,
+                        isDirectory = File(favorite.path).isDirectory,
                     )
                 }
             result.value = items

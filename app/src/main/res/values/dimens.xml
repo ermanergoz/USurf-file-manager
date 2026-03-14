@@ -4,7 +4,6 @@
     <dimen name="text_size_12">12sp</dimen>
     <dimen name="text_size_14">14sp</dimen>
     <dimen name="text_size_16">16sp</dimen>
-    <dimen name="text_size_18">18sp</dimen>
     <dimen name="text_size_22">22sp</dimen>
     <dimen name="text_size_24">24sp</dimen>
 
@@ -12,12 +11,10 @@
     <dimen name="layout_margin_4">4dp</dimen>
     <dimen name="layout_margin_8">8dp</dimen>
 
-    <dimen name="vertical_margin_0">0dp</dimen>
     <dimen name="vertical_margin_4">4dp</dimen>
     <dimen name="vertical_margin_8">8dp</dimen>
     <dimen name="vertical_margin_16">16dp</dimen>
     <dimen name="vertical_margin_32">32dp</dimen>
-    <dimen name="vertical_margin_64">64dp</dimen>
 
     <dimen name="horizontal_margin_4">4dp</dimen>
     <dimen name="horizontal_margin_8">8dp</dimen>
@@ -27,10 +24,22 @@
     <dimen name="height_48">48dp</dimen>
 
     <!-- Sizes -->
-    <dimen name="divider_height">2dp</dimen>
     <dimen name="progress_bar_size">50dp</dimen>
     <dimen name="more_button_width">60dp</dimen>
 
+    <!-- Corner radii -->
+    <dimen name="corner_radius_8">8dp</dimen>
+    <dimen name="corner_radius_12">12dp</dimen>
+
+    <!-- Icon sizes -->
+    <dimen name="icon_background_size">44dp</dimen>
+    <dimen name="icon_size_24">24dp</dimen>
+    <dimen name="empty_state_icon_size">64dp</dimen>
+
     <!-- Paddings -->
+    <dimen name="padding_12">12dp</dimen>
     <dimen name="padding_128">128dp</dimen>
+
+    <!-- Swipe refresh -->
+    <dimen name="swipe_refresh_trigger_distance">200dp</dimen>
 </resources>
