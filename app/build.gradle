@@ -15,8 +15,8 @@ android {
         applicationId = "com.erman.usurf"
         minSdk = 21
         targetSdk = 36
-        versionCode = 13
-        versionName = "2.0.0"
+        versionCode = 14
+        versionName = "2.1.0"
         //https://semver.org/spec/v2.0.0.html
         //major.minor.patch
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -84,6 +84,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation 'androidx.navigation:navigation-fragment-ktx:2.9.7'
     implementation 'androidx.navigation:navigation-runtime-ktx:2.9.7'
     implementation 'androidx.navigation:navigation-ui-ktx:2.9.7'

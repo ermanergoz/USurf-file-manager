@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
 
@@ -12,39 +13,68 @@
             type="com.erman.usurf.home.model.StorageItem" />
     </data>
 
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/storageButton"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/button_selectable_background"
         android:clickable="true"
         android:focusable="true"
-        android:onClick="@{() -> viewModel.onStorageButtonClick(storageItem.path)}">
+        android:onClick="@{() -> viewModel.onStorageButtonClick(storageItem.path)}"
+        android:padding="@dimen/layout_margin_8">
 
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="@style/StorageProgressBar"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginEnd="@dimen/vertical_margin_0"
-            android:layout_marginBottom="@dimen/vertical_margin_0"
-            android:progress="@{storageItem.usedPercentage}" />
+        <ImageView
+            android:id="@+id/storageIcon"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:contentDescription="@string/storage_icon"
+            android:src="@{storageItem.isExternal ? @drawable/ic_sd_card : @drawable/ic_hdd}"
+            android:tint="@color/colorPrimary"
+            app:layout_constraintBottom_toTopOf="@+id/storageProgressBar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/buttonText"
-            android:layout_width="wrap_content"
+            android:id="@+id/storageName"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_alignStart="@id/progressBar"
-            android:layout_alignTop="@id/progressBar"
-            android:layout_alignEnd="@id/progressBar"
-            android:layout_alignBottom="@id/progressBar"
-            android:layout_marginLeft="@dimen/horizontal_margin_8"
-            android:layout_marginRight="@dimen/horizontal_margin_8"
-            android:ellipsize="start"
-            android:gravity="center"
+            android:layout_marginStart="@dimen/layout_margin_8"
+            android:ellipsize="end"
             android:singleLine="true"
-            android:text="@{storageItem.path}"
+            android:text="@{storageItem.displayName}"
             android:textColor="@color/daynnightTextColor"
-            android:textSize="@dimen/text_size_18" />
-    </RelativeLayout>
+            android:textSize="@dimen/text_size_14"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/storageUsage"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/storageIcon"
+            app:layout_constraintTop_toTopOf="@+id/storageIcon"
+            app:layout_constraintVertical_chainStyle="packed" />
+
+        <TextView
+            android:id="@+id/storageUsage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/layout_margin_8"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="@{@string/storage_usage_format(storageItem.usedSize, storageItem.totalSize)}"
+            android:textColor="@color/sectionHeaderColor"
+            android:textSize="@dimen/text_size_12"
+            app:layout_constraintBottom_toBottomOf="@+id/storageIcon"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/storageIcon"
+            app:layout_constraintTop_toBottomOf="@+id/storageName" />
+
+        <ProgressBar
+            android:id="@+id/storageProgressBar"
+            style="@style/StorageProgressBar"
+            android:layout_width="0dp"
+            android:layout_height="6dp"
+            android:layout_marginTop="@dimen/layout_margin_8"
+            android:progress="@{storageItem.usedPercentage}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -16,41 +16,126 @@
             type="com.erman.usurf.directory.ui.DirectoryUiState" />
     </data>
 
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".directory.ui.DirectoryFragment">
 
-        <TextView
-            android:id="@+id/emptyFolderTextView"
+        <!-- Path Bar Card -->
+        <LinearLayout
+            android:id="@+id/pathBarCard"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/horizontal_margin_8"
+            android:layout_marginTop="@dimen/vertical_margin_8"
+            android:layout_marginEnd="@dimen/horizontal_margin_8"
+            android:background="@drawable/path_bar_background"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/padding_12"
+            android:paddingTop="@dimen/vertical_margin_8"
+            android:paddingEnd="@dimen/padding_12"
+            android:paddingBottom="@dimen/vertical_margin_8"
+            app:layout_constraintEnd_toStartOf="@+id/actionProgress"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:pathVisibility="@{uiState}">
+
+            <ImageView
+                android:layout_width="@dimen/icon_size_24"
+                android:layout_height="@dimen/icon_size_24"
+                android:contentDescription="@string/path_icon"
+                android:src="@drawable/ic_chevron_right" />
+
+            <TextView
+                android:id="@+id/pathTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/horizontal_margin_4"
+                android:layout_weight="1"
+                android:ellipsize="start"
+                android:singleLine="true"
+                android:text="@{uiState.displayPath}"
+                android:textColor="@color/daynnightTextColor"
+                android:textSize="@dimen/text_size_14" />
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/actionProgress"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginEnd="@dimen/horizontal_margin_8"
+            android:contentDescription="@string/action_progress_description"
+            android:indeterminateTint="@color/colorPrimary"
+            app:actionProgressVisibility="@{uiState}"
+            app:layout_constraintBottom_toBottomOf="@+id/pathBarCard"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/pathBarCard"
+            app:layout_constraintTop_toTopOf="@+id/pathBarCard" />
+
+        <!-- Empty State -->
+        <LinearLayout
+            android:id="@+id/emptyStateContainer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/empty_folder"
-            android:textSize="@dimen/text_size_18"
+            android:gravity="center"
+            android:orientation="vertical"
             app:emptyFolderVisibility="@{uiState}"
             app:layout_constraintBottom_toTopOf="@+id/confirmationButtonBar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/divider" />
+            app:layout_constraintTop_toBottomOf="@+id/pathBarCard">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/fileListRecyclerView"
+            <ImageView
+                android:layout_width="@dimen/empty_state_icon_size"
+                android:layout_height="@dimen/empty_state_icon_size"
+                android:layout_marginBottom="@dimen/vertical_margin_16"
+                android:contentDescription="@string/empty_folder"
+                android:src="@drawable/ic_empty_folder" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/empty_folder_title"
+                android:textColor="@color/emptyStateColor"
+                android:textSize="@dimen/text_size_16" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/vertical_margin_4"
+                android:text="@string/empty_folder_subtitle"
+                android:textColor="@color/emptyStateColor"
+                android:textSize="@dimen/text_size_12" />
+        </LinearLayout>
+
+        <!-- File List -->
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefreshLayout"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:clipToPadding="false"
-            android:paddingBottom="@dimen/padding_128"
-            android:scrollbarStyle="outsideOverlay"
-            app:contentVisibility="@{uiState.isLoading}"
             app:layout_constraintBottom_toTopOf="@+id/confirmationButtonBar"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/divider" />
+            app:layout_constraintTop_toBottomOf="@+id/pathBarCard">
 
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/fileListRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingTop="@dimen/vertical_margin_4"
+                android:paddingBottom="@dimen/padding_128"
+                android:scrollbarStyle="outsideOverlay"
+                app:contentVisibility="@{uiState.isLoading}" />
+
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+        <!-- Confirmation Bar (Copy/Move mode) -->
         <LinearLayout
             android:id="@+id/confirmationButtonBar"
-            android:layout_width="411dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@color/colorAccent"
             android:orientation="horizontal"
@@ -71,7 +156,7 @@
                 android:onClick="@{() -> viewModel.endCopyMode()}"
                 android:text="@string/done"
                 android:textColor="@color/textColorDark"
-                android:textSize="@dimen/text_size_12" />
+                android:textSize="@dimen/text_size_14" />
 
             <Button
                 android:id="@+id/OKButton"
@@ -82,92 +167,95 @@
                 android:onClick="@{() -> viewModel.confirmAction()}"
                 android:text="@string/ok"
                 android:textColor="@color/textColorDark"
-                android:textSize="@dimen/text_size_12" />
+                android:textSize="@dimen/text_size_14" />
         </LinearLayout>
 
+        <!-- More Menu (floating card) -->
         <LinearLayout
             android:id="@+id/moreMenuButtonBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/colorAccent"
+            android:layout_marginEnd="@dimen/horizontal_margin_8"
+            android:layout_marginBottom="@dimen/vertical_margin_8"
+            android:background="@drawable/button_frame"
+            android:elevation="4dp"
             android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="@+id/fileListRecyclerView"
+            android:paddingStart="@dimen/horizontal_margin_8"
+            android:paddingTop="@dimen/vertical_margin_4"
+            android:paddingEnd="@dimen/horizontal_margin_8"
+            android:paddingBottom="@dimen/vertical_margin_4"
+            app:layout_constraintBottom_toTopOf="@+id/optionButtonBar"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintVertical_bias="1.0"
             app:moreMenuVisibility="@{uiState}">
 
             <Button
                 android:id="@+id/favoriteButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/vertical_margin_4"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:enabled="@{uiState.common.canRename}"
                 android:onClick="@{() -> viewModel.onFavoriteButtonPressed()}"
                 android:text="@string/favorite"
-                android:textColor="@{uiState.common.canRename ? @color/textColorDark : @color/textColorLight}"
-                android:textSize="@dimen/text_size_10" />
+                android:textColor="@{uiState.common.canRename ? @color/daynnightTextColor : @color/emptyStateColor}"
+                android:textSize="@dimen/text_size_12" />
 
             <Button
                 android:id="@+id/compressButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/vertical_margin_4"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:onClick="@{() -> viewModel.compress()}"
                 android:text="@string/compress"
-                android:textColor="@color/textColorDark"
-                android:textSize="@dimen/text_size_10" />
+                android:textColor="@color/daynnightTextColor"
+                android:textSize="@dimen/text_size_12" />
 
             <Button
                 android:id="@+id/extractButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/vertical_margin_4"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:enabled="@{uiState.common.canRename}"
                 android:onClick="@{() -> viewModel.extract()}"
                 android:text="@string/extract"
-                android:textColor="@{uiState.common.canRename ? @color/textColorDark : @color/textColorLight}"
-                android:textSize="@dimen/text_size_10" />
+                android:textColor="@{uiState.common.canRename ? @color/daynnightTextColor : @color/emptyStateColor}"
+                android:textSize="@dimen/text_size_12" />
 
             <Button
                 android:id="@+id/informationButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/vertical_margin_4"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:onClick="@{() -> viewModel.showFileInformation()}"
                 android:text="@string/information"
-                android:textColor="@color/textColorDark"
-                android:textSize="@dimen/text_size_10" />
+                android:textColor="@color/daynnightTextColor"
+                android:textSize="@dimen/text_size_12" />
 
             <Button
                 android:id="@+id/shareButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/vertical_margin_4"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:onClick="@{() -> viewModel.share()}"
                 android:text="@string/share"
-                android:textColor="@color/textColorDark"
-                android:textSize="@dimen/text_size_10" />
+                android:textColor="@color/daynnightTextColor"
+                android:textSize="@dimen/text_size_12" />
         </LinearLayout>
 
+        <!-- Option Bar (bottom actions) -->
         <LinearLayout
             android:id="@+id/optionButtonBar"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@color/colorAccent"
+            android:background="@drawable/bottom_bar_background"
             android:gravity="center"
             android:orientation="horizontal"
+            android:paddingTop="@dimen/vertical_margin_4"
+            android:paddingBottom="@dimen/vertical_margin_4"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -177,65 +265,62 @@
                 android:id="@+id/copyButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/vertical_margin_4"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:onClick="@{() -> viewModel.copy()}"
                 android:text="@string/copy_file"
-                android:textColor="@color/textColorDark"
-                android:textSize="@dimen/text_size_10" />
+                android:textColor="@color/daynnightTextColor"
+                android:textSize="@dimen/text_size_12" />
 
             <Button
                 android:id="@+id/moveButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/vertical_margin_4"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:onClick="@{() -> viewModel.move()}"
                 android:text="@string/move"
-                android:textColor="@color/textColorDark"
-                android:textSize="@dimen/text_size_10" />
+                android:textColor="@color/daynnightTextColor"
+                android:textSize="@dimen/text_size_12" />
 
             <Button
                 android:id="@+id/renameButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/vertical_margin_4"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:enabled="@{uiState.common.canRename}"
                 android:onClick="@{() -> viewModel.rename()}"
                 android:text="@string/rename"
-                android:textColor="@{uiState.common.canRename ? @color/textColorDark : @color/textColorLight}"
-                android:textSize="@dimen/text_size_10" />
+                android:textColor="@{uiState.common.canRename ? @color/daynnightTextColor : @color/emptyStateColor}"
+                android:textSize="@dimen/text_size_12" />
 
             <Button
                 android:id="@+id/deleteButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/vertical_margin_4"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:onClick="@{() -> viewModel.delete()}"
                 android:text="@string/delete"
-                android:textColor="@color/textColorDark"
-                android:textSize="@dimen/text_size_10" />
+                android:textColor="@color/daynnightTextColor"
+                android:textSize="@dimen/text_size_12" />
 
             <ImageButton
                 android:id="@+id/moreButton"
                 android:layout_width="@dimen/more_button_width"
                 android:layout_height="match_parent"
-                android:layout_marginTop="@dimen/vertical_margin_4"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:contentDescription="@string/more"
                 android:onClick="@{() -> viewModel.showMoreOption()}"
                 android:src="@{uiState.common.isMoreMenuVisible ? @drawable/ic_down_arrow : @drawable/ic_up_arrow}"
+                android:tint="@color/daynnightTextColor"
                 android:visibility="@{uiState.atRootDirectory ? View.GONE : View.VISIBLE}"
                 tools:ignore="ContentDescription" />
         </LinearLayout>
 
+        <!-- FABs -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/createNewFloatingButton"
             android:layout_width="wrap_content"
@@ -252,7 +337,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:srcCompat="@drawable/ic_menu" />
+            app:srcCompat="@drawable/ic_add" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/newFileFloatingButton"
@@ -294,58 +379,35 @@
             app:menuExpandedFabVisibility="@{uiState}"
             app:srcCompat="@drawable/ic_folder_white" />
 
-        <TextView
-            android:id="@+id/pathTextView"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/horizontal_margin_8"
-            android:layout_marginLeft="@dimen/horizontal_margin_4"
-            android:layout_marginTop="@dimen/vertical_margin_4"
-            android:layout_marginEnd="@dimen/horizontal_margin_4"
-            android:layout_marginRight="@dimen/horizontal_margin_4"
-            android:ellipsize="start"
-            android:singleLine="true"
-            android:text="@{uiState.displayPath}"
-            android:textSize="@dimen/text_size_14"
-            app:layout_constraintEnd_toStartOf="@+id/actionProgress"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:pathVisibility="@{uiState}" />
-
-        <View
-            android:id="@+id/divider"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/divider_height"
-            android:layout_marginTop="@dimen/vertical_margin_4"
-            android:background="?android:attr/listDivider"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/pathTextView" />
-
-        <ProgressBar
-            android:id="@+id/loadingProgressBar"
-            style="?android:attr/progressBarStyle"
-            android:layout_width="@dimen/progress_bar_size"
-            android:layout_height="@dimen/progress_bar_size"
-            android:layout_marginTop="@dimen/vertical_margin_64"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:loadingVisibility="@{uiState.isLoading}" />
-
-        <ProgressBar
-            android:id="@+id/actionProgress"
-            style="?android:attr/progressBarStyle"
+        <!-- Loading State -->
+        <LinearLayout
+            android:id="@+id/loadingContainer"
             android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            app:actionProgressVisibility="@{uiState}"
-            app:layout_constraintBottom_toTopOf="@+id/divider"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toEndOf="@+id/pathTextView"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/pathBarCard"
+            app:loadingVisibility="@{uiState.isLoading}">
+
+            <ProgressBar
+                android:id="@+id/loadingProgressBar"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="@dimen/progress_bar_size"
+                android:layout_height="@dimen/progress_bar_size"
+                android:contentDescription="@string/loading_description"
+                android:indeterminateTint="@color/colorPrimary" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/vertical_margin_16"
+                android:text="@string/loading_text"
+                android:textColor="@color/emptyStateColor"
+                android:textSize="@dimen/text_size_14" />
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
