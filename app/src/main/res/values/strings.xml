@@ -15,7 +15,7 @@
     <string name="descending_order">Descending order</string>
     <string name="applogo_description">appLogo</string>
     <string name="yusuf_erman_ergoz">Yusuf Erman ERGÖZ</string>
-    <string name="app_version" translatable="false">2.0.0</string>
+    <string name="app_version" translatable="false">2.1.0</string>
     <string name="github">Github:</string>
     <string name="github_link">https://github.com/ermanergoz/USurf</string>
     <string name="icons_those_icons">Device-wide Search icon by Those Icons from flaticon.com</string>
