@@ -13,7 +13,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.text.SimpleDateFormat
-import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.round
 
 private const val SIMPLE_DATE_FORMAT_PATTERN = "dd MMMM | HH:mm:ss"
@@ -61,7 +60,7 @@ class DirectoryListHandler(
                     .filter { it.first() != HIDDEN_FILE_PREFIX || showHidden }
                     .map { createFileModelFromRootEntry(path, it) }
             } else {
-                throw CancellationException()
+                throw FileOperationException()
             }
         }
 
