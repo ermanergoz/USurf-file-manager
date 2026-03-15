@@ -3,6 +3,7 @@ package com.erman.usurf.directory.ui
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.erman.usurf.R
 import com.erman.usurf.dialog.model.DialogArgs
 import com.erman.usurf.directory.model.DirectoryModel
@@ -12,18 +13,14 @@ import com.erman.usurf.utils.Event
 import com.erman.usurf.utils.ROOT_DIRECTORY
 import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.io.File
-import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
 
 class DirectoryViewModel(
     private val directoryModel: DirectoryModel,
     private val preferencesRepository: PreferencesRepository,
-) : ViewModel(), CoroutineScope {
+) : ViewModel() {
     private val isMultiSelectionMode: Boolean
         get() = with(requireCurrentState()) { !isInCopyOrMoveMode && common.selectedFiles.isNotEmpty() }
 
@@ -60,7 +57,7 @@ class DirectoryViewModel(
     ) {
         updateState { it.copy(actionType = actionType, activeActionCount = it.activeActionCount + 1) }
         _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(progressMessageResId))
-        launch {
+        viewModelScope.launch {
             try {
                 block()
                 refreshFileList()
@@ -246,7 +243,7 @@ class DirectoryViewModel(
     }
 
     private fun loadFileList() {
-        launch {
+        viewModelScope.launch {
             try {
                 val path = requireCurrentState().currentPathForNavigation
                 if (path.isEmpty()) {
@@ -271,7 +268,7 @@ class DirectoryViewModel(
 
     private fun loadSearchResults() {
         val query = requireCurrentState().query
-        launch {
+        viewModelScope.launch {
             try {
                 val fileList = directoryModel.getSearchedDeviceFiles(query)
                 if (fileList.isEmpty()) {
@@ -295,7 +292,7 @@ class DirectoryViewModel(
     }
 
     private fun refreshFileList() {
-        launch {
+        viewModelScope.launch {
             val state = requireCurrentState()
             val list =
                 if (state.isSearchMode) {
@@ -309,7 +306,7 @@ class DirectoryViewModel(
 
     fun onSwipeRefresh() {
         updateState { it.copy(isRefreshing = true) }
-        launch {
+        viewModelScope.launch {
             val state = requireCurrentState()
             val list =
                 if (state.isSearchMode) {
@@ -424,7 +421,7 @@ class DirectoryViewModel(
         }
         updateState { it.copy(activeActionCount = it.activeActionCount + 1) }
         _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(R.string.copying))
-        launch {
+        viewModelScope.launch {
             try {
                 directoryModel.copyFile(selection.toMutableList(), path)
                 refreshFileList()
@@ -448,7 +445,7 @@ class DirectoryViewModel(
         }
         updateState { it.copy(activeActionCount = it.activeActionCount + 1) }
         _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(R.string.moving))
-        launch {
+        viewModelScope.launch {
             try {
                 directoryModel.moveFile(selection.toMutableList(), path)
                 refreshFileList()
@@ -604,13 +601,4 @@ class DirectoryViewModel(
         refreshFileList()
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        job.cancel()
-    }
-
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main + job
-
-    private val job: Job = Job()
 }

@@ -5,6 +5,7 @@ import android.view.Menu
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
@@ -95,13 +96,13 @@ class MainActivity :
                         if (navController.popBackStack()) {
                             return
                         }
-                        finish()
+                        exitOrConfirm()
                         return
                     }
                     if (navController.popBackStack()) {
                         return
                     }
-                    finish()
+                    exitOrConfirm()
                 }
             },
         )
@@ -205,5 +206,21 @@ class MainActivity :
             ((availableWidth - ((sideMargin * SIDE_MARGIN_MULTIPLIER) * storageButtonCount)) / storageButtonCount),
             (screenHeight / (STORAGE_BUTTON_HEIGHT_DIVISOR_OFFSET + storageButtonCount)),
         )
+    }
+
+    private fun exitOrConfirm() {
+        if (directoryViewModel.uiState.value?.isActionInProgress == true) {
+            showExitConfirmationDialog()
+        } else {
+            finish()
+        }
+    }
+
+    private fun showExitConfirmationDialog() {
+        AlertDialog.Builder(this)
+            .setMessage(R.string.exit_confirmation_message)
+            .setPositiveButton(R.string.ok) { _, _ -> finish() }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
     }
 }

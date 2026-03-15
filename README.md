@@ -2,7 +2,7 @@
 
 [<img src="https://github.com/ermanergoz/USurf/blob/master/resources/google-play-badge.png" width="200">](https://play.google.com/store/apps/details?id=com.erman.usurf)
 
-A lightweight, open-source Android file manager with built-in archive compression, root explorer, and wireless file transfer — no ads, no tracking, no in-app purchases.
+USurf File Manager is a simple open sourced Android file manager application that lets users browse their files, find their downloads, manage their storage space, move things around,and a lot more. The goal of this application is to provide trustable service to the users without any shady background operations and advertisement-free user experience.
 
 <p float="center">
 	<img src="https://github.com/ermanergoz/USurf/blob/master/resources/ss1.png" height="500">
@@ -10,40 +10,33 @@ A lightweight, open-source Android file manager with built-in archive compressio
 	<img src="https://github.com/ermanergoz/USurf/blob/master/resources/ss3.png" height="500">
 </p>
 
-## Why USurf?
-
-**Powerful file compression** — Compress and extract archives directly on your device. Supports 7z, BZIP2, GZIP, TAR, WIM, XZ, and ZIP formats. Can also extract RAR. Powered by 7-Zip built from source via NDK.
-
-**Root file explorer** — Browse and manage root directories on rooted devices. One of the few open-source file managers that still supports root access.
-
-**Wireless file transfer** — Transfer files between your phone and computer over Wi-Fi using the built-in FTP server. No cables, no third-party apps needed.
-
-**100% free and open source** — No ads, no analytics, no in-app purchases, and no data collection. The entire source code is available for anyone to audit, build, and contribute to.
-
 ## Features
 
-- Copy, move, rename, delete, and share files
-- Compress and extract archives (7z, BZIP2, GZIP, TAR, WIM, XZ, ZIP; RAR extract only)
-- Root file explorer for rooted devices
-- Built-in FTP server for wireless file transfer
-- Device-wide keyword-based file search
-- Copy and paste files to multiple destinations
-- Favorite folders for quick access
-- Image and video thumbnail previews
-- Dark theme support
-- SD card support
+- Basic features like cut, copy, delete etc.
+- File transfer over WI-FI using FTP.
+- Device-wide, keyword based file search.
+- Support to copy–paste multiple files to multiple places multiple times.
+- Access to root files if the device is rooted.
+- Integrated file compression feature. Supported formats are: 7z, BZIP2, GZIP, TAR, WIM, XZ, ZIP. (Can extract RAR format but can't create)
+- Support to add / remove shortcuts to home screen.
+- Navigation drawer for easy navigation.
+- Dark theme support.
+- No ads or In-app purchases.
 
 ## Build & Run
 
-Clone and open in Android Studio:
+- Clone git repository:
 
-```sh
-git clone https://github.com/ermanergoz/USurf-file-manager.git
-```
+	```sh
+	git clone https://github.com/ermanergoz/USurf-file-manager.git
+	```
 
-Open the project in Android Studio, wait for Gradle sync to complete, and run.
+- Import the project into Android Studio:
+	- Open Android Studio. After that Click on “Open an existing Android Studio project”. If Android Studio is already open, click on File and then Click on Open.
+	- Select the location of the cloned repository and then Click OK.
+	- After Gradle operations are finished, the application will be ready to run.
 
-## Architecture & Dependencies
+## Application Architecture & Dependencies
 
 - [MVVM architecture](https://developer.android.com/jetpack/guide)
 - [Data binding](https://developer.android.com/topic/libraries/data-binding)
@@ -58,16 +51,24 @@ Open the project in Android Studio, wait for Gradle sync to complete, and run.
 - [Glide](https://github.com/bumptech/glide)
 - [Koin](https://insert-koin.io/)
 
-## License
+## Meta
 
-Distributed under the MIT license. See `LICENSE` for more information.
+Yusuf Erman ERGÖZ – erman.ergoz@gmail.com
 
-## Author
+Distributed under the MIT license. See ``LICENSE`` for more information.
 
-Yusuf Erman ERGÖZ — erman.ergoz@gmail.com
-
-[github.com/ermanergoz](https://github.com/ermanergoz)
+[https://github.com/ermanergoz](https://github.com/ermanergoz)
 
 ## Acknowledgements
 
 - [Flaticon](https://www.flaticon.com/)
+
+<!--
+## Contributing
+
+1. Fork it (<https://github.com/yourname/yourproject/fork>)
+2. Create your feature branch (`git checkout -b feature/fooBar`)
+3. Commit your changes (`git commit -am 'Add some fooBar'`)
+4. Push to the branch (`git push origin feature/fooBar`)
+5. Create a new Pull Request
+-->
