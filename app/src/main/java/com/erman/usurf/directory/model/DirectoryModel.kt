@@ -15,7 +15,6 @@ import com.erman.usurf.storage.domain.StoragePathsProvider
 import com.erman.usurf.utils.EXTERNAL_SD_STORAGE_INDEX
 import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -182,11 +181,11 @@ class DirectoryModel(
         rootHandler.remountRootDirAs(MountOption.READ_WRITE.option)
         val isSuccess = action()
         rootHandler.remountRootDirAs(MountOption.READ.option)
-        if (!isSuccess) throw CancellationException()
+        if (!isSuccess) throw FileOperationException()
     }
 
     private fun executeAsRoot(action: () -> Boolean) {
-        if (!hasRootAccess()) throw CancellationException()
+        if (!hasRootAccess()) throw FileOperationException()
         executeWithRootPermissions(action)
     }
 
@@ -194,7 +193,7 @@ class DirectoryModel(
         selectedDirectory: FileModel,
         newFileName: String,
     ) = withContext(Dispatchers.IO) {
-        if (selectedDirectory.name == newFileName) throw CancellationException()
+        if (selectedDirectory.name == newFileName) throw FileOperationException()
         if (isRootDirectory(selectedDirectory.path)) {
             if (hasRootAccess()) executeWithRootPermissions {
                 rootHandler.renameFile(
@@ -220,7 +219,7 @@ class DirectoryModel(
             )
         }
         if (!File("$dirName${File.separator}$newFileName").exists()) {
-            throw CancellationException()
+            throw FileOperationException()
         }
     }
 
@@ -240,7 +239,7 @@ class DirectoryModel(
         if (!isSuccess) {
             val documentFile = getDocumentFile(File(fileModel.path), fileModel.isDirectory)
             if (documentFile != null && !deleteFolderRecursively(documentFile)) {
-                throw CancellationException()
+                throw FileOperationException()
             }
         }
     }
@@ -271,10 +270,10 @@ class DirectoryModel(
         folderName: String,
     ) {
         val folderPath = "$path${File.separator}$folderName"
-        if (File(folderPath).exists()) throw CancellationException()
+        if (File(folderPath).exists()) throw FileOperationException()
         if (!File(folderPath).mkdir()) {
             getDocumentFile(File(path), File(path).isDirectory)?.createDirectory(folderName)
-            if (!File(folderPath).exists()) throw CancellationException()
+            if (!File(folderPath).exists()) throw FileOperationException()
         }
     }
 
@@ -294,13 +293,13 @@ class DirectoryModel(
         fileName: String,
     ) {
         val filePath = "$path${File.separator}$fileName"
-        if (File(filePath).exists()) throw CancellationException()
+        if (File(filePath).exists()) throw FileOperationException()
         try {
             File(filePath).createNewFile()
         } catch (err: Exception) {
             loge(err.localizedMessage ?: UNKNOWN_ERROR)
             getDocumentFile(File(path), File(path).isDirectory)?.createFile(MIME_TYPE_ALL, fileName)
-            if (!File(filePath).exists()) throw CancellationException()
+            if (!File(filePath).exists()) throw FileOperationException()
         }
     }
 
@@ -327,7 +326,7 @@ class DirectoryModel(
         destination: String,
     ) {
         if (doesFileExist(source, destination)) {
-            throw CancellationException()
+            throw FileOperationException()
         }
         if (source.isDirectory) {
             copyDirectoryNonRoot(source, destination)
@@ -343,7 +342,7 @@ class DirectoryModel(
         try {
             File(source.path).copyRecursively(File(destination + File.separator + source.name))
         } catch (err: Exception) {
-            if (!copyToExtCard(File(source.path), destination)) throw CancellationException()
+            if (!copyToExtCard(File(source.path), destination)) throw FileOperationException()
         }
     }
 
@@ -354,7 +353,7 @@ class DirectoryModel(
         try {
             File(source.path).copyTo(File(destination + File.separator + source.name))
         } catch (err: IOException) {
-            if (!copyToExtCard(File(source.path), destination)) throw CancellationException()
+            if (!copyToExtCard(File(source.path), destination)) throw FileOperationException()
         }
     }
 
@@ -514,7 +513,7 @@ class DirectoryModel(
         val parentPath: String = File(multipleSelection.first().path).parent ?: ""
         val archiveType: String = extractArchiveType(compressedFileNameWithExtension)
         val outputPath = "$parentPath${File.separator}$compressedFileNameWithExtension"
-        if (File(outputPath).exists()) throw CancellationException()
+        if (File(outputPath).exists()) throw FileOperationException()
         val isCompressed =
             FileCompressionHandler().compress(outputPath, multipleSelection, archiveType)
         if (!isCompressed) {
@@ -549,7 +548,7 @@ class DirectoryModel(
         if (isCompressed) {
             moveCompressedFileToParent(compressedFileDirectory, compressedFileName, parentPath)
         } else {
-            throw CancellationException()
+            throw FileOperationException()
         }
         deleteTempFolder(cachedFolderDirectory)
     }
@@ -615,7 +614,7 @@ class DirectoryModel(
         if (isExtracted) {
             moveExtractedFilesToDestination(cachedExtractedFolderPath, extractionDestination)
         } else {
-            throw CancellationException()
+            throw FileOperationException()
         }
         deleteTempFolder(cachedFolderDirectory)
     }

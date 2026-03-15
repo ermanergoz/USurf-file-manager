@@ -8,6 +8,7 @@ import com.erman.usurf.R
 import com.erman.usurf.dialog.model.DialogArgs
 import com.erman.usurf.directory.model.DirectoryModel
 import com.erman.usurf.directory.model.FileModel
+import com.erman.usurf.directory.model.FileOperationException
 import com.erman.usurf.preference.domain.PreferencesRepository
 import com.erman.usurf.utils.Event
 import com.erman.usurf.utils.ROOT_DIRECTORY
@@ -15,7 +16,6 @@ import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
 import kotlinx.coroutines.launch
 import java.io.File
-import kotlin.coroutines.cancellation.CancellationException
 
 class DirectoryViewModel(
     private val directoryModel: DirectoryModel,
@@ -62,7 +62,7 @@ class DirectoryViewModel(
                 block()
                 refreshFileList()
                 _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(successMessageResId))
-            } catch (err: CancellationException) {
+            } catch (err: FileOperationException) {
                 _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(errorMessageResId))
                 loge(err.localizedMessage ?: UNKNOWN_ERROR)
             } finally {
@@ -426,7 +426,7 @@ class DirectoryViewModel(
                 directoryModel.copyFile(selection.toMutableList(), path)
                 refreshFileList()
                 _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(R.string.copy_successful))
-            } catch (err: CancellationException) {
+            } catch (err: FileOperationException) {
                 _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(R.string.error_while_copying))
                 loge(err.localizedMessage ?: UNKNOWN_ERROR)
             } finally {
@@ -450,7 +450,7 @@ class DirectoryViewModel(
                 directoryModel.moveFile(selection.toMutableList(), path)
                 refreshFileList()
                 _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(R.string.moving_successful))
-            } catch (err: CancellationException) {
+            } catch (err: FileOperationException) {
                 _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(R.string.error_while_moving))
                 loge(err.localizedMessage ?: UNKNOWN_ERROR)
             } finally {
