@@ -161,4 +161,5 @@
     <string name="loading_text">Loading…</string>
     <string name="loading_description">Loading</string>
     <string name="action_progress_description">Operation in progress</string>
+    <string name="exit_confirmation_message">An operation is in progress. Are you sure you want to exit?</string>
 </resources>
