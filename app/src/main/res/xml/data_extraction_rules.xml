@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <data-extraction-rules>
     <cloud-backup>
-
+        <!-- Keep the FTP credentials and the favorites database out of cloud backups -->
+        <exclude domain="sharedpref" path="com.erman.usurf.xml" />
+        <exclude domain="sharedpref" path="com.erman.usurf" />
+        <exclude domain="file" path="usurf.realm" />
     </cloud-backup>
+    <device-transfer>
+        <exclude domain="sharedpref" path="com.erman.usurf.xml" />
+        <exclude domain="sharedpref" path="com.erman.usurf" />
+        <exclude domain="file" path="usurf.realm" />
+    </device-transfer>
 </data-extraction-rules>

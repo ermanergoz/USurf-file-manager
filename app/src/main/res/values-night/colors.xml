@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="daynnightTextColor">#a9b7c6</color>
+    <color name="cardSurface">#1E293B</color>
+    <color name="cardStroke">#334155</color>
+    <color name="progressTrack">#475569</color>
+    <color name="sectionHeaderColor">#94A3B8</color>
+    <color name="emptyStateColor">#64748B</color>
 </resources>

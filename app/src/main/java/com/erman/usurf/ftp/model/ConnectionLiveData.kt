@@ -1,43 +1,50 @@
 package com.erman.usurf.ftp.model
 
-import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.net.ConnectivityManager
+import android.net.Network
 import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.os.Build
 import androidx.lifecycle.LiveData
-import com.erman.usurf.utils.logd
+import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
 
 class ConnectionLiveData(private val context: Context) : LiveData<Boolean>() {
-    private val networkReceiver =
-        object : BroadcastReceiver() {
-            override fun onReceive(
-                context: Context,
-                intent: Intent,
-            ) {
-                postValue(context.isConnected)
+    private val connectivityManager =
+        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+    private val networkCallback =
+        object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                postValue(true)
+            }
+
+            override fun onLost(network: Network) {
+                postValue(false)
             }
         }
 
     override fun onActive() {
         super.onActive()
-        logd("Register networkReceiver")
-        context.registerReceiver(
-            networkReceiver,
-            IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"),
-        )
+        postValue(context.isConnected ?: false)
+        val request =
+            NetworkRequest.Builder()
+                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                .build()
+        try {
+            connectivityManager.registerNetworkCallback(request, networkCallback)
+        } catch (err: Exception) {
+            loge(err.localizedMessage ?: UNKNOWN_ERROR)
+        }
     }
 
     override fun onInactive() {
         super.onInactive()
         try {
-            logd("Unregister networkReceiver")
-            context.unregisterReceiver(networkReceiver)
+            connectivityManager.unregisterNetworkCallback(networkCallback)
         } catch (err: Exception) {
-            loge("onInactive $err")
+            loge(err.localizedMessage ?: UNKNOWN_ERROR)
         }
     }
 }
@@ -54,7 +61,7 @@ val Context.isConnected: Boolean?
             @Suppress("DEPRECATION")
             (
                 getSystemService(
-                    Context.CONNECTIVITY_SERVICE,
+                    Context.CONNECTIVITY_SERVICE
                 ) as? ConnectivityManager
-            )?.getNetworkInfo(ConnectivityManager.TYPE_WIFI)?.isConnected
+                )?.getNetworkInfo(ConnectivityManager.TYPE_WIFI)?.isConnected
         }
