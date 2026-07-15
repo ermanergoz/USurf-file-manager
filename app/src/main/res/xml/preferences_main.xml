@@ -1,34 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="?attr/background">
 
-    <ListPreference
-        android:entries="@array/sort_files"
-        android:entryValues="@array/sort_files"
-        android:icon="@android:drawable/arrow_down_float"
-        android:key="sortListPreference"
-        android:defaultValue="Sort by name"
-        android:title="@string/sort_by" />
-    <CheckBoxPreference
-        android:defaultValue="true"
-        android:key="ascendingOrderPreference"
-        android:title="@string/ascending_order" />
-    <CheckBoxPreference
-        android:defaultValue="false"
-        android:key="descendingOrderPreference"
-        android:title="@string/descending_order" />
-    <SwitchPreference
-        android:defaultValue="false"
-        android:key="showHiddenFileSwitch"
-        android:title="@string/show_hidden_files" />
-    <SwitchPreference
-        android:defaultValue="true"
-        android:key="showThumbnails"
-        android:title="Show thumbnails" />
-    <SwitchPreference
-        android:defaultValue="false"
-        android:key="rootAccess"
-        android:summary="@string/root_explorer_summary"
-        android:title="@string/root_explorer" />
+    <PreferenceCategory
+        android:key="categorySorting"
+        android:title="@string/pref_category_sorting"
+        app:iconSpaceReserved="false">
+
+        <ListPreference
+            android:entries="@array/sort_files"
+            android:entryValues="@array/sort_files"
+            android:icon="@drawable/ic_sort"
+            android:key="sortListPreference"
+            android:defaultValue="Sort by name"
+            android:title="@string/sort_by"
+            app:iconSpaceReserved="false" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="ascendingOrderPreference"
+            android:title="@string/ascending_order"
+            app:iconSpaceReserved="true" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="descendingOrderPreference"
+            android:title="@string/descending_order"
+            app:iconSpaceReserved="true" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="categoryDisplay"
+        android:title="@string/pref_category_display"
+        app:iconSpaceReserved="false">
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_visibility"
+            android:key="showHiddenFileSwitch"
+            android:summary="@string/show_hidden_files_summary"
+            android:title="@string/show_hidden_files"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:icon="@drawable/ic_image"
+            android:key="showThumbnails"
+            android:summary="@string/show_thumbnails_summary"
+            android:title="@string/show_thumbnails"
+            app:iconSpaceReserved="false" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="categoryAdvanced"
+        android:title="@string/pref_category_advanced"
+        app:iconSpaceReserved="false">
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_terminal"
+            android:key="rootAccess"
+            android:summary="@string/root_explorer_summary"
+            android:title="@string/root_explorer"
+            app:iconSpaceReserved="false" />
+
+    </PreferenceCategory>
 
 </PreferenceScreen>

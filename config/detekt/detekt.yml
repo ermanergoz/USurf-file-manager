@@ -1,0 +1,49 @@
+build:
+  maxIssues: 0
+
+complexity:
+  LongMethod:
+    threshold: 80
+  LongParameterList:
+    functionThreshold: 7
+    constructorThreshold: 8
+  TooManyFunctions:
+    thresholdInClasses: 35
+    thresholdInFiles: 35
+    ignorePrivate: true
+  CyclomaticComplexMethod:
+    threshold: 18
+  LargeClass:
+    threshold: 800
+  NestedBlockDepth:
+    threshold: 5
+
+exceptions:
+  TooGenericExceptionCaught:
+    active: false
+  SwallowedException:
+    ignoredExceptionTypes:
+      - InterruptedException
+      - MalformedURLException
+      - NumberFormatException
+      - ParseException
+
+naming:
+  FunctionNaming:
+    ignoreAnnotated:
+      - Composable
+
+style:
+  MagicNumber:
+    ignorePropertyDeclaration: true
+    ignoreCompanionObjectPropertyDeclaration: true
+    ignoreEnums: true
+    ignoreAnnotation: true
+  ReturnCount:
+    max: 6
+  MaxLineLength:
+    maxLineLength: 140
+  UnusedPrivateMember:
+    active: true
+  ForbiddenComment:
+    active: false

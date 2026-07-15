@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <full-backup-content>
-    <!-- Exclude specific shared preferences that contain GCM registration Id -->
+    <!-- Keep the FTP credentials and the favorites database out of cloud backups -->
+    <exclude domain="sharedpref" path="com.erman.usurf.xml" />
+    <exclude domain="sharedpref" path="com.erman.usurf" />
+    <exclude domain="file" path="usurf.realm" />
 </full-backup-content>

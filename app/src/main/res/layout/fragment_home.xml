@@ -14,17 +14,22 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".library.ui.LibraryFragment">
+        android:paddingStart="@dimen/horizontal_margin_16"
+        android:paddingEnd="@dimen/horizontal_margin_16"
+        tools:context=".home.ui.HomeFragment">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/favoriteRecyclerView"
+        <TextView
+            android:id="@+id/storageSectionHeader"
             android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginBottom="@dimen/layout_margin_8"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/dividerRight"
-            app:layout_constraintStart_toEndOf="@+id/dividerLeft"
-            app:layout_constraintTop_toBottomOf="@+id/dividerTop" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/vertical_margin_16"
+            android:text="@string/section_storage"
+            android:textColor="@color/sectionHeaderColor"
+            android:textSize="@dimen/text_size_12"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.gridlayout.widget.GridLayout
             android:id="@+id/storageUsageBarLayout"
@@ -33,45 +38,69 @@
             android:layout_marginTop="@dimen/vertical_margin_8"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toBottomOf="@+id/storageSectionHeader">
 
         </androidx.gridlayout.widget.GridLayout>
 
-        <View
-            android:id="@+id/dividerTop"
+        <TextView
+            android:id="@+id/favoritesSectionHeader"
             android:layout_width="0dp"
-            android:layout_height="2dp"
-            android:layout_marginStart="1dp"
-            android:layout_marginLeft="1dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginEnd="1dp"
-            android:layout_marginRight="1dp"
-            android:background="@color/separatorColor"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/vertical_margin_16"
+            android:text="@string/section_favorites"
+            android:textColor="@color/sectionHeaderColor"
+            android:textSize="@dimen/text_size_12"
+            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/storageUsageBarLayout" />
 
-        <View
-            android:id="@+id/dividerLeft"
-            android:layout_width="2dp"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/favoriteRecyclerView"
+            android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginStart="1dp"
-            android:background="@color/separatorColor"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/favoriteRecyclerView"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/dividerTop" />
-
-        <View
-            android:id="@+id/dividerRight"
-            android:layout_width="2dp"
-            android:layout_height="0dp"
-            android:layout_marginEnd="1dp"
-            android:background="@color/separatorColor"
+            android:layout_marginTop="@dimen/vertical_margin_4"
+            android:clipToPadding="false"
+            android:paddingBottom="@dimen/layout_margin_8"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/favoriteRecyclerView"
-            app:layout_constraintTop_toBottomOf="@+id/dividerTop" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/favoritesSectionHeader" />
+
+        <LinearLayout
+            android:id="@+id/emptyFavoritesContainer"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/favoritesSectionHeader">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginBottom="@dimen/vertical_margin_8"
+                android:contentDescription="@string/favorite"
+                android:src="@drawable/ic_favorite"
+                android:tint="@color/emptyStateColor" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/empty_favorites_title"
+                android:textColor="@color/daynnightTextColor"
+                android:textSize="@dimen/text_size_16" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/vertical_margin_4"
+                android:text="@string/empty_favorites_subtitle"
+                android:textColor="@color/emptyStateColor"
+                android:textSize="@dimen/text_size_12" />
+        </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
