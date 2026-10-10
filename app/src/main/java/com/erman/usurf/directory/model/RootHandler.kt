@@ -5,17 +5,47 @@ import com.erman.usurf.directory.utils.PATH_SEPARATOR_CHAR
 import com.erman.usurf.directory.utils.SUFFIX_LENGTH
 import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
+import com.stericson.RootShell.exceptions.RootDeniedException
 import com.stericson.RootShell.execution.Command
 import com.stericson.RootShell.execution.Shell
 import com.stericson.RootTools.RootTools
 import java.io.File
+import java.io.IOException
+import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicInteger
 
 private const val ROOT_COMMAND_WAIT_TIME_MS: Long = 50
 private const val ROOT_COMMAND_MAX_WAIT_MS: Long = 600_000
 private const val EXIT_CODE_SUCCESS: Int = 0
 
-class RootHandler {
+// Longer than the longest superuser prompt countdown (60 s in Magisk), so the manager's own grant,
+// denial or timeout answers first; only a manager that never answers runs into this bound.
+private const val ROOT_SHELL_REQUEST_TIMEOUT_MS: Int = 70_000
+
+// RootShell retries a failed request three times by default, and every retry opens another prompt.
+private const val ROOT_SHELL_REQUEST_RETRIES: Int = 0
+
+// One su request with a bounded wait: it returns the open shell or throws TimeoutException,
+// RootDeniedException or IOException. It blocks until the prompt is answered, never call it on main.
+private object RootShellRequest {
+    private fun open(): Shell = RootTools.getShell(true, ROOT_SHELL_REQUEST_TIMEOUT_MS, Shell.defaultContext, ROOT_SHELL_REQUEST_RETRIES)
+
+    fun openHealthy(): Shell {
+        val shell: Shell = open()
+        if (!shell.isClosed) return shell
+        try {
+            Shell.closeRootShell()
+        } catch (err: Exception) {
+            loge(err.localizedMessage ?: UNKNOWN_ERROR)
+        }
+        return open()
+    }
+}
+
+class RootHandler(
+    private val isSuBinaryFound: () -> Boolean = RootTools::isRootAvailable,
+    private val isRootShellOpen: () -> Boolean = { !RootShellRequest.openHealthy().isClosed }
+) {
     private val commandIdCounter: AtomicInteger = AtomicInteger(0)
 
     private fun nextCommandId(): Int = commandIdCounter.getAndIncrement()
@@ -24,16 +54,7 @@ class RootHandler {
     // preventing quotes/metacharacters in a name from breaking out of the command (root injection).
     private fun shellQuote(value: String): String = "'" + value.replace("'", "'\\''") + "'"
 
-    private fun getHealthyShell(): Shell {
-        val shell: Shell = RootTools.getShell(true)
-        if (!shell.isClosed) return shell
-        try {
-            Shell.closeRootShell()
-        } catch (err: Exception) {
-            loge(err.localizedMessage ?: UNKNOWN_ERROR)
-        }
-        return RootTools.getShell(true)
-    }
+    private fun getHealthyShell(): Shell = RootShellRequest.openHealthy()
 
     private fun getParentPath(fileModel: FileModel): String {
         val parent = fileModel.path
@@ -56,12 +77,18 @@ class RootHandler {
         }
     }
 
-    fun isDeviceRooted(): Boolean = RootTools.isRootAvailable()
+    fun isDeviceRooted(): Boolean = isSuBinaryFound()
 
+    // A denied request, a request that outlives its bound and a su that cannot start all mean no root access.
     fun isRootAccessGiven(): Boolean = try {
-        val shell: Shell = getHealthyShell()
-        !shell.isClosed
-    } catch (err: Exception) {
+        isRootShellOpen()
+    } catch (err: TimeoutException) {
+        loge(err.localizedMessage ?: UNKNOWN_ERROR)
+        false
+    } catch (err: RootDeniedException) {
+        loge(err.localizedMessage ?: UNKNOWN_ERROR)
+        false
+    } catch (err: IOException) {
         loge(err.localizedMessage ?: UNKNOWN_ERROR)
         false
     }
