@@ -3,6 +3,7 @@ package com.erman.usurf.preference.ui
 import android.content.Context
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.preference.CheckBoxPreference
 import androidx.preference.ListPreference
@@ -12,6 +13,7 @@ import androidx.preference.SwitchPreference
 import com.erman.usurf.R
 import com.erman.usurf.activity.model.RefreshNavDrawer
 import com.erman.usurf.preference.utils.KEY_PREFERENCE_ROOT_ACCESS
+import com.erman.usurf.utils.EventObserver
 import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
 import com.google.android.material.snackbar.Snackbar
@@ -30,18 +32,11 @@ class PreferencesFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences_main, rootKey)
 
-        val rootAccessPreference = findPreference<SwitchPreference>(KEY_PREFERENCE_ROOT_ACCESS)
-        rootAccessPreference?.setOnPreferenceChangeListener { _, newValue ->
-            when (val result = preferencesViewModel.onRootAccessChangeRequested(newValue as Boolean)) {
-                is RootAccessChangeResult.Applied -> {
-                    navDrawerRefreshListener.refreshStorageButtons()
-                    true
-                }
-                is RootAccessChangeResult.Rejected -> {
-                    Snackbar.make(requireView(), getString(result.messageResId), Snackbar.LENGTH_LONG).show()
-                    false
-                }
-            }
+        findPreference<SwitchPreference>(KEY_PREFERENCE_ROOT_ACCESS)?.setOnPreferenceChangeListener { _, newValue ->
+            val isEnableRequest = newValue as Boolean
+            preferencesViewModel.onRootAccessChangeRequested(isEnableRequest)
+            // Turning root on waits for the su answer off the main thread; its result sets the switch.
+            !isEnableRequest
         }
 
         tintPreferenceIcons()
@@ -82,6 +77,26 @@ class PreferencesFragment : PreferenceFragmentCompat() {
                 true
             } else {
                 false
+            }
+        }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        preferencesViewModel.isRootAccessCheckPending.observe(viewLifecycleOwner) { isPending ->
+            findPreference<SwitchPreference>(KEY_PREFERENCE_ROOT_ACCESS)?.isEnabled = !isPending
+        }
+        preferencesViewModel.rootAccessChangeResult.observe(viewLifecycleOwner, EventObserver(::showRootAccessChangeResult))
+    }
+
+    private fun showRootAccessChangeResult(result: RootAccessChangeResult) {
+        when (result) {
+            is RootAccessChangeResult.Applied -> {
+                findPreference<SwitchPreference>(KEY_PREFERENCE_ROOT_ACCESS)?.isChecked = result.isRootAccessEnabled
+                navDrawerRefreshListener.refreshStorageButtons()
+            }
+            is RootAccessChangeResult.Rejected -> {
+                Snackbar.make(requireView(), getString(result.messageResId), Snackbar.LENGTH_LONG).show()
             }
         }
     }

@@ -33,11 +33,18 @@ import com.erman.usurf.storage.domain.StorageDirectoryRepository
 import com.erman.usurf.storage.domain.StoragePathsProvider
 import com.erman.usurf.utils.SHARED_PREF_FILE
 import io.realm.Realm
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
+
+private const val IO_DISPATCHER: String = "io"
 
 val appModule =
     module {
+        single<CoroutineDispatcher>(named(IO_DISPATCHER)) { Dispatchers.IO }
+
         single { ApplicationPreferenceProvider(get()) }
         single<ApplicationPreferencesRepository> { ApplicationPreferencesRepositoryImpl(get()) }
         single<StoragePathsProvider> { StoragePathsProviderImpl(get(), get()) }
@@ -77,5 +84,5 @@ val appModule =
         single { FtpPreferenceProvider(get(), get()) }
         single { RootHandler() }
         single { FavoriteDao(get()) }
-        viewModel { PreferencesViewModel(get(), get()) }
+        viewModel { PreferencesViewModel(get(), get(), get(named(IO_DISPATCHER))) }
     }
