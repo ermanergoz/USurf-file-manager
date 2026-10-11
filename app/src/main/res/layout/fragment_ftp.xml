@@ -135,7 +135,8 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/usernameInputLayout"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    app:errorTextRes="@{uiState.usernameErrorRes}">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/editUserNameTextView"
@@ -156,16 +157,21 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/vertical_margin_8"
-                    app:endIconMode="password_toggle">
+                    app:endIconContentDescription="@string/copy_password"
+                    app:endIconDrawable="@drawable/ic_copy"
+                    app:endIconMode="custom"
+                    app:endIconOnClickListener="@{() -> viewModel.onCopyPasswordClicked()}"
+                    app:errorTextRes="@{uiState.passwordErrorRes}">
 
+                    <!-- Shown in clear: it is typed on the other device. -->
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/editPasswordTextView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:autofillHints=""
                         android:enabled="@{!uiState.isServerActive}"
                         android:hint="@string/hint_password"
-                        android:inputType="textPassword"
+                        android:importantForAutofill="no"
+                        android:inputType="textVisiblePassword"
                         android:onTextChanged="@{viewModel::onPasswordChanged}"
                         android:text="@{uiState.password}"
                         android:textSize="@dimen/text_size_16" />
@@ -176,7 +182,8 @@
                     android:id="@+id/portInputLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/vertical_margin_8">
+                    android:layout_marginTop="@dimen/vertical_margin_8"
+                    app:errorTextRes="@{uiState.portErrorRes}">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/editPortTextView"
@@ -191,6 +198,27 @@
                         android:textSize="@dimen/text_size_16" />
 
                 </com.google.android.material.textfield.TextInputLayout>
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/allowUploadsSwitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/vertical_margin_8"
+                    android:checked="@{uiState.allowUploads}"
+                    android:enabled="@{!uiState.isServerActive}"
+                    android:minHeight="@dimen/height_48"
+                    android:onCheckedChanged="@{(button, checked) -> viewModel.onAllowUploadsChanged(checked)}"
+                    android:text="@string/ftp_allow_uploads"
+                    android:textColor="@color/daynnightTextColor"
+                    android:textSize="@dimen/text_size_16" />
+
+                <TextView
+                    android:id="@+id/allowUploadsSummary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/ftp_allow_uploads_summary"
+                    android:textColor="@color/sectionHeaderColor"
+                    android:textSize="@dimen/text_size_12" />
 
             </LinearLayout>
 

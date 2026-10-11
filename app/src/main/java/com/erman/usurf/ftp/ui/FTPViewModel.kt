@@ -5,13 +5,10 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.erman.usurf.R
 import com.erman.usurf.ftp.domain.FtpRepository
 import com.erman.usurf.ftp.domain.FtpServerStatus
-import com.erman.usurf.ftp.utils.DEFAULT_PORT
+import com.erman.usurf.ftp.domain.FtpSettingsRules
 import com.erman.usurf.utils.Event
-import com.erman.usurf.utils.UNKNOWN_ERROR
-import com.erman.usurf.utils.loge
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -29,6 +26,7 @@ class FTPViewModel(private val ftpRepository: FtpRepository, private val ioDispa
                     username = ftpRepository.getUsername().orEmpty(),
                     password = ftpRepository.getPassword().orEmpty(),
                     port = ftpRepository.getPort().toString(),
+                    allowUploads = ftpRepository.isUploadAllowed(),
                     isConnectedToWifi = ftpRepository.getConnectionLiveData().value == true
                 )
             addSource(ftpRepository.getConnectionLiveData()) { connected ->
@@ -75,8 +73,9 @@ class FTPViewModel(private val ftpRepository: FtpRepository, private val ioDispa
     }
 
     fun onConnectClicked() {
-        when (_uiState.value?.serverStatus ?: FtpServerStatus.Stopped) {
-            FtpServerStatus.Stopped, is FtpServerStatus.Failed -> ftpRepository.startServer()
+        val state: FtpUiState = _uiState.value ?: return
+        when (state.serverStatus) {
+            FtpServerStatus.Stopped, is FtpServerStatus.Failed -> if (state.hasValidSettings) ftpRepository.startServer()
             is FtpServerStatus.Running -> ftpRepository.stopServer()
             FtpServerStatus.Starting, FtpServerStatus.Stopping -> Unit
         }
@@ -89,32 +88,40 @@ class FTPViewModel(private val ftpRepository: FtpRepository, private val ioDispa
         }
     }
 
+    fun onCopyPasswordClicked() {
+        val password: String = _uiState.value?.password.orEmpty()
+        if (password.isNotEmpty()) {
+            _uiEvents.value = Event(FtpUiEvent.CopyPassword(password))
+        }
+    }
+
+    // The fields keep what is typed; only a valid value is stored, so the server never starts on settings the screen
+    // marks as wrong.
     @Suppress("UNUSED_PARAMETER")
     fun onUsernameChanged(username: CharSequence, start: Int, before: Int, count: Int) {
         val str = username.toString()
-        ftpRepository.editUsername(str)
+        if (FtpSettingsRules.usernameError(str) == null) ftpRepository.editUsername(str)
         updateState { it.copy(username = str) }
     }
 
     @Suppress("UNUSED_PARAMETER")
     fun onPasswordChanged(password: CharSequence, start: Int, before: Int, count: Int) {
         val str = password.toString()
-        ftpRepository.editPassword(str)
+        if (FtpSettingsRules.passwordError(str) == null) ftpRepository.editPassword(str)
         updateState { it.copy(password = str) }
     }
 
     @Suppress("UNUSED_PARAMETER")
     fun onPortChanged(port: CharSequence, start: Int, before: Int, count: Int) {
-        val newPort: Int =
-            try {
-                port.toString().toInt()
-            } catch (err: NumberFormatException) {
-                loge(err.localizedMessage ?: UNKNOWN_ERROR)
-                _uiEvents.value = Event(FtpUiEvent.ShowSnackbar(R.string.port_error))
-                DEFAULT_PORT
-            }
-        ftpRepository.editPort(newPort)
-        updateState { it.copy(port = port.toString()) }
+        val str = port.toString()
+        FtpSettingsRules.parsePort(str)?.let(ftpRepository::editPort)
+        updateState { it.copy(port = str) }
+    }
+
+    // Read when the server starts: the switch is disabled while it runs.
+    fun onAllowUploadsChanged(allowed: Boolean) {
+        ftpRepository.editUploadAllowed(allowed)
+        updateState { it.copy(allowUploads = allowed) }
     }
 
     fun onFtpPathSelected(checkedId: Int) {

@@ -16,7 +16,7 @@ A lightweight, open-source Android file manager with built-in archive compressio
 
 **Root file explorer** — Browse and manage root directories on rooted devices. One of the few open-source file managers that still supports root access.
 
-**Wireless file transfer** — Transfer files between your phone and computer over Wi-Fi using the built-in FTP server. No cables, no third-party apps needed.
+**Wireless file transfer** — Share your phone's storage with your computer over Wi-Fi using the built-in FTP server. No cables, no third-party apps needed. Sign in with the username and password shown on the FTP screen; a random password is generated on first launch and anonymous login is not allowed. The share is read-only until you turn on **Allow uploads**, which lets the computer add, change and delete files.
 
 **100% free and open source** — No ads, no analytics, no in-app purchases, and no data collection. The entire source code is available for anyone to audit, build, and contribute to.
 
@@ -25,7 +25,7 @@ A lightweight, open-source Android file manager with built-in archive compressio
 - Copy, move, rename, delete, and share files
 - Compress and extract archives (7z, BZIP2, GZIP, TAR, WIM, XZ, ZIP; RAR extract only)
 - Root file explorer for rooted devices
-- Built-in FTP server for wireless file transfer
+- Built-in FTP server for wireless file transfer, password protected and read-only unless uploads are allowed
 - Device-wide keyword-based file search
 - Copy and paste files to multiple destinations
 - Favorite folders for quick access
