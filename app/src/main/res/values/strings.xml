@@ -42,7 +42,6 @@
     <string name="connected">Connected</string>
     <string name="no_connection">No Connection</string>
     <string name="port_error">Try entering shorter number! The value is set to default.</string>
-    <string name="ftp_broadcast_receiver">com.erman.usurf.fileBroadcastReceiver</string>
     <string name="unsupported_file">There is no application that supports the file.</string>
     <string name="unable_to_open_directory">Unable to open the directory.</string>
     <string name="error_while_renaming">"Error while renaming: "</string>
@@ -146,7 +145,10 @@
     <string name="ftp_section_storage">Storage Path</string>
     <string name="ftp_url_copied">URL copied to clipboard</string>
     <string name="ftp_not_connected_hint">Connect to WiFi to start FTP server</string>
-    <string name="ftp_server_active">FTP Server Active</string>
+    <string name="ftp_server_active">Server running</string>
+    <string name="ftp_server_starting">Starting…</string>
+    <string name="ftp_server_stopping">Stopping…</string>
+    <string name="ftp_server_start_failed">Could not start the server: %1$s</string>
     <string name="wifi_icon">WiFi status icon</string>
     <string name="copy_url">Copy URL</string>
     <string name="show_thumbnails">Show thumbnails</string>

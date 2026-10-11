@@ -1,18 +1,18 @@
 package com.erman.usurf.ftp.data
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.asLiveData
 import com.erman.usurf.ftp.domain.FtpRepository
+import com.erman.usurf.ftp.domain.FtpServerStatus
 import com.erman.usurf.ftp.model.ConnectionLiveData
-import com.erman.usurf.ftp.model.FTPLiveData
 import com.erman.usurf.ftp.model.FtpModel
-import com.erman.usurf.ftp.service.FtpServer
 import com.erman.usurf.storage.domain.StoragePathsProvider
 
 class FtpRepositoryImpl(
     private val ftpModel: FtpModel,
     private val ftpPreferenceProvider: FtpPreferenceProvider,
     private val connectionLiveData: ConnectionLiveData,
-    private val ftpLiveData: FTPLiveData,
+    private val serverState: FtpServerState,
     private val storagePathsProvider: StoragePathsProvider
 ) : FtpRepository {
     override fun getIpAddress(): String = ftpModel.getIpAddress()
@@ -33,7 +33,8 @@ class FtpRepositoryImpl(
 
     override fun getConnectionLiveData(): LiveData<Boolean> = connectionLiveData
 
-    override fun getFtpServerRunningLiveData(): LiveData<Boolean> = ftpLiveData
+    // A new LiveData per screen: it starts from the state as it is now, never from a value cached while no screen watched.
+    override fun getServerStatus(): LiveData<FtpServerStatus> = serverState.status.asLiveData()
 
     override fun editUsername(username: String) {
         ftpPreferenceProvider.editUsername(username)
@@ -58,6 +59,4 @@ class FtpRepositoryImpl(
     override fun stopServer() {
         ftpModel.stopFTPServer()
     }
-
-    override fun isServerRunning(): Boolean = FtpServer.isFtpServerRunning
 }

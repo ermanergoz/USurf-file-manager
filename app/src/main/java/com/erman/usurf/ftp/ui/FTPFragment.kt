@@ -45,6 +45,12 @@ class FTPFragment : Fragment() {
                         Snackbar.make(binding.root, getString(event.messageResId), Snackbar.LENGTH_LONG).show()
                     is FtpUiEvent.CopyToClipboard ->
                         copyUrlToClipboard(event.url)
+                    is FtpUiEvent.ShowStartFailure ->
+                        Snackbar.make(
+                            binding.root,
+                            getString(R.string.ftp_server_start_failed, event.reason),
+                            Snackbar.LENGTH_LONG
+                        ).show()
                 }
             }
         )

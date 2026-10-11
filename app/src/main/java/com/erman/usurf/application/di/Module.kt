@@ -12,9 +12,9 @@ import com.erman.usurf.directory.model.RootHandler
 import com.erman.usurf.directory.ui.DirectoryViewModel
 import com.erman.usurf.ftp.data.FtpPreferenceProvider
 import com.erman.usurf.ftp.data.FtpRepositoryImpl
+import com.erman.usurf.ftp.data.FtpServerState
 import com.erman.usurf.ftp.domain.FtpRepository
 import com.erman.usurf.ftp.model.ConnectionLiveData
-import com.erman.usurf.ftp.model.FTPLiveData
 import com.erman.usurf.ftp.model.FtpModel
 import com.erman.usurf.ftp.ui.FTPViewModel
 import com.erman.usurf.home.data.FavoriteDao
@@ -65,9 +65,9 @@ val appModule =
 
         single { FtpModel(get()) }
         single { ConnectionLiveData(get()) }
-        single { FTPLiveData(get()) }
+        single { FtpServerState() }
         single<FtpRepository> { FtpRepositoryImpl(get(), get(), get(), get(), get()) }
-        viewModel { FTPViewModel(get()) }
+        viewModel { FTPViewModel(get(), get(named(IO_DISPATCHER))) }
 
         single {
             val context: Context = get()

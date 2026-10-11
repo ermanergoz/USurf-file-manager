@@ -21,7 +21,7 @@ interface FtpRepository {
 
     fun getConnectionLiveData(): LiveData<Boolean>
 
-    fun getFtpServerRunningLiveData(): LiveData<Boolean>
+    fun getServerStatus(): LiveData<FtpServerStatus>
 
     fun editUsername(username: String)
 
@@ -34,6 +34,4 @@ interface FtpRepository {
     fun startServer()
 
     fun stopServer()
-
-    fun isServerRunning(): Boolean
 }

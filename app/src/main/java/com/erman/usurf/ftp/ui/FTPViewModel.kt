@@ -7,15 +7,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.erman.usurf.R
 import com.erman.usurf.ftp.domain.FtpRepository
+import com.erman.usurf.ftp.domain.FtpServerStatus
 import com.erman.usurf.ftp.utils.DEFAULT_PORT
 import com.erman.usurf.utils.Event
 import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class FTPViewModel(private val ftpRepository: FtpRepository) : ViewModel() {
+class FTPViewModel(private val ftpRepository: FtpRepository, private val ioDispatcher: CoroutineDispatcher) : ViewModel() {
+    private var lastServerStatus: FtpServerStatus? = null
+
+    private val _uiEvents = MutableLiveData<Event<FtpUiEvent>>()
+    val uiEvents: LiveData<Event<FtpUiEvent>> = _uiEvents
+
     private val _uiState =
         MediatorLiveData<FtpUiState>().apply {
             value =
@@ -23,20 +29,16 @@ class FTPViewModel(private val ftpRepository: FtpRepository) : ViewModel() {
                     username = ftpRepository.getUsername().orEmpty(),
                     password = ftpRepository.getPassword().orEmpty(),
                     port = ftpRepository.getPort().toString(),
-                    isConnectedToWifi = ftpRepository.getConnectionLiveData().value == true,
-                    isServiceRunning = ftpRepository.getFtpServerRunningLiveData().value == true
+                    isConnectedToWifi = ftpRepository.getConnectionLiveData().value == true
                 )
             addSource(ftpRepository.getConnectionLiveData()) { connected ->
                 value = (value ?: FtpUiState()).copy(isConnectedToWifi = connected == true)
             }
-            addSource(ftpRepository.getFtpServerRunningLiveData()) { running ->
-                value = (value ?: FtpUiState()).copy(isServiceRunning = running == true)
+            addSource(ftpRepository.getServerStatus()) { status ->
+                onServerStatusChanged(status)
             }
         }
     val uiState: LiveData<FtpUiState> = _uiState
-
-    private val _uiEvents = MutableLiveData<Event<FtpUiEvent>>()
-    val uiEvents: LiveData<Event<FtpUiEvent>> = _uiEvents
 
     init {
         loadServerDetails()
@@ -44,10 +46,20 @@ class FTPViewModel(private val ftpRepository: FtpRepository) : ViewModel() {
 
     private fun loadServerDetails() {
         viewModelScope.launch {
-            val url = withContext(Dispatchers.IO) { ftpRepository.getIpAddress() }
-            val storagePaths = withContext(Dispatchers.IO) { mapStoragePaths(ftpRepository.getStoragePaths()) }
+            val url = withContext(ioDispatcher) { ftpRepository.getIpAddress() }
+            val storagePaths = withContext(ioDispatcher) { mapStoragePaths(ftpRepository.getStoragePaths()) }
             updateState { it.copy(url = url, storagePaths = storagePaths) }
         }
+    }
+
+    // A failure is shown once, when this screen sees the start fail; an old failure read on opening is not.
+    private fun onServerStatusChanged(status: FtpServerStatus) {
+        val previous: FtpServerStatus? = lastServerStatus
+        lastServerStatus = status
+        if (status is FtpServerStatus.Failed && previous != null && previous !== status) {
+            _uiEvents.value = Event(FtpUiEvent.ShowStartFailure(status.reason))
+        }
+        updateState { it.copy(serverStatus = status) }
     }
 
     private fun updateState(transform: (FtpUiState) -> FtpUiState) {
@@ -63,15 +75,15 @@ class FTPViewModel(private val ftpRepository: FtpRepository) : ViewModel() {
     }
 
     fun onConnectClicked() {
-        if (!ftpRepository.isServerRunning()) {
-            ftpRepository.startServer()
-        } else {
-            ftpRepository.stopServer()
+        when (_uiState.value?.serverStatus ?: FtpServerStatus.Stopped) {
+            FtpServerStatus.Stopped, is FtpServerStatus.Failed -> ftpRepository.startServer()
+            is FtpServerStatus.Running -> ftpRepository.stopServer()
+            FtpServerStatus.Starting, FtpServerStatus.Stopping -> Unit
         }
     }
 
     fun onCopyUrlClicked() {
-        val url: String = _uiState.value?.url.orEmpty()
+        val url: String = _uiState.value?.displayedUrl.orEmpty()
         if (url.isNotEmpty()) {
             _uiEvents.value = Event(FtpUiEvent.CopyToClipboard(url))
         }
