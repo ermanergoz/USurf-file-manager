@@ -66,7 +66,7 @@
                     android:layout_marginStart="@dimen/layout_margin_8"
                     android:ellipsize="end"
                     android:singleLine="true"
-                    android:text="@{uiState.isServiceRunning ? @string/ftp_server_active : (uiState.isConnectedToWifi ? @string/connected : @string/no_connection)}"
+                    android:text="@{uiState.statusTextRes}"
                     android:textColor="@color/daynnightTextColor"
                     android:textSize="@dimen/text_size_14"
                     android:textStyle="bold"
@@ -83,7 +83,7 @@
                     android:layout_marginStart="@dimen/layout_margin_8"
                     android:ellipsize="end"
                     android:singleLine="true"
-                    android:text="@{uiState.isConnectedToWifi ? uiState.url : @string/ftp_not_connected_hint}"
+                    android:text="@{uiState.isConnectedToWifi ? uiState.displayedUrl : @string/ftp_not_connected_hint}"
                     android:textColor="@color/sectionHeaderColor"
                     android:textSize="@dimen/text_size_12"
                     app:layout_constraintBottom_toBottomOf="@+id/wifiIcon"
@@ -103,7 +103,7 @@
                     android:padding="@dimen/layout_margin_4"
                     android:src="@drawable/ic_copy"
                     android:tint="@color/colorPrimary"
-                    android:visibility="@{uiState.isConnectedToWifi &amp;&amp; uiState.isServiceRunning ? View.VISIBLE : View.GONE}"
+                    android:visibility="@{uiState.isConnectedToWifi &amp;&amp; uiState.isServerRunning ? View.VISIBLE : View.GONE}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -127,7 +127,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/vertical_margin_8"
-                android:alpha="@{uiState.isServiceRunning ? 0.5f : 1.0f}"
+                android:alpha="@{uiState.isServerActive ? 0.5f : 1.0f}"
                 android:background="@drawable/button_frame"
                 android:orientation="vertical"
                 android:padding="@dimen/horizontal_margin_16">
@@ -135,13 +135,14 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/usernameInputLayout"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    app:errorTextRes="@{uiState.usernameErrorRes}">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/editUserNameTextView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:enabled="@{!uiState.isServiceRunning}"
+                        android:enabled="@{!uiState.isServerActive}"
                         android:hint="@string/hint_username"
                         android:importantForAutofill="no"
                         android:inputType="textPersonName"
@@ -156,16 +157,21 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/vertical_margin_8"
-                    app:endIconMode="password_toggle">
+                    app:endIconContentDescription="@string/copy_password"
+                    app:endIconDrawable="@drawable/ic_copy"
+                    app:endIconMode="custom"
+                    app:endIconOnClickListener="@{() -> viewModel.onCopyPasswordClicked()}"
+                    app:errorTextRes="@{uiState.passwordErrorRes}">
 
+                    <!-- Shown in clear: it is typed on the other device. -->
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/editPasswordTextView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:autofillHints=""
-                        android:enabled="@{!uiState.isServiceRunning}"
+                        android:enabled="@{!uiState.isServerActive}"
                         android:hint="@string/hint_password"
-                        android:inputType="textPassword"
+                        android:importantForAutofill="no"
+                        android:inputType="textVisiblePassword"
                         android:onTextChanged="@{viewModel::onPasswordChanged}"
                         android:text="@{uiState.password}"
                         android:textSize="@dimen/text_size_16" />
@@ -176,13 +182,14 @@
                     android:id="@+id/portInputLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/vertical_margin_8">
+                    android:layout_marginTop="@dimen/vertical_margin_8"
+                    app:errorTextRes="@{uiState.portErrorRes}">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/editPortTextView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:enabled="@{!uiState.isServiceRunning}"
+                        android:enabled="@{!uiState.isServerActive}"
                         android:hint="@string/hint_port"
                         android:importantForAutofill="no"
                         android:inputType="number"
@@ -191,6 +198,27 @@
                         android:textSize="@dimen/text_size_16" />
 
                 </com.google.android.material.textfield.TextInputLayout>
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/allowUploadsSwitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/vertical_margin_8"
+                    android:checked="@{uiState.allowUploads}"
+                    android:enabled="@{!uiState.isServerActive}"
+                    android:minHeight="@dimen/height_48"
+                    android:onCheckedChanged="@{(button, checked) -> viewModel.onAllowUploadsChanged(checked)}"
+                    android:text="@string/ftp_allow_uploads"
+                    android:textColor="@color/daynnightTextColor"
+                    android:textSize="@dimen/text_size_16" />
+
+                <TextView
+                    android:id="@+id/allowUploadsSummary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/ftp_allow_uploads_summary"
+                    android:textColor="@color/sectionHeaderColor"
+                    android:textSize="@dimen/text_size_12" />
 
             </LinearLayout>
 
@@ -204,7 +232,7 @@
                 android:textColor="@color/sectionHeaderColor"
                 android:textSize="@dimen/text_size_12"
                 android:textStyle="bold"
-                android:visibility="@{uiState.isServiceRunning ? View.GONE : View.VISIBLE}" />
+                android:visibility="@{uiState.isServerActive ? View.GONE : View.VISIBLE}" />
 
             <!-- Storage Card -->
             <LinearLayout
@@ -215,7 +243,7 @@
                 android:background="@drawable/button_frame"
                 android:orientation="vertical"
                 android:padding="@dimen/layout_margin_8"
-                android:visibility="@{uiState.isServiceRunning ? View.GONE : View.VISIBLE}">
+                android:visibility="@{uiState.isServerActive ? View.GONE : View.VISIBLE}">
 
                 <RadioGroup
                     android:id="@+id/radioButtonGroup"
@@ -234,9 +262,9 @@
                 android:layout_marginBottom="@dimen/vertical_margin_32"
                 android:background="@drawable/button_primary_background"
                 android:contentDescription="@string/connect"
-                android:enabled="@{uiState.isConnectedToWifi}"
+                android:enabled="@{uiState.isConnectButtonEnabled}"
                 android:onClick="@{() -> viewModel.onConnectClicked()}"
-                android:text="@{uiState.isServiceRunning ? @string/disconnect : @string/connect}"
+                android:text="@{uiState.connectButtonTextRes}"
                 android:textColor="@android:color/white"
                 android:textSize="@dimen/text_size_16"
                 android:textStyle="bold" />

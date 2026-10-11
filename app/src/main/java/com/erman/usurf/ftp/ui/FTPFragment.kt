@@ -1,9 +1,12 @@
 package com.erman.usurf.ftp.ui
 
 import android.content.ClipData
+import android.content.ClipDescription
 import android.content.ClipboardManager
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
+import android.os.PersistableBundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -41,10 +44,16 @@ class FTPFragment : Fragment() {
             viewLifecycleOwner,
             EventObserver { event ->
                 when (event) {
-                    is FtpUiEvent.ShowSnackbar ->
-                        Snackbar.make(binding.root, getString(event.messageResId), Snackbar.LENGTH_LONG).show()
                     is FtpUiEvent.CopyToClipboard ->
                         copyUrlToClipboard(event.url)
+                    is FtpUiEvent.CopyPassword ->
+                        copyPasswordToClipboard(event.password)
+                    is FtpUiEvent.ShowStartFailure ->
+                        Snackbar.make(
+                            binding.root,
+                            getString(R.string.ftp_server_start_failed, event.reason),
+                            Snackbar.LENGTH_LONG
+                        ).show()
                 }
             }
         )
@@ -84,6 +93,18 @@ class FTPFragment : Fragment() {
         val clip: ClipData = ClipData.newPlainText(getString(R.string.url), url)
         clipboard.setPrimaryClip(clip)
         Snackbar.make(binding.root, getString(R.string.ftp_url_copied), Snackbar.LENGTH_SHORT).show()
+    }
+
+    // Marked sensitive, so Android 13 and later hide it in the clipboard preview.
+    private fun copyPasswordToClipboard(password: String) {
+        val clipboard: ClipboardManager =
+            requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip: ClipData = ClipData.newPlainText(getString(R.string.hint_password), password)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            clip.description.extras = PersistableBundle().apply { putBoolean(ClipDescription.EXTRA_IS_SENSITIVE, true) }
+        }
+        clipboard.setPrimaryClip(clip)
+        Snackbar.make(binding.root, getString(R.string.ftp_password_copied), Snackbar.LENGTH_SHORT).show()
     }
 
     override fun onDestroyView() {

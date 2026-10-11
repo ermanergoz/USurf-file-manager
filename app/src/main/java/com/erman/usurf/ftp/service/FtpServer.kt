@@ -1,6 +1,5 @@
 package com.erman.usurf.ftp.service
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
@@ -9,114 +8,67 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.os.Build
+import android.os.Handler
+import android.os.HandlerThread
 import android.os.IBinder
+import android.os.Looper
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
-import androidx.core.content.ContextCompat
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.erman.usurf.R
 import com.erman.usurf.activity.MainActivity
+import com.erman.usurf.ftp.data.FtpServerState
 import com.erman.usurf.ftp.domain.FtpRepository
+import com.erman.usurf.ftp.domain.FtpServerStatus
 import com.erman.usurf.utils.KEY_INTENT_IS_FTP_NOTIFICATION_CLICKED
-import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
-import org.apache.ftpserver.ConnectionConfigFactory
-import org.apache.ftpserver.FtpServer as ApacheFtpServer
-import org.apache.ftpserver.FtpServerFactory
-import org.apache.ftpserver.listener.ListenerFactory
-import org.apache.ftpserver.usermanager.impl.BaseUser
 import org.koin.android.ext.android.inject
 
-private const val FTP_LISTENER_NAME: String = "default"
-private const val ANONYMOUS_USER_NAME: String = "anonymous"
 private const val FTP_NOTIFICATION_CHANNEL_ID: String = "FtpNotificationChannel"
 private const val PENDING_INTENT_REQUEST_CODE: Int = 0
 private const val FTP_NOTIFICATION_ID: Int = 1
+private const val WORKER_THREAD_NAME: String = "FtpServerWorker"
 
 class FtpServer : Service() {
-    private val serverFactory = FtpServerFactory()
-    private val server: ApacheFtpServer? = serverFactory.createServer()
     private val ftpRepository: FtpRepository by inject()
+    private val serverState: FtpServerState by inject()
+    private val controller: FtpServerController by lazy { FtpServerController(serverState, ::ApacheFtpServerEngine) }
+    private val mainHandler = Handler(Looper.getMainLooper())
 
-    companion object {
-        var isFtpServerRunning: Boolean = false
-    }
+    // Starting and stopping run here, one after the other: binding and closing sessions never block the main thread.
+    private val worker = HandlerThread(WORKER_THREAD_NAME)
+    private lateinit var workerHandler: Handler
 
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        try {
-            configureServerConnection()
-            configureServerUser()
-            startServer()
-        } catch (err: Exception) {
-            loge(err.localizedMessage ?: UNKNOWN_ERROR)
-            isFtpServerRunning = false
-            sendBroadcast()
-            stopServiceWithNotificationRemoval()
-            stopSelf()
-        }
+        workerHandler.post { startServer(startId) }
         return START_STICKY
     }
 
-    private fun configureServerConnection() {
-        val listenerFactory = ListenerFactory()
-        val connectionConfigFactory = ConnectionConfigFactory()
-        // Allow passwordless access only while the user keeps the default "anonymous" account;
-        // once a real username is configured, credentials are enforced.
-        connectionConfigFactory.isAnonymousLoginEnabled = ftpRepository.getUsername() == ANONYMOUS_USER_NAME
-        serverFactory.connectionConfig = connectionConfigFactory.createConnectionConfig()
-        listenerFactory.port = ftpRepository.getPort()
-        serverFactory.addListener(FTP_LISTENER_NAME, listenerFactory.createListener())
-    }
-
-    private fun configureServerUser() {
-        val user = BaseUser()
-        user.name = ftpRepository.getUsername()
-        user.password = ftpRepository.getPassword()
-        user.homeDirectory = ftpRepository.getFtpPath()
-        serverFactory.userManager.save(user)
-    }
-
-    private fun startServer() {
-        server?.let {
-            try {
-                it.start()
-                sendBroadcast()
-                isFtpServerRunning = true
-            } catch (err: Exception) {
-                loge(err.localizedMessage ?: UNKNOWN_ERROR)
-                handleServerStartFailure(it)
-            }
+    private fun startServer(startId: Int) {
+        val status: FtpServerStatus = controller.start(readConfig())
+        if (status is FtpServerStatus.Failed) {
+            loge(status.reason)
+            mainHandler.post { stopSelf(startId) }
         }
     }
 
-    private fun handleServerStartFailure(server: ApacheFtpServer) {
-        server.stop()
-        sendBroadcast()
-        isFtpServerRunning = false
-        stopServiceWithNotificationRemoval()
-        stopSelf()
-    }
+    private fun readConfig(): FtpServerConfig = FtpServerConfig(
+        address = ftpRepository.getIpAddress(),
+        port = ftpRepository.getPort(),
+        username = ftpRepository.getUsername(),
+        password = ftpRepository.getPassword(),
+        homeDirectory = ftpRepository.getFtpPath(),
+        allowUploads = ftpRepository.isUploadAllowed()
+    )
 
     override fun onDestroy() {
         super.onDestroy()
-        server?.let {
-            it.stop()
-            sendBroadcast()
-            isFtpServerRunning = false
-        }
+        workerHandler.post { controller.stop() }
+        worker.quitSafely()
         stopServiceWithNotificationRemoval()
-    }
-
-    private fun sendBroadcast() {
-        val broadcastIntent = Intent()
-        broadcastIntent.action = applicationContext.getString(R.string.ftp_broadcast_receiver)
-        LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(broadcastIntent)
     }
 
     @SuppressLint("InlinedApi")
@@ -166,16 +118,8 @@ class FtpServer : Service() {
         }
     }
 
-    /**
-     * Stops foreground state (removing the notification on O+) and cancels the notification on pre-O.
-     * Call when the service is stopping (failure path or onDestroy).
-     */
     private fun stopServiceWithNotificationRemoval() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
-        } else {
-            NotificationManagerCompat.from(this).cancel(FTP_NOTIFICATION_ID)
-        }
+        ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
     }
 
     override fun onTaskRemoved(rootIntent: Intent?) {
@@ -186,17 +130,12 @@ class FtpServer : Service() {
     override fun onCreate() {
         super.onCreate()
         showForegroundNotification()
+        worker.start()
+        workerHandler = Handler(worker.looper)
     }
 
+    // A foreground service on every API level: the server keeps running while the app is in the background.
     private fun showForegroundNotification() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundWithNotification()
-        } else {
-            showNotificationIfPermitted()
-        }
-    }
-
-    private fun startForegroundWithNotification() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             startForeground(
                 FTP_NOTIFICATION_ID,
@@ -206,18 +145,5 @@ class FtpServer : Service() {
         } else {
             startForeground(FTP_NOTIFICATION_ID, getNotification())
         }
-    }
-
-    private fun showNotificationIfPermitted() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                return
-            }
-        }
-        NotificationManagerCompat.from(this).notify(FTP_NOTIFICATION_ID, getNotification())
     }
 }

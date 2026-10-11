@@ -19,9 +19,11 @@ interface FtpRepository {
 
     fun getFtpPath(): String?
 
+    fun isUploadAllowed(): Boolean
+
     fun getConnectionLiveData(): LiveData<Boolean>
 
-    fun getFtpServerRunningLiveData(): LiveData<Boolean>
+    fun getServerStatus(): LiveData<FtpServerStatus>
 
     fun editUsername(username: String)
 
@@ -31,9 +33,9 @@ interface FtpRepository {
 
     fun editFtpPath(path: String?)
 
+    fun editUploadAllowed(allowed: Boolean)
+
     fun startServer()
 
     fun stopServer()
-
-    fun isServerRunning(): Boolean
 }
