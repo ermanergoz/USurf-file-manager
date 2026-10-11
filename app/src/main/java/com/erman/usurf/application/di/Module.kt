@@ -13,6 +13,7 @@ import com.erman.usurf.directory.ui.DirectoryViewModel
 import com.erman.usurf.ftp.data.FtpPreferenceProvider
 import com.erman.usurf.ftp.data.FtpRepositoryImpl
 import com.erman.usurf.ftp.data.FtpServerState
+import com.erman.usurf.ftp.domain.FtpCredentialsInitializer
 import com.erman.usurf.ftp.domain.FtpRepository
 import com.erman.usurf.ftp.model.ConnectionLiveData
 import com.erman.usurf.ftp.model.FtpModel
@@ -33,6 +34,7 @@ import com.erman.usurf.storage.domain.StorageDirectoryRepository
 import com.erman.usurf.storage.domain.StoragePathsProvider
 import com.erman.usurf.utils.SHARED_PREF_FILE
 import io.realm.Realm
+import java.security.SecureRandom
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -81,7 +83,7 @@ val appModule =
             return@single Realm.getDefaultInstance()
         }
 
-        single { FtpPreferenceProvider(get(), get()) }
+        single { FtpPreferenceProvider(get(), get(), FtpCredentialsInitializer(SecureRandom())) }
         single { RootHandler() }
         single { FavoriteDao(get()) }
         viewModel { PreferencesViewModel(get(), get(), get(named(IO_DISPATCHER))) }

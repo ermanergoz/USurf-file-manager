@@ -1,5 +1,7 @@
 package com.erman.usurf.ftp.service
 
+import com.erman.usurf.ftp.domain.FtpSettingError
+import com.erman.usurf.ftp.domain.FtpSettingsRules
 import org.apache.ftpserver.ConnectionConfigFactory
 import org.apache.ftpserver.FtpServer as ApacheFtpServer
 import org.apache.ftpserver.FtpServerConfigurationException
@@ -11,7 +13,6 @@ import org.apache.ftpserver.usermanager.impl.BaseUser
 import org.apache.mina.core.RuntimeIoException
 
 private const val FTP_LISTENER_NAME: String = "default"
-private const val ANONYMOUS_USER_NAME: String = "anonymous"
 
 /** An Apache FtpServer with one listener and one user, built for a single start. */
 class ApacheFtpServerEngine(private val config: FtpServerConfig) : FtpServerEngine {
@@ -19,6 +20,7 @@ class ApacheFtpServerEngine(private val config: FtpServerConfig) : FtpServerEngi
     private var listener: Listener? = null
 
     override fun start(): Int {
+        refuseUnprotectedLogin()
         try {
             val newListener: Listener = ListenerFactory().apply { port = config.port }.createListener()
             listener = newListener
@@ -37,20 +39,24 @@ class ApacheFtpServerEngine(private val config: FtpServerConfig) : FtpServerEngi
         }
     }
 
+    // The screen never stores such settings; this keeps an older or edited preference file from opening the share.
+    private fun refuseUnprotectedLogin() {
+        val error: FtpSettingError =
+            FtpSettingsRules.usernameError(config.username.orEmpty())
+                ?: FtpSettingsRules.passwordError(config.password.orEmpty())
+                ?: return
+        val reason: String =
+            when (error) {
+                FtpSettingError.USERNAME_REQUIRED -> "a username is required"
+                FtpSettingError.USERNAME_ANONYMOUS -> "anonymous login is not allowed"
+                FtpSettingError.PASSWORD_REQUIRED -> "a password is required"
+            }
+        throw FtpServerStartException(IllegalArgumentException(reason))
+    }
+
     private fun createServer(listener: Listener): ApacheFtpServer {
-        val serverFactory = FtpServerFactory()
-        // Allow passwordless access only while the user keeps the default "anonymous" account;
-        // once a real username is configured, credentials are enforced.
-        serverFactory.connectionConfig =
-            ConnectionConfigFactory()
-                .apply { isAnonymousLoginEnabled = config.username == ANONYMOUS_USER_NAME }
-                .createConnectionConfig()
+        val serverFactory: FtpServerFactory = buildServerFactory(config)
         serverFactory.addListener(FTP_LISTENER_NAME, listener)
-        val user = BaseUser()
-        user.name = config.username
-        user.password = config.password
-        user.homeDirectory = config.homeDirectory
-        serverFactory.userManager.save(user)
         return serverFactory.createServer()
     }
 
@@ -66,4 +72,19 @@ class ApacheFtpServerEngine(private val config: FtpServerConfig) : FtpServerEngi
     override fun stop() {
         server?.stop()
     }
+}
+
+/** The server for [config] without its listener: one named user, a password always required, anonymous login off. */
+internal fun buildServerFactory(config: FtpServerConfig): FtpServerFactory {
+    val serverFactory = FtpServerFactory()
+    serverFactory.connectionConfig =
+        ConnectionConfigFactory()
+            .apply { isAnonymousLoginEnabled = false }
+            .createConnectionConfig()
+    val user = BaseUser()
+    user.name = config.username
+    user.password = config.password
+    user.homeDirectory = config.homeDirectory
+    serverFactory.userManager.save(user)
+    return serverFactory
 }
