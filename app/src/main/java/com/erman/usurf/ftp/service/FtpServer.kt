@@ -60,7 +60,8 @@ class FtpServer : Service() {
         port = ftpRepository.getPort(),
         username = ftpRepository.getUsername(),
         password = ftpRepository.getPassword(),
-        homeDirectory = ftpRepository.getFtpPath()
+        homeDirectory = ftpRepository.getFtpPath(),
+        allowUploads = ftpRepository.isUploadAllowed()
     )
 
     override fun onDestroy() {

@@ -12,6 +12,7 @@ private const val PASSWORD_KEY: String = "password"
 private const val USERNAME_KEY: String = "username"
 private const val CREDENTIALS_INITIALIZED_KEY: String = "ftpCredentialsInitialized"
 private const val KEY_INTENT_CHOSEN_PATH: String = "ftpChosenPath"
+private const val ALLOW_UPLOADS_KEY: String = "ftpAllowUploads"
 
 class FtpPreferenceProvider(
     private val preferences: SharedPreferences,
@@ -56,6 +57,12 @@ class FtpPreferenceProvider(
 
     fun editPort(port: Int) {
         preferences.edit { putInt(PORT_KEY, port) }
+    }
+
+    fun isUploadAllowed(): Boolean = preferences.getBoolean(ALLOW_UPLOADS_KEY, false)
+
+    fun editUploadAllowed(allowed: Boolean) {
+        preferences.edit { putBoolean(ALLOW_UPLOADS_KEY, allowed) }
     }
 
     fun getFtpPath(): String? {

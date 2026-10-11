@@ -31,6 +31,8 @@ class FtpRepositoryImpl(
 
     override fun getFtpPath(): String? = ftpPreferenceProvider.getFtpPath()
 
+    override fun isUploadAllowed(): Boolean = ftpPreferenceProvider.isUploadAllowed()
+
     override fun getConnectionLiveData(): LiveData<Boolean> = connectionLiveData
 
     // A new LiveData per screen: it starts from the state as it is now, never from a value cached while no screen watched.
@@ -50,6 +52,10 @@ class FtpRepositoryImpl(
 
     override fun editFtpPath(path: String?) {
         ftpPreferenceProvider.editFtpPath(path)
+    }
+
+    override fun editUploadAllowed(allowed: Boolean) {
+        ftpPreferenceProvider.editUploadAllowed(allowed)
     }
 
     override fun startServer() {

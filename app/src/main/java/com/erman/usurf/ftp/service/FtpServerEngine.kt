@@ -1,6 +1,13 @@
 package com.erman.usurf.ftp.service
 
-data class FtpServerConfig(val address: String, val port: Int, val username: String?, val password: String?, val homeDirectory: String?)
+data class FtpServerConfig(
+    val address: String,
+    val port: Int,
+    val username: String?,
+    val password: String?,
+    val homeDirectory: String?,
+    val allowUploads: Boolean
+)
 
 /** One FTP server: started at most once, then stopped. */
 interface FtpServerEngine {
