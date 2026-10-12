@@ -1,17 +1,13 @@
 package com.erman.usurf.directory.model
 
 import android.content.Context
-import android.net.Uri
-import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import com.erman.usurf.directory.utils.FILE_EXTENSION_SEPARATOR
 import com.erman.usurf.directory.utils.MIME_TYPE_ALL
-import com.erman.usurf.directory.utils.PATH_SEPARATOR_SKIP_LENGTH
 import com.erman.usurf.directory.utils.SUFFIX_LENGTH
 import com.erman.usurf.preference.domain.PreferencesRepository
-import com.erman.usurf.storage.domain.StorageDirectoryRepository
+import com.erman.usurf.storage.data.SafDocumentAccess
 import com.erman.usurf.storage.domain.StoragePathsProvider
-import com.erman.usurf.utils.EXTERNAL_SD_STORAGE_INDEX
 import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
 import java.io.File
@@ -32,7 +28,7 @@ private const val TEMP_FOLDER_NAME = "usurfTemp"
 class DirectoryModel(
     private val directoryListHandler: DirectoryListHandler,
     private val preferencesRepository: PreferencesRepository,
-    private val storageDirectoryRepository: StorageDirectoryRepository,
+    private val safDocumentAccess: SafDocumentAccess,
     private val rootHandler: RootHandler,
     private val context: Context,
     private val storagePathsProvider: StoragePathsProvider
@@ -43,68 +39,6 @@ class DirectoryModel(
         multipleSelection.filter { it.path != file.path }
     } else {
         multipleSelection + file.copy(isSelected = true)
-    }
-
-    private fun getDocumentFile(file: File, isDirectory: Boolean): DocumentFile? {
-        val getExtSdCardBaseFolder: String
-        try {
-            getExtSdCardBaseFolder =
-                storagePathsProvider.getStorageDirectories().elementAt(EXTERNAL_SD_STORAGE_INDEX)
-        } catch (err: IndexOutOfBoundsException) {
-            loge(err.localizedMessage ?: UNKNOWN_ERROR)
-            return null
-        }
-        var originalDirectory = false
-        var relativePathOfFile: String? = null
-        try {
-            val fullPath = file.canonicalPath
-            if (getExtSdCardBaseFolder != fullPath) {
-                relativePathOfFile =
-                    fullPath.substring(getExtSdCardBaseFolder.length + PATH_SEPARATOR_SKIP_LENGTH)
-            } else {
-                originalDirectory = true
-            }
-        } catch (err: IOException) {
-            loge(err.localizedMessage ?: UNKNOWN_ERROR)
-            return null
-        } catch (err: Exception) {
-            loge(err.localizedMessage ?: UNKNOWN_ERROR)
-            originalDirectory = true
-        }
-
-        val extSdCardChosenUri = storageDirectoryRepository.getChosenUri()
-        var treeUri: Uri? = null
-        if (extSdCardChosenUri != null) treeUri = extSdCardChosenUri.toUri()
-        if (treeUri == null) {
-            return null
-        }
-        // start with root of SD card and then parse through document tree.
-        var document: DocumentFile?
-        try {
-            document = DocumentFile.fromTreeUri(context, treeUri)
-        } catch (err: Exception) {
-            loge(err.localizedMessage ?: UNKNOWN_ERROR)
-            return null
-        }
-        if (originalDirectory) return document
-        relativePathOfFile?.split(File.separator.toRegex())?.dropLastWhile { it.isEmpty() }
-            ?.toTypedArray()?.let { parts ->
-                for (i in parts.indices) {
-                    document?.let {
-                        var nextDocument = it.findFile(parts[i])
-                        if (nextDocument == null) {
-                            nextDocument =
-                                if (i < parts.size - 1 || isDirectory) {
-                                    it.createDirectory(parts[i])
-                                } else {
-                                    it.createFile(MIME_TYPE_ALL, parts[i])
-                                }
-                        }
-                        document = nextDocument
-                    }
-                }
-            }
-        return document
     }
 
     private suspend fun isRootDirectory(path: String): Boolean = withContext(Dispatchers.IO) {
@@ -131,7 +65,7 @@ class DirectoryModel(
     }
 
     private fun createDummyFileWithSaf(parentPath: String) {
-        getDocumentFile(File(parentPath), File(parentPath).isDirectory)?.createFile(
+        safDocumentAccess.documentFor(File(parentPath), File(parentPath).isDirectory)?.createFile(
             MIME_TYPE_ALL,
             DUMMY_FILE_NAME
         )
@@ -152,7 +86,7 @@ class DirectoryModel(
     }
 
     private fun deleteDummyFileWithSaf(dummyFile: File) {
-        val documentFileToDelete = getDocumentFile(dummyFile, dummyFile.isDirectory)
+        val documentFileToDelete = safDocumentAccess.documentFor(dummyFile, dummyFile.isDirectory)
         documentFileToDelete?.let { deleteFolderRecursively(it) }
     }
 
@@ -198,14 +132,10 @@ class DirectoryModel(
         val dirName = File(selectedDirectory.path).parent
         val prev = File(dirName, selectedDirectory.name)
         val new = File(dirName, newFileName)
-        if (!prev.renameTo(new)) {
-            getDocumentFile(File(selectedDirectory.path), selectedDirectory.isDirectory)?.renameTo(
-                newFileName
-            )
-        }
-        if (!File("$dirName${File.separator}$newFileName").exists()) {
-            throw FileOperationException("Rename failed")
-        }
+        val isRenamed =
+            prev.renameTo(new) ||
+                safDocumentAccess.documentFor(prev, selectedDirectory.isDirectory)?.renameTo(newFileName) == true
+        if (!isRenamed || !new.exists()) throw FileOperationException("Rename failed")
     }
 
     suspend fun delete(selectedDirectories: List<FileModel>) = withContext(Dispatchers.IO) {
@@ -220,12 +150,9 @@ class DirectoryModel(
     private fun deleteFileNonRoot(fileModel: FileModel) {
         val file = File(fileModel.path)
         val isSuccess = if (fileModel.isDirectory) file.deleteRecursively() else file.delete()
-        if (!isSuccess) {
-            val documentFile = getDocumentFile(File(fileModel.path), fileModel.isDirectory)
-            if (documentFile != null && !deleteFolderRecursively(documentFile)) {
-                throw FileOperationException("Delete failed")
-            }
-        }
+        if (isSuccess) return
+        val document = safDocumentAccess.documentFor(file, fileModel.isDirectory)
+        if (document == null || !deleteFolderRecursively(document)) throw FileOperationException("Delete failed")
     }
 
     private fun deleteFolderRecursively(documentFile: DocumentFile): Boolean {
@@ -251,7 +178,7 @@ class DirectoryModel(
         val folderPath = "$path${File.separator}$folderName"
         if (File(folderPath).exists()) throw FileOperationException("A folder with this name already exists")
         if (!File(folderPath).mkdir()) {
-            getDocumentFile(File(path), File(path).isDirectory)?.createDirectory(folderName)
+            safDocumentAccess.documentFor(File(path), File(path).isDirectory)?.createDirectory(folderName)
             if (!File(folderPath).exists()) throw FileOperationException("Folder creation failed")
         }
     }
@@ -272,7 +199,7 @@ class DirectoryModel(
             File(filePath).createNewFile()
         } catch (err: Exception) {
             loge(err.localizedMessage ?: UNKNOWN_ERROR)
-            getDocumentFile(File(path), File(path).isDirectory)?.createFile(MIME_TYPE_ALL, fileName)
+            safDocumentAccess.documentFor(File(path), File(path).isDirectory)?.createFile(MIME_TYPE_ALL, fileName)
             if (!File(filePath).exists()) throw FileOperationException("File creation failed")
         }
     }
@@ -302,19 +229,26 @@ class DirectoryModel(
     }
 
     private fun copyDirectoryNonRoot(source: FileModel, destination: String) {
-        try {
-            File(source.path).copyRecursively(File(destination + File.separator + source.name))
-        } catch (err: Exception) {
-            if (!copyToExtCard(File(source.path), destination)) throw FileOperationException("Copy failed")
-        }
+        val isCopied =
+            try {
+                File(source.path).copyRecursively(File(destination + File.separator + source.name))
+            } catch (err: Exception) {
+                loge(err.localizedMessage ?: UNKNOWN_ERROR)
+                false
+            }
+        if (!isCopied && !copyToExtCard(File(source.path), destination)) throw FileOperationException("Copy failed")
     }
 
     private fun copySingleFile(source: FileModel, destination: String) {
-        try {
-            File(source.path).copyTo(File(destination + File.separator + source.name))
-        } catch (err: IOException) {
-            if (!copyToExtCard(File(source.path), destination)) throw FileOperationException("Copy failed")
-        }
+        val isCopied =
+            try {
+                File(source.path).copyTo(File(destination + File.separator + source.name))
+                true
+            } catch (err: IOException) {
+                loge(err.localizedMessage ?: UNKNOWN_ERROR)
+                false
+            }
+        if (!isCopied && !copyToExtCard(File(source.path), destination)) throw FileOperationException("Copy failed")
     }
 
     private fun copyToExtCard(sourceFile: File, destination: String): Boolean = if (sourceFile.isDirectory) {
@@ -324,7 +258,7 @@ class DirectoryModel(
     }
 
     private fun copyDirectoryToExtCard(sourceFile: File, destination: String): Boolean {
-        getDocumentFile(File(destination), File(destination).isDirectory)
+        safDocumentAccess.documentFor(File(destination), File(destination).isDirectory)
             ?.createDirectory(sourceFile.name)
         var isSuccess = true
         sourceFile.listFiles()?.forEach { subFile ->
@@ -335,7 +269,7 @@ class DirectoryModel(
 
     private fun copyFileToExtCard(sourceFile: File, destination: String): Boolean {
         val documentFile =
-            getDocumentFile(File(destination), File(destination).isDirectory)
+            safDocumentAccess.documentFor(File(destination), File(destination).isDirectory)
                 ?.createFile(sourceFile.extension, sourceFile.name)
                 ?: return false
         return writeFileToDocumentFile(sourceFile, documentFile)

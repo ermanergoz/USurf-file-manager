@@ -1,18 +1,18 @@
 package com.erman.usurf.ftp.data
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.asLiveData
 import com.erman.usurf.ftp.domain.FtpRepository
-import com.erman.usurf.ftp.domain.FtpServerStatus
 import com.erman.usurf.ftp.model.ConnectionLiveData
+import com.erman.usurf.ftp.model.FTPLiveData
 import com.erman.usurf.ftp.model.FtpModel
+import com.erman.usurf.ftp.service.FtpServer
 import com.erman.usurf.storage.domain.StoragePathsProvider
 
 class FtpRepositoryImpl(
     private val ftpModel: FtpModel,
     private val ftpPreferenceProvider: FtpPreferenceProvider,
     private val connectionLiveData: ConnectionLiveData,
-    private val serverState: FtpServerState,
+    private val ftpLiveData: FTPLiveData,
     private val storagePathsProvider: StoragePathsProvider
 ) : FtpRepository {
     override fun getIpAddress(): String = ftpModel.getIpAddress()
@@ -31,12 +31,9 @@ class FtpRepositoryImpl(
 
     override fun getFtpPath(): String? = ftpPreferenceProvider.getFtpPath()
 
-    override fun isUploadAllowed(): Boolean = ftpPreferenceProvider.isUploadAllowed()
-
     override fun getConnectionLiveData(): LiveData<Boolean> = connectionLiveData
 
-    // A new LiveData per screen: it starts from the state as it is now, never from a value cached while no screen watched.
-    override fun getServerStatus(): LiveData<FtpServerStatus> = serverState.status.asLiveData()
+    override fun getFtpServerRunningLiveData(): LiveData<Boolean> = ftpLiveData
 
     override fun editUsername(username: String) {
         ftpPreferenceProvider.editUsername(username)
@@ -54,10 +51,6 @@ class FtpRepositoryImpl(
         ftpPreferenceProvider.editFtpPath(path)
     }
 
-    override fun editUploadAllowed(allowed: Boolean) {
-        ftpPreferenceProvider.editUploadAllowed(allowed)
-    }
-
     override fun startServer() {
         ftpModel.startFTPServer()
     }
@@ -65,4 +58,6 @@ class FtpRepositoryImpl(
     override fun stopServer() {
         ftpModel.stopFTPServer()
     }
+
+    override fun isServerRunning(): Boolean = FtpServer.isFtpServerRunning
 }
