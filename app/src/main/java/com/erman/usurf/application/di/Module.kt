@@ -9,6 +9,8 @@ import com.erman.usurf.application.data.ApplicationPreferencesRepositoryImpl
 import com.erman.usurf.application.domain.ApplicationPreferencesRepository
 import com.erman.usurf.directory.model.DirectoryListHandler
 import com.erman.usurf.directory.model.DirectoryModel
+import com.erman.usurf.directory.model.FileCopier
+import com.erman.usurf.directory.model.FileCopierImpl
 import com.erman.usurf.directory.model.RootHandler
 import com.erman.usurf.directory.ui.DirectoryViewModel
 import com.erman.usurf.ftp.data.FtpPreferenceProvider
@@ -63,7 +65,11 @@ val appModule =
             SafDocumentAccessImpl(get(), get()) { treeUri -> DocumentFile.fromTreeUri(context, treeUri) }
         }
         single { DirectoryListHandler(get(), get(), get()) }
-        single { DirectoryModel(get(), get(), get(), get(), get(), get()) }
+        single<FileCopier> {
+            val context: Context = get()
+            FileCopierImpl(get()) { uri -> context.contentResolver.openOutputStream(uri) }
+        }
+        single { DirectoryModel(get(), get(), get(), get(), get(), get(), get()) }
         viewModel { DirectoryViewModel(get(), get()) }
 
         single { HomeModel(get(), get()) }

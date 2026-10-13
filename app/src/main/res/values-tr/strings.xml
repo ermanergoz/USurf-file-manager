@@ -156,4 +156,5 @@
     <string name="loading_description">Yükleniyor</string>
     <string name="action_progress_description">İşlem devam ediyor</string>
     <string name="item_already_exists">Bu adda bir öğe zaten var</string>
+    <string name="move_failed_nothing_deleted">Taşıma başarısız oldu; hiçbir şey silinmedi</string>
 </resources>

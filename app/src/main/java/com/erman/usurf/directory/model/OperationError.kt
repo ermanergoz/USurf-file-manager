@@ -7,6 +7,9 @@ import com.erman.usurf.R
 sealed class OperationError(@StringRes val messageResId: Int) {
     /** The name asked for is already taken in that folder. */
     data object AlreadyExists : OperationError(R.string.item_already_exists)
+
+    /** A move stopped before any of its sources was deleted. */
+    data object MoveFailedNothingDeleted : OperationError(R.string.move_failed_nothing_deleted)
 }
 
 /** The message to show for this failure: its [OperationError]'s when it names one, else [fallbackResId]. */

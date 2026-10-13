@@ -8,20 +8,16 @@ import com.erman.usurf.directory.utils.SUFFIX_LENGTH
 import com.erman.usurf.preference.domain.PreferencesRepository
 import com.erman.usurf.storage.data.SafDocumentAccess
 import com.erman.usurf.storage.domain.StoragePathsProvider
+import com.erman.usurf.storage.domain.volumeAmong
 import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
 import java.io.File
-import java.io.FileInputStream
-import java.io.IOException
-import java.io.OutputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 private const val DUMMY_FILE_NAME = "usurfIsRootCheck.txt"
 private const val DUMMY_FILE_NAME_WO_EXTENSION = "usurfIsRootCheck"
 private const val EXTRACTED_FOLDER_NAME_SUFFIX = "_extracted"
-private const val BUFFER_SIZE = 131072 // Ideal for most devices also considering the old devices
-private const val END_OF_STREAM = -1
 private const val OFFSET_START = 0
 private const val TEMP_FOLDER_NAME = "usurfTemp"
 
@@ -31,7 +27,8 @@ class DirectoryModel(
     private val safDocumentAccess: SafDocumentAccess,
     private val rootHandler: RootHandler,
     private val context: Context,
-    private val storagePathsProvider: StoragePathsProvider
+    private val storagePathsProvider: StoragePathsProvider,
+    private val fileCopier: FileCopier
 ) {
     suspend fun getFileModelsFromDirectory(path: String): List<FileModel> = directoryListHandler.getFileModelsFromDirectory(path)
 
@@ -215,112 +212,13 @@ class DirectoryModel(
         }
     }
 
-    private fun doesFileExist(fileModel: FileModel, copyOrMoveDestination: String): Boolean =
-        File(copyOrMoveDestination).listFiles()?.any { it.name == fileModel.name } ?: false
-
     suspend fun copyFile(copyOrMoveSources: List<FileModel>, copyOrMoveDestination: String) = withContext(Dispatchers.IO) {
         if (copyOrMoveSources.isEmpty()) return@withContext
         val isSourceInRoot = copyOrMoveSources.any { it.isInRoot }
         if (isRootDirectory(copyOrMoveDestination) || isSourceInRoot) {
             executeAsRoot { rootHandler.copyFile(copyOrMoveSources, copyOrMoveDestination) }
         } else {
-            copyOrMoveSources.forEach { copySingleFileNonRoot(it, copyOrMoveDestination) }
-        }
-    }
-
-    private fun copySingleFileNonRoot(source: FileModel, destination: String) {
-        if (doesFileExist(source, destination)) {
-            throw FileOperationException("Destination already contains an item with this name")
-        }
-        if (source.isDirectory) {
-            copyDirectoryNonRoot(source, destination)
-        } else {
-            copySingleFile(source, destination)
-        }
-    }
-
-    private fun copyDirectoryNonRoot(source: FileModel, destination: String) {
-        val isCopied =
-            try {
-                File(source.path).copyRecursively(File(destination + File.separator + source.name))
-            } catch (err: Exception) {
-                loge(err.localizedMessage ?: UNKNOWN_ERROR)
-                false
-            }
-        if (!isCopied && !copyToExtCard(File(source.path), destination)) throw FileOperationException("Copy failed")
-    }
-
-    private fun copySingleFile(source: FileModel, destination: String) {
-        val isCopied =
-            try {
-                File(source.path).copyTo(File(destination + File.separator + source.name))
-                true
-            } catch (err: IOException) {
-                loge(err.localizedMessage ?: UNKNOWN_ERROR)
-                false
-            }
-        if (!isCopied && !copyToExtCard(File(source.path), destination)) throw FileOperationException("Copy failed")
-    }
-
-    private fun copyToExtCard(sourceFile: File, destination: String): Boolean = if (sourceFile.isDirectory) {
-        copyDirectoryToExtCard(sourceFile, destination)
-    } else {
-        copyFileToExtCard(sourceFile, destination)
-    }
-
-    private fun copyDirectoryToExtCard(sourceFile: File, destination: String): Boolean {
-        safDocumentAccess.documentFor(File(destination), File(destination).isDirectory)
-            ?.createDirectory(sourceFile.name)
-        var isSuccess = true
-        sourceFile.listFiles()?.forEach { subFile ->
-            isSuccess = copyToExtCard(subFile, destination + File.separator + sourceFile.name)
-        }
-        return isSuccess
-    }
-
-    private fun copyFileToExtCard(sourceFile: File, destination: String): Boolean {
-        val documentFile =
-            safDocumentAccess.documentFor(File(destination), File(destination).isDirectory)
-                ?.createFile(sourceFile.extension, sourceFile.name)
-                ?: return false
-        return writeFileToDocumentFile(sourceFile, documentFile)
-    }
-
-    private fun writeFileToDocumentFile(sourceFile: File, documentFile: DocumentFile): Boolean {
-        var fileInputStream: FileInputStream? = null
-        var outputStream: OutputStream? = null
-        return try {
-            fileInputStream = FileInputStream(sourceFile)
-            outputStream = context.contentResolver.openOutputStream(documentFile.uri)
-            transferStream(fileInputStream, outputStream)
-        } catch (err: Exception) {
-            loge(err.localizedMessage ?: UNKNOWN_ERROR)
-            false
-        } finally {
-            closeStreams(fileInputStream, outputStream)
-        }
-    }
-
-    private fun transferStream(inputStream: FileInputStream, outputStream: OutputStream?): Boolean {
-        val byteArray = ByteArray(BUFFER_SIZE)
-        var bytesRead: Int
-        return try {
-            while (inputStream.read(byteArray).also { bytesRead = it } != END_OF_STREAM) {
-                outputStream?.write(byteArray, OFFSET_START, bytesRead)
-            }
-            true
-        } catch (err: Exception) {
-            loge(err.localizedMessage ?: UNKNOWN_ERROR)
-            false
-        }
-    }
-
-    private fun closeStreams(fileInputStream: FileInputStream?, outputStream: OutputStream?) {
-        try {
-            fileInputStream?.close()
-            outputStream?.close()
-        } catch (err: Exception) {
-            loge(err.localizedMessage ?: UNKNOWN_ERROR)
+            copyOrMoveSources.forEach { fileCopier.copy(File(it.path), File(copyOrMoveDestination)) }
         }
     }
 
@@ -334,9 +232,42 @@ class DirectoryModel(
         }
     }
 
+    // A move on one volume is a rename. Otherwise every source is copied and its copy read back before any
+    // source is deleted; when one copy fails or does not match its source, the copies already made are taken
+    // back and every source stays. Taken names are refused first, so neither a rename nor a copy replaces anything.
     private suspend fun moveFileNonRoot(sources: List<FileModel>, destination: String) {
-        copyFile(sources, destination)
-        delete(sources)
+        val destinationFolder = File(destination)
+        if (sources.any { File(destinationFolder, it.name).exists() }) {
+            throw FileOperationException("Destination already contains an item with this name", OperationError.AlreadyExists)
+        }
+        val volumes = storagePathsProvider.getStorageDirectories()
+        val destinationVolume = volumeAmong(volumes, destinationFolder.path)
+        val copiedSources = mutableListOf<FileModel>()
+        val copies = mutableListOf<CopiedItem>()
+        try {
+            sources.forEach { source ->
+                val sourceFile = File(source.path)
+                val isOnSameVolume = volumeAmong(volumes, sourceFile.path) == destinationVolume
+                if (!isOnSameVolume || !sourceFile.renameTo(File(destinationFolder, source.name))) {
+                    copies += copyAndCheck(sourceFile, destinationFolder)
+                    copiedSources += source
+                }
+            }
+        } catch (err: FileOperationException) {
+            copies.forEach { it.remove() }
+            throw FileOperationException("Move failed; nothing was deleted", OperationError.MoveFailedNothingDeleted, err)
+        }
+        if (copiedSources.isNotEmpty()) delete(copiedSources)
+    }
+
+    private fun copyAndCheck(source: File, destinationFolder: File): CopiedItem {
+        val expected = EntryShape.of(source)
+        val copy = fileCopier.copy(source, destinationFolder)
+        if (expected == null || expected != copy.shape()) {
+            copy.remove()
+            throw FileOperationException("The copy of ${source.name} does not match it")
+        }
+        return copy
     }
 
     suspend fun getSearchedDeviceFiles(searchQuery: String): List<FileModel> = withContext(Dispatchers.IO) {
