@@ -157,4 +157,12 @@
     <string name="action_progress_description">İşlem devam ediyor</string>
     <string name="item_already_exists">Bu adda bir öğe zaten var</string>
     <string name="move_failed_nothing_deleted">Taşıma başarısız oldu; hiçbir şey silinmedi</string>
+    <plurals name="delete_items_title">
+        <item quantity="one">%d öğe silinsin mi?</item>
+        <item quantity="other">%d öğe silinsin mi?</item>
+    </plurals>
+    <plurals name="delete_items_more">
+        <item quantity="one">ve %d öğe daha</item>
+        <item quantity="other">ve %d öğe daha</item>
+    </plurals>
 </resources>

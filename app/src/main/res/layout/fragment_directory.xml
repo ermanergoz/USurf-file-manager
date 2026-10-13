@@ -301,7 +301,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
-                android:onClick="@{() -> viewModel.delete()}"
+                android:onClick="@{() -> viewModel.requestDelete()}"
                 android:text="@string/delete"
                 android:textColor="@color/daynnightTextColor"
                 android:textSize="@dimen/text_size_12" />

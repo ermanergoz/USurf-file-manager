@@ -60,4 +60,7 @@ sealed class DirectoryUiEvent {
     data class ShowSnackbar(val messageResId: Int) : DirectoryUiEvent()
 
     data class ShowDialog(val dialogArgs: DialogArgs) : DirectoryUiEvent()
+
+    /** Ask before deleting the items with these names. */
+    data class ConfirmDelete(val names: List<String>) : DirectoryUiEvent()
 }

@@ -164,4 +164,12 @@
     <string name="exit_confirmation_message">An operation is in progress. Are you sure you want to exit?</string>
     <string name="item_already_exists">An item with this name already exists</string>
     <string name="move_failed_nothing_deleted">Move failed; nothing was deleted</string>
+    <plurals name="delete_items_title">
+        <item quantity="one">Delete %d item?</item>
+        <item quantity="other">Delete %d items?</item>
+    </plurals>
+    <plurals name="delete_items_more">
+        <item quantity="one">and %d more</item>
+        <item quantity="other">and %d more</item>
+    </plurals>
 </resources>

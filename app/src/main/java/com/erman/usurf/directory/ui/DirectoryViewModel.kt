@@ -32,6 +32,8 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel, private val
 
     private var listLoadJob: Job? = null
 
+    private var itemsAwaitingDeletion: List<FileModel> = emptyList()
+
     val shouldShowThumbnails: Boolean
         get() = preferencesRepository.getShowThumbnailsPreference()
 
@@ -498,15 +500,28 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel, private val
         _uiEvents.value = Event(DirectoryUiEvent.ShowDialog(DialogArgs.RenameDialogArgs(selection.last().name)))
     }
 
-    fun delete() {
-        val selection = requireNonEmptySelectionAndResetPanel() ?: return
+    // Nothing is deleted on the tap itself: the items are kept here, named in a confirmation, and deleted only
+    // when that confirmation comes back. They outlive the selection, which a recreated screen clears.
+    fun requestDelete() {
+        val selection = requireCurrentState().common.selectedFiles
+        if (selection.isEmpty()) return
+        itemsAwaitingDeletion = selection.toList()
+        _uiEvents.value = Event(DirectoryUiEvent.ConfirmDelete(selection.map { it.name }))
+    }
+
+    fun confirmDelete() {
+        val items = itemsAwaitingDeletion
+        itemsAwaitingDeletion = emptyList()
+        if (items.isEmpty()) return
+        turnOffOptionPanel()
+        clearMultipleSelection()
         launchAction(
             ActionType.DELETE,
             R.string.deleting,
             R.string.deleting_successful,
             R.string.error_while_deleting
         ) {
-            directoryModel.delete(selection.toMutableList())
+            directoryModel.delete(items)
         }
     }
 
