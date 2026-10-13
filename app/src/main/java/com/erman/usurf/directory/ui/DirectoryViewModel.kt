@@ -8,6 +8,7 @@ import com.erman.usurf.R
 import com.erman.usurf.dialog.model.DialogArgs
 import com.erman.usurf.directory.model.DirectoryModel
 import com.erman.usurf.directory.model.FileModel
+import com.erman.usurf.directory.model.operationMessageOr
 import com.erman.usurf.preference.domain.PreferencesRepository
 import com.erman.usurf.utils.Event
 import com.erman.usurf.utils.ROOT_DIRECTORY
@@ -66,7 +67,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel, private val
             } catch (err: CancellationException) {
                 throw err
             } catch (err: Exception) {
-                _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(errorMessageResId))
+                _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(err.operationMessageOr(errorMessageResId)))
                 loge(err.localizedMessage ?: UNKNOWN_ERROR)
             } finally {
                 updateState { state ->
@@ -446,7 +447,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel, private val
             } catch (err: CancellationException) {
                 throw err
             } catch (err: Exception) {
-                _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(errorMessage))
+                _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(err.operationMessageOr(errorMessage)))
                 loge(err.localizedMessage ?: UNKNOWN_ERROR)
             } finally {
                 updateState { it.copy(activeActionCount = it.activeActionCount - 1) }

@@ -86,8 +86,7 @@ class DirectoryModel(
     }
 
     private fun deleteDummyFileWithSaf(dummyFile: File) {
-        val documentFileToDelete = safDocumentAccess.documentFor(dummyFile, dummyFile.isDirectory)
-        documentFileToDelete?.let { deleteFolderRecursively(it) }
+        safDocumentAccess.existingDocumentFor(dummyFile)?.let { deleteFolderRecursively(it) }
     }
 
     private suspend fun deleteDummyFileFromDeviceSearch() {
@@ -121,10 +120,22 @@ class DirectoryModel(
     suspend fun rename(selectedDirectory: FileModel, newFileName: String) = withContext(Dispatchers.IO) {
         requireValidName(newFileName)
         if (selectedDirectory.name == newFileName) throw FileOperationException("New name matches the current name")
+        requireFreeName(File(selectedDirectory.path).parentFile, selectedDirectory.name, newFileName)
         if (isRootDirectory(selectedDirectory.path)) {
             executeAsRoot { rootHandler.renameFile(selectedDirectory, newFileName) }
         } else {
             renameNonRoot(selectedDirectory, newFileName)
+        }
+    }
+
+    // A rename onto a taken name would replace that item (rename(2) and mv overwrite), so it is refused first.
+    // On case-insensitive storage a rename that only changes case finds the item itself under the new name,
+    // so then only an entry spelled exactly like the new name counts.
+    private fun requireFreeName(directory: File?, currentName: String, newName: String) {
+        if (directory == null || !File(directory, newName).exists()) return
+        val isCaseOnlyChange = newName.equals(currentName, ignoreCase = true)
+        if (!isCaseOnlyChange || directory.list()?.contains(newName) == true) {
+            throw FileOperationException("An item with this name already exists", OperationError.AlreadyExists)
         }
     }
 
@@ -134,7 +145,7 @@ class DirectoryModel(
         val new = File(dirName, newFileName)
         val isRenamed =
             prev.renameTo(new) ||
-                safDocumentAccess.documentFor(prev, selectedDirectory.isDirectory)?.renameTo(newFileName) == true
+                safDocumentAccess.existingDocumentFor(prev)?.renameTo(newFileName) == true
         if (!isRenamed || !new.exists()) throw FileOperationException("Rename failed")
     }
 
@@ -151,7 +162,7 @@ class DirectoryModel(
         val file = File(fileModel.path)
         val isSuccess = if (fileModel.isDirectory) file.deleteRecursively() else file.delete()
         if (isSuccess) return
-        val document = safDocumentAccess.documentFor(file, fileModel.isDirectory)
+        val document = safDocumentAccess.existingDocumentFor(file)
         if (document == null || !deleteFolderRecursively(document)) throw FileOperationException("Delete failed")
     }
 

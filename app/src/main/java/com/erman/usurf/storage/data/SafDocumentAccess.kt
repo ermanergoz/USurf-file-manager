@@ -12,4 +12,10 @@ interface SafDocumentAccess {
      * a stand-in document such as the tree root.
      */
     fun documentFor(file: File, isDirectory: Boolean): DocumentFile?
+
+    /**
+     * The document for [file] inside the granted tree when it and every folder above it already exist.
+     * Never creates anything; null in the same cases as [documentFor] and whenever any part of the path is missing.
+     */
+    fun existingDocumentFor(file: File): DocumentFile?
 }

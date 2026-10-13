@@ -21,8 +21,14 @@ class SafDocumentAccessImpl(
     private val storagePathsProvider: StoragePathsProvider,
     private val openTree: (Uri) -> DocumentFile?
 ) : SafDocumentAccess {
-    override fun documentFor(file: File, isDirectory: Boolean): DocumentFile? = try {
-        resolve(file, isDirectory)
+    override fun documentFor(file: File, isDirectory: Boolean): DocumentFile? = resolveOrNull(file) { root, segments ->
+        walkOrCreate(root, segments, isDirectory)
+    }
+
+    override fun existingDocumentFor(file: File): DocumentFile? = resolveOrNull(file, ::lookUp)
+
+    private fun resolveOrNull(file: File, walk: (DocumentFile, List<String>) -> DocumentFile?): DocumentFile? = try {
+        resolve(file, walk)
     } catch (err: IOException) {
         unresolved(err)
     } catch (err: IllegalArgumentException) {
@@ -31,7 +37,7 @@ class SafDocumentAccessImpl(
         unresolved(err)
     }
 
-    private fun resolve(file: File, isDirectory: Boolean): DocumentFile? {
+    private fun resolve(file: File, walk: (DocumentFile, List<String>) -> DocumentFile?): DocumentFile? {
         val treeUri = grantedTreeUri() ?: return null
         val canonicalPath = file.canonicalPath
         val location = sdCardBasePath(treeUri, canonicalPath)
@@ -40,7 +46,7 @@ class SafDocumentAccessImpl(
         return when (location) {
             SdCardPath.Outside -> null
             SdCardPath.Root -> openSdCardTree(treeUri)
-            is SdCardPath.Relative -> openSdCardTree(treeUri)?.let { walkOrCreate(it, location.segments, isDirectory) }
+            is SdCardPath.Relative -> openSdCardTree(treeUri)?.let { walk(it, location.segments) }
         }
     }
 
@@ -62,6 +68,9 @@ class SafDocumentAccessImpl(
             val isFolder = isDirectory || index < segments.lastIndex
             parent?.let { it.findFile(name) ?: createChild(it, name, isFolder) }
         }
+
+    private fun lookUp(root: DocumentFile, segments: List<String>): DocumentFile? =
+        segments.fold<String, DocumentFile?>(root) { parent, name -> parent?.findFile(name) }
 
     private fun createChild(parent: DocumentFile, name: String, isFolder: Boolean): DocumentFile? = if (isFolder) {
         parent.createDirectory(name)
