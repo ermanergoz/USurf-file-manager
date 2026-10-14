@@ -7,16 +7,21 @@ import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.preference.CheckBoxPreference
 import androidx.preference.ListPreference
+import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceGroup
 import androidx.preference.SwitchPreference
 import com.erman.usurf.R
+import com.erman.usurf.activity.MainViewModel
 import com.erman.usurf.activity.model.RefreshNavDrawer
+import com.erman.usurf.home.model.StorageAccessFramework
 import com.erman.usurf.preference.utils.KEY_PREFERENCE_ROOT_ACCESS
+import com.erman.usurf.preference.utils.KEY_PREFERENCE_SD_CARD_ACCESS
 import com.erman.usurf.utils.EventObserver
 import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
 import com.google.android.material.snackbar.Snackbar
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 private const val KEY_SHOW_HIDDEN_SWITCH: String = "showHiddenFileSwitch"
@@ -28,6 +33,7 @@ private const val KEY_SORT_FILES_LIST_PREFERENCE: String = "sortListPreference"
 class PreferencesFragment : PreferenceFragmentCompat() {
     private lateinit var navDrawerRefreshListener: RefreshNavDrawer
     private val preferencesViewModel by viewModel<PreferencesViewModel>()
+    private val mainViewModel by activityViewModel<MainViewModel>()
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences_main, rootKey)
@@ -37,6 +43,14 @@ class PreferencesFragment : PreferenceFragmentCompat() {
             preferencesViewModel.onRootAccessChangeRequested(isEnableRequest)
             // Turning root on waits for the su answer off the main thread; its result sets the switch.
             !isEnableRequest
+        }
+
+        findPreference<Preference>(KEY_PREFERENCE_SD_CARD_ACCESS)?.apply {
+            isVisible = mainViewModel.canOfferSafGrant()
+            setOnPreferenceClickListener {
+                (activity as? StorageAccessFramework)?.launchSAF()
+                true
+            }
         }
 
         tintPreferenceIcons()

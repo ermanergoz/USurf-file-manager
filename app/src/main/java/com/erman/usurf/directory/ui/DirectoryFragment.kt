@@ -25,12 +25,14 @@ import com.erman.usurf.dialog.ui.AddFavoriteDialog
 import com.erman.usurf.dialog.ui.CompressDialog
 import com.erman.usurf.dialog.ui.CreateFileDialog
 import com.erman.usurf.dialog.ui.CreateFolderDialog
+import com.erman.usurf.dialog.ui.DeleteConfirmationDialog
 import com.erman.usurf.dialog.ui.FileInformationDialog
 import com.erman.usurf.dialog.ui.RenameDialog
 import com.erman.usurf.dialog.ui.SearchDialog
 import com.erman.usurf.directory.model.FileModel
 import com.erman.usurf.directory.utils.MIME_TYPE_ALL
 import com.erman.usurf.directory.utils.MimeUtils
+import com.erman.usurf.home.model.StorageAccessFramework
 import com.erman.usurf.home.ui.HomeViewModel
 import com.erman.usurf.utils.EventObserver
 import com.erman.usurf.utils.FileOpenUtils
@@ -72,6 +74,8 @@ class DirectoryFragment : Fragment() {
                     is DirectoryUiEvent.ShowSnackbar ->
                         Snackbar.make(binding.root, getString(event.messageResId), Snackbar.LENGTH_LONG).show()
                     is DirectoryUiEvent.ShowDialog -> handleDialogEvent(event.dialogArgs)
+                    is DirectoryUiEvent.ConfirmDelete -> dialogListener.showDialog(DeleteConfirmationDialog.newInstance(event.paths))
+                    is DirectoryUiEvent.RequestSafGrant -> (activity as? StorageAccessFramework)?.launchSAF()
                 }
             }
         )
@@ -202,6 +206,9 @@ class DirectoryFragment : Fragment() {
         }
         fragmentManager.setFragmentResultListener(CompressDialog.REQUEST_KEY, viewLifecycleOwner) { _, bundle ->
             directoryViewModel.onFileCompressOkPressed(bundle.getString(CompressDialog.RESULT_NAME).orEmpty())
+        }
+        fragmentManager.setFragmentResultListener(DeleteConfirmationDialog.REQUEST_KEY, viewLifecycleOwner) { _, bundle ->
+            directoryViewModel.confirmDelete(DeleteConfirmationDialog.pathsIn(bundle))
         }
         fragmentManager.setFragmentResultListener(SearchDialog.REQUEST_KEY, viewLifecycleOwner) { _, bundle ->
             directoryViewModel.onFileSearchOkPressed(bundle.getString(SearchDialog.RESULT_QUERY).orEmpty())

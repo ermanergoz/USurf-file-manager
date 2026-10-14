@@ -1,6 +1,8 @@
 package com.erman.usurf.application.di
 
 import android.content.Context
+import android.os.Build
+import androidx.documentfile.provider.DocumentFile
 import com.erman.usurf.activity.MainViewModel
 import com.erman.usurf.application.data.ApplicationDao
 import com.erman.usurf.application.data.ApplicationPreferenceProvider
@@ -8,6 +10,8 @@ import com.erman.usurf.application.data.ApplicationPreferencesRepositoryImpl
 import com.erman.usurf.application.domain.ApplicationPreferencesRepository
 import com.erman.usurf.directory.model.DirectoryListHandler
 import com.erman.usurf.directory.model.DirectoryModel
+import com.erman.usurf.directory.model.FileCopier
+import com.erman.usurf.directory.model.FileCopierImpl
 import com.erman.usurf.directory.model.RootHandler
 import com.erman.usurf.directory.ui.DirectoryViewModel
 import com.erman.usurf.ftp.data.FtpPreferenceProvider
@@ -27,9 +31,13 @@ import com.erman.usurf.preference.data.PreferenceProvider
 import com.erman.usurf.preference.data.PreferencesRepositoryImpl
 import com.erman.usurf.preference.domain.PreferencesRepository
 import com.erman.usurf.preference.ui.PreferencesViewModel
+import com.erman.usurf.storage.data.SafDocumentAccess
+import com.erman.usurf.storage.data.SafDocumentAccessImpl
+import com.erman.usurf.storage.data.StorageAccessPolicyImpl
 import com.erman.usurf.storage.data.StorageDirectoryPreferenceProvider
 import com.erman.usurf.storage.data.StorageDirectoryRepositoryImpl
 import com.erman.usurf.storage.data.StoragePathsProviderImpl
+import com.erman.usurf.storage.domain.StorageAccessPolicy
 import com.erman.usurf.storage.domain.StorageDirectoryRepository
 import com.erman.usurf.storage.domain.StoragePathsProvider
 import com.erman.usurf.utils.SHARED_PREF_FILE
@@ -51,15 +59,34 @@ val appModule =
         single<ApplicationPreferencesRepository> { ApplicationPreferencesRepositoryImpl(get()) }
         single<StoragePathsProvider> { StoragePathsProviderImpl(get(), get()) }
         single { ApplicationDao(get(), get()) }
-        viewModel { MainViewModel(get(), get()) }
+        viewModel { MainViewModel(get(), get(), get()) }
 
         single { PreferenceProvider(get()) }
         single<PreferencesRepository> { PreferencesRepositoryImpl(get()) }
         single { StorageDirectoryPreferenceProvider(get()) }
         single<StorageDirectoryRepository> { StorageDirectoryRepositoryImpl(get()) }
+        single<SafDocumentAccess> {
+            val context: Context = get()
+            SafDocumentAccessImpl(get(), get()) { treeUri -> DocumentFile.fromTreeUri(context, treeUri) }
+        }
+        single<StorageAccessPolicy> {
+            val context: Context = get()
+            StorageAccessPolicyImpl(
+                storagePathsProvider = get(),
+                storageDirectoryRepository = get(),
+                sdkInt = Build.VERSION.SDK_INT,
+                isRemovableVolume = StorageAccessPolicyImpl::isRemovableStorageVolume,
+                isGrantHeld = { treeUri -> StorageAccessPolicyImpl.holdsWriteGrantOn(context, treeUri) },
+                grantedTreeOf = StorageAccessPolicyImpl::grantedTreeOf
+            )
+        }
         single { DirectoryListHandler(get(), get(), get()) }
-        single { DirectoryModel(get(), get(), get(), get(), get(), get()) }
-        viewModel { DirectoryViewModel(get(), get()) }
+        single<FileCopier> {
+            val context: Context = get()
+            FileCopierImpl(get()) { uri -> context.contentResolver.openOutputStream(uri) }
+        }
+        single { DirectoryModel(get(), get(), get(), get(), get(), get(), get()) }
+        viewModel { DirectoryViewModel(get(), get(), get()) }
 
         single { HomeModel(get(), get()) }
         single<FavoriteRepository> { FavoriteRepositoryImpl(get(), get()) }
