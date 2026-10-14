@@ -1,5 +1,6 @@
 package com.erman.usurf.directory.ui
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -8,8 +9,11 @@ import com.erman.usurf.R
 import com.erman.usurf.dialog.model.DialogArgs
 import com.erman.usurf.directory.model.DirectoryModel
 import com.erman.usurf.directory.model.FileModel
+import com.erman.usurf.directory.model.FileOperationException
+import com.erman.usurf.directory.model.OperationError
 import com.erman.usurf.directory.model.operationMessageOr
 import com.erman.usurf.preference.domain.PreferencesRepository
+import com.erman.usurf.storage.domain.StorageAccessPolicy
 import com.erman.usurf.utils.Event
 import com.erman.usurf.utils.ROOT_DIRECTORY
 import com.erman.usurf.utils.UNKNOWN_ERROR
@@ -19,8 +23,11 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-class DirectoryViewModel(private val directoryModel: DirectoryModel, private val preferencesRepository: PreferencesRepository) :
-    ViewModel() {
+class DirectoryViewModel(
+    private val directoryModel: DirectoryModel,
+    private val preferencesRepository: PreferencesRepository,
+    private val storageAccessPolicy: StorageAccessPolicy
+) : ViewModel() {
     private val isMultiSelectionMode: Boolean
         get() = with(requireCurrentState()) { !isInCopyOrMoveMode && common.selectedFiles.isNotEmpty() }
 
@@ -33,6 +40,8 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel, private val
     private var listLoadJob: Job? = null
 
     private var itemsAwaitingDeletion: List<FileModel> = emptyList()
+
+    private var actionAwaitingGrant: (() -> Unit)? = null
 
     val shouldShowThumbnails: Boolean
         get() = preferencesRepository.getShowThumbnailsPreference()
@@ -59,6 +68,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel, private val
         finallyStateTransform: (DirectoryUiState) -> DirectoryUiState = { it },
         block: suspend () -> Unit
     ) {
+        actionAwaitingGrant = null
         updateState { it.copy(actionType = actionType, activeActionCount = it.activeActionCount + 1) }
         _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(progressMessageResId))
         viewModelScope.launch {
@@ -69,8 +79,9 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel, private val
             } catch (err: CancellationException) {
                 throw err
             } catch (err: Exception) {
-                _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(err.operationMessageOr(errorMessageResId)))
-                loge(err.localizedMessage ?: UNKNOWN_ERROR)
+                reportFailure(err, errorMessageResId) {
+                    launchAction(actionType, progressMessageResId, successMessageResId, errorMessageResId, finallyStateTransform, block)
+                }
             } finally {
                 updateState { state ->
                     val base =
@@ -82,6 +93,42 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel, private val
                 }
             }
         }
+    }
+
+    private fun reportFailure(err: Exception, @StringRes errorMessageResId: Int, retry: () -> Unit) {
+        _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(err.operationMessageOr(errorMessageResId)))
+        loge(err.localizedMessage ?: UNKNOWN_ERROR)
+        if ((err as? FileOperationException)?.error == OperationError.SafGrantRequired) {
+            actionAwaitingGrant = retry
+            _uiEvents.value = Event(DirectoryUiEvent.RequestSafGrant)
+        }
+    }
+
+    // On API 29 and lower the SD card refuses file API writes until its document tree is granted, whatever
+    // canWrite() says, and the refusal reaches here only as an operation that failed. When the access policy
+    // says a grant would help, such a failure asks for the grant; an operation error of its own keeps its message.
+    private suspend fun writingTo(paths: List<String>, write: suspend () -> Unit) {
+        try {
+            write()
+        } catch (err: FileOperationException) {
+            throw grantFailureOr(err, err.error, paths)
+        } catch (err: SecurityException) {
+            throw grantFailureOr(err, null, paths)
+        }
+    }
+
+    private fun grantFailureOr(err: Exception, ownError: OperationError?, paths: List<String>): Exception =
+        if (ownError == null && paths.any { storageAccessPolicy.needsSafGrant(it) }) {
+            FileOperationException("SD card access is needed", OperationError.SafGrantRequired, err)
+        } else {
+            err
+        }
+
+    /** Runs again the write that asked for the SD card grant, once, now that the user granted it. */
+    fun onSafAccessGranted() {
+        val retry = actionAwaitingGrant ?: return
+        actionAwaitingGrant = null
+        retry()
     }
 
     private fun applySelectionChange(
@@ -240,6 +287,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel, private val
     }
 
     fun setPath(path: String) {
+        actionAwaitingGrant = null
         updateState {
             it.copy(
                 common = it.common.copy(isLoading = true),
@@ -356,7 +404,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel, private val
             R.string.compressing_successful,
             R.string.error_while_compressing
         ) {
-            directoryModel.compressFiles(selection, zipNameWithExtension)
+            writingTo(listOf(selection.first().path)) { directoryModel.compressFiles(selection, zipNameWithExtension) }
         }
     }
 
@@ -368,7 +416,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel, private val
             R.string.extracting_successful,
             R.string.error_while_extracting
         ) {
-            directoryModel.extractFiles(selection.first())
+            writingTo(listOf(selection.first().path)) { directoryModel.extractFiles(selection.first()) }
         }
     }
 
@@ -434,14 +482,17 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel, private val
             return
         }
         val isMove = actionType == ActionType.MOVE
+        actionAwaitingGrant = null
         updateState { it.copy(activeActionCount = it.activeActionCount + 1) }
         _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(if (isMove) R.string.moving else R.string.copying))
         viewModelScope.launch {
             try {
-                if (isMove) {
-                    directoryModel.moveFile(selection.toMutableList(), path)
-                } else {
-                    directoryModel.copyFile(selection.toMutableList(), path)
+                writingTo(listOf(path) + selection.map { it.path }) {
+                    if (isMove) {
+                        directoryModel.moveFile(selection.toMutableList(), path)
+                    } else {
+                        directoryModel.copyFile(selection.toMutableList(), path)
+                    }
                 }
                 refreshFileList()
                 _uiEvents.value =
@@ -449,8 +500,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel, private val
             } catch (err: CancellationException) {
                 throw err
             } catch (err: Exception) {
-                _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(err.operationMessageOr(errorMessage)))
-                loge(err.localizedMessage ?: UNKNOWN_ERROR)
+                reportFailure(err, errorMessage) { launchTransfer(actionType, selection, path) }
             } finally {
                 updateState { it.copy(activeActionCount = it.activeActionCount - 1) }
                 if (isMove) endCopyMode()
@@ -490,7 +540,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel, private val
             R.string.renaming_successful,
             R.string.error_while_renaming
         ) {
-            directoryModel.rename(fileToRename, fileName)
+            writingTo(listOf(fileToRename.path)) { directoryModel.rename(fileToRename, fileName) }
         }
     }
 
@@ -521,7 +571,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel, private val
             R.string.deleting_successful,
             R.string.error_while_deleting
         ) {
-            directoryModel.delete(items)
+            writingTo(items.map { it.path }) { directoryModel.delete(items) }
         }
     }
 
@@ -548,7 +598,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel, private val
             R.string.error_when_creating_folder,
             { it.copy(common = it.common.copy(isCreateMenuExpanded = false)) }
         ) {
-            directoryModel.createFolder(path, folderName)
+            writingTo(listOf(path)) { directoryModel.createFolder(path, folderName) }
         }
     }
 
@@ -563,7 +613,7 @@ class DirectoryViewModel(private val directoryModel: DirectoryModel, private val
             R.string.error_when_creating_file,
             { it.copy(common = it.common.copy(isCreateMenuExpanded = false)) }
         ) {
-            directoryModel.createFile(path, fileName)
+            writingTo(listOf(path)) { directoryModel.createFile(path, fileName) }
         }
     }
 

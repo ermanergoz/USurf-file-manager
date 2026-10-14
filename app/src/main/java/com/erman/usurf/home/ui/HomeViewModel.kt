@@ -1,6 +1,5 @@
 package com.erman.usurf.home.ui
 
-import android.os.Build
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -10,9 +9,8 @@ import com.erman.usurf.dialog.model.DialogArgs
 import com.erman.usurf.home.domain.FavoriteRepository
 import com.erman.usurf.home.model.FavoriteItem
 import com.erman.usurf.home.model.HomeModel
-import com.erman.usurf.storage.domain.StorageDirectoryRepository
+import com.erman.usurf.storage.domain.StorageAccessPolicy
 import com.erman.usurf.utils.Event
-import com.erman.usurf.utils.ROOT_DIRECTORY
 import com.erman.usurf.utils.logi
 import java.io.File
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +19,7 @@ import kotlinx.coroutines.withContext
 
 class HomeViewModel(
     private val homeModel: HomeModel,
-    private val storageDirectoryRepository: StorageDirectoryRepository,
+    private val storageAccessPolicy: StorageAccessPolicy,
     private val favoriteRepository: FavoriteRepository
 ) : ViewModel() {
     private val _uiState = MutableLiveData(HomeUiState())
@@ -42,29 +40,14 @@ class HomeViewModel(
 
     fun onStorageButtonClick(path: String) {
         updateState { it.copy(path = path) }
-        navigateToDirectory(path)
-        showSafDialogIfNeeded(path)
-    }
-
-    private fun navigateToDirectory(path: String) {
         _uiEvents.value = Event(HomeUiEvent.NavigateToDirectory(path))
-    }
-
-    private fun showSafDialogIfNeeded(path: String) {
-        if (shouldShowSafDialog(path)) {
+        if (storageAccessPolicy.needsSafGrant(path)) {
             _uiEvents.value = Event(HomeUiEvent.ShowDialog(DialogArgs.SAFActivityArgs))
         }
     }
 
-    private fun shouldShowSafDialog(path: String): Boolean {
-        if (path == ROOT_DIRECTORY) return false
-        if (File(path).canWrite()) return false
-        return when {
-            Build.VERSION.SDK_INT > Build.VERSION_CODES.Q -> false
-            storageDirectoryRepository.getChosenUri() != "" -> false
-            else -> true
-        }
-    }
+    /** Whether a long press on the storage card for [path] offers to grant (or grant again) its SD card access. */
+    fun canOfferSafGrant(path: String): Boolean = storageAccessPolicy.canGrantSafAccess(path)
 
     fun getUsedStoragePercentage(path: String): Int = homeModel.getUsedStoragePercentage(path)
 

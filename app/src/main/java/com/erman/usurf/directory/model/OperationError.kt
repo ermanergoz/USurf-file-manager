@@ -10,6 +10,9 @@ sealed class OperationError(@StringRes val messageResId: Int) {
 
     /** A move stopped before any of its sources was deleted. */
     data object MoveFailedNothingDeleted : OperationError(R.string.move_failed_nothing_deleted)
+
+    /** The SD card refused the write because the app holds no granted document tree for it. */
+    data object SafGrantRequired : OperationError(R.string.sd_card_access_needed)
 }
 
 /** The message to show for this failure: its [OperationError]'s when it names one, else [fallbackResId]. */

@@ -157,6 +157,10 @@
     <string name="action_progress_description">İşlem devam ediyor</string>
     <string name="item_already_exists">Bu adda bir öğe zaten var</string>
     <string name="move_failed_nothing_deleted">Taşıma başarısız oldu; hiçbir şey silinmedi</string>
+    <string name="sd_card_access_needed">Burada dosya değiştirmek için SD kart erişimi gerekiyor</string>
+    <string name="grant_sd_card_access">SD kart erişimi ver</string>
+    <string name="sd_card_access">SD kart erişimi</string>
+    <string name="sd_card_access_summary">Uygulamanın SD karttaki dosyaları değiştirebilmesi için SD kartı yeniden seçin</string>
     <plurals name="delete_items_title">
         <item quantity="one">%d öğe silinsin mi?</item>
         <item quantity="other">%d öğe silinsin mi?</item>

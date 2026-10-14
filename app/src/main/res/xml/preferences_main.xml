@@ -67,6 +67,13 @@
             android:title="@string/root_explorer"
             app:iconSpaceReserved="false" />
 
+        <Preference
+            android:icon="@drawable/ic_sd_card"
+            android:key="sdCardAccess"
+            android:summary="@string/sd_card_access_summary"
+            android:title="@string/sd_card_access"
+            app:iconSpaceReserved="false" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>

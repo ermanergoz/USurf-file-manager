@@ -32,6 +32,7 @@ import com.erman.usurf.dialog.ui.SearchDialog
 import com.erman.usurf.directory.model.FileModel
 import com.erman.usurf.directory.utils.MIME_TYPE_ALL
 import com.erman.usurf.directory.utils.MimeUtils
+import com.erman.usurf.home.model.StorageAccessFramework
 import com.erman.usurf.home.ui.HomeViewModel
 import com.erman.usurf.utils.EventObserver
 import com.erman.usurf.utils.FileOpenUtils
@@ -74,6 +75,7 @@ class DirectoryFragment : Fragment() {
                         Snackbar.make(binding.root, getString(event.messageResId), Snackbar.LENGTH_LONG).show()
                     is DirectoryUiEvent.ShowDialog -> handleDialogEvent(event.dialogArgs)
                     is DirectoryUiEvent.ConfirmDelete -> dialogListener.showDialog(DeleteConfirmationDialog.newInstance(event.names))
+                    is DirectoryUiEvent.RequestSafGrant -> (activity as? StorageAccessFramework)?.launchSAF()
                 }
             }
         )
