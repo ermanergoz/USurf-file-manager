@@ -39,8 +39,6 @@ class DirectoryViewModel(
 
     private var listLoadJob: Job? = null
 
-    private var itemsAwaitingDeletion: List<FileModel> = emptyList()
-
     private var actionAwaitingGrant: (() -> Unit)? = null
 
     val shouldShowThumbnails: Boolean
@@ -106,7 +104,8 @@ class DirectoryViewModel(
 
     // On API 29 and lower the SD card refuses file API writes until its document tree is granted, whatever
     // canWrite() says, and the refusal reaches here only as an operation that failed. When the access policy
-    // says a grant would help, such a failure asks for the grant; an operation error of its own keeps its message.
+    // says a grant would help, such a failure asks for the grant; an operation error of its own keeps its message,
+    // and every check the model makes before it writes (a taken or invalid name) fails with an error of its own.
     private suspend fun writingTo(paths: List<String>, write: suspend () -> Unit) {
         try {
             write()
@@ -550,19 +549,18 @@ class DirectoryViewModel(
         _uiEvents.value = Event(DirectoryUiEvent.ShowDialog(DialogArgs.RenameDialogArgs(selection.last().name)))
     }
 
-    // Nothing is deleted on the tap itself: the items are kept here, named in a confirmation, and deleted only
-    // when that confirmation comes back. They outlive the selection, which a recreated screen clears.
+    // Nothing is deleted on the tap itself: the confirmation is handed the paths of the selection and only the
+    // paths it hands back are deleted. Nothing is kept here, so a confirmation acts on the items it showed even
+    // when the screen was recreated or the process restarted in between, and the selection at that time never counts.
     fun requestDelete() {
         val selection = requireCurrentState().common.selectedFiles
         if (selection.isEmpty()) return
-        itemsAwaitingDeletion = selection.toList()
-        _uiEvents.value = Event(DirectoryUiEvent.ConfirmDelete(selection.map { it.name }))
+        _uiEvents.value = Event(DirectoryUiEvent.ConfirmDelete(selection.map { it.path }))
     }
 
-    fun confirmDelete() {
-        val items = itemsAwaitingDeletion
-        itemsAwaitingDeletion = emptyList()
-        if (items.isEmpty()) return
+    fun confirmDelete(paths: List<String>) {
+        if (paths.isEmpty()) return
+        val items = paths.map { path -> File(path).let { FileModel(path = path, name = it.name, isDirectory = it.isDirectory) } }
         turnOffOptionPanel()
         clearMultipleSelection()
         launchAction(

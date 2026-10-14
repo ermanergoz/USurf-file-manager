@@ -111,12 +111,14 @@ class DirectoryModel(
                 name == "." ||
                 name == ".." ||
                 name.contains(File.separatorChar)
-        if (isInvalid) throw FileOperationException("Invalid file name: $name")
+        if (isInvalid) throw FileOperationException("Invalid file name: $name", OperationError.InvalidName)
     }
 
     suspend fun rename(selectedDirectory: FileModel, newFileName: String) = withContext(Dispatchers.IO) {
         requireValidName(newFileName)
-        if (selectedDirectory.name == newFileName) throw FileOperationException("New name matches the current name")
+        if (selectedDirectory.name == newFileName) {
+            throw FileOperationException("New name matches the current name", OperationError.NameUnchanged)
+        }
         requireFreeName(File(selectedDirectory.path).parentFile, selectedDirectory.name, newFileName)
         if (isRootDirectory(selectedDirectory.path)) {
             executeAsRoot { rootHandler.renameFile(selectedDirectory, newFileName) }
@@ -184,7 +186,7 @@ class DirectoryModel(
 
     private fun createFolderNonRoot(path: String, folderName: String) {
         val folderPath = "$path${File.separator}$folderName"
-        if (File(folderPath).exists()) throw FileOperationException("A folder with this name already exists")
+        if (File(folderPath).exists()) throw FileOperationException("A folder with this name already exists", OperationError.AlreadyExists)
         if (!File(folderPath).mkdir()) {
             safDocumentAccess.documentFor(File(path), File(path).isDirectory)?.createDirectory(folderName)
             if (!File(folderPath).exists()) throw FileOperationException("Folder creation failed")
@@ -202,7 +204,7 @@ class DirectoryModel(
 
     private fun createFileNonRoot(path: String, fileName: String) {
         val filePath = "$path${File.separator}$fileName"
-        if (File(filePath).exists()) throw FileOperationException("A file with this name already exists")
+        if (File(filePath).exists()) throw FileOperationException("A file with this name already exists", OperationError.AlreadyExists)
         try {
             File(filePath).createNewFile()
         } catch (err: Exception) {
@@ -306,7 +308,9 @@ class DirectoryModel(
         val parentPath: String = File(multipleSelection.first().path).parent ?: ""
         val archiveType: String = extractArchiveType(compressedFileNameWithExtension)
         val outputPath = "$parentPath${File.separator}$compressedFileNameWithExtension"
-        if (File(outputPath).exists()) throw FileOperationException("An archive with this name already exists")
+        if (File(outputPath).exists()) {
+            throw FileOperationException("An archive with this name already exists", OperationError.AlreadyExists)
+        }
         val isCompressed =
             FileCompressionHandler().compress(outputPath, multipleSelection, archiveType)
         if (!isCompressed) {
@@ -322,7 +326,7 @@ class DirectoryModel(
     private fun requireArchiveExtension(name: String) {
         val separatorIndex = name.lastIndexOf(FILE_EXTENSION_SEPARATOR)
         if (separatorIndex !in 1 until name.length - 1) {
-            throw FileOperationException("Archive name needs a valid extension")
+            throw FileOperationException("Archive name needs a valid extension", OperationError.ArchiveExtensionMissing)
         }
     }
 

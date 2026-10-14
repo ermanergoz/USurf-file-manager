@@ -74,7 +74,8 @@ val appModule =
                 storageDirectoryRepository = get(),
                 sdkInt = Build.VERSION.SDK_INT,
                 isRemovableVolume = StorageAccessPolicyImpl::isRemovableStorageVolume,
-                isGrantHeld = { treeUri -> StorageAccessPolicyImpl.holdsWriteGrantOn(context, treeUri) }
+                isGrantHeld = { treeUri -> StorageAccessPolicyImpl.holdsWriteGrantOn(context, treeUri) },
+                grantedTreeOf = StorageAccessPolicyImpl::grantedTreeOf
             )
         }
         single { DirectoryListHandler(get(), get(), get()) }

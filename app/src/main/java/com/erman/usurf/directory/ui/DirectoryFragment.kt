@@ -74,7 +74,7 @@ class DirectoryFragment : Fragment() {
                     is DirectoryUiEvent.ShowSnackbar ->
                         Snackbar.make(binding.root, getString(event.messageResId), Snackbar.LENGTH_LONG).show()
                     is DirectoryUiEvent.ShowDialog -> handleDialogEvent(event.dialogArgs)
-                    is DirectoryUiEvent.ConfirmDelete -> dialogListener.showDialog(DeleteConfirmationDialog.newInstance(event.names))
+                    is DirectoryUiEvent.ConfirmDelete -> dialogListener.showDialog(DeleteConfirmationDialog.newInstance(event.paths))
                     is DirectoryUiEvent.RequestSafGrant -> (activity as? StorageAccessFramework)?.launchSAF()
                 }
             }
@@ -207,8 +207,8 @@ class DirectoryFragment : Fragment() {
         fragmentManager.setFragmentResultListener(CompressDialog.REQUEST_KEY, viewLifecycleOwner) { _, bundle ->
             directoryViewModel.onFileCompressOkPressed(bundle.getString(CompressDialog.RESULT_NAME).orEmpty())
         }
-        fragmentManager.setFragmentResultListener(DeleteConfirmationDialog.REQUEST_KEY, viewLifecycleOwner) { _, _ ->
-            directoryViewModel.confirmDelete()
+        fragmentManager.setFragmentResultListener(DeleteConfirmationDialog.REQUEST_KEY, viewLifecycleOwner) { _, bundle ->
+            directoryViewModel.confirmDelete(DeleteConfirmationDialog.pathsIn(bundle))
         }
         fragmentManager.setFragmentResultListener(SearchDialog.REQUEST_KEY, viewLifecycleOwner) { _, bundle ->
             directoryViewModel.onFileSearchOkPressed(bundle.getString(SearchDialog.RESULT_QUERY).orEmpty())

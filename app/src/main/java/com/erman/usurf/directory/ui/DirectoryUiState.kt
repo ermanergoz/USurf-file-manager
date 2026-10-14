@@ -61,8 +61,8 @@ sealed class DirectoryUiEvent {
 
     data class ShowDialog(val dialogArgs: DialogArgs) : DirectoryUiEvent()
 
-    /** Ask before deleting the items with these names. */
-    data class ConfirmDelete(val names: List<String>) : DirectoryUiEvent()
+    /** Ask before deleting the items at these paths. */
+    data class ConfirmDelete(val paths: List<String>) : DirectoryUiEvent()
 
     /** Ask the user to grant the SD card's document tree, so the write that failed can run again. */
     data object RequestSafGrant : DirectoryUiEvent()

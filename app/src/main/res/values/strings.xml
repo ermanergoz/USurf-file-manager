@@ -164,6 +164,9 @@
     <string name="exit_confirmation_message">An operation is in progress. Are you sure you want to exit?</string>
     <string name="item_already_exists">An item with this name already exists</string>
     <string name="move_failed_nothing_deleted">Move failed; nothing was deleted</string>
+    <string name="invalid_item_name">This name cannot be used</string>
+    <string name="name_unchanged">The new name is the same as the current one</string>
+    <string name="folder_into_itself">A folder cannot be copied or moved into itself</string>
     <string name="sd_card_access_needed">SD card access is needed to change files here</string>
     <string name="grant_sd_card_access">Grant SD card access</string>
     <string name="sd_card_access">SD card access</string>

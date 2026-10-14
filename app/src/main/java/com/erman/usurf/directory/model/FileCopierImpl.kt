@@ -13,6 +13,9 @@ private const val BUFFER_SIZE = 131072 // Ideal for most devices also considerin
 
 class FileCopierImpl(private val safDocumentAccess: SafDocumentAccess, private val openOutput: (Uri) -> OutputStream?) : FileCopier {
     override fun copy(source: File, destinationFolder: File): CopiedItem {
+        if (destinationFolder.isSameAsOrInside(source)) {
+            throw FileOperationException("A folder cannot be copied into itself", OperationError.FolderIntoItself)
+        }
         val target = File(destinationFolder, source.name)
         // Checked first, so whatever is at the target after a failed copy was made by that copy and may be removed.
         if (target.exists() || destinationFolder.listFiles()?.any { it.name == source.name } == true) {
@@ -21,6 +24,17 @@ class FileCopierImpl(private val safDocumentAccess: SafDocumentAccess, private v
         if (copyWithFileApi(source, target)) return CopiedFile(target)
         target.deleteRecursively()
         return copyIntoTree(source, destinationFolder)?.let(::CopiedDocument) ?: throw FileOperationException("Copy failed")
+    }
+
+    // A folder copied into its own subtree would copy its own copy. Canonical paths see through relative parts
+    // and links; a path that cannot be resolved counts as inside, so nothing is written on a guess.
+    private fun File.isSameAsOrInside(folder: File): Boolean = try {
+        val path = canonicalPath
+        val folderPath = folder.canonicalPath
+        path == folderPath || path.startsWith(folderPath + File.separator)
+    } catch (err: IOException) {
+        loge(err.localizedMessage ?: UNKNOWN_ERROR)
+        true
     }
 
     // copyRecursively also copies a single file, and ignores a folder it could not create, so the target must exist after it.

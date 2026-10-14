@@ -6,8 +6,8 @@ import java.io.File
 interface FileCopier {
     /**
      * Copies [source], a file or a whole folder, into [destinationFolder] under its own name and returns the copy.
-     * Throws [FileOperationException] when an item of that name is already there, or when the copy fails,
-     * after removing whatever the failed copy created.
+     * Throws [FileOperationException] when [destinationFolder] is [source] or lies inside it, when an item of that
+     * name is already there, or when the copy fails, after removing whatever the failed copy created.
      */
     fun copy(source: File, destinationFolder: File): CopiedItem
 }
