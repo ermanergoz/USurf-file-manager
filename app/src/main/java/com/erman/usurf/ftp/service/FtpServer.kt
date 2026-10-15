@@ -47,8 +47,9 @@ class FtpServer : Service() {
         return START_STICKY
     }
 
+    // The controller reads the settings inside its own guard, so a failure there ends as Failed like any other.
     private fun startServer(startId: Int) {
-        val status: FtpServerStatus = controller.start(readConfig())
+        val status: FtpServerStatus = controller.start(::readConfig)
         if (status is FtpServerStatus.Failed) {
             loge(status.reason)
             mainHandler.post { stopSelf(startId) }

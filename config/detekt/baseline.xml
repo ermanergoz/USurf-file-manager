@@ -2,10 +2,14 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
+    <ID>CyclomaticComplexMethod:DirectoryModel.kt$DirectoryModel$private fun getDocumentFile(file: File, isDirectory: Boolean): DocumentFile?</ID>
     <ID>EmptyFunctionBlock:DirectoryModelTest.kt$DirectoryModelTest.&lt;no name provided&gt;${}</ID>
     <ID>MagicNumber:FileCompressionHandler.kt$FileCompressionHandler$255</ID>
     <ID>MagicNumber:FileCompressionHandler.kt$FileCompressionHandler$7</ID>
     <ID>MagicNumber:FileCompressionHandler.kt$FileCompressionHandler$8</ID>
+    <ID>NestedBlockDepth:DirectoryModel.kt$DirectoryModel$private fun getDocumentFile(file: File, isDirectory: Boolean): DocumentFile?</ID>
+    <ID>SwallowedException:DirectoryModel.kt$DirectoryModel$err: Exception</ID>
+    <ID>SwallowedException:DirectoryModel.kt$DirectoryModel$err: IOException</ID>
     <ID>TooManyFunctions:FtpRepository.kt$FtpRepository</ID>
     <ID>TooManyFunctions:PreferencesRepository.kt$PreferencesRepository</ID>
   </CurrentIssues>

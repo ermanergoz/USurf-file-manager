@@ -1,34 +1,41 @@
 package com.erman.usurf.directory.model
 
 import android.content.Context
+import android.net.Uri
+import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import com.erman.usurf.directory.utils.FILE_EXTENSION_SEPARATOR
 import com.erman.usurf.directory.utils.MIME_TYPE_ALL
+import com.erman.usurf.directory.utils.PATH_SEPARATOR_SKIP_LENGTH
 import com.erman.usurf.directory.utils.SUFFIX_LENGTH
 import com.erman.usurf.preference.domain.PreferencesRepository
-import com.erman.usurf.storage.data.SafDocumentAccess
+import com.erman.usurf.storage.domain.StorageDirectoryRepository
 import com.erman.usurf.storage.domain.StoragePathsProvider
-import com.erman.usurf.storage.domain.volumeAmong
+import com.erman.usurf.utils.EXTERNAL_SD_STORAGE_INDEX
 import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
 import java.io.File
+import java.io.FileInputStream
+import java.io.IOException
+import java.io.OutputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 private const val DUMMY_FILE_NAME = "usurfIsRootCheck.txt"
 private const val DUMMY_FILE_NAME_WO_EXTENSION = "usurfIsRootCheck"
 private const val EXTRACTED_FOLDER_NAME_SUFFIX = "_extracted"
+private const val BUFFER_SIZE = 131072 // Ideal for most devices also considering the old devices
+private const val END_OF_STREAM = -1
 private const val OFFSET_START = 0
 private const val TEMP_FOLDER_NAME = "usurfTemp"
 
 class DirectoryModel(
     private val directoryListHandler: DirectoryListHandler,
     private val preferencesRepository: PreferencesRepository,
-    private val safDocumentAccess: SafDocumentAccess,
+    private val storageDirectoryRepository: StorageDirectoryRepository,
     private val rootHandler: RootHandler,
     private val context: Context,
-    private val storagePathsProvider: StoragePathsProvider,
-    private val fileCopier: FileCopier
+    private val storagePathsProvider: StoragePathsProvider
 ) {
     suspend fun getFileModelsFromDirectory(path: String): List<FileModel> = directoryListHandler.getFileModelsFromDirectory(path)
 
@@ -36,6 +43,68 @@ class DirectoryModel(
         multipleSelection.filter { it.path != file.path }
     } else {
         multipleSelection + file.copy(isSelected = true)
+    }
+
+    private fun getDocumentFile(file: File, isDirectory: Boolean): DocumentFile? {
+        val getExtSdCardBaseFolder: String
+        try {
+            getExtSdCardBaseFolder =
+                storagePathsProvider.getStorageDirectories().elementAt(EXTERNAL_SD_STORAGE_INDEX)
+        } catch (err: IndexOutOfBoundsException) {
+            loge(err.localizedMessage ?: UNKNOWN_ERROR)
+            return null
+        }
+        var originalDirectory = false
+        var relativePathOfFile: String? = null
+        try {
+            val fullPath = file.canonicalPath
+            if (getExtSdCardBaseFolder != fullPath) {
+                relativePathOfFile =
+                    fullPath.substring(getExtSdCardBaseFolder.length + PATH_SEPARATOR_SKIP_LENGTH)
+            } else {
+                originalDirectory = true
+            }
+        } catch (err: IOException) {
+            loge(err.localizedMessage ?: UNKNOWN_ERROR)
+            return null
+        } catch (err: Exception) {
+            loge(err.localizedMessage ?: UNKNOWN_ERROR)
+            originalDirectory = true
+        }
+
+        val extSdCardChosenUri = storageDirectoryRepository.getChosenUri()
+        var treeUri: Uri? = null
+        if (extSdCardChosenUri != null) treeUri = extSdCardChosenUri.toUri()
+        if (treeUri == null) {
+            return null
+        }
+        // start with root of SD card and then parse through document tree.
+        var document: DocumentFile?
+        try {
+            document = DocumentFile.fromTreeUri(context, treeUri)
+        } catch (err: Exception) {
+            loge(err.localizedMessage ?: UNKNOWN_ERROR)
+            return null
+        }
+        if (originalDirectory) return document
+        relativePathOfFile?.split(File.separator.toRegex())?.dropLastWhile { it.isEmpty() }
+            ?.toTypedArray()?.let { parts ->
+                for (i in parts.indices) {
+                    document?.let {
+                        var nextDocument = it.findFile(parts[i])
+                        if (nextDocument == null) {
+                            nextDocument =
+                                if (i < parts.size - 1 || isDirectory) {
+                                    it.createDirectory(parts[i])
+                                } else {
+                                    it.createFile(MIME_TYPE_ALL, parts[i])
+                                }
+                        }
+                        document = nextDocument
+                    }
+                }
+            }
+        return document
     }
 
     private suspend fun isRootDirectory(path: String): Boolean = withContext(Dispatchers.IO) {
@@ -62,7 +131,7 @@ class DirectoryModel(
     }
 
     private fun createDummyFileWithSaf(parentPath: String) {
-        safDocumentAccess.documentFor(File(parentPath), File(parentPath).isDirectory)?.createFile(
+        getDocumentFile(File(parentPath), File(parentPath).isDirectory)?.createFile(
             MIME_TYPE_ALL,
             DUMMY_FILE_NAME
         )
@@ -83,7 +152,8 @@ class DirectoryModel(
     }
 
     private fun deleteDummyFileWithSaf(dummyFile: File) {
-        safDocumentAccess.existingDocumentFor(dummyFile)?.let { deleteFolderRecursively(it) }
+        val documentFileToDelete = getDocumentFile(dummyFile, dummyFile.isDirectory)
+        documentFileToDelete?.let { deleteFolderRecursively(it) }
     }
 
     private suspend fun deleteDummyFileFromDeviceSearch() {
@@ -111,15 +181,12 @@ class DirectoryModel(
                 name == "." ||
                 name == ".." ||
                 name.contains(File.separatorChar)
-        if (isInvalid) throw FileOperationException("Invalid file name: $name", OperationError.InvalidName)
+        if (isInvalid) throw FileOperationException("Invalid file name: $name")
     }
 
     suspend fun rename(selectedDirectory: FileModel, newFileName: String) = withContext(Dispatchers.IO) {
         requireValidName(newFileName)
-        if (selectedDirectory.name == newFileName) {
-            throw FileOperationException("New name matches the current name", OperationError.NameUnchanged)
-        }
-        requireFreeName(File(selectedDirectory.path).parentFile, selectedDirectory.name, newFileName)
+        if (selectedDirectory.name == newFileName) throw FileOperationException("New name matches the current name")
         if (isRootDirectory(selectedDirectory.path)) {
             executeAsRoot { rootHandler.renameFile(selectedDirectory, newFileName) }
         } else {
@@ -127,25 +194,18 @@ class DirectoryModel(
         }
     }
 
-    // A rename onto a taken name would replace that item (rename(2) and mv overwrite), so it is refused first.
-    // On case-insensitive storage a rename that only changes case finds the item itself under the new name,
-    // so then only an entry spelled exactly like the new name counts.
-    private fun requireFreeName(directory: File?, currentName: String, newName: String) {
-        if (directory == null || !File(directory, newName).exists()) return
-        val isCaseOnlyChange = newName.equals(currentName, ignoreCase = true)
-        if (!isCaseOnlyChange || directory.list()?.contains(newName) == true) {
-            throw FileOperationException("An item with this name already exists", OperationError.AlreadyExists)
-        }
-    }
-
     private fun renameNonRoot(selectedDirectory: FileModel, newFileName: String) {
         val dirName = File(selectedDirectory.path).parent
         val prev = File(dirName, selectedDirectory.name)
         val new = File(dirName, newFileName)
-        val isRenamed =
-            prev.renameTo(new) ||
-                safDocumentAccess.existingDocumentFor(prev)?.renameTo(newFileName) == true
-        if (!isRenamed || !new.exists()) throw FileOperationException("Rename failed")
+        if (!prev.renameTo(new)) {
+            getDocumentFile(File(selectedDirectory.path), selectedDirectory.isDirectory)?.renameTo(
+                newFileName
+            )
+        }
+        if (!File("$dirName${File.separator}$newFileName").exists()) {
+            throw FileOperationException("Rename failed")
+        }
     }
 
     suspend fun delete(selectedDirectories: List<FileModel>) = withContext(Dispatchers.IO) {
@@ -160,9 +220,12 @@ class DirectoryModel(
     private fun deleteFileNonRoot(fileModel: FileModel) {
         val file = File(fileModel.path)
         val isSuccess = if (fileModel.isDirectory) file.deleteRecursively() else file.delete()
-        if (isSuccess) return
-        val document = safDocumentAccess.existingDocumentFor(file)
-        if (document == null || !deleteFolderRecursively(document)) throw FileOperationException("Delete failed")
+        if (!isSuccess) {
+            val documentFile = getDocumentFile(File(fileModel.path), fileModel.isDirectory)
+            if (documentFile != null && !deleteFolderRecursively(documentFile)) {
+                throw FileOperationException("Delete failed")
+            }
+        }
     }
 
     private fun deleteFolderRecursively(documentFile: DocumentFile): Boolean {
@@ -186,9 +249,9 @@ class DirectoryModel(
 
     private fun createFolderNonRoot(path: String, folderName: String) {
         val folderPath = "$path${File.separator}$folderName"
-        if (File(folderPath).exists()) throw FileOperationException("A folder with this name already exists", OperationError.AlreadyExists)
+        if (File(folderPath).exists()) throw FileOperationException("A folder with this name already exists")
         if (!File(folderPath).mkdir()) {
-            safDocumentAccess.documentFor(File(path), File(path).isDirectory)?.createDirectory(folderName)
+            getDocumentFile(File(path), File(path).isDirectory)?.createDirectory(folderName)
             if (!File(folderPath).exists()) throw FileOperationException("Folder creation failed")
         }
     }
@@ -204,15 +267,18 @@ class DirectoryModel(
 
     private fun createFileNonRoot(path: String, fileName: String) {
         val filePath = "$path${File.separator}$fileName"
-        if (File(filePath).exists()) throw FileOperationException("A file with this name already exists", OperationError.AlreadyExists)
+        if (File(filePath).exists()) throw FileOperationException("A file with this name already exists")
         try {
             File(filePath).createNewFile()
         } catch (err: Exception) {
             loge(err.localizedMessage ?: UNKNOWN_ERROR)
-            safDocumentAccess.documentFor(File(path), File(path).isDirectory)?.createFile(MIME_TYPE_ALL, fileName)
+            getDocumentFile(File(path), File(path).isDirectory)?.createFile(MIME_TYPE_ALL, fileName)
             if (!File(filePath).exists()) throw FileOperationException("File creation failed")
         }
     }
+
+    private fun doesFileExist(fileModel: FileModel, copyOrMoveDestination: String): Boolean =
+        File(copyOrMoveDestination).listFiles()?.any { it.name == fileModel.name } ?: false
 
     suspend fun copyFile(copyOrMoveSources: List<FileModel>, copyOrMoveDestination: String) = withContext(Dispatchers.IO) {
         if (copyOrMoveSources.isEmpty()) return@withContext
@@ -220,7 +286,96 @@ class DirectoryModel(
         if (isRootDirectory(copyOrMoveDestination) || isSourceInRoot) {
             executeAsRoot { rootHandler.copyFile(copyOrMoveSources, copyOrMoveDestination) }
         } else {
-            copyOrMoveSources.forEach { fileCopier.copy(File(it.path), File(copyOrMoveDestination)) }
+            copyOrMoveSources.forEach { copySingleFileNonRoot(it, copyOrMoveDestination) }
+        }
+    }
+
+    private fun copySingleFileNonRoot(source: FileModel, destination: String) {
+        if (doesFileExist(source, destination)) {
+            throw FileOperationException("Destination already contains an item with this name")
+        }
+        if (source.isDirectory) {
+            copyDirectoryNonRoot(source, destination)
+        } else {
+            copySingleFile(source, destination)
+        }
+    }
+
+    private fun copyDirectoryNonRoot(source: FileModel, destination: String) {
+        try {
+            File(source.path).copyRecursively(File(destination + File.separator + source.name))
+        } catch (err: Exception) {
+            if (!copyToExtCard(File(source.path), destination)) throw FileOperationException("Copy failed")
+        }
+    }
+
+    private fun copySingleFile(source: FileModel, destination: String) {
+        try {
+            File(source.path).copyTo(File(destination + File.separator + source.name))
+        } catch (err: IOException) {
+            if (!copyToExtCard(File(source.path), destination)) throw FileOperationException("Copy failed")
+        }
+    }
+
+    private fun copyToExtCard(sourceFile: File, destination: String): Boolean = if (sourceFile.isDirectory) {
+        copyDirectoryToExtCard(sourceFile, destination)
+    } else {
+        copyFileToExtCard(sourceFile, destination)
+    }
+
+    private fun copyDirectoryToExtCard(sourceFile: File, destination: String): Boolean {
+        getDocumentFile(File(destination), File(destination).isDirectory)
+            ?.createDirectory(sourceFile.name)
+        var isSuccess = true
+        sourceFile.listFiles()?.forEach { subFile ->
+            isSuccess = copyToExtCard(subFile, destination + File.separator + sourceFile.name)
+        }
+        return isSuccess
+    }
+
+    private fun copyFileToExtCard(sourceFile: File, destination: String): Boolean {
+        val documentFile =
+            getDocumentFile(File(destination), File(destination).isDirectory)
+                ?.createFile(sourceFile.extension, sourceFile.name)
+                ?: return false
+        return writeFileToDocumentFile(sourceFile, documentFile)
+    }
+
+    private fun writeFileToDocumentFile(sourceFile: File, documentFile: DocumentFile): Boolean {
+        var fileInputStream: FileInputStream? = null
+        var outputStream: OutputStream? = null
+        return try {
+            fileInputStream = FileInputStream(sourceFile)
+            outputStream = context.contentResolver.openOutputStream(documentFile.uri)
+            transferStream(fileInputStream, outputStream)
+        } catch (err: Exception) {
+            loge(err.localizedMessage ?: UNKNOWN_ERROR)
+            false
+        } finally {
+            closeStreams(fileInputStream, outputStream)
+        }
+    }
+
+    private fun transferStream(inputStream: FileInputStream, outputStream: OutputStream?): Boolean {
+        val byteArray = ByteArray(BUFFER_SIZE)
+        var bytesRead: Int
+        return try {
+            while (inputStream.read(byteArray).also { bytesRead = it } != END_OF_STREAM) {
+                outputStream?.write(byteArray, OFFSET_START, bytesRead)
+            }
+            true
+        } catch (err: Exception) {
+            loge(err.localizedMessage ?: UNKNOWN_ERROR)
+            false
+        }
+    }
+
+    private fun closeStreams(fileInputStream: FileInputStream?, outputStream: OutputStream?) {
+        try {
+            fileInputStream?.close()
+            outputStream?.close()
+        } catch (err: Exception) {
+            loge(err.localizedMessage ?: UNKNOWN_ERROR)
         }
     }
 
@@ -234,42 +389,9 @@ class DirectoryModel(
         }
     }
 
-    // A move on one volume is a rename. Otherwise every source is copied and its copy read back before any
-    // source is deleted; when one copy fails or does not match its source, the copies already made are taken
-    // back and every source stays. Taken names are refused first, so neither a rename nor a copy replaces anything.
     private suspend fun moveFileNonRoot(sources: List<FileModel>, destination: String) {
-        val destinationFolder = File(destination)
-        if (sources.any { File(destinationFolder, it.name).exists() }) {
-            throw FileOperationException("Destination already contains an item with this name", OperationError.AlreadyExists)
-        }
-        val volumes = storagePathsProvider.getStorageDirectories()
-        val destinationVolume = volumeAmong(volumes, destinationFolder.path)
-        val copiedSources = mutableListOf<FileModel>()
-        val copies = mutableListOf<CopiedItem>()
-        try {
-            sources.forEach { source ->
-                val sourceFile = File(source.path)
-                val isOnSameVolume = volumeAmong(volumes, sourceFile.path) == destinationVolume
-                if (!isOnSameVolume || !sourceFile.renameTo(File(destinationFolder, source.name))) {
-                    copies += copyAndCheck(sourceFile, destinationFolder)
-                    copiedSources += source
-                }
-            }
-        } catch (err: FileOperationException) {
-            copies.forEach { it.remove() }
-            throw FileOperationException("Move failed; nothing was deleted", OperationError.MoveFailedNothingDeleted, err)
-        }
-        if (copiedSources.isNotEmpty()) delete(copiedSources)
-    }
-
-    private fun copyAndCheck(source: File, destinationFolder: File): CopiedItem {
-        val expected = EntryShape.of(source)
-        val copy = fileCopier.copy(source, destinationFolder)
-        if (expected == null || expected != copy.shape()) {
-            copy.remove()
-            throw FileOperationException("The copy of ${source.name} does not match it")
-        }
-        return copy
+        copyFile(sources, destination)
+        delete(sources)
     }
 
     suspend fun getSearchedDeviceFiles(searchQuery: String): List<FileModel> = withContext(Dispatchers.IO) {
@@ -308,9 +430,7 @@ class DirectoryModel(
         val parentPath: String = File(multipleSelection.first().path).parent ?: ""
         val archiveType: String = extractArchiveType(compressedFileNameWithExtension)
         val outputPath = "$parentPath${File.separator}$compressedFileNameWithExtension"
-        if (File(outputPath).exists()) {
-            throw FileOperationException("An archive with this name already exists", OperationError.AlreadyExists)
-        }
+        if (File(outputPath).exists()) throw FileOperationException("An archive with this name already exists")
         val isCompressed =
             FileCompressionHandler().compress(outputPath, multipleSelection, archiveType)
         if (!isCompressed) {
@@ -326,7 +446,7 @@ class DirectoryModel(
     private fun requireArchiveExtension(name: String) {
         val separatorIndex = name.lastIndexOf(FILE_EXTENSION_SEPARATOR)
         if (separatorIndex !in 1 until name.length - 1) {
-            throw FileOperationException("Archive name needs a valid extension", OperationError.ArchiveExtensionMissing)
+            throw FileOperationException("Archive name needs a valid extension")
         }
     }
 

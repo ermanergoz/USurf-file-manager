@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import android.widget.PopupMenu
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -109,21 +108,8 @@ class HomeFragment : Fragment() {
             buttonBinding.lifecycleOwner = viewLifecycleOwner
             buttonBinding.viewModel = homeViewModel
             buttonBinding.storageItem = item
-            buttonBinding.storageButton.setOnLongClickListener { card ->
-                homeViewModel.canOfferSafGrant(item.path).also { canGrant -> if (canGrant) showSafGrantMenu(card) }
-            }
             binding.storageUsageBarLayout.addView(buttonBinding.root, buttonLayoutParams)
         }
-    }
-
-    private fun showSafGrantMenu(card: View) {
-        PopupMenu(requireContext(), card).apply {
-            menu.add(R.string.grant_sd_card_access)
-            setOnMenuItemClickListener {
-                safListener.launchSAF()
-                true
-            }
-        }.show()
     }
 
     private fun handleDialog(args: DialogArgs) {

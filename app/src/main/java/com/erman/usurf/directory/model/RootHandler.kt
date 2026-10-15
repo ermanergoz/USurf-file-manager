@@ -50,6 +50,10 @@ class RootHandler(
 
     private fun nextCommandId(): Int = commandIdCounter.getAndIncrement()
 
+    // Wraps an arbitrary file name or path so it is a single literal argument in a POSIX shell,
+    // preventing quotes/metacharacters in a name from breaking out of the command (root injection).
+    private fun shellQuote(value: String): String = "'" + value.replace("'", "'\\''") + "'"
+
     private fun getHealthyShell(): Shell = RootShellRequest.openHealthy()
 
     private fun getParentPath(fileModel: FileModel): String {
@@ -106,7 +110,7 @@ class RootHandler(
         // -p adds the trailing slash on directories to distinguish folders from files
         // -a is to display hidden files
         val command: Command =
-            object : Command(nextCommandId(), "cd ${RootCommands.quote(path)}", "ls -p -a") {
+            object : Command(nextCommandId(), "cd ${shellQuote(path)}", "ls -p -a") {
                 override fun commandOutput(id: Int, line: String) {
                     super.commandOutput(id, line)
                     fileList.add(line)
@@ -124,7 +128,7 @@ class RootHandler(
     }
 
     fun delete(selectedDirectories: List<FileModel>): Boolean = selectedDirectories.all { source ->
-        executeRootCommand("rm -r ${RootCommands.quote(source.path)}")
+        executeRootCommand("rm -r ${shellQuote(source.path)}")
     }
 
     private fun doesFileExist(path: String, name: String, isDirectory: Boolean): Boolean {
@@ -134,17 +138,19 @@ class RootHandler(
 
     fun createFolder(path: String, folderName: String): Boolean {
         if (doesFileExist(path, folderName, true)) return false
-        return executeRootCommand("cd ${RootCommands.quote(path)}", "mkdir ${RootCommands.quote(folderName)}")
+        return executeRootCommand("cd ${shellQuote(path)}", "mkdir ${shellQuote(folderName)}")
     }
 
     fun createFile(path: String, fileName: String): Boolean {
         if (doesFileExist(path, fileName, false)) return false
-        return executeRootCommand("cd ${RootCommands.quote(path)}", "> ${RootCommands.quote(fileName)}")
+        return executeRootCommand("cd ${shellQuote(path)}", "> ${shellQuote(fileName)}")
     }
 
     fun renameFile(selectedFile: FileModel, newName: String): Boolean {
-        val newPath = "${getParentPath(selectedFile)}${File.separator}$newName"
-        return executeRootCommand(RootCommands.rename(selectedFile.path, newPath))
+        val parentDir = getParentPath(selectedFile)
+        if (doesFileExist(parentDir, newName, true)) return false
+        val newPath = "$parentDir${File.separator}$newName"
+        return executeRootCommand("cd ${shellQuote(parentDir)}", "mv ${shellQuote(selectedFile.path)} ${shellQuote(newPath)}")
     }
 
     private fun sanitizeSourcePath(path: String): String = if (path.last() == PATH_SEPARATOR_CHAR) {
@@ -175,11 +181,11 @@ class RootHandler(
 
     fun copyFile(selectedDirectories: List<FileModel>, copyOrMoveDestination: String): Boolean = selectedDirectories.all { source ->
         val sourcePath: String = sanitizeSourcePath(source.path)
-        executeRootCommand("cp -a ${RootCommands.quote(sourcePath)} ${RootCommands.quote(copyOrMoveDestination)}")
+        executeRootCommand("cp -a ${shellQuote(sourcePath)} ${shellQuote(copyOrMoveDestination)}")
     }
 
     fun moveFile(selectedDirectories: List<FileModel>, copyOrMoveDestination: String): Boolean = selectedDirectories.all { source ->
         val sourcePath: String = sanitizeSourcePath(source.path)
-        executeRootCommand("mv ${RootCommands.quote(sourcePath)} ${RootCommands.quote(copyOrMoveDestination)}")
+        executeRootCommand("mv ${shellQuote(sourcePath)} ${shellQuote(copyOrMoveDestination)}")
     }
 }

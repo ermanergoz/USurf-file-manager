@@ -55,7 +55,6 @@ class MainActivity :
         permissionHandler =
             PermissionHandler(this) { uri: String ->
                 mainViewModel.onSafUriChosen(uri)
-                directoryViewModel.onSafAccessGranted()
             }
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         setContentView(binding.root)

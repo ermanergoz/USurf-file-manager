@@ -336,7 +336,7 @@
                 android:drawablePadding="@dimen/vertical_margin_4"
                 android:drawableTop="@drawable/ic_delete"
                 android:drawableTint="@color/colorPrimary"
-                android:onClick="@{() -> viewModel.requestDelete()}"
+                android:onClick="@{() -> viewModel.delete()}"
                 android:paddingTop="@dimen/vertical_margin_8"
                 android:text="@string/delete"
                 android:textColor="@color/daynnightTextColor"
