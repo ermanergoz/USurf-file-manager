@@ -3,7 +3,6 @@ package com.erman.usurf.ftp.domain
 import androidx.lifecycle.LiveData
 
 interface FtpRepository {
-    /** @throws java.net.SocketException when the device's network interfaces cannot be read. */
     fun getIpAddress(): String
 
     fun getUsername(): String?

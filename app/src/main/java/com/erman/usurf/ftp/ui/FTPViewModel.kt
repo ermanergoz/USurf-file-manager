@@ -9,9 +9,6 @@ import com.erman.usurf.ftp.domain.FtpRepository
 import com.erman.usurf.ftp.domain.FtpServerStatus
 import com.erman.usurf.ftp.domain.FtpSettingsRules
 import com.erman.usurf.utils.Event
-import com.erman.usurf.utils.UNKNOWN_ERROR
-import com.erman.usurf.utils.loge
-import java.net.SocketException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -45,24 +42,12 @@ class FTPViewModel(private val ftpRepository: FtpRepository, private val ioDispa
         loadServerDetails()
     }
 
-    // The address and the storage paths load apart: a device whose address cannot be read still lists its paths.
     private fun loadServerDetails() {
         viewModelScope.launch {
-            val url: String = withContext(ioDispatcher) { readIpAddress() } ?: return@launch
-            updateState { it.copy(url = url) }
-        }
-        viewModelScope.launch {
+            val url = withContext(ioDispatcher) { ftpRepository.getIpAddress() }
             val storagePaths = withContext(ioDispatcher) { mapStoragePaths(ftpRepository.getStoragePaths()) }
-            updateState { it.copy(storagePaths = storagePaths) }
+            updateState { it.copy(url = url, storagePaths = storagePaths) }
         }
-    }
-
-    // An unreadable address leaves the screen without one; a start on such a device fails with its own reason.
-    private fun readIpAddress(): String? = try {
-        ftpRepository.getIpAddress()
-    } catch (err: SocketException) {
-        loge(err.localizedMessage ?: UNKNOWN_ERROR)
-        null
     }
 
     // A failure is shown once, when this screen sees the start fail; an old failure read on opening is not.
