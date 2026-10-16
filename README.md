@@ -43,6 +43,10 @@ git clone https://github.com/ermanergoz/USurf-file-manager.git
 
 Open the project in Android Studio, wait for Gradle sync to complete, and run.
 
+### 7-Zip version
+
+The archive engine is the upstream [7-Zip source](https://github.com/ip7z/7zip), included as a git submodule at `app/src/main/cpp/7zip` and pinned to tag `26.00` (run `git submodule update --init` after cloning). The pin must stay at 25.01 or later: that release changed how symbolic links are handled during extraction (CVE-2025-55188). USurf also extracts with the `-snl-` switch, so no archive can create a symbolic link on the device, whatever it contains.
+
 ## Architecture & Dependencies
 
 - [MVVM architecture](https://developer.android.com/jetpack/guide)

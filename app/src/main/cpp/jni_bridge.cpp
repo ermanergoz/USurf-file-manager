@@ -1,6 +1,7 @@
 #include <jni.h>
 #include <android/log.h>
 #include "cmd/command.h"
+#include "7zVersion.h"
 
 #define LOG_TAG "p7zip"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO,  LOG_TAG, __VA_ARGS__)
@@ -10,6 +11,12 @@
 #ifndef _WIN32
 extern int Main2(int numArgs, char *args[]);
 #endif
+
+// Logs the bundled 7-Zip version once, when the library is loaded.
+extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM * /*vm*/, void * /*reserved*/) {
+    LOGI("7-Zip %s", MY_VERSION_NUMBERS);
+    return JNI_VERSION_1_6;
+}
 
 extern "C" JNIEXPORT jint JNICALL
 Java_com_erman_usurf_directory_model_P7ZipApi_executeCommand(
