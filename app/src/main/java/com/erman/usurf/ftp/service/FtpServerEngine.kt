@@ -1,5 +1,7 @@
 package com.erman.usurf.ftp.service
 
+private const val PASSWORD_MASK: String = "***"
+
 data class FtpServerConfig(
     val address: String,
     val port: Int,
@@ -7,7 +9,11 @@ data class FtpServerConfig(
     val password: String?,
     val homeDirectory: String?,
     val allowUploads: Boolean
-)
+) {
+    // The password never reaches a log or a crash report through this text.
+    override fun toString(): String = "FtpServerConfig(address=$address, port=$port, username=$username, password=$PASSWORD_MASK, " +
+        "homeDirectory=$homeDirectory, allowUploads=$allowUploads)"
+}
 
 /** One FTP server: started at most once, then stopped. */
 interface FtpServerEngine {
