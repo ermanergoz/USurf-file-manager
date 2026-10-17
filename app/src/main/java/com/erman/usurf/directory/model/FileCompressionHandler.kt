@@ -1,26 +1,33 @@
 package com.erman.usurf.directory.model
 
-import com.erman.usurf.R
 import com.erman.usurf.utils.logd
 import com.erman.usurf.utils.loge
 import java.io.File
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-class FileCompressionHandler(private val executor: SevenZipExecutor) {
+class FileCompressionHandler(
+    private val executor: SevenZipExecutor,
+    /** The app's cache directory: where an archive is built or unpacked first when its destination refuses the file API. */
+    val cacheDirectory: File
+) {
     // 7-Zip keeps its console state in globals, so two runs at once would share it. One handler per process (a Koin
     // single) runs one command at a time; a second caller waits here without holding a thread.
     private val sevenZipLock = Mutex()
 
     /**
      * Returns false when 7-Zip could not write the archive, so the caller may retry through the cache folder.
-     * Throws when 7-Zip skipped some inputs: retrying cannot add them.
+     * Throws when 7-Zip skipped some inputs: retrying cannot add them. The caller makes sure no file exists at
+     * [compressedFileDirectory] beforehand, so whatever is there afterwards was written by this run.
      */
     suspend fun compress(compressedFileDirectory: String, multipleSelection: List<FileModel>, archiveType: String): Boolean =
         when (run(SevenZipCommand.compress(compressedFileDirectory, multipleSelection.map { it.path }, archiveType))) {
             SevenZipExitCode.SUCCESS -> isWritten(File(compressedFileDirectory))
-            SevenZipExitCode.WARNING ->
-                throw FileOperationException("7-Zip skipped some of the files", messageResId = R.string.some_files_could_not_be_added)
+            SevenZipExitCode.WARNING -> {
+                // The archive lacks the skipped files; left on disk it would look like a complete one.
+                File(compressedFileDirectory).delete()
+                throw FileOperationException("7-Zip skipped some of the files", OperationError.SomeFilesSkipped)
+            }
             else -> false
         }
 
@@ -42,9 +49,14 @@ class FileCompressionHandler(private val executor: SevenZipExecutor) {
     }
 
     private suspend fun run(arguments: Array<String>): SevenZipExitCode? {
+        logd("7-Zip command: ${arguments.joinToString(" ") { "[$it]" }}")
         val code = sevenZipLock.withLock { executor.execute(arguments) }
         return SevenZipExitCode.fromCode(code).also { exitCode ->
-            if (exitCode == SevenZipExitCode.SUCCESS) logd("7-Zip finished without errors") else loge("7-Zip exit code $code: $exitCode")
+            if (exitCode == SevenZipExitCode.SUCCESS) {
+                logd("7-Zip finished without errors")
+            } else {
+                loge("7-Zip exit code ${SevenZipExitCode.describe(code)}")
+            }
         }
     }
 }

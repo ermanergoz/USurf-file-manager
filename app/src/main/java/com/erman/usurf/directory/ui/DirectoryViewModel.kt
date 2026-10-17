@@ -77,8 +77,7 @@ class DirectoryViewModel(
             } catch (err: CancellationException) {
                 throw err
             } catch (err: Exception) {
-                val messageResId = (err as? FileOperationException)?.messageResId ?: errorMessageResId
-                reportFailure(err, messageResId) {
+                reportFailure(err, errorMessageResId) {
                     launchAction(actionType, progressMessageResId, successMessageResId, errorMessageResId, finallyStateTransform, block)
                 }
             } finally {

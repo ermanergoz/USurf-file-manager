@@ -122,13 +122,11 @@ Java_com_erman_usurf_directory_model_P7ZipApi_executeCommand(
     }
     std::vector<char *> argv;
     argv.reserve(arguments.size() + 1);
-    std::string command;
-    for (std::string &argument : arguments) {
-        argv.push_back(&argument[0]);
-        command += (command.empty() ? "[" : " [") + argument + "]";
-    }
+    for (std::string &argument : arguments) argv.push_back(&argument[0]);
     argv.push_back(nullptr);
-    LOGI("CMD:%s", command.c_str());
+    // The paths are the user's file names and this line is also written by release builds, so it names only the
+    // 7-Zip command and the number of arguments. Debug builds log the whole command on the Kotlin side.
+    LOGI("CMD:%s, %zu arguments", arguments.size() > 1 ? arguments[1].c_str() : "", arguments.size());
     const int ret = runSevenZip(static_cast<int>(arguments.size()), argv.data());
     LOGI("EXIT:%d", ret);
     return static_cast<jint>(ret);

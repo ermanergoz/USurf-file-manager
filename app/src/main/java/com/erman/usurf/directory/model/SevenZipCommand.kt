@@ -19,8 +19,8 @@ object SevenZipCommand {
     // Everything after this marker is a path, even when it starts with - or @.
     private const val END_OF_SWITCHES = "--"
 
-    // 7-Zip replaces every * in the output folder with the archive name and has no way to escape it.
-    private const val ARCHIVE_NAME_PLACEHOLDER = '*'
+    // The output folder is used exactly as given. Without it 7-Zip replaces every * in that path with the archive name.
+    private const val OUTPUT_DIRECTORY_AS_GIVEN = "-spod"
 
     fun compress(archivePath: String, inputPaths: List<String>, archiveType: String): Array<String> {
         // With no input 7-Zip would add everything in its working directory.
@@ -36,20 +36,16 @@ object SevenZipCommand {
         ) + inputPaths
     }
 
-    fun extract(archivePath: String, outputDirectory: String): Array<String> {
-        if (ARCHIVE_NAME_PLACEHOLDER in outputDirectory) {
-            throw FileOperationException("The files would be extracted somewhere else: the folder path contains *")
-        }
-        return arrayOf(
-            PROGRAM_NAME,
-            EXTRACT,
-            NO_SYMBOLIC_LINKS,
-            NO_WILDCARDS,
-            OUTPUT_DIRECTORY_SWITCH + outputDirectory,
-            END_OF_SWITCHES,
-            archivePath
-        )
-    }
+    fun extract(archivePath: String, outputDirectory: String): Array<String> = arrayOf(
+        PROGRAM_NAME,
+        EXTRACT,
+        NO_SYMBOLIC_LINKS,
+        NO_WILDCARDS,
+        OUTPUT_DIRECTORY_AS_GIVEN,
+        OUTPUT_DIRECTORY_SWITCH + outputDirectory,
+        END_OF_SWITCHES,
+        archivePath
+    )
 }
 
 /** 7-Zip's exit codes, as defined in CPP/7zip/UI/Common/ExitCode.h. */
@@ -63,5 +59,8 @@ enum class SevenZipExitCode(val code: Int) {
 
     companion object {
         fun fromCode(code: Int): SevenZipExitCode? = entries.firstOrNull { it.code == code }
+
+        /** The code for a log line: "2 (FATAL_ERROR)", or "3 (unknown)" for a code 7-Zip does not define. */
+        fun describe(code: Int): String = "$code (${fromCode(code)?.name ?: "unknown"})"
     }
 }

@@ -45,7 +45,7 @@ Open the project in Android Studio, wait for Gradle sync to complete, and run.
 
 ### 7-Zip version
 
-The archive engine is the upstream [7-Zip source](https://github.com/ip7z/7zip), included as a git submodule at `app/src/main/cpp/7zip` and pinned to tag `26.06` (run `git submodule update --init` after cloning). The pin must stay at 26.02 or later: 25.01 changed how symbolic links are handled during extraction (CVE-2025-55188), and 26.02 fixed a heap buffer overflow in XZ decompression (CVE-2026-14266). USurf also extracts with the `-snl-` switch, so no archive can create a symbolic link on the device, whatever it contains.
+The archive engine is the upstream [7-Zip source](https://github.com/ip7z/7zip), included as a git submodule at `app/src/main/cpp/7zip` and pinned to tag `26.06` (run `git submodule update --init` after cloning). The pin must stay at 26.02 or later: 25.01 changed how symbolic links are handled during extraction (CVE-2025-55188), and 26.02 fixed a heap buffer overflow in XZ decompression (CVE-2026-14266). USurf also extracts with the `-snl-` switch, so no archive can create a symbolic link on the device, whatever it contains, and with the `-spod` switch (added in 26.01), so a `*` in an archive's name or folder is kept as it is.
 
 ## Architecture & Dependencies
 

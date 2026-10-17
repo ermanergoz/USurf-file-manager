@@ -88,10 +88,13 @@ val appModule =
             val context: Context = get()
             FileCopierImpl(get()) { uri -> context.contentResolver.openOutputStream(uri) }
         }
-        single { DirectoryModel(get(), get(), get(), get(), get(), get(), get(), get()) }
+        single { DirectoryModel(get(), get(), get(), get(), get(), get(), get()) }
         // The lambda defers loading the native library to the first 7-Zip run.
         single { SevenZipExecutor { arguments -> P7ZipApi.executeCommand(arguments) } }
-        single { FileCompressionHandler(get()) }
+        single {
+            val context: Context = get()
+            FileCompressionHandler(get(), context.cacheDir)
+        }
         viewModel { DirectoryViewModel(get(), get(), get()) }
 
         single { HomeModel(get(), get()) }
