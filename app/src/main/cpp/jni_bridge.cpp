@@ -3,6 +3,11 @@
 #include <string>
 #include <vector>
 #include "7zVersion.h"
+#include "Common/Common.h"
+#include "Common/MyException.h"
+#include "Common/NewHandler.h"
+#include "7zip/UI/Common/ArchiveCommandLine.h"
+#include "7zip/UI/Common/ExitCode.h"
 
 #define LOG_TAG "p7zip"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO,  LOG_TAG, __VA_ARGS__)
@@ -14,9 +19,6 @@ extern int Main2(int numArgs, char *args[]);
 #endif
 
 namespace {
-
-// 7-Zip's exit code for a fatal error (CPP/7zip/UI/Common/ExitCode.h).
-constexpr int kFatalError = 2;
 
 void appendUtf8(std::string &out, uint32_t codePoint) {
     if (codePoint < 0x80) {
@@ -73,6 +75,35 @@ bool toArguments(JNIEnv *env, jobjectArray array, std::vector<std::string> &argu
     return true;
 }
 
+// 7-Zip's own main() (CPP/7zip/UI/Console/MainAr.cpp) turns these exceptions into exit codes. The bridge calls Main2
+// directly, so it does the same here; an exception leaving a JNI function would end the app.
+int runSevenZip(int argc, char **argv) {
+#ifndef _WIN32
+    try {
+        return Main2(argc, argv);
+    } catch (const CNewException &) {
+        LOGE("7-Zip ran out of memory");
+        return NExitCode::kMemoryError;
+    } catch (const CMessagePathException &) {
+        LOGE("7-Zip rejected the command line");
+        return NExitCode::kUserError;
+    } catch (const CSystemException &error) {
+        LOGE("7-Zip system error %d", static_cast<int>(error.ErrorCode));
+        if (error.ErrorCode == E_OUTOFMEMORY) return NExitCode::kMemoryError;
+        if (error.ErrorCode == E_ABORT) return NExitCode::kUserBreak;
+        return NExitCode::kFatalError;
+    } catch (NExitCode::EEnum exitCode) {
+        LOGE("7-Zip stopped with exit code %d", static_cast<int>(exitCode));
+        return exitCode;
+    } catch (...) {
+        LOGE("7-Zip stopped with an error");
+        return NExitCode::kFatalError;
+    }
+#else
+    return NExitCode::kFatalError;
+#endif
+}
+
 }  // namespace
 
 // Logs the bundled 7-Zip version once, when the library is loaded.
@@ -87,7 +118,7 @@ Java_com_erman_usurf_directory_model_P7ZipApi_executeCommand(
     std::vector<std::string> arguments;
     if (!toArguments(env, arguments_, arguments) || arguments.empty()) {
         LOGE("Could not read the 7-Zip arguments");
-        return kFatalError;
+        return NExitCode::kFatalError;
     }
     std::vector<char *> argv;
     argv.reserve(arguments.size() + 1);
@@ -98,10 +129,7 @@ Java_com_erman_usurf_directory_model_P7ZipApi_executeCommand(
     }
     argv.push_back(nullptr);
     LOGI("CMD:%s", command.c_str());
-    int ret = kFatalError;
-#ifndef _WIN32
-    ret = Main2(static_cast<int>(arguments.size()), argv.data());
-#endif
+    const int ret = runSevenZip(static_cast<int>(arguments.size()), argv.data());
     LOGI("EXIT:%d", ret);
     return static_cast<jint>(ret);
 }

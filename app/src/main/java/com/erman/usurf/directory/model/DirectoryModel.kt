@@ -28,7 +28,8 @@ class DirectoryModel(
     private val rootHandler: RootHandler,
     private val context: Context,
     private val storagePathsProvider: StoragePathsProvider,
-    private val fileCopier: FileCopier
+    private val fileCopier: FileCopier,
+    private val fileCompressionHandler: FileCompressionHandler
 ) {
     suspend fun getFileModelsFromDirectory(path: String): List<FileModel> = directoryListHandler.getFileModelsFromDirectory(path)
 
@@ -312,7 +313,7 @@ class DirectoryModel(
             throw FileOperationException("An archive with this name already exists", OperationError.AlreadyExists)
         }
         val isCompressed =
-            FileCompressionHandler().compress(outputPath, multipleSelection, archiveType)
+            fileCompressionHandler.compress(outputPath, multipleSelection, archiveType)
         if (!isCompressed) {
             compressViaCache(
                 multipleSelection,
@@ -343,7 +344,7 @@ class DirectoryModel(
             copyFile(sources, cachedFolderDirectory)
             val cachedFiles = getFileModelsFromDirectory(cachedFolderDirectory).toMutableList()
             val isCompressed =
-                FileCompressionHandler().compress(compressedFileDirectory, cachedFiles, archiveType)
+                fileCompressionHandler.compress(compressedFileDirectory, cachedFiles, archiveType)
             if (isCompressed) {
                 moveCompressedFileToParent(compressedFileDirectory, compressedFileName, parentPath)
             } else {
@@ -386,7 +387,7 @@ class DirectoryModel(
         val extractionDestination = "$parentPath${File.separator}$extractedFolderName"
         createFolder(parentPath, extractedFolderName)
         val isExtracted =
-            FileCompressionHandler().extract(selectedDirectory.path, extractionDestination)
+            fileCompressionHandler.extract(selectedDirectory.path, extractionDestination)
         if (!isExtracted) {
             extractViaCache(selectedDirectory, extractedFolderName, extractionDestination)
         }
@@ -403,7 +404,7 @@ class DirectoryModel(
             copyFile(listOf(selectedDirectory), cachedFolderDirectory)
             createFolder(cachedFolderDirectory, extractedFolderName)
             val isExtracted =
-                FileCompressionHandler().extract(cachedCompressedFilePath, cachedExtractedFolderPath)
+                fileCompressionHandler.extract(cachedCompressedFilePath, cachedExtractedFolderPath)
             if (isExtracted) {
                 moveExtractedFilesToDestination(cachedExtractedFolderPath, extractionDestination)
             } else {

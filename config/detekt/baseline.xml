@@ -3,9 +3,6 @@
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
     <ID>EmptyFunctionBlock:DirectoryModelTest.kt$DirectoryModelTest.&lt;no name provided&gt;${}</ID>
-    <ID>MagicNumber:FileCompressionHandler.kt$FileCompressionHandler$255</ID>
-    <ID>MagicNumber:FileCompressionHandler.kt$FileCompressionHandler$7</ID>
-    <ID>MagicNumber:FileCompressionHandler.kt$FileCompressionHandler$8</ID>
     <ID>TooManyFunctions:FtpRepository.kt$FtpRepository</ID>
     <ID>TooManyFunctions:PreferencesRepository.kt$PreferencesRepository</ID>
   </CurrentIssues>

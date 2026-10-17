@@ -51,3 +51,17 @@ object SevenZipCommand {
         )
     }
 }
+
+/** 7-Zip's exit codes, as defined in CPP/7zip/UI/Common/ExitCode.h. */
+enum class SevenZipExitCode(val code: Int) {
+    SUCCESS(0),
+    WARNING(1),
+    FATAL_ERROR(2),
+    COMMAND_LINE_ERROR(7),
+    OUT_OF_MEMORY(8),
+    USER_STOPPED(255);
+
+    companion object {
+        fun fromCode(code: Int): SevenZipExitCode? = entries.firstOrNull { it.code == code }
+    }
+}

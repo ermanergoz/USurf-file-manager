@@ -57,6 +57,7 @@
     <string name="error_while_moving">Taşırken hata</string>
     <string name="compressing_successful">Sıkıştırıldı</string>
     <string name="error_while_compressing">Sıkıştırırken hata</string>
+    <string name="some_files_could_not_be_added">Bazı dosyalar eklenemedi</string>
     <string name="extracting_successful">Çıkartıldı</string>
     <string name="error_while_extracting">Çıkartılırken hata</string>
     <string name="su_not_found">Cihazın root erişimi yok.</string>
