@@ -2,47 +2,61 @@ package com.erman.usurf.directory.model
 
 import com.erman.usurf.utils.logd
 import com.erman.usurf.utils.loge
+import java.io.File
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
-class FileCompressionHandler {
-    fun compress(compressedFileDirectory: String, multipleSelection: List<FileModel>, archiveType: String): Boolean {
-        var filesToBeCompressed = ""
-        for (file in multipleSelection) {
-            filesToBeCompressed = filesToBeCompressed + " '" + file.path + "'"
+class FileCompressionHandler(
+    private val executor: SevenZipExecutor,
+    /** The app's cache directory: where an archive is built or unpacked first when its destination refuses the file API. */
+    val cacheDirectory: File
+) {
+    // 7-Zip keeps its console state in globals, so two runs at once would share it. One handler per process (a Koin
+    // single) runs one command at a time; a second caller waits here without holding a thread.
+    private val sevenZipLock = Mutex()
+
+    /**
+     * Returns false when 7-Zip could not write the archive, so the caller may retry through the cache folder.
+     * Throws when 7-Zip skipped some inputs: retrying cannot add them. The caller makes sure no file exists at
+     * [compressedFileDirectory] beforehand, so whatever is there afterwards was written by this run.
+     */
+    suspend fun compress(compressedFileDirectory: String, multipleSelection: List<FileModel>, archiveType: String): Boolean =
+        when (run(SevenZipCommand.compress(compressedFileDirectory, multipleSelection.map { it.path }, archiveType))) {
+            SevenZipExitCode.SUCCESS -> isWritten(File(compressedFileDirectory))
+            SevenZipExitCode.WARNING -> {
+                // The archive lacks the skipped files; left on disk it would look like a complete one.
+                File(compressedFileDirectory).delete()
+                throw FileOperationException("7-Zip skipped some of the files", OperationError.SomeFilesSkipped)
+            }
+            else -> false
         }
 
-        when (P7ZipApi.executeCommand("7z a -t$archiveType -mx=9 '$compressedFileDirectory' $filesToBeCompressed")) {
-            0 -> {
-                logd("No errors or warnings detected")
-                return true
-            }
-            1 -> {
-                logd("Warning (Non fatal error(s))")
-                return true
-            }
-            2 -> loge("Fatal error")
-            7 -> loge("Bad command line parameters")
-            8 -> loge("Not enough memory for operation")
-            255 -> loge("The process has been stopped")
+    /** Returns false when 7-Zip failed; throws when it reported a warning, as part of the files may be written. */
+    suspend fun extract(compressedFileDirectory: String, outputDirectory: String): Boolean =
+        when (run(SevenZipCommand.extract(compressedFileDirectory, outputDirectory))) {
+            SevenZipExitCode.SUCCESS -> true
+            SevenZipExitCode.WARNING -> throw FileOperationException("7-Zip reported a warning while extracting")
+            else -> false
         }
 
+    // Exit code 0 means every input was added, so a written archive is never an empty one; a missing or zero-byte
+    // file means nothing reached the disk.
+    private fun isWritten(archive: File): Boolean {
+        if (archive.length() > 0) return true
+        loge("7-Zip reported success but wrote no archive")
+        archive.delete()
         return false
     }
 
-    fun extract(compressedFileDirectory: String, outputDirectory: String): Boolean {
-        when (P7ZipApi.executeCommand("7z x '$compressedFileDirectory' '-o$outputDirectory'")) {
-            0 -> {
-                logd("No errors or warnings detected")
-                return true
+    private suspend fun run(arguments: Array<String>): SevenZipExitCode? {
+        logd("7-Zip command: ${arguments.joinToString(" ") { "[$it]" }}")
+        val code = sevenZipLock.withLock { executor.execute(arguments) }
+        return SevenZipExitCode.fromCode(code).also { exitCode ->
+            if (exitCode == SevenZipExitCode.SUCCESS) {
+                logd("7-Zip finished without errors")
+            } else {
+                loge("7-Zip exit code ${SevenZipExitCode.describe(code)}")
             }
-            1 -> {
-                logd("Warning (Non fatal error(s))")
-                return true
-            }
-            2 -> loge("Fatal error")
-            7 -> loge("Bad command line parameters")
-            8 -> loge("Not enough memory for operation")
-            255 -> loge("The process has been stopped")
         }
-        return false
     }
 }

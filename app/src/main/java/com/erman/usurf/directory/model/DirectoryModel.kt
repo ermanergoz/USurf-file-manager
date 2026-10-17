@@ -1,6 +1,5 @@
 package com.erman.usurf.directory.model
 
-import android.content.Context
 import androidx.documentfile.provider.DocumentFile
 import com.erman.usurf.directory.utils.FILE_EXTENSION_SEPARATOR
 import com.erman.usurf.directory.utils.MIME_TYPE_ALL
@@ -26,9 +25,9 @@ class DirectoryModel(
     private val preferencesRepository: PreferencesRepository,
     private val safDocumentAccess: SafDocumentAccess,
     private val rootHandler: RootHandler,
-    private val context: Context,
     private val storagePathsProvider: StoragePathsProvider,
-    private val fileCopier: FileCopier
+    private val fileCopier: FileCopier,
+    private val fileCompressionHandler: FileCompressionHandler
 ) {
     suspend fun getFileModelsFromDirectory(path: String): List<FileModel> = directoryListHandler.getFileModelsFromDirectory(path)
 
@@ -312,7 +311,7 @@ class DirectoryModel(
             throw FileOperationException("An archive with this name already exists", OperationError.AlreadyExists)
         }
         val isCompressed =
-            FileCompressionHandler().compress(outputPath, multipleSelection, archiveType)
+            fileCompressionHandler.compress(outputPath, multipleSelection, archiveType)
         if (!isCompressed) {
             compressViaCache(
                 multipleSelection,
@@ -336,14 +335,14 @@ class DirectoryModel(
 
     private suspend fun compressViaCache(sources: List<FileModel>, compressedFileName: String, archiveType: String, parentPath: String) {
         val cachedFolderDirectory =
-            context.cacheDir.absolutePath + File.separator + TEMP_FOLDER_NAME
+            fileCompressionHandler.cacheDirectory.absolutePath + File.separator + TEMP_FOLDER_NAME
         val compressedFileDirectory = "$cachedFolderDirectory${File.separator}$compressedFileName"
-        createFolder(context.cacheDir.absolutePath, TEMP_FOLDER_NAME)
+        createFolder(fileCompressionHandler.cacheDirectory.absolutePath, TEMP_FOLDER_NAME)
         try {
             copyFile(sources, cachedFolderDirectory)
             val cachedFiles = getFileModelsFromDirectory(cachedFolderDirectory).toMutableList()
             val isCompressed =
-                FileCompressionHandler().compress(compressedFileDirectory, cachedFiles, archiveType)
+                fileCompressionHandler.compress(compressedFileDirectory, cachedFiles, archiveType)
             if (isCompressed) {
                 moveCompressedFileToParent(compressedFileDirectory, compressedFileName, parentPath)
             } else {
@@ -384,26 +383,40 @@ class DirectoryModel(
         val extractedFolderName =
             selectedDirectory.nameWithoutExtension + EXTRACTED_FOLDER_NAME_SUFFIX
         val extractionDestination = "$parentPath${File.separator}$extractedFolderName"
+        // createFolder refuses a folder that already exists, so from here on the folder is one this extraction made.
         createFolder(parentPath, extractedFolderName)
-        val isExtracted =
-            FileCompressionHandler().extract(selectedDirectory.path, extractionDestination)
-        if (!isExtracted) {
-            extractViaCache(selectedDirectory, extractedFolderName, extractionDestination)
+        var isDone = false
+        try {
+            val isExtracted =
+                fileCompressionHandler.extract(selectedDirectory.path, extractionDestination)
+            if (!isExtracted) {
+                extractViaCache(selectedDirectory, extractedFolderName, extractionDestination)
+            }
+            isDone = true
+        } finally {
+            if (!isDone) removeIfEmpty(File(extractionDestination))
+        }
+    }
+
+    // A folder that received part of the files stays, so the user can see what was extracted.
+    private fun removeIfEmpty(folder: File) {
+        if (folder.list()?.isEmpty() == true && !folder.delete()) {
+            safDocumentAccess.existingDocumentFor(folder)?.delete()
         }
     }
 
     private suspend fun extractViaCache(selectedDirectory: FileModel, extractedFolderName: String, extractionDestination: String) {
         val cachedFolderDirectory =
-            context.cacheDir.absolutePath + File.separator + TEMP_FOLDER_NAME
+            fileCompressionHandler.cacheDirectory.absolutePath + File.separator + TEMP_FOLDER_NAME
         val cachedCompressedFilePath =
             cachedFolderDirectory + File.separator + selectedDirectory.name
         val cachedExtractedFolderPath = cachedFolderDirectory + File.separator + extractedFolderName
-        createFolder(context.cacheDir.absolutePath, TEMP_FOLDER_NAME)
+        createFolder(fileCompressionHandler.cacheDirectory.absolutePath, TEMP_FOLDER_NAME)
         try {
             copyFile(listOf(selectedDirectory), cachedFolderDirectory)
             createFolder(cachedFolderDirectory, extractedFolderName)
             val isExtracted =
-                FileCompressionHandler().extract(cachedCompressedFilePath, cachedExtractedFolderPath)
+                fileCompressionHandler.extract(cachedCompressedFilePath, cachedExtractedFolderPath)
             if (isExtracted) {
                 moveExtractedFilesToDestination(cachedExtractedFolderPath, extractionDestination)
             } else {

@@ -28,6 +28,9 @@ sealed class OperationError(@StringRes val messageResId: Int) {
 
     /** The SD card refused the write because the app holds no granted document tree for it. */
     data object SafGrantRequired : OperationError(R.string.sd_card_access_needed)
+
+    /** 7-Zip exited 1: the archive it wrote lacked some inputs and was deleted. */
+    data object SomeFilesSkipped : OperationError(R.string.some_files_could_not_be_added)
 }
 
 /** The message to show for this failure: its [OperationError]'s when it names one, else [fallbackResId]. */

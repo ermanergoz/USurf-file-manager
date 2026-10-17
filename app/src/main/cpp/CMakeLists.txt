@@ -137,10 +137,9 @@ set(SEVENZIP_SRCS
     ${CPP_UI_CONSOLE}
 )
 
-# ─── JNI bridge + command-string parser ──────────────────────────────────────
+# ─── JNI bridge ───────────────────────────────────────────────────────────────
 set(JNI_SRCS
     jni_bridge.cpp
-    cmd/command.cpp
 )
 
 add_library(p7zip SHARED ${SEVENZIP_SRCS} ${JNI_SRCS})

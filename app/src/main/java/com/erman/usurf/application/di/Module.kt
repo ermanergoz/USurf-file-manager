@@ -10,9 +10,12 @@ import com.erman.usurf.application.data.ApplicationPreferencesRepositoryImpl
 import com.erman.usurf.application.domain.ApplicationPreferencesRepository
 import com.erman.usurf.directory.model.DirectoryListHandler
 import com.erman.usurf.directory.model.DirectoryModel
+import com.erman.usurf.directory.model.FileCompressionHandler
 import com.erman.usurf.directory.model.FileCopier
 import com.erman.usurf.directory.model.FileCopierImpl
+import com.erman.usurf.directory.model.P7ZipApi
 import com.erman.usurf.directory.model.RootHandler
+import com.erman.usurf.directory.model.SevenZipExecutor
 import com.erman.usurf.directory.ui.DirectoryViewModel
 import com.erman.usurf.ftp.data.FtpPreferenceProvider
 import com.erman.usurf.ftp.data.FtpRepositoryImpl
@@ -86,6 +89,12 @@ val appModule =
             FileCopierImpl(get()) { uri -> context.contentResolver.openOutputStream(uri) }
         }
         single { DirectoryModel(get(), get(), get(), get(), get(), get(), get()) }
+        // The lambda defers loading the native library to the first 7-Zip run.
+        single { SevenZipExecutor { arguments -> P7ZipApi.executeCommand(arguments) } }
+        single {
+            val context: Context = get()
+            FileCompressionHandler(get(), context.cacheDir)
+        }
         viewModel { DirectoryViewModel(get(), get(), get()) }
 
         single { HomeModel(get(), get()) }
