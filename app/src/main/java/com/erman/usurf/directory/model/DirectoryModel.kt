@@ -45,9 +45,9 @@ class DirectoryModel(
     private fun hasRootAccess(): Boolean = preferencesRepository.getRootAccessPreference() && rootHandler.isRootAccessGiven()
 
     private fun executeWithRootPermissions(action: () -> Boolean) {
-        rootHandler.remountRootDirAs(MountOption.READ_WRITE.option)
+        rootHandler.remountRootDirAs(MountOption.READ_WRITE)
         val isSuccess = action()
-        rootHandler.remountRootDirAs(MountOption.READ.option)
+        rootHandler.remountRootDirAs(MountOption.READ)
         if (!isSuccess) throw FileOperationException("Root operation failed")
     }
 
