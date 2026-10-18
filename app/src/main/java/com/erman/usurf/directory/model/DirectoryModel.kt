@@ -7,6 +7,7 @@ import com.erman.usurf.directory.utils.SUFFIX_LENGTH
 import com.erman.usurf.preference.domain.PreferencesRepository
 import com.erman.usurf.storage.data.SafDocumentAccess
 import com.erman.usurf.storage.domain.StoragePathsProvider
+import com.erman.usurf.storage.domain.needsRootToWrite
 import com.erman.usurf.storage.domain.volumeAmong
 import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
@@ -14,8 +15,6 @@ import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-private const val DUMMY_FILE_NAME = "usurfIsRootCheck.txt"
-private const val DUMMY_FILE_NAME_WO_EXTENSION = "usurfIsRootCheck"
 private const val EXTRACTED_FOLDER_NAME_SUFFIX = "_extracted"
 private const val OFFSET_START = 0
 private const val TEMP_FOLDER_NAME = "usurfTemp"
@@ -37,65 +36,18 @@ class DirectoryModel(
         multipleSelection + file.copy(isSelected = true)
     }
 
-    private suspend fun isRootDirectory(path: String): Boolean = withContext(Dispatchers.IO) {
-        val dummyFilePath = getParentDirectoryPath(path)
-        val dummyFile = File(dummyFilePath + File.separator + DUMMY_FILE_NAME)
-        createDummyFile(dummyFilePath)
-        val isRoot: Boolean = !dummyFile.exists()
-        cleanUpDummyFile(isRoot, dummyFile)
-        return@withContext isRoot
-    }
+    // Root is used only for folders the app cannot write itself outside every storage directory, decided from the
+    // path alone, so nothing is written to find out and storage is never searched.
+    private fun needsRoot(folder: String): Boolean = storagePathsProvider.needsRootToWrite(folder) { File(it).canWrite() }
 
-    private fun getParentDirectoryPath(path: String): String {
-        val pathFile = File(path)
-        return if (pathFile.isDirectory) pathFile.path else pathFile.parent.orEmpty()
-    }
-
-    private fun createDummyFile(parentPath: String) {
-        try {
-            File(parentPath + File.separator + DUMMY_FILE_NAME).createNewFile()
-        } catch (err: Exception) {
-            loge(err.localizedMessage ?: UNKNOWN_ERROR)
-            createDummyFileWithSaf(parentPath)
-        }
-    }
-
-    private fun createDummyFileWithSaf(parentPath: String) {
-        safDocumentAccess.documentFor(File(parentPath), File(parentPath).isDirectory)?.createFile(
-            MIME_TYPE_ALL,
-            DUMMY_FILE_NAME
-        )
-    }
-
-    private suspend fun cleanUpDummyFile(isRoot: Boolean, dummyFile: File) {
-        if (!isRoot) {
-            deleteDummyFile(dummyFile)
-        } else {
-            deleteDummyFileFromDeviceSearch()
-        }
-    }
-
-    private fun deleteDummyFile(dummyFile: File) {
-        if (!dummyFile.delete()) {
-            deleteDummyFileWithSaf(dummyFile)
-        }
-    }
-
-    private fun deleteDummyFileWithSaf(dummyFile: File) {
-        safDocumentAccess.existingDocumentFor(dummyFile)?.let { deleteFolderRecursively(it) }
-    }
-
-    private suspend fun deleteDummyFileFromDeviceSearch() {
-        val toDelete = getSearchedDeviceFiles(DUMMY_FILE_NAME_WO_EXTENSION)
-        if (toDelete.isNotEmpty()) delete(toDelete)
-    }
+    private fun parentOf(path: String): String = File(path).parent ?: File.separator
 
     private fun hasRootAccess(): Boolean = preferencesRepository.getRootAccessPreference() && rootHandler.isRootAccessGiven()
 
     private fun executeWithRootPermissions(action: () -> Boolean) {
-        rootHandler.remountRootDirAs(MountOption.READ_WRITE.option)
+        rootHandler.remountRootDirAs(MountOption.READ_WRITE)
         val isSuccess = action()
-        rootHandler.remountRootDirAs(MountOption.READ.option)
+        rootHandler.remountRootDirAs(MountOption.READ)
         if (!isSuccess) throw FileOperationException("Root operation failed")
     }
 
@@ -119,7 +71,7 @@ class DirectoryModel(
             throw FileOperationException("New name matches the current name", OperationError.NameUnchanged)
         }
         requireFreeName(File(selectedDirectory.path).parentFile, selectedDirectory.name, newFileName)
-        if (isRootDirectory(selectedDirectory.path)) {
+        if (needsRoot(parentOf(selectedDirectory.path))) {
             executeAsRoot { rootHandler.renameFile(selectedDirectory, newFileName) }
         } else {
             renameNonRoot(selectedDirectory, newFileName)
@@ -149,7 +101,7 @@ class DirectoryModel(
 
     suspend fun delete(selectedDirectories: List<FileModel>) = withContext(Dispatchers.IO) {
         if (selectedDirectories.isEmpty()) return@withContext
-        if (isRootDirectory(selectedDirectories.first().path)) {
+        if (selectedDirectories.any { needsRoot(parentOf(it.path)) }) {
             executeAsRoot { rootHandler.delete(selectedDirectories) }
         } else {
             selectedDirectories.forEach { deleteFileNonRoot(it) }
@@ -176,7 +128,7 @@ class DirectoryModel(
 
     suspend fun createFolder(path: String, folderName: String) = withContext(Dispatchers.IO) {
         requireValidName(folderName)
-        if (isRootDirectory(path)) {
+        if (needsRoot(path)) {
             executeAsRoot { rootHandler.createFolder(path, folderName) }
         } else {
             createFolderNonRoot(path, folderName)
@@ -194,7 +146,7 @@ class DirectoryModel(
 
     suspend fun createFile(path: String, fileName: String) = withContext(Dispatchers.IO) {
         requireValidName(fileName)
-        if (isRootDirectory(path)) {
+        if (needsRoot(path)) {
             executeAsRoot { rootHandler.createFile(path, fileName) }
         } else {
             createFileNonRoot(path, fileName)
@@ -216,7 +168,7 @@ class DirectoryModel(
     suspend fun copyFile(copyOrMoveSources: List<FileModel>, copyOrMoveDestination: String) = withContext(Dispatchers.IO) {
         if (copyOrMoveSources.isEmpty()) return@withContext
         val isSourceInRoot = copyOrMoveSources.any { it.isInRoot }
-        if (isRootDirectory(copyOrMoveDestination) || isSourceInRoot) {
+        if (needsRoot(copyOrMoveDestination) || isSourceInRoot) {
             executeAsRoot { rootHandler.copyFile(copyOrMoveSources, copyOrMoveDestination) }
         } else {
             copyOrMoveSources.forEach { fileCopier.copy(File(it.path), File(copyOrMoveDestination)) }
@@ -226,7 +178,7 @@ class DirectoryModel(
     suspend fun moveFile(copyOrMoveSources: List<FileModel>, copyOrMoveDestination: String) = withContext(Dispatchers.IO) {
         if (copyOrMoveSources.isEmpty()) return@withContext
         val isSourceInRoot = copyOrMoveSources.any { it.isInRoot }
-        if (isRootDirectory(copyOrMoveDestination) || isSourceInRoot) {
+        if (needsRoot(copyOrMoveDestination) || isSourceInRoot) {
             executeAsRoot { rootHandler.moveFile(copyOrMoveSources, copyOrMoveDestination) }
         } else {
             moveFileNonRoot(copyOrMoveSources, copyOrMoveDestination)
