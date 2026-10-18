@@ -152,6 +152,7 @@
     <string name="ftp_username_required">Enter a username</string>
     <string name="ftp_username_anonymous">Anonymous login is off. Choose another username</string>
     <string name="ftp_password_required">Enter a password</string>
+    <string name="ftp_password_space_at_ends">A password can\'t start or end with a space</string>
     <string name="ftp_port_out_of_range">Enter a port from 1 to 65535</string>
     <string name="ftp_allow_uploads">Allow uploads</string>
     <string name="copy_password">Copy password</string>

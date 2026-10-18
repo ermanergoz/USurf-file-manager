@@ -12,15 +12,6 @@ interface StoragePathsProvider {
     fun volumeFor(path: String): String? = volumeAmong(getStorageDirectories(), path)
 }
 
-/**
- * Whether writing into [folder] needs the root shell: only when [folder] lies under no storage directory (the system
- * partitions, another app's data, the file system root) and [isWritable] says the app cannot write it itself, as it
- * can its own cache. Internal storage and an SD card never need it; where the file API refuses a write on a card,
- * the card's granted document tree takes it instead.
- */
-fun StoragePathsProvider.needsRootToWrite(folder: String, isWritable: (String) -> Boolean): Boolean =
-    volumeFor(folder) == null && !isWritable(folder)
-
 /** The directory of [storageDirectories] holding [path], by the rules of [StoragePathsProvider.volumeFor]. */
 fun volumeAmong(storageDirectories: Set<String>, path: String): String? = storageDirectories
     .filter { it != PATH_SEPARATOR && it.isNotEmpty() }

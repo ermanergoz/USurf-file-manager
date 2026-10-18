@@ -146,6 +146,7 @@
     <string name="ftp_username_required">Bir kullanıcı adı girin</string>
     <string name="ftp_username_anonymous">Anonim giriş kapalı. Başka bir kullanıcı adı seçin</string>
     <string name="ftp_password_required">Bir şifre girin</string>
+    <string name="ftp_password_space_at_ends">Şifre boşlukla başlayamaz veya bitemez</string>
     <string name="ftp_port_out_of_range">1 ile 65535 arasında bir port girin</string>
     <string name="ftp_allow_uploads">Yüklemelere izin ver</string>
     <string name="copy_password">Şifreyi kopyala</string>

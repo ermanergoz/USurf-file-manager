@@ -18,13 +18,14 @@ class FtpCredentialsInitializer(private val random: Random) {
     }
 
     /**
-     * Keeps what the user set, except a login that could not be protected: the anonymous name, which the server
-     * never accepts, becomes the default user, and a missing, empty or blank password is replaced by a generated one.
+     * Keeps what the user set, except a login that could not be protected or used: the anonymous name, which the server
+     * never accepts, becomes the default user, and a missing password or one [FtpSettingsRules] refuses (blank, or with
+     * a space at either end, which no client could log in with) is replaced by a generated one.
      */
     fun initialCredentials(storedUsername: String?, storedPassword: String?): FtpCredentials {
         val username: String =
             storedUsername?.takeUnless { it.isBlank() || it == ANONYMOUS_FTP_USERNAME } ?: DEFAULT_FTP_USERNAME
-        val password: String = storedPassword?.takeUnless { it.isBlank() } ?: generatePassword()
+        val password: String = storedPassword?.takeUnless { FtpSettingsRules.passwordError(it) != null } ?: generatePassword()
         return FtpCredentials(username = username, password = password)
     }
 }

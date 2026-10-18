@@ -24,9 +24,6 @@ private const val GIGABYTE_DIVISOR = 1024.0 * 1024.0 * 1024.0
 private const val TERABYTE_DIVISOR = 1024.0 * 1024.0 * 1024.0 * 1024.0
 private const val INVALID_SIZE_MB: Double = -1.0
 
-// ls -a also prints the folder itself and its parent; neither is an entry to show or open.
-private val DOT_ENTRIES: Set<String> = setOf(".", "..")
-
 class DirectoryListHandler(
     private val preferencesRepository: PreferencesRepository,
     private val rootHandler: RootHandler,
@@ -57,7 +54,6 @@ class DirectoryListHandler(
         val showHidden = preferencesRepository.getShowHiddenPreference()
         if (preferencesRepository.getRootAccessPreference() && rootHandler.isRootAccessGiven()) {
             rootHandler.getFileList(path)
-                .filter { it.removeSuffix(PATH_SEPARATOR_CHAR.toString()) !in DOT_ENTRIES }
                 .filter { it.first() != HIDDEN_FILE_PREFIX || showHidden }
                 .map { createFileModelFromRootEntry(path, it) }
         } else {
