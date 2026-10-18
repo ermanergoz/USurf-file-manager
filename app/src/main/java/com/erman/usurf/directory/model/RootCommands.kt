@@ -28,9 +28,21 @@ internal object RootCommands {
     /** Deletes [path] and, for a folder, everything inside it. */
     fun delete(path: String): String = "rm -r ${quote(path)}"
 
-    /** Renames [sourcePath] to [targetPath] only when nothing exists there yet, so no file or folder is replaced. */
-    fun rename(sourcePath: String, targetPath: String): String =
-        "[ ! -e ${quote(targetPath)} ] && mv ${quote(sourcePath)} ${quote(targetPath)}"
+    /** Renames [sourcePath] to [targetPath] only when nothing exists there yet, so no file, folder or link is replaced. */
+    fun rename(sourcePath: String, targetPath: String): String = "${unlessTaken(targetPath)} mv ${quote(sourcePath)} ${quote(targetPath)}"
+
+    /** Copies [sourcePath], a file or a whole folder, into [destinationFolder] under its own name, only onto a free name. */
+    fun copyInto(sourcePath: String, destinationFolder: String): String {
+        val source = File(sourcePath)
+        val target = File(destinationFolder, source.name).path
+        return "${unlessTaken(target)} cp -a ${quote(source.path)} ${quote(target)}"
+    }
+
+    /** Moves [sourcePath] into [destinationFolder] under its own name, only onto a free name. */
+    fun moveInto(sourcePath: String, destinationFolder: String): String {
+        val source = File(sourcePath)
+        return rename(source.path, File(destinationFolder, source.name).path)
+    }
 
     /** Remounts the root file system with [mountOption]'s mode. */
     fun remountRoot(mountOption: MountOption): String = "mount -o ${mountOption.option},remount /"

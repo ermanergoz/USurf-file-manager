@@ -1,7 +1,5 @@
 package com.erman.usurf.directory.model
 
-import com.erman.usurf.directory.utils.PATH_SEPARATOR_CHAR
-import com.erman.usurf.directory.utils.SUFFIX_LENGTH
 import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
 import com.stericson.RootShell.exceptions.RootDeniedException
@@ -141,12 +139,6 @@ class RootHandler(
         return executeRootCommand(RootCommands.rename(selectedFile.path, newPath))
     }
 
-    private fun sanitizeSourcePath(path: String): String = if (path.last() == PATH_SEPARATOR_CHAR) {
-        path.dropLast(SUFFIX_LENGTH)
-    } else {
-        path
-    }
-
     /** Runs [line] in the root shell and gives what it printed when the shell reports exit code 0 in time, else null. */
     private fun run(line: String): List<String>? {
         val command = AwaitedCommand(nextCommandId(), line)
@@ -156,13 +148,12 @@ class RootHandler(
 
     private fun executeRootCommand(line: String): Boolean = run(line) != null
 
+    // Each item stops at a name already taken in the destination, so neither a copy nor a move replaces anything there.
     fun copyFile(selectedDirectories: List<FileModel>, copyOrMoveDestination: String): Boolean = selectedDirectories.all { source ->
-        val sourcePath: String = sanitizeSourcePath(source.path)
-        executeRootCommand("cp -a ${RootCommands.quote(sourcePath)} ${RootCommands.quote(copyOrMoveDestination)}")
+        executeRootCommand(RootCommands.copyInto(source.path, copyOrMoveDestination))
     }
 
     fun moveFile(selectedDirectories: List<FileModel>, copyOrMoveDestination: String): Boolean = selectedDirectories.all { source ->
-        val sourcePath: String = sanitizeSourcePath(source.path)
-        executeRootCommand("mv ${RootCommands.quote(sourcePath)} ${RootCommands.quote(copyOrMoveDestination)}")
+        executeRootCommand(RootCommands.moveInto(source.path, copyOrMoveDestination))
     }
 }
