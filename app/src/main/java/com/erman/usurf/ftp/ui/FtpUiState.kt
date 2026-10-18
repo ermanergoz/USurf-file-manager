@@ -79,6 +79,7 @@ private val FtpSettingError.messageRes: Int
         FtpSettingError.USERNAME_REQUIRED -> R.string.ftp_username_required
         FtpSettingError.USERNAME_ANONYMOUS -> R.string.ftp_username_anonymous
         FtpSettingError.PASSWORD_REQUIRED -> R.string.ftp_password_required
+        FtpSettingError.PASSWORD_SPACE_AT_ENDS -> R.string.ftp_password_space_at_ends
     }
 
 sealed class FtpUiEvent {
