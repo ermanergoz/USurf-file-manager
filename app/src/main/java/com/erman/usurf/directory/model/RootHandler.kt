@@ -36,7 +36,7 @@ private object RootShellRequest {
         if (!shell.isClosed) return shell
         try {
             Shell.closeRootShell()
-        } catch (err: Exception) {
+        } catch (err: IOException) {
             loge(err.localizedMessage ?: UNKNOWN_ERROR)
         }
         return open()
@@ -118,9 +118,14 @@ class RootHandler(
         false
     }
 
-    // A remount the root file system refuses, as a verity-protected one does, leaves the action to succeed or fail alone.
+    // A remount the root file system refuses, as a verity-protected one does, or one the shell cannot run at all, leaves
+    // the action to succeed or fail alone.
     fun remountRootDirAs(mountOption: MountOption) {
-        run(RootCommands.remountRoot(mountOption))
+        try {
+            run(RootCommands.remountRoot(mountOption))
+        } catch (err: FileOperationException) {
+            loge(err.localizedMessage ?: UNKNOWN_ERROR)
+        }
     }
 
     fun getFileList(path: String): List<String> =
@@ -142,8 +147,29 @@ class RootHandler(
     /** Runs [line] in the root shell and gives what it printed when the shell reports exit code 0 in time, else null. */
     private fun run(line: String): List<String>? {
         val command = AwaitedCommand(nextCommandId(), line)
-        submitToShell(command)
+        submit(command)
         return command.outputOnSuccess(commandTimeoutMs)
+    }
+
+    /**
+     * Hands [command] to the root shell. Throws [FileOperationException] when the shell cannot take it: su was denied,
+     * its prompt was not answered in time, su could not start, or the shell closed before the command reached it.
+     */
+    private fun submit(command: Command) {
+        val refusal: Exception? =
+            try {
+                submitToShell(command)
+                null
+            } catch (err: TimeoutException) {
+                err
+            } catch (err: RootDeniedException) {
+                err
+            } catch (err: IOException) {
+                err
+            } catch (err: IllegalStateException) {
+                err
+            }
+        if (refusal != null) throw FileOperationException("Root access is not available", cause = refusal)
     }
 
     private fun executeRootCommand(line: String): Boolean = run(line) != null

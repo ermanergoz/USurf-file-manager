@@ -484,9 +484,12 @@ class DirectoryViewModel(
         actionAwaitingGrant = null
         updateState { it.copy(activeActionCount = it.activeActionCount + 1) }
         _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(if (isMove) R.string.moving else R.string.copying))
+        // A copy writes only into the destination; a move also deletes its sources, so a source on a card without a
+        // grant is one a grant can help with too.
+        val writtenPaths = if (isMove) listOf(path) + selection.map { it.path } else listOf(path)
         viewModelScope.launch {
             try {
-                writingTo(listOf(path) + selection.map { it.path }) {
+                writingTo(writtenPaths) {
                     if (isMove) {
                         directoryModel.moveFile(selection.toMutableList(), path)
                     } else {

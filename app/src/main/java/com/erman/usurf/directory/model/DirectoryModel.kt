@@ -44,10 +44,15 @@ class DirectoryModel(
 
     private fun hasRootAccess(): Boolean = preferencesRepository.getRootAccessPreference() && rootHandler.isRootAccessGiven()
 
+    // The root file system is mounted read-only again however the action ends, a shell that dropped it included.
     private fun executeWithRootPermissions(action: () -> Boolean) {
         rootHandler.remountRootDirAs(MountOption.READ_WRITE)
-        val isSuccess = action()
-        rootHandler.remountRootDirAs(MountOption.READ)
+        val isSuccess =
+            try {
+                action()
+            } finally {
+                rootHandler.remountRootDirAs(MountOption.READ)
+            }
         if (!isSuccess) throw FileOperationException("Root operation failed")
     }
 
@@ -298,7 +303,7 @@ class DirectoryModel(
             if (isCompressed) {
                 moveCompressedFileToParent(compressedFileDirectory, compressedFileName, parentPath)
             } else {
-                throw FileOperationException("Compression failed")
+                throw FileOperationException("Compression failed", OperationError.CompressionFailed)
             }
         } finally {
             deleteTempFolder(cachedFolderDirectory)
@@ -372,7 +377,7 @@ class DirectoryModel(
             if (isExtracted) {
                 moveExtractedFilesToDestination(cachedExtractedFolderPath, extractionDestination)
             } else {
-                throw FileOperationException("Extraction failed")
+                throw FileOperationException("Extraction failed", OperationError.ExtractionFailed)
             }
         } finally {
             deleteTempFolder(cachedFolderDirectory)
