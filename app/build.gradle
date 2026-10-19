@@ -66,9 +66,14 @@ android {
         }
     }
 
+    testOptions {
+        // The app's strings and plurals resolve in unit tests as they do on a device.
+        unitTests.includeAndroidResources = true
+    }
+
     lint {
-        abortOnError = false
-        checkReleaseBuilds = false
+        abortOnError = true
+        warningsAsErrors = true
     }
     ndkVersion '29.0.14206865'
 }

@@ -315,7 +315,7 @@
                 android:contentDescription="@string/more"
                 android:onClick="@{() -> viewModel.showMoreOption()}"
                 android:src="@{uiState.common.isMoreMenuVisible ? @drawable/ic_down_arrow : @drawable/ic_up_arrow}"
-                android:tint="@color/daynnightTextColor"
+                app:tint="@color/daynnightTextColor"
                 android:visibility="@{uiState.atRootDirectory ? View.GONE : View.VISIBLE}"
                 tools:ignore="ContentDescription" />
         </LinearLayout>

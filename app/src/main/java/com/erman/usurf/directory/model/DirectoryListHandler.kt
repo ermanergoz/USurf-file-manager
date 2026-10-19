@@ -114,12 +114,17 @@ class DirectoryListHandler(
         isDirectory = file.isDirectory,
         lastModified = dateFormat.format(file.lastModified()),
         extension = file.extension,
-        subFileCount = "${file.listFiles()?.size ?: 0} ${context.getString(R.string.file_count)}",
+        subFileCount = fileCountOf(file),
         permission = getPermissions(file),
         isHidden = file.isHidden,
         isInRoot = isInRoot,
         isSelected = false
     )
+
+    private fun fileCountOf(folder: File): String {
+        val count = folder.listFiles()?.size ?: 0
+        return context.resources.getQuantityString(R.plurals.file_count, count, count)
+    }
 
     private fun createFileModelFromRootEntry(parentPath: String, entryName: String): FileModel {
         val isDirectory = entryName.last() == PATH_SEPARATOR_CHAR
