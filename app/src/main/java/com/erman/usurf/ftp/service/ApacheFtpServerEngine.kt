@@ -52,8 +52,11 @@ class ApacheFtpServerEngine(private val config: FtpServerConfig) : FtpServerEngi
             when (error) {
                 FtpSettingError.USERNAME_REQUIRED -> "a username is required"
                 FtpSettingError.USERNAME_ANONYMOUS -> "anonymous login is not allowed"
+                FtpSettingError.USERNAME_SPACE_AT_ENDS -> "a username cannot start or end with a space"
+                FtpSettingError.USERNAME_CONTROL_CHARACTER -> "a username cannot contain a control character"
                 FtpSettingError.PASSWORD_REQUIRED -> "a password is required"
                 FtpSettingError.PASSWORD_SPACE_AT_ENDS -> "a password cannot start or end with a space"
+                FtpSettingError.PASSWORD_CONTROL_CHARACTER -> "a password cannot contain a control character"
             }
         throw FtpServerStartException(IllegalArgumentException(reason))
     }

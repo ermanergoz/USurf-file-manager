@@ -145,8 +145,11 @@
     <string name="ftp_server_start_failed">Sunucu başlatılamadı: %1$s</string>
     <string name="ftp_username_required">Bir kullanıcı adı girin</string>
     <string name="ftp_username_anonymous">Anonim giriş kapalı. Başka bir kullanıcı adı seçin</string>
+    <string name="ftp_username_space_at_ends">Kullanıcı adı boşlukla başlayamaz veya bitemez</string>
+    <string name="ftp_username_control_character">Kullanıcı adı satır sonu veya başka bir görünmez karakter içeremez</string>
     <string name="ftp_password_required">Bir şifre girin</string>
     <string name="ftp_password_space_at_ends">Şifre boşlukla başlayamaz veya bitemez</string>
+    <string name="ftp_password_control_character">Şifre satır sonu veya başka bir görünmez karakter içeremez</string>
     <string name="ftp_port_out_of_range">1 ile 65535 arasında bir port girin</string>
     <string name="ftp_allow_uploads">Yüklemelere izin ver</string>
     <string name="copy_password">Şifreyi kopyala</string>
