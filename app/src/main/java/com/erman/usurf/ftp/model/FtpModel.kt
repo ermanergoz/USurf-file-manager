@@ -11,6 +11,7 @@ import com.erman.usurf.utils.ROOT_DIRECTORY
 import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
 import java.io.File
+import java.io.IOException
 import java.net.Inet4Address
 import java.net.NetworkInterface
 
@@ -43,7 +44,7 @@ class FtpModel(private val context: Context) {
 
     private fun getInternalStoragePath(): String = try {
         File(Environment.getExternalStorageDirectory().absolutePath).canonicalPath
-    } catch (err: Exception) {
+    } catch (err: IOException) {
         loge(err.localizedMessage ?: UNKNOWN_ERROR)
         Environment.getExternalStorageDirectory().absolutePath
     }

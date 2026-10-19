@@ -13,6 +13,8 @@ class FtpServerController(private val serverState: FtpServerState, private val c
     private var engine: FtpServerEngine? = null
 
     /** Starts a server on the settings [readConfig] returns, unless one is already running; returns the status after the call. */
+    // The worker thread's one boundary: a failure of any type must end as a failed status; an exception leaving it would end the process.
+    @Suppress("TooGenericExceptionCaught")
     fun start(readConfig: () -> FtpServerConfig): FtpServerStatus {
         if (engine != null) return serverState.status.value
         serverState.update(FtpServerStatus.Starting)
@@ -49,6 +51,8 @@ class FtpServerController(private val serverState: FtpServerState, private val c
         return closeFailure ?: stopFailure
     }
 
+    // The release half of that boundary: closing or stopping a half-started server can fail with any type, which is returned.
+    @Suppress("TooGenericExceptionCaught")
     private fun attempt(action: () -> Unit): Exception? = try {
         action()
         null

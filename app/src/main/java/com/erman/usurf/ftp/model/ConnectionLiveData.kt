@@ -32,18 +32,20 @@ class ConnectionLiveData(private val context: Context) : LiveData<Boolean>() {
             NetworkRequest.Builder()
                 .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
                 .build()
+        // Refused without the network state permission; the screen then keeps the state read above.
         try {
             connectivityManager.registerNetworkCallback(request, networkCallback)
-        } catch (err: Exception) {
+        } catch (err: SecurityException) {
             loge(err.localizedMessage ?: UNKNOWN_ERROR)
         }
     }
 
     override fun onInactive() {
         super.onInactive()
+        // Refused for a callback that was never registered, when registering it was refused.
         try {
             connectivityManager.unregisterNetworkCallback(networkCallback)
-        } catch (err: Exception) {
+        } catch (err: IllegalArgumentException) {
             loge(err.localizedMessage ?: UNKNOWN_ERROR)
         }
     }

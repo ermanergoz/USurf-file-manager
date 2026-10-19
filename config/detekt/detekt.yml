@@ -19,8 +19,6 @@ complexity:
     threshold: 5
 
 exceptions:
-  TooGenericExceptionCaught:
-    active: false
   SwallowedException:
     ignoredExceptionTypes:
       - InterruptedException

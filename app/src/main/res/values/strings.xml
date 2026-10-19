@@ -96,6 +96,7 @@
     <string name="renaming">Renaming</string>
     <string name="creating">Creating</string>
     <string name="search">Search</string>
+    <string name="search_failed">The search could not be completed</string>
     <string name="cancel">Cancel</string>
     <string name="favorite_created">Added to favorites</string>
     <string name="unable_to_create_favorite">Unable to add to favorites</string>
@@ -188,6 +189,7 @@
     <string name="grant_sd_card_access">Grant SD card access</string>
     <string name="sd_card_access">SD card access</string>
     <string name="sd_card_access_summary">Choose the SD card again so the app can change files on it</string>
+    <string name="sd_card_access_not_kept">Could not keep access to this storage</string>
     <plurals name="delete_items_title">
         <item quantity="one">Delete %d item?</item>
         <item quantity="other">Delete %d items?</item>

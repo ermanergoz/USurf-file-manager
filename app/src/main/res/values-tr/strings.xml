@@ -96,6 +96,7 @@
     <string name="renaming">Yeniden isimlendiriliyor</string>
     <string name="creating">Oluşturuluyor</string>
     <string name="search">Ara</string>
+    <string name="search_failed">Arama tamamlanamadı</string>
     <string name="cancel">İptal</string>
     <string name="favorite_created">Favorilere eklendi</string>
     <string name="unable_to_create_favorite">Favorilere eklerken hata</string>
@@ -182,6 +183,7 @@
     <string name="grant_sd_card_access">SD kart erişimi ver</string>
     <string name="sd_card_access">SD kart erişimi</string>
     <string name="sd_card_access_summary">Uygulamanın SD karttaki dosyaları değiştirebilmesi için SD kartı yeniden seçin</string>
+    <string name="sd_card_access_not_kept">Bu depolamaya erişim korunamadı</string>
     <plurals name="delete_items_title">
         <item quantity="one">%d öğe silinsin mi?</item>
         <item quantity="other">%d öğe silinsin mi?</item>
