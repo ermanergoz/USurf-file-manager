@@ -73,7 +73,7 @@ class DirectoryViewModel(
         viewModelScope.launch {
             try {
                 block()
-                refreshFileList()
+                reload()
                 _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(successMessageResId))
             } catch (err: FileOperationException) {
                 reportFailure(err, errorMessageResId) {
@@ -283,52 +283,47 @@ class DirectoryViewModel(
                 query = ""
             )
         }
-        loadFileList()
+        reload()
     }
 
-    private fun loadFileList() {
+    // Every listing of the screen, on entry, after an operation or on a swipe, runs here and only one at a time: a new
+    // one cancels the one in flight, and a result is applied only while the screen still shows the folder or the
+    // search it was read for, so a late answer never replaces the rows of the folder the user went to since.
+    private fun reload(state: DirectoryUiState = requireCurrentState()) {
         listLoadJob?.cancel()
-        listLoadJob = viewModelScope.launch {
-            try {
-                val path = requireCurrentState().currentPathForNavigation
-                if (path.isEmpty()) {
-                    updateCommon { it.copy(isLoading = false) }
-                    return@launch
-                }
-                val files = directoryModel.getFileModelsFromDirectory(path)
-                updateState { current ->
-                    current.copy(
-                        common = current.common.copy(isLoading = false),
-                        currentPath = path,
-                        files = files
-                    )
-                }
-            } catch (err: FileOperationException) {
-                updateCommon { it.copy(isLoading = false) }
-                _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(R.string.unable_to_open_directory))
-                loge(err.localizedMessage ?: UNKNOWN_ERROR)
-            }
+        // Without a folder or a search on screen there is nothing to list.
+        if (!state.isSearchMode && state.currentPath.isEmpty()) {
+            updateState { it.copy(common = it.common.copy(isLoading = false), isRefreshing = false) }
+            return
         }
-    }
-
-    private fun loadSearchResults() {
-        val query = requireCurrentState().query
-        listLoadJob?.cancel()
         listLoadJob = viewModelScope.launch {
             try {
-                val fileList = directoryModel.getSearchedDeviceFiles(query)
-                if (fileList.isEmpty()) {
+                val files =
+                    if (state.isSearchMode) {
+                        directoryModel.getSearchedDeviceFiles(state.query)
+                    } else {
+                        directoryModel.getFileModelsFromDirectory(state.currentPath)
+                    }
+                if (!requireCurrentState().showsLocationOf(state)) return@launch
+                // A search the user waited for says when it found nothing; a refresh of one leaves the message it follows.
+                if (state.isSearchMode && state.isLoading && files.isEmpty()) {
                     _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(R.string.empty_folder))
                 }
-                updateState {
-                    it.copy(
-                        common = it.common.copy(isLoading = false, isCreateMenuExpanded = false),
-                        files = fileList
+                updateState { current ->
+                    current.copy(
+                        common = current.common.copy(
+                            isLoading = false,
+                            isCreateMenuExpanded = current.common.isCreateMenuExpanded && !state.isSearchMode
+                        ),
+                        files = files,
+                        isRefreshing = false
                     )
                 }
             } catch (err: FileOperationException) {
-                updateCommon { it.copy(isLoading = false) }
-                _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(R.string.search_failed))
+                if (!requireCurrentState().showsLocationOf(state)) return@launch
+                updateState { it.copy(common = it.common.copy(isLoading = false), isRefreshing = false) }
+                val messageResId = if (state.isSearchMode) R.string.search_failed else R.string.unable_to_open_directory
+                _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(messageResId))
                 loge(err.localizedMessage ?: UNKNOWN_ERROR)
             }
         }
@@ -338,44 +333,9 @@ class DirectoryViewModel(
         _uiEvents.value = Event(DirectoryUiEvent.ShowDialog(DialogArgs.CompressDialogArgs))
     }
 
-    // Without a folder or a search on screen there is nothing to list again.
-    private fun refreshFileList() {
-        val state = requireCurrentState()
-        if (!state.isSearchMode && state.currentPath.isEmpty()) return
-        viewModelScope.launch {
-            try {
-                val list =
-                    if (state.isSearchMode) {
-                        directoryModel.getSearchedDeviceFiles(state.query)
-                    } else {
-                        directoryModel.getFileModelsFromDirectory(state.currentPath)
-                    }
-                updateState { it.copy(files = list) }
-            } catch (err: FileOperationException) {
-                _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(R.string.unable_to_open_directory))
-                loge(err.localizedMessage ?: UNKNOWN_ERROR)
-            }
-        }
-    }
-
     fun onSwipeRefresh() {
         updateState { it.copy(isRefreshing = true) }
-        viewModelScope.launch {
-            try {
-                val state = requireCurrentState()
-                val list =
-                    if (state.isSearchMode) {
-                        directoryModel.getSearchedDeviceFiles(state.query)
-                    } else {
-                        directoryModel.getFileModelsFromDirectory(state.currentPath)
-                    }
-                updateState { it.copy(files = list, isRefreshing = false) }
-            } catch (err: FileOperationException) {
-                updateState { it.copy(isRefreshing = false) }
-                _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(R.string.unable_to_open_directory))
-                loge(err.localizedMessage ?: UNKNOWN_ERROR)
-            }
-        }
+        reload()
     }
 
     fun onFileCompressOkPressed(zipNameWithExtension: String) {
@@ -451,7 +411,7 @@ class DirectoryViewModel(
                 files = clearedFiles
             )
         }
-        if (state.isSearchMode) loadFileList()
+        if (state.isSearchMode) reload()
     }
 
     private fun transferErrorMessage(actionType: ActionType): Int =
@@ -479,7 +439,7 @@ class DirectoryViewModel(
                         directoryModel.copyFile(selection.toMutableList(), path)
                     }
                 }
-                refreshFileList()
+                reload()
                 _uiEvents.value =
                     Event(DirectoryUiEvent.ShowSnackbar(if (isMove) R.string.moving_successful else R.string.copy_successful))
             } catch (err: FileOperationException) {
@@ -613,7 +573,7 @@ class DirectoryViewModel(
                 previousPath = previousPath
             )
         }
-        loadSearchResults()
+        reload()
     }
 
     fun deviceWideSearch() {
@@ -626,6 +586,8 @@ class DirectoryViewModel(
         _uiEvents.value = Event(DirectoryUiEvent.ShowDialog(DialogArgs.AddFavoriteDialogArgs(file.path)))
     }
 
+    // The screen lists its folder when it enters it and after every change it makes; a resume lists nothing again,
+    // so a folder that cannot be listed is reported once. A swipe lists it again on request.
     fun onFragmentResume() {
         val state = requireCurrentState()
         if (!state.isInCopyOrMoveMode) {
@@ -636,6 +598,5 @@ class DirectoryViewModel(
             if (hasVisiblePanel) turnOffOptionPanel()
             if (state.common.selectedFiles.isNotEmpty()) clearMultipleSelection()
         }
-        refreshFileList()
     }
 }

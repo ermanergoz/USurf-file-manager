@@ -13,6 +13,8 @@ import com.erman.usurf.utils.loge
 import java.io.File
 import java.io.IOException
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 
 private const val EXTRACTED_FOLDER_NAME_SUFFIX = "_extracted"
@@ -244,8 +246,10 @@ class DirectoryModel(
         directoryListHandler.mapFilesToFileModels(matchedFiles)
     }
 
-    private fun searchRecursively(directory: File, lowercaseQuery: String, matches: MutableList<File>) {
-        // Depth first search that keeps only the matching files instead of every file on the device
+    // Depth first search that keeps only the matching files instead of every file on the device. A search that was
+    // cancelled, by a second search or by leaving the screen, stops at the next folder instead of walking on.
+    private suspend fun searchRecursively(directory: File, lowercaseQuery: String, matches: MutableList<File>) {
+        currentCoroutineContext().ensureActive()
         directory.listFiles()?.forEach { file ->
             if (file.nameWithoutExtension.lowercase().contains(lowercaseQuery)) {
                 matches.add(file)

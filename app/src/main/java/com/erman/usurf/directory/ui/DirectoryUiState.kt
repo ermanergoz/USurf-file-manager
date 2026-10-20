@@ -42,6 +42,10 @@ data class DirectoryUiState(
 
     val isActionInProgress: Boolean
         get() = activeActionCount > 0
+
+    /** Whether this state shows the folder, or the search, that [other] shows, whatever else differs. */
+    fun showsLocationOf(other: DirectoryUiState): Boolean =
+        isSearchMode == other.isSearchMode && if (isSearchMode) query == other.query else currentPath == other.currentPath
 }
 
 enum class ActionType {
