@@ -162,8 +162,11 @@ class RootHandler(
         }
     }
 
-    fun getFileList(path: String): List<String> =
-        run(RootCommands.list(path)) ?: throw FileOperationException("The folder could not be listed as root")
+    // An entry named by a bare newline prints as an empty line, which names nothing to show or open.
+    fun getFileList(path: String): List<String> {
+        val lines = run(RootCommands.list(path)) ?: throw FileOperationException("The folder could not be listed as root")
+        return lines.filter { it.isNotEmpty() }
+    }
 
     fun delete(selectedDirectories: List<FileModel>): Boolean = selectedDirectories.all { source ->
         executeRootCommand(RootCommands.delete(source.path), TRANSFER_TIMEOUT_MS)

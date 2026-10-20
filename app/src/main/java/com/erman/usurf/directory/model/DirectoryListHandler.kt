@@ -7,8 +7,6 @@ import com.erman.usurf.directory.utils.PATH_SEPARATOR_CHAR
 import com.erman.usurf.directory.utils.SUFFIX_LENGTH
 import com.erman.usurf.preference.domain.PreferencesRepository
 import com.erman.usurf.utils.ROOT_DIRECTORY
-import com.erman.usurf.utils.UNKNOWN_ERROR
-import com.erman.usurf.utils.loge
 import java.io.File
 import java.text.SimpleDateFormat
 import kotlin.math.round
@@ -47,22 +45,24 @@ class DirectoryListHandler(
 
     fun mapFilesToFileModels(files: List<File>): List<FileModel> = files.map { mapFileToModel(it, isInRoot = false) }
 
-    private suspend fun getFileModelsFromNormalDirectory(fileList: Array<File>): List<FileModel> = withContext(ioDispatcher) {
+    private fun getFileModelsFromNormalDirectory(fileList: Array<File>): List<FileModel> {
         val showHidden = preferencesRepository.getShowHiddenPreference()
         val filteredFiles = filterHiddenFiles(fileList, showHidden)
         val sortedFiles = applyFileSorting(filteredFiles)
-        return@withContext sortedFiles.map { mapFileToModel(it, isInRoot = false) }
+        return sortedFiles.map { mapFileToModel(it, isInRoot = false) }
     }
 
-    private suspend fun getFileModelsFromRootDirectory(path: String): List<FileModel> = withContext(ioDispatcher) {
+    private fun getFileModelsFromRootDirectory(path: String): List<FileModel> {
         val showHidden = preferencesRepository.getShowHiddenPreference()
-        if (preferencesRepository.getRootAccessPreference() && rootHandler.isRootAccessGiven()) {
+        return if (preferencesRepository.getRootAccessPreference() && rootHandler.isRootAccessGiven()) {
             rootHandler.getFileList(path)
                 .filter { it.removeSuffix(PATH_SEPARATOR_CHAR.toString()) !in DOT_ENTRIES }
                 .filter { it.first() != HIDDEN_FILE_PREFIX || showHidden }
                 .map { createFileModelFromRootEntry(path, it) }
+        } else if (File(path).exists()) {
+            throw FileOperationException("Root access is required to list this directory", OperationError.RootAccessRequired)
         } else {
-            throw FileOperationException("Root access is required to list this directory")
+            throw FileOperationException("The directory does not exist")
         }
     }
 
@@ -147,12 +147,7 @@ class DirectoryListHandler(
         )
     }
 
-    private fun Double.roundSize(): Double = try {
-        round(this * TWO_DECIMAL_SCALE) / TWO_DECIMAL_SCALE
-    } catch (err: NumberFormatException) {
-        loge(err.localizedMessage ?: UNKNOWN_ERROR)
-        INVALID_SIZE_MB
-    }
+    private fun Double.roundSize(): Double = round(this * TWO_DECIMAL_SCALE) / TWO_DECIMAL_SCALE
 
     private fun getConvertedFileSize(file: File): String {
         val size: Long =

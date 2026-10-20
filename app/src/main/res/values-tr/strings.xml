@@ -62,6 +62,7 @@
     <string name="error_while_extracting">Çıkartılırken hata</string>
     <string name="su_not_found">Cihazın root erişimi yok.</string>
     <string name="root_access_denied">Root erişimi reddedildi.</string>
+    <string name="root_access_required">Bu klasörü açmak için root erişimi gerekiyor.</string>
     <string name="name">İsim:</string>
     <string name="path">Yol:</string>
     <string name="size">Boyut:</string>

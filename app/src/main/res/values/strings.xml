@@ -62,6 +62,7 @@
     <string name="error_while_extracting">Error while extracting</string>
     <string name="su_not_found">Device is not rooted.</string>
     <string name="root_access_denied">Root access was denied.</string>
+    <string name="root_access_required">Root access is required to open this folder.</string>
     <string name="name">Name:</string>
     <string name="path">Path:</string>
     <string name="size">Size:</string>

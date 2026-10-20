@@ -322,8 +322,8 @@ class DirectoryViewModel(
             } catch (err: FileOperationException) {
                 if (!requireCurrentState().showsLocationOf(state)) return@launch
                 updateState { it.copy(common = it.common.copy(isLoading = false), isRefreshing = false) }
-                val messageResId = if (state.isSearchMode) R.string.search_failed else R.string.unable_to_open_directory
-                _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(messageResId))
+                val fallbackResId = if (state.isSearchMode) R.string.search_failed else R.string.unable_to_open_directory
+                _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(err.operationMessageOr(fallbackResId)))
                 loge(err.localizedMessage ?: UNKNOWN_ERROR)
             }
         }

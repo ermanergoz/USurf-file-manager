@@ -6,7 +6,6 @@ import com.erman.usurf.directory.utils.MIME_TYPE_ALL
 import com.erman.usurf.directory.utils.SUFFIX_LENGTH
 import com.erman.usurf.storage.data.SafDocumentAccess
 import com.erman.usurf.storage.domain.StoragePathsProvider
-import com.erman.usurf.storage.domain.needsRootToWrite
 import com.erman.usurf.storage.domain.volumeAmong
 import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
@@ -52,9 +51,7 @@ class DirectoryModel(
         multipleSelection + file.copy(isSelected = true)
     }
 
-    // Root is used only for folders the app cannot write itself outside every storage directory, decided from the
-    // path alone, so nothing is written to find out and storage is never searched.
-    private fun needsRoot(folder: String): Boolean = storagePathsProvider.needsRootToWrite(folder) { File(it).canWrite() }
+    private fun needsRoot(folder: String): Boolean = rootWriter.needsRoot(folder)
 
     private fun parentOf(path: String): String = File(path).parent ?: File.separator
 
