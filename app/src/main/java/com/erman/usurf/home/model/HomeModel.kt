@@ -9,6 +9,7 @@ import com.erman.usurf.utils.ROOT_DIRECTORY
 import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
 import java.io.File
+import java.io.IOException
 import java.util.Locale
 
 private const val PERCENTAGE_BASE: Int = 100
@@ -37,7 +38,7 @@ class HomeModel(private val context: Context, private val storagePathsProvider: 
 
     private fun getInternalStoragePath(): String = try {
         File(Environment.getExternalStorageDirectory().absolutePath).canonicalPath
-    } catch (err: Exception) {
+    } catch (err: IOException) {
         loge(err.localizedMessage ?: UNKNOWN_ERROR)
         Environment.getExternalStorageDirectory().absolutePath
     }
@@ -76,9 +77,10 @@ class HomeModel(private val context: Context, private val storagePathsProvider: 
         )
     }
 
+    // StatFs refuses a path the volume cannot be read at with an IllegalArgumentException; the card then reads as empty.
     private fun getTotalStorage(path: String): Long = try {
         StatFs(path).totalBytes
-    } catch (err: RuntimeException) {
+    } catch (err: IllegalArgumentException) {
         loge(err.localizedMessage ?: UNKNOWN_ERROR)
         0L
     }
@@ -89,7 +91,7 @@ class HomeModel(private val context: Context, private val storagePathsProvider: 
         val blockSize: Long = stat.blockSizeLong
         val total: Long = stat.totalBytes
         total - (free * blockSize)
-    } catch (err: RuntimeException) {
+    } catch (err: IllegalArgumentException) {
         loge(err.localizedMessage ?: UNKNOWN_ERROR)
         0L
     }

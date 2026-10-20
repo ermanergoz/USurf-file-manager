@@ -19,7 +19,6 @@ import com.erman.usurf.utils.ROOT_DIRECTORY
 import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
 import java.io.File
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
@@ -58,6 +57,8 @@ class DirectoryViewModel(
         updateState { state -> state.copy(common = transform(state.common)) }
     }
 
+    // Every failure of the directory model reaches here as a FileOperationException, the one type caught on this
+    // screen; anything else is a programming error and is left to surface.
     private fun launchAction(
         actionType: ActionType,
         progressMessageResId: Int,
@@ -74,9 +75,7 @@ class DirectoryViewModel(
                 block()
                 refreshFileList()
                 _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(successMessageResId))
-            } catch (err: CancellationException) {
-                throw err
-            } catch (err: Exception) {
+            } catch (err: FileOperationException) {
                 reportFailure(err, errorMessageResId) {
                     launchAction(actionType, progressMessageResId, successMessageResId, errorMessageResId, finallyStateTransform, block)
                 }
@@ -93,10 +92,10 @@ class DirectoryViewModel(
         }
     }
 
-    private fun reportFailure(err: Exception, @StringRes errorMessageResId: Int, retry: () -> Unit) {
+    private fun reportFailure(err: FileOperationException, @StringRes errorMessageResId: Int, retry: () -> Unit) {
         _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(err.operationMessageOr(errorMessageResId)))
         loge(err.localizedMessage ?: UNKNOWN_ERROR)
-        if ((err as? FileOperationException)?.error == OperationError.SafGrantRequired) {
+        if (err.error == OperationError.SafGrantRequired) {
             actionAwaitingGrant = retry
             _uiEvents.value = Event(DirectoryUiEvent.RequestSafGrant)
         }
@@ -110,14 +109,12 @@ class DirectoryViewModel(
         try {
             write()
         } catch (err: FileOperationException) {
-            throw grantFailureOr(err, err.error, paths)
-        } catch (err: SecurityException) {
-            throw grantFailureOr(err, null, paths)
+            throw grantFailureOr(err, paths)
         }
     }
 
-    private fun grantFailureOr(err: Exception, ownError: OperationError?, paths: List<String>): Exception =
-        if (ownError == null && paths.any { storageAccessPolicy.needsSafGrant(it) }) {
+    private fun grantFailureOr(err: FileOperationException, paths: List<String>): FileOperationException =
+        if (err.error == null && paths.any { storageAccessPolicy.needsSafGrant(it) }) {
             FileOperationException("SD card access is needed", OperationError.SafGrantRequired, err)
         } else {
             err
@@ -260,17 +257,7 @@ class DirectoryViewModel(
         return true
     }
 
-    fun onBackPressed(): Boolean {
-        try {
-            if (handleCopyOrMoveBack()) return true
-            if (handleOptionsPanelBack()) return true
-            if (handleSearchModeBack()) return true
-            if (navigateToParent()) return true
-        } catch (err: Exception) {
-            loge(err.localizedMessage ?: UNKNOWN_ERROR)
-        }
-        return false
-    }
+    fun onBackPressed(): Boolean = handleCopyOrMoveBack() || handleOptionsPanelBack() || handleSearchModeBack() || navigateToParent()
 
     fun shouldConfirmExit(): Boolean = requireCurrentState().isActionInProgress
 
@@ -316,9 +303,7 @@ class DirectoryViewModel(
                         files = files
                     )
                 }
-            } catch (err: CancellationException) {
-                throw err
-            } catch (err: Exception) {
+            } catch (err: FileOperationException) {
                 updateCommon { it.copy(isLoading = false) }
                 _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(R.string.unable_to_open_directory))
                 loge(err.localizedMessage ?: UNKNOWN_ERROR)
@@ -341,10 +326,9 @@ class DirectoryViewModel(
                         files = fileList
                     )
                 }
-            } catch (err: CancellationException) {
-                throw err
-            } catch (err: Exception) {
+            } catch (err: FileOperationException) {
                 updateCommon { it.copy(isLoading = false) }
+                _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(R.string.search_failed))
                 loge(err.localizedMessage ?: UNKNOWN_ERROR)
             }
         }
@@ -354,10 +338,12 @@ class DirectoryViewModel(
         _uiEvents.value = Event(DirectoryUiEvent.ShowDialog(DialogArgs.CompressDialogArgs))
     }
 
+    // Without a folder or a search on screen there is nothing to list again.
     private fun refreshFileList() {
+        val state = requireCurrentState()
+        if (!state.isSearchMode && state.currentPath.isEmpty()) return
         viewModelScope.launch {
             try {
-                val state = requireCurrentState()
                 val list =
                     if (state.isSearchMode) {
                         directoryModel.getSearchedDeviceFiles(state.query)
@@ -365,9 +351,8 @@ class DirectoryViewModel(
                         directoryModel.getFileModelsFromDirectory(state.currentPath)
                     }
                 updateState { it.copy(files = list) }
-            } catch (err: CancellationException) {
-                throw err
-            } catch (err: Exception) {
+            } catch (err: FileOperationException) {
+                _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(R.string.unable_to_open_directory))
                 loge(err.localizedMessage ?: UNKNOWN_ERROR)
             }
         }
@@ -385,9 +370,7 @@ class DirectoryViewModel(
                         directoryModel.getFileModelsFromDirectory(state.currentPath)
                     }
                 updateState { it.copy(files = list, isRefreshing = false) }
-            } catch (err: CancellationException) {
-                throw err
-            } catch (err: Exception) {
+            } catch (err: FileOperationException) {
                 updateState { it.copy(isRefreshing = false) }
                 _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(R.string.unable_to_open_directory))
                 loge(err.localizedMessage ?: UNKNOWN_ERROR)
@@ -484,9 +467,12 @@ class DirectoryViewModel(
         actionAwaitingGrant = null
         updateState { it.copy(activeActionCount = it.activeActionCount + 1) }
         _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(if (isMove) R.string.moving else R.string.copying))
+        // A copy writes only into the destination; a move also deletes its sources, so a source on a card without a
+        // grant is one a grant can help with too.
+        val writtenPaths = if (isMove) listOf(path) + selection.map { it.path } else listOf(path)
         viewModelScope.launch {
             try {
-                writingTo(listOf(path) + selection.map { it.path }) {
+                writingTo(writtenPaths) {
                     if (isMove) {
                         directoryModel.moveFile(selection.toMutableList(), path)
                     } else {
@@ -496,9 +482,7 @@ class DirectoryViewModel(
                 refreshFileList()
                 _uiEvents.value =
                     Event(DirectoryUiEvent.ShowSnackbar(if (isMove) R.string.moving_successful else R.string.copy_successful))
-            } catch (err: CancellationException) {
-                throw err
-            } catch (err: Exception) {
+            } catch (err: FileOperationException) {
                 reportFailure(err, errorMessage) { launchTransfer(actionType, selection, path) }
             } finally {
                 updateState { it.copy(activeActionCount = it.activeActionCount - 1) }

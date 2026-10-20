@@ -31,6 +31,12 @@ sealed class OperationError(@StringRes val messageResId: Int) {
 
     /** 7-Zip exited 1: the archive it wrote lacked some inputs and was deleted. */
     data object SomeFilesSkipped : OperationError(R.string.some_files_could_not_be_added)
+
+    /** 7-Zip could not write the archive, neither in its folder nor through the app's cache folder. */
+    data object CompressionFailed : OperationError(R.string.error_while_compressing)
+
+    /** 7-Zip could not extract the archive, neither into its folder nor through the app's cache folder. */
+    data object ExtractionFailed : OperationError(R.string.error_while_extracting)
 }
 
 /** The message to show for this failure: its [OperationError]'s when it names one, else [fallbackResId]. */

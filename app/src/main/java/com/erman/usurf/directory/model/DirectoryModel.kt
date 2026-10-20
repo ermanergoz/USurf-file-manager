@@ -4,7 +4,6 @@ import androidx.documentfile.provider.DocumentFile
 import com.erman.usurf.directory.utils.FILE_EXTENSION_SEPARATOR
 import com.erman.usurf.directory.utils.MIME_TYPE_ALL
 import com.erman.usurf.directory.utils.SUFFIX_LENGTH
-import com.erman.usurf.preference.domain.PreferencesRepository
 import com.erman.usurf.storage.data.SafDocumentAccess
 import com.erman.usurf.storage.domain.StoragePathsProvider
 import com.erman.usurf.storage.domain.needsRootToWrite
@@ -12,7 +11,8 @@ import com.erman.usurf.storage.domain.volumeAmong
 import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
 import java.io.File
-import kotlinx.coroutines.Dispatchers
+import java.io.IOException
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
 private const val EXTRACTED_FOLDER_NAME_SUFFIX = "_extracted"
@@ -21,14 +21,28 @@ private const val TEMP_FOLDER_NAME = "usurfTemp"
 
 class DirectoryModel(
     private val directoryListHandler: DirectoryListHandler,
-    private val preferencesRepository: PreferencesRepository,
     private val safDocumentAccess: SafDocumentAccess,
-    private val rootHandler: RootHandler,
+    private val rootWriter: RootWriter,
     private val storagePathsProvider: StoragePathsProvider,
     private val fileCopier: FileCopier,
-    private val fileCompressionHandler: FileCompressionHandler
+    private val fileCompressionHandler: FileCompressionHandler,
+    private val ioDispatcher: CoroutineDispatcher
 ) {
-    suspend fun getFileModelsFromDirectory(path: String): List<FileModel> = directoryListHandler.getFileModelsFromDirectory(path)
+    // The one boundary of every operation: the platform refusing a call, with an IOException or a SecurityException,
+    // leaves it as a FileOperationException that names no error of its own and keeps the refusal as its cause.
+    private suspend fun <T> operation(block: suspend () -> T): T = withContext(ioDispatcher) {
+        try {
+            block()
+        } catch (err: IOException) {
+            throw FileOperationException(err.localizedMessage ?: UNKNOWN_ERROR, cause = err)
+        } catch (err: SecurityException) {
+            throw FileOperationException(err.localizedMessage ?: UNKNOWN_ERROR, cause = err)
+        }
+    }
+
+    suspend fun getFileModelsFromDirectory(path: String): List<FileModel> = operation {
+        directoryListHandler.getFileModelsFromDirectory(path)
+    }
 
     fun manageMultipleSelectionList(file: FileModel, multipleSelection: List<FileModel>): List<FileModel> = if (file.isSelected) {
         multipleSelection.filter { it.path != file.path }
@@ -42,20 +56,6 @@ class DirectoryModel(
 
     private fun parentOf(path: String): String = File(path).parent ?: File.separator
 
-    private fun hasRootAccess(): Boolean = preferencesRepository.getRootAccessPreference() && rootHandler.isRootAccessGiven()
-
-    private fun executeWithRootPermissions(action: () -> Boolean) {
-        rootHandler.remountRootDirAs(MountOption.READ_WRITE)
-        val isSuccess = action()
-        rootHandler.remountRootDirAs(MountOption.READ)
-        if (!isSuccess) throw FileOperationException("Root operation failed")
-    }
-
-    private fun executeAsRoot(action: () -> Boolean) {
-        if (!hasRootAccess()) throw FileOperationException("Root access is not available")
-        executeWithRootPermissions(action)
-    }
-
     private fun requireValidName(name: String) {
         val isInvalid =
             name.isBlank() ||
@@ -65,14 +65,14 @@ class DirectoryModel(
         if (isInvalid) throw FileOperationException("Invalid file name: $name", OperationError.InvalidName)
     }
 
-    suspend fun rename(selectedDirectory: FileModel, newFileName: String) = withContext(Dispatchers.IO) {
+    suspend fun rename(selectedDirectory: FileModel, newFileName: String) = operation {
         requireValidName(newFileName)
         if (selectedDirectory.name == newFileName) {
             throw FileOperationException("New name matches the current name", OperationError.NameUnchanged)
         }
         requireFreeName(File(selectedDirectory.path).parentFile, selectedDirectory.name, newFileName)
         if (needsRoot(parentOf(selectedDirectory.path))) {
-            executeAsRoot { rootHandler.renameFile(selectedDirectory, newFileName) }
+            rootWriter.write { root -> root.renameFile(selectedDirectory, newFileName) }
         } else {
             renameNonRoot(selectedDirectory, newFileName)
         }
@@ -99,10 +99,10 @@ class DirectoryModel(
         if (!isRenamed || !new.exists()) throw FileOperationException("Rename failed")
     }
 
-    suspend fun delete(selectedDirectories: List<FileModel>) = withContext(Dispatchers.IO) {
-        if (selectedDirectories.isEmpty()) return@withContext
+    suspend fun delete(selectedDirectories: List<FileModel>) = operation {
+        if (selectedDirectories.isEmpty()) return@operation
         if (selectedDirectories.any { needsRoot(parentOf(it.path)) }) {
-            executeAsRoot { rootHandler.delete(selectedDirectories) }
+            rootWriter.write { root -> root.delete(selectedDirectories) }
         } else {
             selectedDirectories.forEach { deleteFileNonRoot(it) }
         }
@@ -126,10 +126,10 @@ class DirectoryModel(
         return !documentFile.exists()
     }
 
-    suspend fun createFolder(path: String, folderName: String) = withContext(Dispatchers.IO) {
+    suspend fun createFolder(path: String, folderName: String) = operation {
         requireValidName(folderName)
         if (needsRoot(path)) {
-            executeAsRoot { rootHandler.createFolder(path, folderName) }
+            rootWriter.write { root -> root.createFolder(path, folderName) }
         } else {
             createFolderNonRoot(path, folderName)
         }
@@ -144,10 +144,10 @@ class DirectoryModel(
         }
     }
 
-    suspend fun createFile(path: String, fileName: String) = withContext(Dispatchers.IO) {
+    suspend fun createFile(path: String, fileName: String) = operation {
         requireValidName(fileName)
         if (needsRoot(path)) {
-            executeAsRoot { rootHandler.createFile(path, fileName) }
+            rootWriter.write { root -> root.createFile(path, fileName) }
         } else {
             createFileNonRoot(path, fileName)
         }
@@ -158,28 +158,36 @@ class DirectoryModel(
         if (File(filePath).exists()) throw FileOperationException("A file with this name already exists", OperationError.AlreadyExists)
         try {
             File(filePath).createNewFile()
-        } catch (err: Exception) {
-            loge(err.localizedMessage ?: UNKNOWN_ERROR)
-            safDocumentAccess.documentFor(File(path), File(path).isDirectory)?.createFile(MIME_TYPE_ALL, fileName)
-            if (!File(filePath).exists()) throw FileOperationException("File creation failed")
+        } catch (err: IOException) {
+            createFileInGrantedTree(path, fileName, err)
+        } catch (err: SecurityException) {
+            createFileInGrantedTree(path, fileName, err)
         }
     }
 
-    suspend fun copyFile(copyOrMoveSources: List<FileModel>, copyOrMoveDestination: String) = withContext(Dispatchers.IO) {
-        if (copyOrMoveSources.isEmpty()) return@withContext
+    // The file API refuses the new file, as the SD card does on API 29 and lower until its tree is granted, so it is
+    // made through the granted tree; the refusal stays the cause when that fails too.
+    private fun createFileInGrantedTree(path: String, fileName: String, refusal: Exception) {
+        loge(refusal.localizedMessage ?: UNKNOWN_ERROR)
+        safDocumentAccess.documentFor(File(path), File(path).isDirectory)?.createFile(MIME_TYPE_ALL, fileName)
+        if (!File("$path${File.separator}$fileName").exists()) throw FileOperationException("File creation failed", cause = refusal)
+    }
+
+    suspend fun copyFile(copyOrMoveSources: List<FileModel>, copyOrMoveDestination: String) = operation {
+        if (copyOrMoveSources.isEmpty()) return@operation
         val isSourceInRoot = copyOrMoveSources.any { it.isInRoot }
         if (needsRoot(copyOrMoveDestination) || isSourceInRoot) {
-            executeAsRoot { rootHandler.copyFile(copyOrMoveSources, copyOrMoveDestination) }
+            rootWriter.write { root -> root.copyFile(copyOrMoveSources, copyOrMoveDestination) }
         } else {
             copyOrMoveSources.forEach { fileCopier.copy(File(it.path), File(copyOrMoveDestination)) }
         }
     }
 
-    suspend fun moveFile(copyOrMoveSources: List<FileModel>, copyOrMoveDestination: String) = withContext(Dispatchers.IO) {
-        if (copyOrMoveSources.isEmpty()) return@withContext
+    suspend fun moveFile(copyOrMoveSources: List<FileModel>, copyOrMoveDestination: String) = operation {
+        if (copyOrMoveSources.isEmpty()) return@operation
         val isSourceInRoot = copyOrMoveSources.any { it.isInRoot }
         if (needsRoot(copyOrMoveDestination) || isSourceInRoot) {
-            executeAsRoot { rootHandler.moveFile(copyOrMoveSources, copyOrMoveDestination) }
+            rootWriter.write { root -> root.moveFile(copyOrMoveSources, copyOrMoveDestination) }
         } else {
             moveFileNonRoot(copyOrMoveSources, copyOrMoveDestination)
         }
@@ -223,21 +231,17 @@ class DirectoryModel(
         return copy
     }
 
-    suspend fun getSearchedDeviceFiles(searchQuery: String): List<FileModel> = withContext(Dispatchers.IO) {
+    // A search that fails says so instead of returning nothing, which would read as a device without a match.
+    suspend fun getSearchedDeviceFiles(searchQuery: String): List<FileModel> = operation {
         val matchedFiles = mutableListOf<File>()
-        try {
-            val query = searchQuery.lowercase()
-            val storagePaths = storagePathsProvider.getStorageDirectories()
-            for (storagePath in storagePaths) {
-                if (storagePath != File.separator) {
-                    searchRecursively(File(storagePath), query, matchedFiles)
-                }
+        val query = searchQuery.lowercase()
+        val storagePaths = storagePathsProvider.getStorageDirectories()
+        for (storagePath in storagePaths) {
+            if (storagePath != File.separator) {
+                searchRecursively(File(storagePath), query, matchedFiles)
             }
-            return@withContext directoryListHandler.mapFilesToFileModels(matchedFiles)
-        } catch (err: Exception) {
-            loge(err.localizedMessage ?: UNKNOWN_ERROR)
         }
-        return@withContext emptyList<FileModel>()
+        directoryListHandler.mapFilesToFileModels(matchedFiles)
     }
 
     private fun searchRecursively(directory: File, lowercaseQuery: String, matches: MutableList<File>) {
@@ -252,8 +256,8 @@ class DirectoryModel(
         }
     }
 
-    suspend fun compressFiles(multipleSelection: List<FileModel>, compressedFileNameWithExtension: String) = withContext(Dispatchers.IO) {
-        if (multipleSelection.isEmpty()) return@withContext
+    suspend fun compressFiles(multipleSelection: List<FileModel>, compressedFileNameWithExtension: String) = operation {
+        if (multipleSelection.isEmpty()) return@operation
         requireValidName(compressedFileNameWithExtension)
         requireArchiveExtension(compressedFileNameWithExtension)
         val parentPath: String = File(multipleSelection.first().path).parent ?: ""
@@ -298,7 +302,7 @@ class DirectoryModel(
             if (isCompressed) {
                 moveCompressedFileToParent(compressedFileDirectory, compressedFileName, parentPath)
             } else {
-                throw FileOperationException("Compression failed")
+                throw FileOperationException("Compression failed", OperationError.CompressionFailed)
             }
         } finally {
             deleteTempFolder(cachedFolderDirectory)
@@ -330,7 +334,7 @@ class DirectoryModel(
         )
     }
 
-    suspend fun extractFiles(selectedDirectory: FileModel) = withContext(Dispatchers.IO) {
+    suspend fun extractFiles(selectedDirectory: FileModel) = operation {
         val parentPath: String = File(selectedDirectory.path).parent ?: ""
         val extractedFolderName =
             selectedDirectory.nameWithoutExtension + EXTRACTED_FOLDER_NAME_SUFFIX
@@ -372,7 +376,7 @@ class DirectoryModel(
             if (isExtracted) {
                 moveExtractedFilesToDestination(cachedExtractedFolderPath, extractionDestination)
             } else {
-                throw FileOperationException("Extraction failed")
+                throw FileOperationException("Extraction failed", OperationError.ExtractionFailed)
             }
         } finally {
             deleteTempFolder(cachedFolderDirectory)

@@ -5,6 +5,7 @@ import com.erman.usurf.storage.domain.StoragePathsProvider
 import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
 import io.realm.Realm
+import io.realm.exceptions.RealmPrimaryKeyConstraintException
 import io.realm.kotlin.createObject
 import java.io.File
 
@@ -22,7 +23,8 @@ class ApplicationDao(val realm: Realm, private val storagePathsProvider: Storage
                     val favorite: Favorite = realm.createObject(favoritePath)
                     favorite.name = favoriteName
                     favorite.path = favoritePath
-                } catch (err: Exception) {
+                } catch (err: RealmPrimaryKeyConstraintException) {
+                    // The folder is a favourite already.
                     loge(err.localizedMessage ?: UNKNOWN_ERROR)
                 } finally {
                     realm.commitTransaction()

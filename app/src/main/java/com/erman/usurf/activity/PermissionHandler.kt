@@ -21,9 +21,28 @@ import com.erman.usurf.utils.MANAGE_ALL_FILES_DIALOG_TAG
 import com.erman.usurf.utils.MANAGE_ALL_FILES_REQUEST_KEY
 import com.erman.usurf.utils.SAF_ACCESS_DIALOG_TAG
 import com.erman.usurf.utils.SAF_ACCESS_REQUEST_KEY
+import com.erman.usurf.utils.UNKNOWN_ERROR
+import com.erman.usurf.utils.loge
 import com.google.android.material.snackbar.Snackbar
 
 private const val URI_SCHEME: String = "package"
+private const val TREE_GRANT_FLAGS: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+
+/** The grant the app keeps on a document tree the user picked. */
+internal object TreeGrant {
+    /**
+     * Keeps the read and write grant on [treeUri] across restarts through [takePersistableGrant] and says whether it
+     * could. A provider may hand back a tree whose grant cannot be kept; the platform refuses that with a
+     * SecurityException, which ends as false instead of closing the app.
+     */
+    fun isKept(treeUri: Uri, takePersistableGrant: (Uri, Int) -> Unit): Boolean = try {
+        takePersistableGrant(treeUri, TREE_GRANT_FLAGS)
+        true
+    } catch (err: SecurityException) {
+        loge(err.localizedMessage ?: UNKNOWN_ERROR)
+        false
+    }
+}
 
 class PermissionHandler(private val activity: AppCompatActivity, private val onSafUriGranted: (String) -> Unit) {
     lateinit var rootView: View
@@ -54,11 +73,11 @@ class PermissionHandler(private val activity: AppCompatActivity, private val onS
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
             result.data?.data?.let { treeUri ->
-                activity.contentResolver.takePersistableUriPermission(
-                    treeUri,
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                )
-                onSafUriGranted(treeUri.toString())
+                if (TreeGrant.isKept(treeUri, activity.contentResolver::takePersistableUriPermission)) {
+                    onSafUriGranted(treeUri.toString())
+                } else {
+                    showSnackbar(R.string.sd_card_access_not_kept)
+                }
             }
         }
 

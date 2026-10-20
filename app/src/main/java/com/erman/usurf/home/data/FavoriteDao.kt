@@ -3,6 +3,8 @@ package com.erman.usurf.home.data
 import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
 import io.realm.Realm
+import io.realm.exceptions.RealmException
+import io.realm.exceptions.RealmPrimaryKeyConstraintException
 import io.realm.kotlin.createObject
 import io.realm.kotlin.where
 
@@ -22,10 +24,13 @@ class FavoriteDao(private val realm: Realm) {
             favorite.path = favoritePath
             realm.commitTransaction()
             true
-        } catch (err: Exception) {
-            loge(err.localizedMessage ?: UNKNOWN_ERROR)
-            if (realm.isInTransaction) realm.cancelTransaction()
-            false
+        } catch (err: RealmPrimaryKeyConstraintException) {
+            // The folder is a favourite already.
+            failedWrite(err)
+        } catch (err: RealmException) {
+            failedWrite(err)
+        } catch (err: IllegalStateException) {
+            failedWrite(err)
         }
     }
 
@@ -36,9 +41,10 @@ class FavoriteDao(private val realm: Realm) {
             results.deleteAllFromRealm()
         }
         true
-    } catch (err: Exception) {
-        loge(err.localizedMessage ?: UNKNOWN_ERROR)
-        false
+    } catch (err: RealmException) {
+        failedWrite(err)
+    } catch (err: IllegalStateException) {
+        failedWrite(err)
     }
 
     fun renameFavorite(favoritePath: String, newName: String): Boolean = try {
@@ -48,9 +54,17 @@ class FavoriteDao(private val realm: Realm) {
         favoriteToRename?.name = newName
         realm.commitTransaction()
         true
-    } catch (err: Exception) {
+    } catch (err: RealmException) {
+        failedWrite(err)
+    } catch (err: IllegalStateException) {
+        failedWrite(err)
+    }
+
+    // A write Realm refused, or one made where Realm cannot write (a closed instance, another thread), changes nothing:
+    // its transaction, when one is open, is cancelled and the caller is told it failed.
+    private fun failedWrite(err: RuntimeException): Boolean {
         loge(err.localizedMessage ?: UNKNOWN_ERROR)
         if (realm.isInTransaction) realm.cancelTransaction()
-        false
+        return false
     }
 }

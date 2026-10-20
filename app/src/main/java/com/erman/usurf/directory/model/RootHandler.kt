@@ -2,6 +2,7 @@ package com.erman.usurf.directory.model
 
 import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
+import com.stericson.RootShell.RootShell
 import com.stericson.RootShell.exceptions.RootDeniedException
 import com.stericson.RootShell.execution.Command
 import com.stericson.RootShell.execution.Shell
@@ -14,10 +15,17 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicInteger
 
-// The longest a caller waits for one command. The shell ends a command it has run for 20 s by itself, so only a
-// shell that never answers at all runs into this bound.
-private const val ROOT_COMMAND_MAX_WAIT_MS: Long = 600_000
 private const val EXIT_CODE_SUCCESS: Int = 0
+
+// How long the shell lets a command run before it ends it: a listing, a new folder or file, a rename or a remount
+// answers at once, so 20 s (the shell's own default) still ends one that hangs; a delete, copy or move of a large
+// tree may run for minutes.
+private const val COMMAND_TIMEOUT_MS: Int = 20_000
+private const val TRANSFER_TIMEOUT_MS: Int = 600_000
+
+// A caller waits this much longer than the shell lets the command run, so the shell is what ends a slow command and
+// only a shell that never answers at all runs into the caller's bound.
+private const val LATCH_MARGIN_MS: Long = 30_000
 
 // Longer than the longest superuser prompt countdown (60 s in Magisk), so the manager's own grant,
 // denial or timeout answers first; only a manager that never answers runs into this bound.
@@ -26,29 +34,44 @@ private const val ROOT_SHELL_REQUEST_TIMEOUT_MS: Int = 70_000
 // RootShell retries a failed request three times by default, and every retry opens another prompt.
 private const val ROOT_SHELL_REQUEST_RETRIES: Int = 0
 
-// One su request with a bounded wait: it returns the open shell or throws TimeoutException,
-// RootDeniedException or IOException. It blocks until the prompt is answered, never call it on main.
-private object RootShellRequest {
-    private fun open(): Shell = RootTools.getShell(true, ROOT_SHELL_REQUEST_TIMEOUT_MS, Shell.defaultContext, ROOT_SHELL_REQUEST_RETRIES)
-
-    fun openHealthy(): Shell {
-        val shell: Shell = open()
-        if (!shell.isClosed) return shell
+/**
+ * The su request, with a bounded wait: it returns the open shell or throws TimeoutException, RootDeniedException or
+ * IOException. It blocks until the prompt is answered, never call it on main.
+ */
+internal class RootShellRequest<S : Any>(
+    private val open: () -> S,
+    private val isClosed: (S) -> Boolean,
+    private val closeRootShell: () -> Unit
+) {
+    // One request at a time: a caller that comes while a prompt is up waits for it and then gets the shell it opened,
+    // so requests started together share one prompt and one su process.
+    @Synchronized
+    fun openHealthy(): S {
+        val shell: S = open()
+        if (!isClosed(shell)) return shell
         try {
-            Shell.closeRootShell()
-        } catch (err: Exception) {
+            closeRootShell()
+        } catch (err: IOException) {
             loge(err.localizedMessage ?: UNKNOWN_ERROR)
         }
         return open()
     }
 }
 
+private val rootShellRequest: RootShellRequest<Shell> =
+    RootShellRequest(
+        open = { RootTools.getShell(true, ROOT_SHELL_REQUEST_TIMEOUT_MS, Shell.defaultContext, ROOT_SHELL_REQUEST_RETRIES) },
+        isClosed = { shell -> shell.isClosed },
+        closeRootShell = Shell::closeRootShell
+    )
+
 /**
- * One command line for the root shell that its caller can wait for. Its handler is off, so the shell calls it back on
- * the shell's own thread, never through the Looper of the thread that built it, which may be the very thread waiting.
- * The latch makes the exit code and the output readable only after the shell finished or ended the command.
+ * One command line for the root shell that its caller can wait for, which the shell ends after [timeoutMs]. With the
+ * library's handlers off for the whole app ([RootHandler.configureShell]), the shell calls it back on the shell's own
+ * thread, never through the Looper of the thread that built it, which may be the very thread waiting. The latch makes
+ * the exit code and the output readable only after the shell finished or ended the command.
  */
-private class AwaitedCommand(id: Int, line: String) : Command(id, false, line) {
+private class AwaitedCommand(id: Int, timeoutMs: Int, line: String) : Command(id, timeoutMs, line) {
     private val finished: CountDownLatch = CountDownLatch(1)
     private val output: MutableList<String> = CopyOnWriteArrayList()
 
@@ -89,10 +112,21 @@ private class AwaitedCommand(id: Int, line: String) : Command(id, false, line) {
 
 class RootHandler(
     private val isSuBinaryFound: () -> Boolean = RootTools::isRootAvailable,
-    private val isRootShellOpen: () -> Boolean = { !RootShellRequest.openHealthy().isClosed },
-    private val submitToShell: (Command) -> Unit = { command -> RootShellRequest.openHealthy().add(command) },
-    private val commandTimeoutMs: Long = ROOT_COMMAND_MAX_WAIT_MS
+    private val isRootShellOpen: () -> Boolean = { !rootShellRequest.openHealthy().isClosed },
+    private val submitToShell: (Command) -> Unit = { command -> rootShellRequest.openHealthy().add(command) },
+    private val latchWaitMs: (commandTimeoutMs: Int) -> Long = { commandTimeoutMs -> commandTimeoutMs + LATCH_MARGIN_MS }
 ) {
+    companion object {
+        /**
+         * Sets the root shell library up for the whole app, once, before any root command is built: no command posts its
+         * callbacks to the Looper of the thread that built it, so a command built on a thread that then waits for it
+         * still sees its answer.
+         */
+        fun configureShell() {
+            RootShell.handlerEnabled = false
+        }
+    }
+
     private val commandIdCounter: AtomicInteger = AtomicInteger(0)
 
     private fun nextCommandId(): Int = commandIdCounter.getAndIncrement()
@@ -118,16 +152,21 @@ class RootHandler(
         false
     }
 
-    // A remount the root file system refuses, as a verity-protected one does, leaves the action to succeed or fail alone.
+    // A remount the root file system refuses, as a verity-protected one does, or one the shell cannot run at all, leaves
+    // the action to succeed or fail alone.
     fun remountRootDirAs(mountOption: MountOption) {
-        run(RootCommands.remountRoot(mountOption))
+        try {
+            run(RootCommands.remountRoot(mountOption))
+        } catch (err: FileOperationException) {
+            loge(err.localizedMessage ?: UNKNOWN_ERROR)
+        }
     }
 
     fun getFileList(path: String): List<String> =
         run(RootCommands.list(path)) ?: throw FileOperationException("The folder could not be listed as root")
 
     fun delete(selectedDirectories: List<FileModel>): Boolean = selectedDirectories.all { source ->
-        executeRootCommand(RootCommands.delete(source.path))
+        executeRootCommand(RootCommands.delete(source.path), TRANSFER_TIMEOUT_MS)
     }
 
     fun createFolder(path: String, folderName: String): Boolean = executeRootCommand(RootCommands.createFolder(path, folderName))
@@ -139,21 +178,45 @@ class RootHandler(
         return executeRootCommand(RootCommands.rename(selectedFile.path, newPath))
     }
 
-    /** Runs [line] in the root shell and gives what it printed when the shell reports exit code 0 in time, else null. */
-    private fun run(line: String): List<String>? {
-        val command = AwaitedCommand(nextCommandId(), line)
-        submitToShell(command)
-        return command.outputOnSuccess(commandTimeoutMs)
+    /**
+     * Runs [line] in the root shell, which ends it after [timeoutMs], and gives what it printed when the shell reports
+     * exit code 0 in time, else null.
+     */
+    private fun run(line: String, timeoutMs: Int = COMMAND_TIMEOUT_MS): List<String>? {
+        val command = AwaitedCommand(nextCommandId(), timeoutMs, line)
+        submit(command)
+        return command.outputOnSuccess(latchWaitMs(timeoutMs))
     }
 
-    private fun executeRootCommand(line: String): Boolean = run(line) != null
+    /**
+     * Hands [command] to the root shell. Throws [FileOperationException] when the shell cannot take it: su was denied,
+     * its prompt was not answered in time, su could not start, or the shell closed before the command reached it.
+     */
+    private fun submit(command: Command) {
+        val refusal: Exception? =
+            try {
+                submitToShell(command)
+                null
+            } catch (err: TimeoutException) {
+                err
+            } catch (err: RootDeniedException) {
+                err
+            } catch (err: IOException) {
+                err
+            } catch (err: IllegalStateException) {
+                err
+            }
+        if (refusal != null) throw FileOperationException("Root access is not available", cause = refusal)
+    }
+
+    private fun executeRootCommand(line: String, timeoutMs: Int = COMMAND_TIMEOUT_MS): Boolean = run(line, timeoutMs) != null
 
     // Each item stops at a name already taken in the destination, so neither a copy nor a move replaces anything there.
     fun copyFile(selectedDirectories: List<FileModel>, copyOrMoveDestination: String): Boolean = selectedDirectories.all { source ->
-        executeRootCommand(RootCommands.copyInto(source.path, copyOrMoveDestination))
+        executeRootCommand(RootCommands.copyInto(source.path, copyOrMoveDestination), TRANSFER_TIMEOUT_MS)
     }
 
     fun moveFile(selectedDirectories: List<FileModel>, copyOrMoveDestination: String): Boolean = selectedDirectories.all { source ->
-        executeRootCommand(RootCommands.moveInto(source.path, copyOrMoveDestination))
+        executeRootCommand(RootCommands.moveInto(source.path, copyOrMoveDestination), TRANSFER_TIMEOUT_MS)
     }
 }

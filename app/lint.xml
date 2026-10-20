@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Every lint finding fails the build, except the ones below. Each says why it is off for now and what ends it. -->
+<lint>
+    <!-- Newer releases of Gradle, its Android plugin and the libraries exist. The build moves to them one step at a
+         time in the toolchain update, which removes these two entries; until then a release elsewhere cannot break
+         this build. -->
+    <issue id="AndroidGradlePluginVersion" severity="ignore" />
+    <issue id="GradleDependency" severity="ignore" />
+    <!-- Glide's annotation processor moves from kapt to KSP in the same toolchain update. -->
+    <issue id="KaptUsageInsteadOfKsp" severity="ignore" />
+    <!-- The -v21 resource folders and one API check are left from the minimum API level of 21. They go when the
+         minimum rises to 23 and the -v21 copies become the only ones. -->
+    <issue id="ObsoleteSdkInt">
+        <ignore path="src/main/res/drawable-v21" />
+        <ignore path="src/main/res/layout-v21" />
+        <ignore path="src/main/java/com/erman/usurf/activity/PermissionHandler.kt" />
+    </issue>
+    <!-- The action buttons' drawable tints apply from API 23; on API 21 and 22 the icons keep their own colour. The
+         entry goes with the -v21 layouts when the minimum API level rises to 23. -->
+    <issue id="UnusedAttribute">
+        <ignore path="src/main/res/layout-v21/fragment_directory.xml" />
+    </issue>
+    <!-- Found inside the Apache MINA library, in its SSL filter. The FTP server serves plain FTP and never turns that
+         filter on, so no connection of the app's uses this trust manager. -->
+    <issue id="TrustAllX509TrustManager">
+        <ignore path="**/mina-core-*.jar" />
+    </issue>
+</lint>
