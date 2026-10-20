@@ -8,6 +8,7 @@ import android.os.Bundle
 import com.erman.usurf.application.data.ApplicationDao
 import com.erman.usurf.application.di.appModule
 import com.erman.usurf.application.domain.ApplicationPreferencesRepository
+import com.erman.usurf.directory.model.RootHandler
 import io.realm.Realm
 import io.realm.RealmConfiguration
 import org.koin.android.ext.android.inject
@@ -23,6 +24,7 @@ class MainApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        RootHandler.configureShell()
         startKoin {
             androidContext(this@MainApplication)
             modules(appModule)

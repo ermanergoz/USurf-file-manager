@@ -4,7 +4,6 @@ import androidx.documentfile.provider.DocumentFile
 import com.erman.usurf.directory.utils.FILE_EXTENSION_SEPARATOR
 import com.erman.usurf.directory.utils.MIME_TYPE_ALL
 import com.erman.usurf.directory.utils.SUFFIX_LENGTH
-import com.erman.usurf.preference.domain.PreferencesRepository
 import com.erman.usurf.storage.data.SafDocumentAccess
 import com.erman.usurf.storage.domain.StoragePathsProvider
 import com.erman.usurf.storage.domain.needsRootToWrite
@@ -22,9 +21,8 @@ private const val TEMP_FOLDER_NAME = "usurfTemp"
 
 class DirectoryModel(
     private val directoryListHandler: DirectoryListHandler,
-    private val preferencesRepository: PreferencesRepository,
     private val safDocumentAccess: SafDocumentAccess,
-    private val rootHandler: RootHandler,
+    private val rootWriter: RootWriter,
     private val storagePathsProvider: StoragePathsProvider,
     private val fileCopier: FileCopier,
     private val fileCompressionHandler: FileCompressionHandler
@@ -57,25 +55,6 @@ class DirectoryModel(
 
     private fun parentOf(path: String): String = File(path).parent ?: File.separator
 
-    private fun hasRootAccess(): Boolean = preferencesRepository.getRootAccessPreference() && rootHandler.isRootAccessGiven()
-
-    // The root file system is mounted read-only again however the action ends, a shell that dropped it included.
-    private fun executeWithRootPermissions(action: () -> Boolean) {
-        rootHandler.remountRootDirAs(MountOption.READ_WRITE)
-        val isSuccess =
-            try {
-                action()
-            } finally {
-                rootHandler.remountRootDirAs(MountOption.READ)
-            }
-        if (!isSuccess) throw FileOperationException("Root operation failed")
-    }
-
-    private fun executeAsRoot(action: () -> Boolean) {
-        if (!hasRootAccess()) throw FileOperationException("Root access is not available")
-        executeWithRootPermissions(action)
-    }
-
     private fun requireValidName(name: String) {
         val isInvalid =
             name.isBlank() ||
@@ -92,7 +71,7 @@ class DirectoryModel(
         }
         requireFreeName(File(selectedDirectory.path).parentFile, selectedDirectory.name, newFileName)
         if (needsRoot(parentOf(selectedDirectory.path))) {
-            executeAsRoot { rootHandler.renameFile(selectedDirectory, newFileName) }
+            rootWriter.write { root -> root.renameFile(selectedDirectory, newFileName) }
         } else {
             renameNonRoot(selectedDirectory, newFileName)
         }
@@ -122,7 +101,7 @@ class DirectoryModel(
     suspend fun delete(selectedDirectories: List<FileModel>) = operation {
         if (selectedDirectories.isEmpty()) return@operation
         if (selectedDirectories.any { needsRoot(parentOf(it.path)) }) {
-            executeAsRoot { rootHandler.delete(selectedDirectories) }
+            rootWriter.write { root -> root.delete(selectedDirectories) }
         } else {
             selectedDirectories.forEach { deleteFileNonRoot(it) }
         }
@@ -149,7 +128,7 @@ class DirectoryModel(
     suspend fun createFolder(path: String, folderName: String) = operation {
         requireValidName(folderName)
         if (needsRoot(path)) {
-            executeAsRoot { rootHandler.createFolder(path, folderName) }
+            rootWriter.write { root -> root.createFolder(path, folderName) }
         } else {
             createFolderNonRoot(path, folderName)
         }
@@ -167,7 +146,7 @@ class DirectoryModel(
     suspend fun createFile(path: String, fileName: String) = operation {
         requireValidName(fileName)
         if (needsRoot(path)) {
-            executeAsRoot { rootHandler.createFile(path, fileName) }
+            rootWriter.write { root -> root.createFile(path, fileName) }
         } else {
             createFileNonRoot(path, fileName)
         }
@@ -197,7 +176,7 @@ class DirectoryModel(
         if (copyOrMoveSources.isEmpty()) return@operation
         val isSourceInRoot = copyOrMoveSources.any { it.isInRoot }
         if (needsRoot(copyOrMoveDestination) || isSourceInRoot) {
-            executeAsRoot { rootHandler.copyFile(copyOrMoveSources, copyOrMoveDestination) }
+            rootWriter.write { root -> root.copyFile(copyOrMoveSources, copyOrMoveDestination) }
         } else {
             copyOrMoveSources.forEach { fileCopier.copy(File(it.path), File(copyOrMoveDestination)) }
         }
@@ -207,7 +186,7 @@ class DirectoryModel(
         if (copyOrMoveSources.isEmpty()) return@operation
         val isSourceInRoot = copyOrMoveSources.any { it.isInRoot }
         if (needsRoot(copyOrMoveDestination) || isSourceInRoot) {
-            executeAsRoot { rootHandler.moveFile(copyOrMoveSources, copyOrMoveDestination) }
+            rootWriter.write { root -> root.moveFile(copyOrMoveSources, copyOrMoveDestination) }
         } else {
             moveFileNonRoot(copyOrMoveSources, copyOrMoveDestination)
         }
