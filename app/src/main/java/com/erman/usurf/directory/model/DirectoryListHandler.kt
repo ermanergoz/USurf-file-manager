@@ -12,7 +12,7 @@ import com.erman.usurf.utils.loge
 import java.io.File
 import java.text.SimpleDateFormat
 import kotlin.math.round
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
 private const val SIMPLE_DATE_FORMAT_PATTERN = "dd MMMM | HH:mm:ss"
@@ -30,12 +30,13 @@ private val DOT_ENTRIES: Set<String> = setOf(".", "..")
 class DirectoryListHandler(
     private val preferencesRepository: PreferencesRepository,
     private val rootHandler: RootHandler,
-    private val context: Context
+    private val context: Context,
+    private val ioDispatcher: CoroutineDispatcher
 ) {
     @SuppressLint("SimpleDateFormat")
     private val dateFormat = SimpleDateFormat(SIMPLE_DATE_FORMAT_PATTERN)
 
-    suspend fun getFileModelsFromDirectory(path: String): List<FileModel> = withContext(Dispatchers.IO) {
+    suspend fun getFileModelsFromDirectory(path: String): List<FileModel> = withContext(ioDispatcher) {
         val fileList = File(path).listFiles()
         if (fileList != null) {
             getFileModelsFromNormalDirectory(fileList)
@@ -46,14 +47,14 @@ class DirectoryListHandler(
 
     fun mapFilesToFileModels(files: List<File>): List<FileModel> = files.map { mapFileToModel(it, isInRoot = false) }
 
-    private suspend fun getFileModelsFromNormalDirectory(fileList: Array<File>): List<FileModel> = withContext(Dispatchers.IO) {
+    private suspend fun getFileModelsFromNormalDirectory(fileList: Array<File>): List<FileModel> = withContext(ioDispatcher) {
         val showHidden = preferencesRepository.getShowHiddenPreference()
         val filteredFiles = filterHiddenFiles(fileList, showHidden)
         val sortedFiles = applyFileSorting(filteredFiles)
         return@withContext sortedFiles.map { mapFileToModel(it, isInRoot = false) }
     }
 
-    private suspend fun getFileModelsFromRootDirectory(path: String): List<FileModel> = withContext(Dispatchers.IO) {
+    private suspend fun getFileModelsFromRootDirectory(path: String): List<FileModel> = withContext(ioDispatcher) {
         val showHidden = preferencesRepository.getShowHiddenPreference()
         if (preferencesRepository.getRootAccessPreference() && rootHandler.isRootAccessGiven()) {
             rootHandler.getFileList(path)

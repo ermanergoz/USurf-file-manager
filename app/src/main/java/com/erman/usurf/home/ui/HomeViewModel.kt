@@ -13,14 +13,15 @@ import com.erman.usurf.storage.domain.StorageAccessPolicy
 import com.erman.usurf.utils.Event
 import com.erman.usurf.utils.logi
 import java.io.File
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class HomeViewModel(
     private val homeModel: HomeModel,
     private val storageAccessPolicy: StorageAccessPolicy,
-    private val favoriteRepository: FavoriteRepository
+    private val favoriteRepository: FavoriteRepository,
+    private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
     private val _uiState = MutableLiveData(HomeUiState())
     val uiState: LiveData<HomeUiState> = _uiState
@@ -108,7 +109,7 @@ class HomeViewModel(
 
     fun refreshStorageItems() {
         viewModelScope.launch {
-            val items = withContext(Dispatchers.IO) { homeModel.getStorageItems() }
+            val items = withContext(ioDispatcher) { homeModel.getStorageItems() }
             updateState { it.copy(storageItems = items) }
         }
     }

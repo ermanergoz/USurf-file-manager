@@ -12,7 +12,7 @@ import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
 import java.io.File
 import java.io.IOException
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
 private const val EXTRACTED_FOLDER_NAME_SUFFIX = "_extracted"
@@ -25,11 +25,12 @@ class DirectoryModel(
     private val rootWriter: RootWriter,
     private val storagePathsProvider: StoragePathsProvider,
     private val fileCopier: FileCopier,
-    private val fileCompressionHandler: FileCompressionHandler
+    private val fileCompressionHandler: FileCompressionHandler,
+    private val ioDispatcher: CoroutineDispatcher
 ) {
     // The one boundary of every operation: the platform refusing a call, with an IOException or a SecurityException,
     // leaves it as a FileOperationException that names no error of its own and keeps the refusal as its cause.
-    private suspend fun <T> operation(block: suspend () -> T): T = withContext(Dispatchers.IO) {
+    private suspend fun <T> operation(block: suspend () -> T): T = withContext(ioDispatcher) {
         try {
             block()
         } catch (err: IOException) {
