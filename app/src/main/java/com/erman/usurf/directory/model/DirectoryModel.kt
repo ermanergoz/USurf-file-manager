@@ -50,6 +50,9 @@ class DirectoryModel(
         directoryListHandler.getFileModelsFromDirectory(path)
     }
 
+    /** The size of the folder at [path], read only when asked for, since a listing never walks the folders it shows. */
+    suspend fun getFolderSize(path: String): String = operation { directoryListHandler.folderSizeText(path) }
+
     fun manageMultipleSelectionList(file: FileModel, multipleSelection: List<FileModel>): List<FileModel> = if (file.isSelected) {
         multipleSelection.filter { it.path != file.path }
     } else {

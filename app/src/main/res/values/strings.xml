@@ -63,6 +63,8 @@
     <string name="su_not_found">Device is not rooted.</string>
     <string name="root_access_denied">Root access was denied.</string>
     <string name="root_access_required">Root access is required to open this folder.</string>
+    <string name="not_available_in_root_mode">Not available in root mode</string>
+    <string name="calculating_size">Calculating…</string>
     <string name="name">Name:</string>
     <string name="path">Path:</string>
     <string name="size">Size:</string>

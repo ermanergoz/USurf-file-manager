@@ -369,6 +369,21 @@ class DirectoryViewModel(
         }
     }
 
+    /** The size of the folder at [path], read when its Information asks for it; empty when it cannot be read. */
+    fun folderSizeOf(path: String): LiveData<String> {
+        val size = MutableLiveData<String>()
+        viewModelScope.launch {
+            size.value =
+                try {
+                    directoryModel.getFolderSize(path)
+                } catch (err: FileOperationException) {
+                    loge(err.localizedMessage ?: UNKNOWN_ERROR)
+                    ""
+                }
+        }
+        return size
+    }
+
     fun share() {
         val selection = requireNonEmptySelectionAndResetPanel() ?: return
         val shareablePaths = selection.filterNot { it.isDirectory }.map { it.path }
