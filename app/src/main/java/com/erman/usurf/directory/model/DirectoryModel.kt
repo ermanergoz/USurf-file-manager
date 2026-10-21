@@ -11,6 +11,8 @@ import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
 import java.io.File
 import java.io.IOException
+import java.util.Collections
+import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
@@ -18,7 +20,7 @@ import kotlinx.coroutines.withContext
 
 private const val EXTRACTED_FOLDER_NAME_SUFFIX = "_extracted"
 private const val OFFSET_START = 0
-private const val TEMP_FOLDER_NAME = "usurfTemp"
+private const val TEMP_FOLDER_PREFIX = "usurfTemp"
 
 class DirectoryModel(
     private val directoryListHandler: DirectoryListHandler,
@@ -29,6 +31,9 @@ class DirectoryModel(
     private val fileCompressionHandler: FileCompressionHandler,
     private val ioDispatcher: CoroutineDispatcher
 ) {
+    // The cache folders the archive runs of this process work in now; any other one is a leftover.
+    private val liveTempFolders: MutableSet<String> = Collections.newSetFromMap(ConcurrentHashMap())
+
     // The one boundary of every operation: the platform refusing a call, with an IOException or a SecurityException,
     // leaves it as a FileOperationException that names no error of its own and keeps the refusal as its cause.
     private suspend fun <T> operation(block: suspend () -> T): T = withContext(ioDispatcher) {
@@ -290,14 +295,11 @@ class DirectoryModel(
         fileNameWithExtension.lastIndexOf(FILE_EXTENSION_SEPARATOR)
     ).drop(SUFFIX_LENGTH)
 
-    private suspend fun compressViaCache(sources: List<FileModel>, compressedFileName: String, archiveType: String, parentPath: String) {
-        val cachedFolderDirectory =
-            fileCompressionHandler.cacheDirectory.absolutePath + File.separator + TEMP_FOLDER_NAME
-        val compressedFileDirectory = "$cachedFolderDirectory${File.separator}$compressedFileName"
-        createFolder(fileCompressionHandler.cacheDirectory.absolutePath, TEMP_FOLDER_NAME)
-        try {
-            copyFile(sources, cachedFolderDirectory)
-            val cachedFiles = getFileModelsFromDirectory(cachedFolderDirectory).toMutableList()
+    private suspend fun compressViaCache(sources: List<FileModel>, compressedFileName: String, archiveType: String, parentPath: String) =
+        inCacheTempFolder { tempFolder ->
+            val compressedFileDirectory = "${tempFolder.path}${File.separator}$compressedFileName"
+            copyFile(sources, tempFolder.path)
+            val cachedFiles = getFileModelsFromDirectory(tempFolder.path).toMutableList()
             val isCompressed =
                 fileCompressionHandler.compress(compressedFileDirectory, cachedFiles, archiveType)
             if (isCompressed) {
@@ -305,10 +307,7 @@ class DirectoryModel(
             } else {
                 throw FileOperationException("Compression failed", OperationError.CompressionFailed)
             }
-        } finally {
-            deleteTempFolder(cachedFolderDirectory)
         }
-    }
 
     private suspend fun moveCompressedFileToParent(compressedFilePath: String, compressedFileName: String, parentPath: String) {
         moveFile(
@@ -323,16 +322,41 @@ class DirectoryModel(
         )
     }
 
-    private suspend fun deleteTempFolder(cachedFolderDirectory: String) {
-        delete(
-            listOf(
-                FileModel(
-                    path = cachedFolderDirectory,
-                    name = TEMP_FOLDER_NAME,
-                    isDirectory = true
-                )
-            )
-        )
+    // Every run through the cache works in a folder of its own, made inside the try so a failed start is cleaned up
+    // too, and deleted however the run ends. A folder a killed run left behind is deleted first, so it never blocks or
+    // fills the cache; a folder another run of this process still works in is kept.
+    private suspend fun <T> inCacheTempFolder(work: suspend (File) -> T): T {
+        deleteLeftoverTempFolders()
+        val tempFolder = File(fileCompressionHandler.cacheDirectory, "$TEMP_FOLDER_PREFIX-${System.nanoTime()}")
+        liveTempFolders += tempFolder.name
+        try {
+            createFolder(fileCompressionHandler.cacheDirectory.absolutePath, tempFolder.name)
+            return work(tempFolder)
+        } finally {
+            try {
+                deleteTempFolder(tempFolder)
+            } finally {
+                liveTempFolders -= tempFolder.name
+            }
+        }
+    }
+
+    // A leftover that cannot be deleted is logged and left: it no longer blocks a run, which works in a folder of its own.
+    private suspend fun deleteLeftoverTempFolders() {
+        val leftovers =
+            fileCompressionHandler.cacheDirectory.listFiles().orEmpty()
+                .filter { it.name.startsWith(TEMP_FOLDER_PREFIX) && it.name !in liveTempFolders }
+        leftovers.forEach { leftover ->
+            try {
+                deleteTempFolder(leftover)
+            } catch (err: FileOperationException) {
+                loge(err.localizedMessage ?: UNKNOWN_ERROR)
+            }
+        }
+    }
+
+    private suspend fun deleteTempFolder(tempFolder: File) {
+        delete(listOf(FileModel(path = tempFolder.path, name = tempFolder.name, isDirectory = true)))
     }
 
     suspend fun extractFiles(selectedDirectory: FileModel) = operation {
@@ -362,16 +386,12 @@ class DirectoryModel(
         }
     }
 
-    private suspend fun extractViaCache(selectedDirectory: FileModel, extractedFolderName: String, extractionDestination: String) {
-        val cachedFolderDirectory =
-            fileCompressionHandler.cacheDirectory.absolutePath + File.separator + TEMP_FOLDER_NAME
-        val cachedCompressedFilePath =
-            cachedFolderDirectory + File.separator + selectedDirectory.name
-        val cachedExtractedFolderPath = cachedFolderDirectory + File.separator + extractedFolderName
-        createFolder(fileCompressionHandler.cacheDirectory.absolutePath, TEMP_FOLDER_NAME)
-        try {
-            copyFile(listOf(selectedDirectory), cachedFolderDirectory)
-            createFolder(cachedFolderDirectory, extractedFolderName)
+    private suspend fun extractViaCache(selectedDirectory: FileModel, extractedFolderName: String, extractionDestination: String) =
+        inCacheTempFolder { tempFolder ->
+            val cachedCompressedFilePath = tempFolder.path + File.separator + selectedDirectory.name
+            val cachedExtractedFolderPath = tempFolder.path + File.separator + extractedFolderName
+            copyFile(listOf(selectedDirectory), tempFolder.path)
+            createFolder(tempFolder.path, extractedFolderName)
             val isExtracted =
                 fileCompressionHandler.extract(cachedCompressedFilePath, cachedExtractedFolderPath)
             if (isExtracted) {
@@ -379,10 +399,7 @@ class DirectoryModel(
             } else {
                 throw FileOperationException("Extraction failed", OperationError.ExtractionFailed)
             }
-        } finally {
-            deleteTempFolder(cachedFolderDirectory)
         }
-    }
 
     private suspend fun moveExtractedFilesToDestination(cachedExtractedFolderPath: String, extractionDestination: String) {
         val extractedFiles = getFileModelsFromDirectory(cachedExtractedFolderPath).toMutableList()
