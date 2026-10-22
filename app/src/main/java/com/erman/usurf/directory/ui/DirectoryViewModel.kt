@@ -129,13 +129,9 @@ class DirectoryViewModel(
         retry()
     }
 
-    private fun applySelectionChange(
-        state: DirectoryUiState,
-        newSelection: List<FileModel>,
-        toggledFile: FileModel,
-        canRename: Boolean
-    ): DirectoryUiState {
-        val updatedCommon = state.common.copy(selectedFiles = newSelection, canRename = canRename)
+    // Rename, extract and favorite act on one item, so they are offered only while exactly one is selected.
+    private fun applySelectionChange(state: DirectoryUiState, newSelection: List<FileModel>, toggledFile: FileModel): DirectoryUiState {
+        val updatedCommon = state.common.copy(selectedFiles = newSelection, canRename = newSelection.size == 1)
         val updatedFileList =
             state.fileList.map {
                 if (it.path == toggledFile.path) {
@@ -153,12 +149,11 @@ class DirectoryViewModel(
         if (isMultiSelectionMode) {
             val newSelection =
                 directoryModel.manageMultipleSelectionList(file, common.selectedFiles)
-            val canRename = newSelection.size == 1
             if (newSelection.isEmpty()) {
                 turnOffOptionPanel()
                 clearMultipleSelection()
             } else {
-                updateState { uiState -> applySelectionChange(uiState, newSelection, file, canRename) }
+                updateState { uiState -> applySelectionChange(uiState, newSelection, file) }
             }
         } else {
             if (file.isDirectory) {
@@ -175,7 +170,7 @@ class DirectoryViewModel(
         val newSelection =
             directoryModel.manageMultipleSelectionList(file, state.common.selectedFiles)
         updateState { uiState ->
-            val updated = applySelectionChange(uiState, newSelection, file, canRename = true)
+            val updated = applySelectionChange(uiState, newSelection, file)
             updated.copy(
                 common =
                 updated.common.copy(
@@ -465,7 +460,8 @@ class DirectoryViewModel(
                 reportFailure(err, errorMessage) { launchTransfer(actionType, selection, path) }
             } finally {
                 updateState { it.copy(activeActionCount = it.activeActionCount - 1) }
-                if (isMove) endCopyMode()
+                // A paste ends copy mode as a move does, so a long press selects again.
+                endCopyMode()
             }
         }
     }
