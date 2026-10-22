@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.erman.usurf.R
 import com.erman.usurf.dialog.model.DialogArgs
+import com.erman.usurf.directory.model.ArchiveOperations
 import com.erman.usurf.directory.model.DirectoryModel
 import com.erman.usurf.directory.model.FileModel
 import com.erman.usurf.directory.model.FileOperationException
@@ -25,7 +26,8 @@ import kotlinx.coroutines.launch
 class DirectoryViewModel(
     private val directoryModel: DirectoryModel,
     private val preferencesRepository: PreferencesRepository,
-    private val storageAccessPolicy: StorageAccessPolicy
+    private val storageAccessPolicy: StorageAccessPolicy,
+    private val archiveOperations: ArchiveOperations
 ) : ViewModel() {
     private val isMultiSelectionMode: Boolean
         get() = with(requireCurrentState()) { !isInCopyOrMoveMode && common.selectedFiles.isNotEmpty() }
@@ -346,7 +348,9 @@ class DirectoryViewModel(
             R.string.compressing_successful,
             R.string.error_while_compressing
         ) {
-            writingTo(listOf(selection.first().path)) { directoryModel.compressFiles(selection, zipNameWithExtension) }
+            // The archive is written into the folder of the selection.
+            val archiveFolder = File(selection.first().path).parent ?: ROOT_DIRECTORY
+            writingTo(listOf(archiveFolder)) { archiveOperations.compressFiles(selection, zipNameWithExtension) }
         }
     }
 
@@ -358,7 +362,7 @@ class DirectoryViewModel(
             R.string.extracting_successful,
             R.string.error_while_extracting
         ) {
-            writingTo(listOf(selection.first().path)) { directoryModel.extractFiles(selection.first()) }
+            writingTo(listOf(selection.first().path)) { archiveOperations.extractFiles(selection.first()) }
         }
     }
 
