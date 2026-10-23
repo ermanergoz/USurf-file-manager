@@ -30,10 +30,9 @@ class DirectoryModel(
     /** The size of the folder at [path], read only when asked for, since a listing never walks the folders it shows. */
     suspend fun getFolderSize(path: String): String = operationOn(ioDispatcher) { directoryListHandler.folderSizeText(path) }
 
-    fun manageMultipleSelectionList(file: FileModel, multipleSelection: List<FileModel>): List<FileModel> = if (file.isSelected) {
-        multipleSelection.filter { it.path != file.path }
-    } else {
-        multipleSelection + file.copy(isSelected = true)
+    /** The folder above [path] when the app can read it; null at the top of the file system or when it cannot be read. */
+    suspend fun readableParentOf(path: String): String? = operationOn(ioDispatcher) {
+        File(path).parentFile?.takeIf { it.canRead() }?.path
     }
 
     private fun needsRoot(folder: String): Boolean = rootWriter.needsRoot(folder)
@@ -82,6 +81,15 @@ class DirectoryModel(
         } else {
             selectedDirectories.forEach { deleteFileNonRoot(it) }
         }
+    }
+
+    /**
+     * Deletes the items at [paths], each a folder or a file as it is on the device when the delete runs: a confirmation
+     * names paths only, and what each one is gets read here, off the main thread.
+     */
+    @JvmName("deletePaths")
+    suspend fun delete(paths: List<String>) = operationOn(ioDispatcher) {
+        delete(paths.map { path -> File(path).let { FileModel(path = path, name = it.name, isDirectory = it.isDirectory) } })
     }
 
     private fun deleteFileNonRoot(fileModel: FileModel) {

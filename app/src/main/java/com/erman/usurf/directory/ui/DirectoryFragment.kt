@@ -64,7 +64,7 @@ class DirectoryFragment : Fragment() {
             binding.uiState = state
             binding.swipeRefreshLayout.isRefreshing = state.isRefreshing
             if (::directoryRecyclerViewAdapter.isInitialized) {
-                directoryRecyclerViewAdapter.updateData(state.fileList)
+                directoryRecyclerViewAdapter.updateData(state.files)
             }
         }
         directoryViewModel.uiEvents.observe(
@@ -199,10 +199,10 @@ class DirectoryFragment : Fragment() {
     private fun registerDialogResultListeners() {
         val fragmentManager = requireActivity().supportFragmentManager
         fragmentManager.setFragmentResultListener(CreateFolderDialog.REQUEST_KEY, viewLifecycleOwner) { _, bundle ->
-            directoryViewModel.onFolderCreateOkPressed(bundle.getString(CreateFolderDialog.RESULT_NAME).orEmpty())
+            directoryViewModel.onCreateNameEntered(CreateKind.FOLDER, bundle.getString(CreateFolderDialog.RESULT_NAME).orEmpty())
         }
         fragmentManager.setFragmentResultListener(CreateFileDialog.REQUEST_KEY, viewLifecycleOwner) { _, bundle ->
-            directoryViewModel.onFileCreateOkPressed(bundle.getString(CreateFileDialog.RESULT_NAME).orEmpty())
+            directoryViewModel.onCreateNameEntered(CreateKind.FILE, bundle.getString(CreateFileDialog.RESULT_NAME).orEmpty())
         }
         fragmentManager.setFragmentResultListener(CompressDialog.REQUEST_KEY, viewLifecycleOwner) { _, bundle ->
             directoryViewModel.onFileCompressOkPressed(bundle.getString(CompressDialog.RESULT_NAME).orEmpty())
@@ -228,7 +228,7 @@ class DirectoryFragment : Fragment() {
         // Navigate to the argument path on first creation, or when the shared ViewModel has
         // no state yet (e.g. after process death). On a plain recreation the ViewModel already
         // holds the directory the user browsed to, so leave it untouched.
-        if (savedInstanceState == null || !directoryViewModel.hasActiveLocation()) {
+        if (savedInstanceState == null || directoryViewModel.uiState.value?.hasActiveLocation != true) {
             val path: String = DirectoryFragmentArgs.fromBundle(requireArguments()).currentPath ?: ROOT_DIRECTORY
             directoryViewModel.setPath(path)
         }
@@ -278,7 +278,7 @@ class DirectoryFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        directoryViewModel.onFragmentResume()
+        directoryViewModel.onScreenResumed()
     }
 
     override fun onDestroyView() {

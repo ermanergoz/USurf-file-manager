@@ -16,10 +16,8 @@ import com.erman.usurf.directory.model.operationMessageOr
 import com.erman.usurf.preference.domain.PreferencesRepository
 import com.erman.usurf.storage.domain.StorageAccessPolicy
 import com.erman.usurf.utils.Event
-import com.erman.usurf.utils.ROOT_DIRECTORY
 import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
-import java.io.File
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
@@ -55,32 +53,23 @@ class DirectoryViewModel(
 
     private fun requireCurrentState(): DirectoryUiState = _uiState.value ?: DirectoryUiState()
 
-    private fun updateCommon(transform: (CommonUi) -> CommonUi) {
-        updateState { state -> state.copy(common = transform(state.common)) }
-    }
-
     // Every failure of the directory model reaches here as a FileOperationException, the one type caught on this
     // screen; anything else is a programming error and is left to surface.
     private fun launchAction(
         actionType: ActionType,
-        progressMessageResId: Int,
-        successMessageResId: Int,
-        errorMessageResId: Int,
         finallyStateTransform: (DirectoryUiState) -> DirectoryUiState = { it },
         block: suspend () -> Unit
     ) {
         actionAwaitingGrant = null
         updateState { it.copy(actionType = actionType, activeActionCount = it.activeActionCount + 1) }
-        _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(progressMessageResId))
+        _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(actionType.progressMessage))
         viewModelScope.launch {
             try {
                 block()
                 reload()
-                _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(successMessageResId))
+                _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(actionType.successMessage))
             } catch (err: FileOperationException) {
-                reportFailure(err, errorMessageResId) {
-                    launchAction(actionType, progressMessageResId, successMessageResId, errorMessageResId, finallyStateTransform, block)
-                }
+                reportFailure(err, actionType.failureMessage) { launchAction(actionType, finallyStateTransform, block) }
             } finally {
                 updateState { state ->
                     val base =
@@ -129,32 +118,9 @@ class DirectoryViewModel(
         retry()
     }
 
-    // Rename, extract and favorite act on one item, so they are offered only while exactly one is selected.
-    private fun applySelectionChange(state: DirectoryUiState, newSelection: List<FileModel>, toggledFile: FileModel): DirectoryUiState {
-        val updatedCommon = state.common.copy(selectedFiles = newSelection, canRename = newSelection.size == 1)
-        val updatedFileList =
-            state.fileList.map {
-                if (it.path == toggledFile.path) {
-                    toggledFile.copy(isSelected = !toggledFile.isSelected)
-                } else {
-                    it
-                }
-            }
-        return state.copy(common = updatedCommon, files = updatedFileList)
-    }
-
     fun onFileClick(file: FileModel) {
-        val state = requireCurrentState()
-        val common = state.common
         if (isMultiSelectionMode) {
-            val newSelection =
-                directoryModel.manageMultipleSelectionList(file, common.selectedFiles)
-            if (newSelection.isEmpty()) {
-                turnOffOptionPanel()
-                clearMultipleSelection()
-            } else {
-                updateState { uiState -> applySelectionChange(uiState, newSelection, file) }
-            }
+            updateState { it.tapWhileSelecting(file) }
         } else {
             if (file.isDirectory) {
                 setPath(file.path)
@@ -165,108 +131,34 @@ class DirectoryViewModel(
     }
 
     fun onFileLongClick(file: FileModel): Boolean {
-        val state = requireCurrentState()
-        if (state.isInCopyOrMoveMode) return false
-        val newSelection =
-            directoryModel.manageMultipleSelectionList(file, state.common.selectedFiles)
-        updateState { uiState ->
-            val updated = applySelectionChange(uiState, newSelection, file)
-            updated.copy(
-                common =
-                updated.common.copy(
-                    isOptionsPanelVisible = true
-                )
-            )
-        }
+        if (requireCurrentState().isInCopyOrMoveMode) return false
+        updateState { it.select(file).openPanel() }
         return true
-    }
-
-    fun turnOffOptionPanel() {
-        updateState { state ->
-            val cleared =
-                state.common.copy(
-                    isOptionsPanelVisible = false,
-                    isMoreMenuVisible = false,
-                    isCreateMenuExpanded = false
-                )
-            state.copy(
-                common = cleared,
-                isInCopyOrMoveMode = false,
-                actionType = ActionType.BROWSE
-            )
-        }
-    }
-
-    fun clearMultipleSelection() {
-        val clearedFiles = requireCurrentState().fileList.map { it.copy(isSelected = false) }
-        updateState { uiState ->
-            uiState.copy(
-                common = uiState.common.copy(selectedFiles = emptyList(), canRename = false),
-                files = clearedFiles
-            )
-        }
     }
 
     fun endCopyMode() {
-        turnOffOptionPanel()
-        clearMultipleSelection()
+        updateState(DirectoryUiState::reset)
     }
 
-    private fun navigateToParent(): Boolean {
-        val state = requireCurrentState()
-        val currentPath = state.currentPathForNavigation
-        val parentPath = File(currentPath).parent ?: return false
-        val prevFile = File(parentPath)
-        val canNavigate =
-            (prevFile.canRead() && prevFile.path != ROOT_DIRECTORY) ||
-                preferencesRepository.getRootAccessPreference()
-        if (!canNavigate) return false
-        setPath(prevFile.path)
+    /** Answers Back: true when the screen handled it, false when Back leaves the screen. */
+    fun onBackPressed(): Boolean {
+        when (val action = BackNavigationPolicy.decide(requireCurrentState(), preferencesRepository.getRootAccessPreference())) {
+            BackAction.ClosePanel -> updateState(DirectoryUiState::reset)
+            is BackAction.LeaveSearch -> setPath(action.path)
+            is BackAction.GoUp -> setPath(action.path)
+            BackAction.Stay -> Unit
+            BackAction.Leave -> return false
+        }
         return true
     }
-
-    private fun handleCopyOrMoveBack(): Boolean {
-        val state = requireCurrentState()
-        if (!state.isInCopyOrMoveMode) return false
-        val currentPath = state.currentPathForNavigation
-        val parentPath = File(currentPath).parent ?: return true
-        val prevFile = File(parentPath)
-        val canNavigate =
-            (prevFile.canRead() && prevFile.path != ROOT_DIRECTORY) ||
-                preferencesRepository.getRootAccessPreference()
-        if (canNavigate) setPath(prevFile.path)
-        return true
-    }
-
-    private fun handleOptionsPanelBack(): Boolean {
-        val state = requireCurrentState()
-        val inOptionOrMenu = state.common.isOptionsPanelVisible || state.common.isCreateMenuExpanded
-        if (!inOptionOrMenu) return false
-        turnOffOptionPanel()
-        clearMultipleSelection()
-        return true
-    }
-
-    private fun handleSearchModeBack(): Boolean {
-        val state = requireCurrentState()
-        if (!state.isSearchMode) return false
-        setPath(state.previousPath.ifEmpty { ROOT_DIRECTORY })
-        return true
-    }
-
-    fun onBackPressed(): Boolean = handleCopyOrMoveBack() || handleOptionsPanelBack() || handleSearchModeBack() || navigateToParent()
 
     fun shouldConfirmExit(): Boolean = requireCurrentState().isActionInProgress
-
-    fun hasActiveLocation(): Boolean = with(requireCurrentState()) { currentPath.isNotEmpty() || isSearchMode }
 
     private fun requireNonEmptySelectionAndResetPanel(): List<FileModel>? {
         val selection = requireCurrentState().common.selectedFiles
         if (selection.isEmpty()) return null
-        val selectionCopy = selection.toList()
-        turnOffOptionPanel()
-        clearMultipleSelection()
-        return selectionCopy
+        updateState(DirectoryUiState::reset)
+        return selection
     }
 
     fun setPath(path: String) {
@@ -277,7 +169,8 @@ class DirectoryViewModel(
                 currentPath = path,
                 files = emptyList(),
                 isSearchMode = false,
-                query = ""
+                query = "",
+                readableParent = null
             )
         }
         reload()
@@ -295,6 +188,10 @@ class DirectoryViewModel(
         }
         listLoadJob = viewModelScope.launch {
             try {
+                // The way up is stored before the listing, so Back finds it even when the folder cannot be listed.
+                val readableParent = if (state.isSearchMode) null else directoryModel.readableParentOf(state.currentPath)
+                if (!requireCurrentState().showsLocationOf(state)) return@launch
+                updateState { it.copy(readableParent = readableParent) }
                 val files =
                     if (state.isSearchMode) {
                         directoryModel.getSearchedDeviceFiles(state.query)
@@ -337,26 +234,15 @@ class DirectoryViewModel(
 
     fun onFileCompressOkPressed(zipNameWithExtension: String) {
         val selection = requireNonEmptySelectionAndResetPanel() ?: return
-        launchAction(
-            ActionType.COMPRESS,
-            R.string.compressing,
-            R.string.compressing_successful,
-            R.string.error_while_compressing
-        ) {
+        launchAction(ActionType.COMPRESS) {
             // The archive is written into the folder of the selection.
-            val archiveFolder = File(selection.first().path).parent ?: ROOT_DIRECTORY
-            writingTo(listOf(archiveFolder)) { archiveOperations.compressFiles(selection, zipNameWithExtension) }
+            writingTo(listOf(selection.first().folderPath)) { archiveOperations.compressFiles(selection, zipNameWithExtension) }
         }
     }
 
     fun extract() {
         val selection = requireNonEmptySelectionAndResetPanel() ?: return
-        launchAction(
-            ActionType.EXTRACT,
-            R.string.extracting,
-            R.string.extracting_successful,
-            R.string.error_while_extracting
-        ) {
+        launchAction(ActionType.EXTRACT) {
             writingTo(listOf(selection.first().path)) { archiveOperations.extractFiles(selection.first()) }
         }
     }
@@ -391,113 +277,48 @@ class DirectoryViewModel(
             Event(DirectoryUiEvent.ShowDialog(DialogArgs.ShareActivityArgs(shareablePaths, directoryNames)))
     }
 
-    fun showMoreOption() {
-        val state = requireCurrentState()
-        if (state.common.isMoreMenuVisible) {
-            updateCommon { it.copy(isMoreMenuVisible = false) }
-        } else {
-            updateCommon { it.copy(isMoreMenuVisible = true) }
-        }
+    fun toggleMoreMenu() {
+        updateState(DirectoryUiState::toggleMoreMenu)
     }
 
-    fun copy() = enterTransferMode(ActionType.COPY)
-
-    fun move() = enterTransferMode(ActionType.MOVE)
-
-    private fun enterTransferMode(actionType: ActionType) {
+    /** Starts browsing for where to paste the selection, as a copy or a move by [actionType]. */
+    fun enterTransferMode(actionType: ActionType) {
         val state = requireCurrentState()
         if (state.isInCopyOrMoveMode) return
-        val targetPath = if (state.isSearchMode) state.previousPath else state.currentPath
-        val clearedFiles = state.fileList.map { it.copy(isSelected = false) }
-        updateState { uiState ->
-            uiState.copy(
-                common =
-                uiState.common.copy(
-                    isOptionsPanelVisible = false,
-                    isMoreMenuVisible = false,
-                    isLoading = state.isSearchMode
-                ),
-                isInCopyOrMoveMode = true,
-                actionType = actionType,
-                currentPath = targetPath,
-                isSearchMode = false,
-                query = "",
-                files = clearedFiles
-            )
-        }
+        updateState { it.enterTransfer(actionType) }
         if (state.isSearchMode) reload()
-    }
-
-    private fun transferErrorMessage(actionType: ActionType): Int =
-        if (actionType == ActionType.MOVE) R.string.error_while_moving else R.string.error_while_copying
-
-    private fun launchTransfer(actionType: ActionType, selection: List<FileModel>, path: String) {
-        val errorMessage = transferErrorMessage(actionType)
-        if (selection.isEmpty()) {
-            _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(errorMessage))
-            return
-        }
-        val isMove = actionType == ActionType.MOVE
-        actionAwaitingGrant = null
-        updateState { it.copy(activeActionCount = it.activeActionCount + 1) }
-        _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(if (isMove) R.string.moving else R.string.copying))
-        // A copy writes only into the destination; a move also deletes its sources, so a source on a card without a
-        // grant is one a grant can help with too.
-        val writtenPaths = if (isMove) listOf(path) + selection.map { it.path } else listOf(path)
-        viewModelScope.launch {
-            try {
-                writingTo(writtenPaths) {
-                    if (isMove) {
-                        directoryModel.moveFile(selection.toMutableList(), path)
-                    } else {
-                        directoryModel.copyFile(selection.toMutableList(), path)
-                    }
-                }
-                reload()
-                _uiEvents.value =
-                    Event(DirectoryUiEvent.ShowSnackbar(if (isMove) R.string.moving_successful else R.string.copy_successful))
-            } catch (err: FileOperationException) {
-                reportFailure(err, errorMessage) { launchTransfer(actionType, selection, path) }
-            } finally {
-                updateState { it.copy(activeActionCount = it.activeActionCount - 1) }
-                // A paste ends copy mode as a move does, so a long press selects again.
-                endCopyMode()
-            }
-        }
     }
 
     fun confirmAction() {
         val state = requireCurrentState()
-        if (!state.isInCopyOrMoveMode) return
+        val actionType = state.actionType
+        if (!state.isInCopyOrMoveMode || (actionType != ActionType.COPY && actionType != ActionType.MOVE)) return
         val selection = state.common.selectedFiles
-        val path = state.currentPath
-        if (hasDestinationConflict(selection, path)) {
-            _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(transferErrorMessage(state.actionType)))
+        val destination = state.currentPath
+        if (selection.isEmpty() || hasDestinationConflict(selection, destination)) {
+            _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(actionType.failureMessage))
             return
         }
-        when (state.actionType) {
-            ActionType.COPY, ActionType.MOVE -> launchTransfer(state.actionType, selection, path)
-            else -> Unit
+        // A paste ends copy mode as a move does, whether it succeeds or fails, so a long press selects again.
+        launchAction(actionType, DirectoryUiState::reset) {
+            val isMove = actionType == ActionType.MOVE
+            // A copy writes only into the destination; a move also deletes its sources, so a source on a card without a
+            // grant is one a grant can help with too.
+            val writtenPaths = if (isMove) listOf(destination) + selection.map { it.path } else listOf(destination)
+            writingTo(writtenPaths) {
+                if (isMove) {
+                    directoryModel.moveFile(selection, destination)
+                } else {
+                    directoryModel.copyFile(selection, destination)
+                }
+            }
         }
-    }
-
-    private fun hasDestinationConflict(selection: List<FileModel>, destinationPath: String): Boolean = selection.any { file ->
-        file.isDirectory &&
-            (
-                destinationPath == file.path ||
-                    destinationPath.startsWith(file.path + File.separator)
-                )
     }
 
     fun onRenameOkPressed(fileName: String) {
         val selection = requireNonEmptySelectionAndResetPanel() ?: return
         val fileToRename = selection.last()
-        launchAction(
-            ActionType.RENAME,
-            R.string.renaming,
-            R.string.renaming_successful,
-            R.string.error_while_renaming
-        ) {
+        launchAction(ActionType.RENAME) {
             writingTo(listOf(fileToRename.path)) { directoryModel.rename(fileToRename, fileName) }
         }
     }
@@ -519,58 +340,37 @@ class DirectoryViewModel(
 
     fun confirmDelete(paths: List<String>) {
         if (paths.isEmpty()) return
-        val items = paths.map { path -> File(path).let { FileModel(path = path, name = it.name, isDirectory = it.isDirectory) } }
-        turnOffOptionPanel()
-        clearMultipleSelection()
-        launchAction(
-            ActionType.DELETE,
-            R.string.deleting,
-            R.string.deleting_successful,
-            R.string.error_while_deleting
-        ) {
-            writingTo(items.map { it.path }) { directoryModel.delete(items) }
+        updateState(DirectoryUiState::reset)
+        launchAction(ActionType.DELETE) {
+            writingTo(paths) { directoryModel.delete(paths) }
         }
     }
 
-    fun onCreate() {
-        updateCommon { it.copy(isCreateMenuExpanded = !it.isCreateMenuExpanded) }
+    fun toggleCreateMenu() {
+        updateState(DirectoryUiState::toggleCreateMenu)
     }
 
-    fun createFolder() {
-        _uiEvents.value = Event(DirectoryUiEvent.ShowDialog(DialogArgs.CreateFolderDialogArgs))
+    /** Asks for the name of a new folder or file, by [kind]. */
+    fun requestCreate(kind: CreateKind) {
+        val dialogArgs =
+            when (kind) {
+                CreateKind.FOLDER -> DialogArgs.CreateFolderDialogArgs
+                CreateKind.FILE -> DialogArgs.CreateFileDialogArgs
+            }
+        _uiEvents.value = Event(DirectoryUiEvent.ShowDialog(dialogArgs))
     }
 
-    fun createFile() {
-        _uiEvents.value = Event(DirectoryUiEvent.ShowDialog(DialogArgs.CreateFileDialogArgs))
-    }
-
-    fun onFolderCreateOkPressed(folderName: String) {
-        turnOffOptionPanel()
-        clearMultipleSelection()
+    /** Creates a folder or a file, by [kind], named [name] in the folder on screen. */
+    fun onCreateNameEntered(kind: CreateKind, name: String) {
+        updateState(DirectoryUiState::reset)
         val path = requireCurrentState().currentPathForNavigation
-        launchAction(
-            ActionType.CREATE_FOLDER,
-            R.string.creating,
-            R.string.folder_creation_successful,
-            R.string.error_when_creating_folder,
-            { it.copy(common = it.common.copy(isCreateMenuExpanded = false)) }
-        ) {
-            writingTo(listOf(path)) { directoryModel.createFolder(path, folderName) }
-        }
-    }
-
-    fun onFileCreateOkPressed(fileName: String) {
-        turnOffOptionPanel()
-        clearMultipleSelection()
-        val path = requireCurrentState().currentPathForNavigation
-        launchAction(
-            ActionType.CREATE_FILE,
-            R.string.creating,
-            R.string.file_creation_successful,
-            R.string.error_when_creating_file,
-            { it.copy(common = it.common.copy(isCreateMenuExpanded = false)) }
-        ) {
-            writingTo(listOf(path)) { directoryModel.createFile(path, fileName) }
+        launchAction(kind.actionType, DirectoryUiState::closeCreateMenu) {
+            writingTo(listOf(path)) {
+                when (kind) {
+                    CreateKind.FOLDER -> directoryModel.createFolder(path, name)
+                    CreateKind.FILE -> directoryModel.createFile(path, name)
+                }
+            }
         }
     }
 
@@ -585,7 +385,8 @@ class DirectoryViewModel(
                 files = emptyList(),
                 isSearchMode = true,
                 query = searchQuery,
-                previousPath = previousPath
+                previousPath = previousPath,
+                readableParent = null
             )
         }
         reload()
@@ -603,15 +404,7 @@ class DirectoryViewModel(
 
     // The screen lists its folder when it enters it and after every change it makes; a resume lists nothing again,
     // so a folder that cannot be listed is reported once. A swipe lists it again on request.
-    fun onFragmentResume() {
-        val state = requireCurrentState()
-        if (!state.isInCopyOrMoveMode) {
-            val hasVisiblePanel =
-                state.common.isOptionsPanelVisible ||
-                    state.common.isMoreMenuVisible ||
-                    state.common.isCreateMenuExpanded
-            if (hasVisiblePanel) turnOffOptionPanel()
-            if (state.common.selectedFiles.isNotEmpty()) clearMultipleSelection()
-        }
+    fun onScreenResumed() {
+        updateState(DirectoryUiState::resumed)
     }
 }

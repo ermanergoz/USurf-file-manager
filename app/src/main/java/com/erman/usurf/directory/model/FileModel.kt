@@ -1,5 +1,6 @@
 package com.erman.usurf.directory.model
 
+import java.io.File
 import java.util.Locale
 
 data class FileModel(
@@ -19,4 +20,8 @@ data class FileModel(
     /** The extension as the row's badge shows it, upper cased the same in every language. */
     val extensionBadge: String
         get() = extension.uppercase(Locale.ROOT)
+
+    /** The folder this item is in, worked out from its path alone; the top of the file system is its own. */
+    val folderPath: String
+        get() = File(path).parent ?: File.separator
 }
