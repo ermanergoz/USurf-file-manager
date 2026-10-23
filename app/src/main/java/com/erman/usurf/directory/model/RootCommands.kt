@@ -13,8 +13,12 @@ internal object RootCommands {
      */
     fun quote(value: String): String = "'" + value.replace("'", "'\\''") + "'"
 
-    /** Lists [folder] with a slash after each folder name and hidden entries included; lists nothing when [folder] cannot be entered. */
-    fun list(folder: String): String = "cd ${quote(folder)} && ls -p -a"
+    /**
+     * Lists [folder] with a slash after each folder name and hidden entries included; fails and lists nothing when
+     * [folder] cannot be entered. An entry ls cannot read, as in /proc, leaves out that entry only: the listing does not
+     * fail on the exit status of ls, and its error messages never become rows.
+     */
+    fun list(folder: String): String = "cd ${quote(folder)} && { ls -p -a 2>/dev/null; :; }"
 
     /** Creates the folder [name] in [parent]; fails when anything of that name is there or [parent] no longer exists. */
     fun createFolder(parent: String, name: String): String = "mkdir ${quote(childOf(parent, name))}"

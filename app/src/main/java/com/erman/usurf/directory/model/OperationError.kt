@@ -37,6 +37,9 @@ sealed class OperationError(@StringRes val messageResId: Int) {
 
     /** 7-Zip could not extract the archive, neither into its folder nor through the app's cache folder. */
     data object ExtractionFailed : OperationError(R.string.error_while_extracting)
+
+    /** A folder the app cannot list was opened while root is off or su refuses the shell. */
+    data object RootAccessRequired : OperationError(R.string.root_access_required)
 }
 
 /** The message to show for this failure: its [OperationError]'s when it names one, else [fallbackResId]. */

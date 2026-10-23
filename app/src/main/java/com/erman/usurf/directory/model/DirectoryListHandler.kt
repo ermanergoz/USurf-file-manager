@@ -7,8 +7,6 @@ import com.erman.usurf.directory.utils.PATH_SEPARATOR_CHAR
 import com.erman.usurf.directory.utils.SUFFIX_LENGTH
 import com.erman.usurf.preference.domain.PreferencesRepository
 import com.erman.usurf.utils.ROOT_DIRECTORY
-import com.erman.usurf.utils.UNKNOWN_ERROR
-import com.erman.usurf.utils.loge
 import java.io.File
 import java.text.SimpleDateFormat
 import kotlin.math.round
@@ -22,7 +20,6 @@ private const val KILOBYTE_DIVISOR = 1024.0
 private const val MEGABYTE_DIVISOR = 1024.0 * 1024.0
 private const val GIGABYTE_DIVISOR = 1024.0 * 1024.0 * 1024.0
 private const val TERABYTE_DIVISOR = 1024.0 * 1024.0 * 1024.0 * 1024.0
-private const val INVALID_SIZE_MB: Double = -1.0
 
 // ls -a also prints the folder itself and its parent; neither is an entry to show or open.
 private val DOT_ENTRIES: Set<String> = setOf(".", "..")
@@ -45,24 +42,29 @@ class DirectoryListHandler(
         }
     }
 
-    fun mapFilesToFileModels(files: List<File>): List<FileModel> = files.map { mapFileToModel(it, isInRoot = false) }
+    fun mapFilesToFileModels(files: List<File>): List<FileModel> = files.map { mapFileToModel(it) }
 
-    private suspend fun getFileModelsFromNormalDirectory(fileList: Array<File>): List<FileModel> = withContext(ioDispatcher) {
+    /** The size of the folder at [path]: the bytes of every file under it, read only when asked for. */
+    fun folderSizeText(path: String): String = sizeText(sizeOf(File(path)))
+
+    private fun getFileModelsFromNormalDirectory(fileList: Array<File>): List<FileModel> {
         val showHidden = preferencesRepository.getShowHiddenPreference()
         val filteredFiles = filterHiddenFiles(fileList, showHidden)
         val sortedFiles = applyFileSorting(filteredFiles)
-        return@withContext sortedFiles.map { mapFileToModel(it, isInRoot = false) }
+        return sortedFiles.map { mapFileToModel(it) }
     }
 
-    private suspend fun getFileModelsFromRootDirectory(path: String): List<FileModel> = withContext(ioDispatcher) {
+    private fun getFileModelsFromRootDirectory(path: String): List<FileModel> {
         val showHidden = preferencesRepository.getShowHiddenPreference()
-        if (preferencesRepository.getRootAccessPreference() && rootHandler.isRootAccessGiven()) {
+        return if (preferencesRepository.getRootAccessPreference() && rootHandler.isRootAccessGiven()) {
             rootHandler.getFileList(path)
                 .filter { it.removeSuffix(PATH_SEPARATOR_CHAR.toString()) !in DOT_ENTRIES }
                 .filter { it.first() != HIDDEN_FILE_PREFIX || showHidden }
                 .map { createFileModelFromRootEntry(path, it) }
+        } else if (File(path).exists()) {
+            throw FileOperationException("Root access is required to list this directory", OperationError.RootAccessRequired)
         } else {
-            throw FileOperationException("Root access is required to list this directory")
+            throw FileOperationException("The directory does not exist")
         }
     }
 
@@ -81,12 +83,13 @@ class DirectoryListHandler(
         FileSortMethod.BY_NAME.sort ->
             fileList.sortedWith(compareBy({ !it.isDirectory }, { it.name }))
 
+        // A folder's size would take a walk of everything in it, so folders keep their names' order.
         FileSortMethod.BY_SIZE.sort ->
             fileList.sortedWith(
                 compareBy(
                     { !it.isDirectory },
-                    { it.length() },
-                    { getFolderSize(it) }
+                    { if (it.isDirectory) 0L else it.length() },
+                    { it.name }
                 )
             )
 
@@ -107,23 +110,30 @@ class DirectoryListHandler(
         else -> MountOption.OTHER
     }
 
-    private fun mapFileToModel(file: File, isInRoot: Boolean = false): FileModel = FileModel(
+    // A row reads each entry once: a folder shows how many entries it holds, from their names alone, and its size is
+    // read only when its Information asks for it.
+    private fun mapFileToModel(file: File): FileModel = FileModel(
         path = file.path,
         name = file.name,
-        nameWithoutExtension = file.nameWithoutExtension,
-        size = getConvertedFileSize(file),
+        nameWithoutExtension = nameWithoutExtensionOf(file),
+        size = if (file.isFile) sizeText(file.length()) else "",
         isDirectory = file.isDirectory,
         lastModified = dateFormat.format(file.lastModified()),
-        extension = file.extension,
+        extension = extensionOf(file),
         subFileCount = fileCountOf(file),
         permission = getPermissions(file),
         isHidden = file.isHidden,
-        isInRoot = isInRoot,
+        isInRoot = false,
         isSelected = false
     )
 
+    // A leading dot marks a hidden name, not an extension: ".nomedia" keeps its whole name and has no extension.
+    private fun extensionOf(file: File): String = if (file.nameWithoutExtension.isEmpty()) "" else file.extension
+
+    private fun nameWithoutExtensionOf(file: File): String = file.nameWithoutExtension.ifEmpty { file.name }
+
     private fun fileCountOf(folder: File): String {
-        val count = folder.listFiles()?.size ?: 0
+        val count = folder.list()?.size ?: 0
         return context.resources.getQuantityString(R.plurals.file_count, count, count)
     }
 
@@ -147,20 +157,9 @@ class DirectoryListHandler(
         )
     }
 
-    private fun Double.roundSize(): Double = try {
-        round(this * TWO_DECIMAL_SCALE) / TWO_DECIMAL_SCALE
-    } catch (err: NumberFormatException) {
-        loge(err.localizedMessage ?: UNKNOWN_ERROR)
-        INVALID_SIZE_MB
-    }
+    private fun Double.roundSize(): Double = round(this * TWO_DECIMAL_SCALE) / TWO_DECIMAL_SCALE
 
-    private fun getConvertedFileSize(file: File): String {
-        val size: Long =
-            if (file.isFile) {
-                file.length()
-            } else {
-                getFolderSize(file).toLong()
-            }
+    private fun sizeText(size: Long): String {
         val kilobyte = size / KILOBYTE_DIVISOR
         val megabyte = size / MEGABYTE_DIVISOR
         val gigabyte = size / GIGABYTE_DIVISOR
@@ -174,20 +173,10 @@ class DirectoryListHandler(
         }
     }
 
-    private fun getFolderSize(file: File): Double {
-        if (file.exists() && file.parent != ROOT_DIRECTORY) {
-            file.listFiles()?.let {
-                var folderSize = 0.0
-                it.forEach { subFile ->
-                    if (subFile.isDirectory) {
-                        folderSize += getFolderSize(subFile)
-                    } else {
-                        folderSize += subFile.length()
-                    }
-                }
-                return folderSize
-            }
-        }
-        return INVALID_SIZE_MB
+    // A folder that is gone or cannot be read holds nothing. The folders right under the file system root, as /proc
+    // and /sys, are not walked: their entries are no files to count.
+    private fun sizeOf(folder: File): Long {
+        if (folder.parent == ROOT_DIRECTORY) return 0
+        return folder.listFiles().orEmpty().sumOf { entry -> if (entry.isDirectory) sizeOf(entry) else entry.length() }
     }
 }

@@ -7,9 +7,10 @@ complexity:
   LongParameterList:
     functionThreshold: 7
     constructorThreshold: 8
+  # Counts a class's public surface: private functions are how long functions are split.
   TooManyFunctions:
-    thresholdInClasses: 35
-    thresholdInFiles: 35
+    thresholdInClasses: 30
+    thresholdInFiles: 30
     ignorePrivate: true
   CyclomaticComplexMethod:
     threshold: 18

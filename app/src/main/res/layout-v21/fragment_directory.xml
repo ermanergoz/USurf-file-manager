@@ -7,6 +7,10 @@
 
         <import type="android.view.View" />
 
+        <import type="com.erman.usurf.directory.ui.ActionType" />
+
+        <import type="com.erman.usurf.directory.ui.CreateKind" />
+
         <variable
             name="viewModel"
             type="com.erman.usurf.directory.ui.DirectoryViewModel" />
@@ -290,7 +294,7 @@
                 android:drawablePadding="@dimen/vertical_margin_4"
                 android:drawableTop="@drawable/ic_copy"
                 android:drawableTint="@color/colorPrimary"
-                android:onClick="@{() -> viewModel.copy()}"
+                android:onClick="@{() -> viewModel.enterTransferMode(ActionType.COPY)}"
                 android:paddingTop="@dimen/vertical_margin_8"
                 android:text="@string/copy_file"
                 android:textColor="@color/daynnightTextColor"
@@ -305,7 +309,7 @@
                 android:drawablePadding="@dimen/vertical_margin_4"
                 android:drawableTop="@drawable/ic_move"
                 android:drawableTint="@color/colorPrimary"
-                android:onClick="@{() -> viewModel.move()}"
+                android:onClick="@{() -> viewModel.enterTransferMode(ActionType.MOVE)}"
                 android:paddingTop="@dimen/vertical_margin_8"
                 android:text="@string/move"
                 android:textColor="@color/daynnightTextColor"
@@ -349,7 +353,7 @@
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:contentDescription="@string/more"
-                android:onClick="@{() -> viewModel.showMoreOption()}"
+                android:onClick="@{() -> viewModel.toggleMoreMenu()}"
                 android:src="@{uiState.common.isMoreMenuVisible ? @drawable/ic_down_arrow : @drawable/ic_up_arrow}"
                 app:tint="@color/daynnightTextColor"
                 android:visibility="@{uiState.atRootDirectory ? View.GONE : View.VISIBLE}"
@@ -366,7 +370,7 @@
             android:clickable="true"
             android:contentDescription="@string/create_new"
             android:focusable="true"
-            android:onClick="@{() -> viewModel.onCreate()}"
+            android:onClick="@{() -> viewModel.toggleCreateMenu()}"
             app:backgroundTint="@color/colorAccent"
             app:createFabVisibility="@{uiState}"
             app:layout_constraintBottom_toTopOf="@+id/moreMenuButtonBar"
@@ -385,7 +389,7 @@
             android:contentDescription="@string/new_file"
             android:enabled="@{!uiState.isSearchMode}"
             android:focusable="true"
-            android:onClick="@{() -> viewModel.createFile()}"
+            android:onClick="@{() -> viewModel.requestCreate(CreateKind.FILE)}"
             app:backgroundTint="@color/colorAccent"
             app:layout_constraintBottom_toTopOf="@+id/createNewFloatingButton"
             app:layout_constraintEnd_toEndOf="parent"
@@ -404,7 +408,7 @@
             android:contentDescription="@string/new_folder"
             android:enabled="@{!uiState.isSearchMode}"
             android:focusable="true"
-            android:onClick="@{() -> viewModel.createFolder()}"
+            android:onClick="@{() -> viewModel.requestCreate(CreateKind.FOLDER)}"
             app:backgroundTint="@color/colorAccent"
             app:layout_constraintBottom_toTopOf="@+id/newFileFloatingButton"
             app:layout_constraintEnd_toEndOf="parent"

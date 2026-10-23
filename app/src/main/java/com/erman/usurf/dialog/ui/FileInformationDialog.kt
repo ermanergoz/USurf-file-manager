@@ -10,6 +10,9 @@ import androidx.fragment.app.DialogFragment
 import com.erman.usurf.R
 import com.erman.usurf.databinding.DialogFileInformationBinding
 import com.erman.usurf.directory.model.FileModel
+import com.erman.usurf.directory.ui.DirectoryViewModel
+import com.erman.usurf.directory.ui.forInformation
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 private const val FILE_INFORMATION_DIALOG_ARG_PATH: String = "arg_path"
 private const val FILE_INFORMATION_DIALOG_ARG_NAME: String = "arg_name"
@@ -23,6 +26,7 @@ private const val FILE_INFORMATION_DIALOG_ARG_IS_HIDDEN: String = "arg_is_hidden
 private const val FILE_INFORMATION_DIALOG_ARG_IS_IN_ROOT: String = "arg_is_in_root"
 
 class FileInformationDialog : DialogFragment() {
+    private val directoryViewModel: DirectoryViewModel by activityViewModel()
     private lateinit var file: FileModel
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog = activity?.let {
@@ -31,7 +35,15 @@ class FileInformationDialog : DialogFragment() {
 
         val binding: DialogFileInformationBinding =
             DataBindingUtil.inflate(inflater, R.layout.dialog_file_information, null, false)
-        binding.setVariable(BR.file, file)
+        val shownFile = file.forInformation(getString(R.string.not_available_in_root_mode))
+        binding.setVariable(BR.file, shownFile)
+        // A folder's size takes a walk of everything in it, so it is read only now that its Information is open.
+        if (file.isDirectory && !file.isInRoot) {
+            binding.setVariable(BR.file, shownFile.copy(size = getString(R.string.calculating_size)))
+            directoryViewModel.folderSizeOf(file.path).observe(this) { size ->
+                binding.setVariable(BR.file, shownFile.copy(size = size))
+            }
+        }
         binding.lifecycleOwner = this
 
         builder.setTitle(file.name + " " + getString(R.string.information))

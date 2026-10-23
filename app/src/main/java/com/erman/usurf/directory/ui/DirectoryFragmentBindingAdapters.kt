@@ -126,6 +126,6 @@ fun setActionProgressVisibility(view: View, state: DirectoryUiState?) {
 
 @BindingAdapter("emptyFolderVisibility")
 fun setEmptyFolderVisibility(view: View, state: DirectoryUiState?) {
-    val visible = state != null && !state.isLoading && state.fileList.isEmpty()
+    val visible = state != null && !state.isLoading && state.files.isEmpty()
     view.visibility = if (visible) View.VISIBLE else View.GONE
 }

@@ -1,12 +1,14 @@
 package com.erman.usurf.dialog.ui
 
 import android.app.Dialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.setFragmentResult
 import com.erman.usurf.R
 import com.erman.usurf.dialog.model.OnRenameOkPressedListener
 
@@ -35,9 +37,17 @@ class RenameDialog : DialogFragment() {
         name = arguments?.getString(RENAME_DIALOG_ARG_NAME)
     }
 
+    // A cancel tells the screen that the items this dialog was opened for are no longer waiting for an answer.
+    override fun onCancel(dialog: DialogInterface) {
+        super.onCancel(dialog)
+        setFragmentResult(CANCEL_REQUEST_KEY, Bundle())
+    }
+
     private lateinit var editText: EditText
 
     companion object {
+        const val CANCEL_REQUEST_KEY = "rename_cancel_request"
+
         fun newInstance(name: String?): RenameDialog {
             val fragment = RenameDialog()
             fragment.arguments = bundleOf(RENAME_DIALOG_ARG_NAME to name)

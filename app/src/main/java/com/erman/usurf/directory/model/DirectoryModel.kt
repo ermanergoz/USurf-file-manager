@@ -1,23 +1,19 @@
 package com.erman.usurf.directory.model
 
 import androidx.documentfile.provider.DocumentFile
-import com.erman.usurf.directory.utils.FILE_EXTENSION_SEPARATOR
 import com.erman.usurf.directory.utils.MIME_TYPE_ALL
-import com.erman.usurf.directory.utils.SUFFIX_LENGTH
 import com.erman.usurf.storage.data.SafDocumentAccess
 import com.erman.usurf.storage.domain.StoragePathsProvider
-import com.erman.usurf.storage.domain.needsRootToWrite
 import com.erman.usurf.storage.domain.volumeAmong
 import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
 import java.io.File
 import java.io.IOException
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 
-private const val EXTRACTED_FOLDER_NAME_SUFFIX = "_extracted"
 private const val OFFSET_START = 0
-private const val TEMP_FOLDER_NAME = "usurfTemp"
 
 class DirectoryModel(
     private val directoryListHandler: DirectoryListHandler,
@@ -25,47 +21,25 @@ class DirectoryModel(
     private val rootWriter: RootWriter,
     private val storagePathsProvider: StoragePathsProvider,
     private val fileCopier: FileCopier,
-    private val fileCompressionHandler: FileCompressionHandler,
     private val ioDispatcher: CoroutineDispatcher
-) {
-    // The one boundary of every operation: the platform refusing a call, with an IOException or a SecurityException,
-    // leaves it as a FileOperationException that names no error of its own and keeps the refusal as its cause.
-    private suspend fun <T> operation(block: suspend () -> T): T = withContext(ioDispatcher) {
-        try {
-            block()
-        } catch (err: IOException) {
-            throw FileOperationException(err.localizedMessage ?: UNKNOWN_ERROR, cause = err)
-        } catch (err: SecurityException) {
-            throw FileOperationException(err.localizedMessage ?: UNKNOWN_ERROR, cause = err)
-        }
-    }
-
-    suspend fun getFileModelsFromDirectory(path: String): List<FileModel> = operation {
+) : FileOperations {
+    override suspend fun getFileModelsFromDirectory(path: String): List<FileModel> = operationOn(ioDispatcher) {
         directoryListHandler.getFileModelsFromDirectory(path)
     }
 
-    fun manageMultipleSelectionList(file: FileModel, multipleSelection: List<FileModel>): List<FileModel> = if (file.isSelected) {
-        multipleSelection.filter { it.path != file.path }
-    } else {
-        multipleSelection + file.copy(isSelected = true)
+    /** The size of the folder at [path], read only when asked for, since a listing never walks the folders it shows. */
+    suspend fun getFolderSize(path: String): String = operationOn(ioDispatcher) { directoryListHandler.folderSizeText(path) }
+
+    /** The folder above [path] when the app can read it; null at the top of the file system or when it cannot be read. */
+    suspend fun readableParentOf(path: String): String? = operationOn(ioDispatcher) {
+        File(path).parentFile?.takeIf { it.canRead() }?.path
     }
 
-    // Root is used only for folders the app cannot write itself outside every storage directory, decided from the
-    // path alone, so nothing is written to find out and storage is never searched.
-    private fun needsRoot(folder: String): Boolean = storagePathsProvider.needsRootToWrite(folder) { File(it).canWrite() }
+    private fun needsRoot(folder: String): Boolean = rootWriter.needsRoot(folder)
 
     private fun parentOf(path: String): String = File(path).parent ?: File.separator
 
-    private fun requireValidName(name: String) {
-        val isInvalid =
-            name.isBlank() ||
-                name == "." ||
-                name == ".." ||
-                name.contains(File.separatorChar)
-        if (isInvalid) throw FileOperationException("Invalid file name: $name", OperationError.InvalidName)
-    }
-
-    suspend fun rename(selectedDirectory: FileModel, newFileName: String) = operation {
+    suspend fun rename(selectedDirectory: FileModel, newFileName: String) = operationOn(ioDispatcher) {
         requireValidName(newFileName)
         if (selectedDirectory.name == newFileName) {
             throw FileOperationException("New name matches the current name", OperationError.NameUnchanged)
@@ -99,13 +73,26 @@ class DirectoryModel(
         if (!isRenamed || !new.exists()) throw FileOperationException("Rename failed")
     }
 
-    suspend fun delete(selectedDirectories: List<FileModel>) = operation {
-        if (selectedDirectories.isEmpty()) return@operation
-        if (selectedDirectories.any { needsRoot(parentOf(it.path)) }) {
+    override suspend fun delete(selectedDirectories: List<FileModel>) = operationOn(ioDispatcher) {
+        if (selectedDirectories.isEmpty()) return@operationOn
+        // An item listed through root goes through root, as a copy or move of one does: root may own what it holds.
+        if (selectedDirectories.any { it.isInRoot || needsRoot(parentOf(it.path)) }) {
             rootWriter.write { root -> root.delete(selectedDirectories) }
         } else {
             selectedDirectories.forEach { deleteFileNonRoot(it) }
         }
+    }
+
+    /**
+     * Deletes the items at [paths], each a folder or a file as it is on the device when the delete runs: a confirmation
+     * names paths only, and what each one is gets read here, off the main thread.
+     */
+    @JvmName("deletePaths")
+    suspend fun delete(paths: List<String>) = operationOn(ioDispatcher) { delete(itemsAt(paths)) }
+
+    /** The items at [paths], each a folder or a file as it is on the device now, read off the main thread. */
+    suspend fun itemsAt(paths: List<String>): List<FileModel> = operationOn(ioDispatcher) {
+        paths.map { path -> File(path).let { FileModel(path = path, name = it.name, isDirectory = it.isDirectory) } }
     }
 
     private fun deleteFileNonRoot(fileModel: FileModel) {
@@ -126,7 +113,7 @@ class DirectoryModel(
         return !documentFile.exists()
     }
 
-    suspend fun createFolder(path: String, folderName: String) = operation {
+    override suspend fun createFolder(path: String, folderName: String) = operationOn(ioDispatcher) {
         requireValidName(folderName)
         if (needsRoot(path)) {
             rootWriter.write { root -> root.createFolder(path, folderName) }
@@ -144,7 +131,7 @@ class DirectoryModel(
         }
     }
 
-    suspend fun createFile(path: String, fileName: String) = operation {
+    suspend fun createFile(path: String, fileName: String) = operationOn(ioDispatcher) {
         requireValidName(fileName)
         if (needsRoot(path)) {
             rootWriter.write { root -> root.createFile(path, fileName) }
@@ -173,8 +160,8 @@ class DirectoryModel(
         if (!File("$path${File.separator}$fileName").exists()) throw FileOperationException("File creation failed", cause = refusal)
     }
 
-    suspend fun copyFile(copyOrMoveSources: List<FileModel>, copyOrMoveDestination: String) = operation {
-        if (copyOrMoveSources.isEmpty()) return@operation
+    override suspend fun copyFile(copyOrMoveSources: List<FileModel>, copyOrMoveDestination: String) = operationOn(ioDispatcher) {
+        if (copyOrMoveSources.isEmpty()) return@operationOn
         val isSourceInRoot = copyOrMoveSources.any { it.isInRoot }
         if (needsRoot(copyOrMoveDestination) || isSourceInRoot) {
             rootWriter.write { root -> root.copyFile(copyOrMoveSources, copyOrMoveDestination) }
@@ -183,8 +170,8 @@ class DirectoryModel(
         }
     }
 
-    suspend fun moveFile(copyOrMoveSources: List<FileModel>, copyOrMoveDestination: String) = operation {
-        if (copyOrMoveSources.isEmpty()) return@operation
+    suspend fun moveFile(copyOrMoveSources: List<FileModel>, copyOrMoveDestination: String) = operationOn(ioDispatcher) {
+        if (copyOrMoveSources.isEmpty()) return@operationOn
         val isSourceInRoot = copyOrMoveSources.any { it.isInRoot }
         if (needsRoot(copyOrMoveDestination) || isSourceInRoot) {
             rootWriter.write { root -> root.moveFile(copyOrMoveSources, copyOrMoveDestination) }
@@ -221,6 +208,17 @@ class DirectoryModel(
         if (copiedSources.isNotEmpty()) delete(copiedSources)
     }
 
+    override suspend fun copyVerified(source: File, destinationFolder: File) {
+        operationOn(ioDispatcher) {
+            if (needsRoot(destinationFolder.path)) {
+                val item = FileModel(path = source.path, name = source.name, isDirectory = source.isDirectory)
+                rootWriter.write { root -> root.copyFile(listOf(item), destinationFolder.path) }
+            } else {
+                copyAndCheck(source, destinationFolder)
+            }
+        }
+    }
+
     private fun copyAndCheck(source: File, destinationFolder: File): CopiedItem {
         val expected = EntryShape.of(source)
         val copy = fileCopier.copy(source, destinationFolder)
@@ -232,7 +230,7 @@ class DirectoryModel(
     }
 
     // A search that fails says so instead of returning nothing, which would read as a device without a match.
-    suspend fun getSearchedDeviceFiles(searchQuery: String): List<FileModel> = operation {
+    suspend fun getSearchedDeviceFiles(searchQuery: String): List<FileModel> = operationOn(ioDispatcher) {
         val matchedFiles = mutableListOf<File>()
         val query = searchQuery.lowercase()
         val storagePaths = storagePathsProvider.getStorageDirectories()
@@ -244,8 +242,10 @@ class DirectoryModel(
         directoryListHandler.mapFilesToFileModels(matchedFiles)
     }
 
-    private fun searchRecursively(directory: File, lowercaseQuery: String, matches: MutableList<File>) {
-        // Depth first search that keeps only the matching files instead of every file on the device
+    // Depth first search that keeps only the matching files instead of every file on the device. A search that was
+    // cancelled, by a second search or by leaving the screen, stops at the next folder instead of walking on.
+    private suspend fun searchRecursively(directory: File, lowercaseQuery: String, matches: MutableList<File>) {
+        currentCoroutineContext().ensureActive()
         directory.listFiles()?.forEach { file ->
             if (file.nameWithoutExtension.lowercase().contains(lowercaseQuery)) {
                 matches.add(file)
@@ -255,136 +255,14 @@ class DirectoryModel(
             }
         }
     }
+}
 
-    suspend fun compressFiles(multipleSelection: List<FileModel>, compressedFileNameWithExtension: String) = operation {
-        if (multipleSelection.isEmpty()) return@operation
-        requireValidName(compressedFileNameWithExtension)
-        requireArchiveExtension(compressedFileNameWithExtension)
-        val parentPath: String = File(multipleSelection.first().path).parent ?: ""
-        val archiveType: String = extractArchiveType(compressedFileNameWithExtension)
-        val outputPath = "$parentPath${File.separator}$compressedFileNameWithExtension"
-        if (File(outputPath).exists()) {
-            throw FileOperationException("An archive with this name already exists", OperationError.AlreadyExists)
-        }
-        val isCompressed =
-            fileCompressionHandler.compress(outputPath, multipleSelection, archiveType)
-        if (!isCompressed) {
-            compressViaCache(
-                multipleSelection,
-                compressedFileNameWithExtension,
-                archiveType,
-                parentPath
-            )
-        }
-    }
-
-    private fun requireArchiveExtension(name: String) {
-        val separatorIndex = name.lastIndexOf(FILE_EXTENSION_SEPARATOR)
-        if (separatorIndex !in 1 until name.length - 1) {
-            throw FileOperationException("Archive name needs a valid extension", OperationError.ArchiveExtensionMissing)
-        }
-    }
-
-    private fun extractArchiveType(fileNameWithExtension: String): String = fileNameWithExtension.substring(
-        fileNameWithExtension.lastIndexOf(FILE_EXTENSION_SEPARATOR)
-    ).drop(SUFFIX_LENGTH)
-
-    private suspend fun compressViaCache(sources: List<FileModel>, compressedFileName: String, archiveType: String, parentPath: String) {
-        val cachedFolderDirectory =
-            fileCompressionHandler.cacheDirectory.absolutePath + File.separator + TEMP_FOLDER_NAME
-        val compressedFileDirectory = "$cachedFolderDirectory${File.separator}$compressedFileName"
-        createFolder(fileCompressionHandler.cacheDirectory.absolutePath, TEMP_FOLDER_NAME)
-        try {
-            copyFile(sources, cachedFolderDirectory)
-            val cachedFiles = getFileModelsFromDirectory(cachedFolderDirectory).toMutableList()
-            val isCompressed =
-                fileCompressionHandler.compress(compressedFileDirectory, cachedFiles, archiveType)
-            if (isCompressed) {
-                moveCompressedFileToParent(compressedFileDirectory, compressedFileName, parentPath)
-            } else {
-                throw FileOperationException("Compression failed", OperationError.CompressionFailed)
-            }
-        } finally {
-            deleteTempFolder(cachedFolderDirectory)
-        }
-    }
-
-    private suspend fun moveCompressedFileToParent(compressedFilePath: String, compressedFileName: String, parentPath: String) {
-        moveFile(
-            listOf(
-                FileModel(
-                    path = compressedFilePath,
-                    name = compressedFileName,
-                    isDirectory = false
-                )
-            ),
-            parentPath
-        )
-    }
-
-    private suspend fun deleteTempFolder(cachedFolderDirectory: String) {
-        delete(
-            listOf(
-                FileModel(
-                    path = cachedFolderDirectory,
-                    name = TEMP_FOLDER_NAME,
-                    isDirectory = true
-                )
-            )
-        )
-    }
-
-    suspend fun extractFiles(selectedDirectory: FileModel) = operation {
-        val parentPath: String = File(selectedDirectory.path).parent ?: ""
-        val extractedFolderName =
-            selectedDirectory.nameWithoutExtension + EXTRACTED_FOLDER_NAME_SUFFIX
-        val extractionDestination = "$parentPath${File.separator}$extractedFolderName"
-        // createFolder refuses a folder that already exists, so from here on the folder is one this extraction made.
-        createFolder(parentPath, extractedFolderName)
-        var isDone = false
-        try {
-            val isExtracted =
-                fileCompressionHandler.extract(selectedDirectory.path, extractionDestination)
-            if (!isExtracted) {
-                extractViaCache(selectedDirectory, extractedFolderName, extractionDestination)
-            }
-            isDone = true
-        } finally {
-            if (!isDone) removeIfEmpty(File(extractionDestination))
-        }
-    }
-
-    // A folder that received part of the files stays, so the user can see what was extracted.
-    private fun removeIfEmpty(folder: File) {
-        if (folder.list()?.isEmpty() == true && !folder.delete()) {
-            safDocumentAccess.existingDocumentFor(folder)?.delete()
-        }
-    }
-
-    private suspend fun extractViaCache(selectedDirectory: FileModel, extractedFolderName: String, extractionDestination: String) {
-        val cachedFolderDirectory =
-            fileCompressionHandler.cacheDirectory.absolutePath + File.separator + TEMP_FOLDER_NAME
-        val cachedCompressedFilePath =
-            cachedFolderDirectory + File.separator + selectedDirectory.name
-        val cachedExtractedFolderPath = cachedFolderDirectory + File.separator + extractedFolderName
-        createFolder(fileCompressionHandler.cacheDirectory.absolutePath, TEMP_FOLDER_NAME)
-        try {
-            copyFile(listOf(selectedDirectory), cachedFolderDirectory)
-            createFolder(cachedFolderDirectory, extractedFolderName)
-            val isExtracted =
-                fileCompressionHandler.extract(cachedCompressedFilePath, cachedExtractedFolderPath)
-            if (isExtracted) {
-                moveExtractedFilesToDestination(cachedExtractedFolderPath, extractionDestination)
-            } else {
-                throw FileOperationException("Extraction failed", OperationError.ExtractionFailed)
-            }
-        } finally {
-            deleteTempFolder(cachedFolderDirectory)
-        }
-    }
-
-    private suspend fun moveExtractedFilesToDestination(cachedExtractedFolderPath: String, extractionDestination: String) {
-        val extractedFiles = getFileModelsFromDirectory(cachedExtractedFolderPath).toMutableList()
-        moveFile(extractedFiles, extractionDestination)
-    }
+// A name the user typed for a new or renamed item: refused when empty, a dot entry or a path.
+internal fun requireValidName(name: String) {
+    val isInvalid =
+        name.isBlank() ||
+            name == "." ||
+            name == ".." ||
+            name.contains(File.separatorChar)
+    if (isInvalid) throw FileOperationException("Invalid file name: $name", OperationError.InvalidName)
 }

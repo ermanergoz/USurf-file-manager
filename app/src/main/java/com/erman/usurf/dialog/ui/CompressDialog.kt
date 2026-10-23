@@ -1,6 +1,7 @@
 package com.erman.usurf.dialog.ui
 
 import android.app.Dialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
@@ -26,10 +27,17 @@ class CompressDialog : DialogFragment() {
         builder.create()
     } ?: error("Activity cannot be null")
 
+    // A cancel tells the screen that the items this dialog was opened for are no longer waiting for an answer.
+    override fun onCancel(dialog: DialogInterface) {
+        super.onCancel(dialog)
+        setFragmentResult(CANCEL_REQUEST_KEY, Bundle())
+    }
+
     private lateinit var editText: EditText
 
     companion object {
         const val REQUEST_KEY = "compress_request"
+        const val CANCEL_REQUEST_KEY = "compress_cancel_request"
         const val RESULT_NAME = "result_name"
     }
 }
