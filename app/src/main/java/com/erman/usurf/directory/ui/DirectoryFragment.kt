@@ -42,12 +42,14 @@ import com.erman.usurf.utils.loge
 import com.erman.usurf.utils.logi
 import com.google.android.material.snackbar.Snackbar
 import java.io.File
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 private const val FILE_LIST_GRID_SPAN_COUNT = 1
 
 class DirectoryFragment : Fragment() {
-    private val directoryViewModel by sharedViewModel<DirectoryViewModel>()
+    // The activity's view model, created with the activity's saved state, so a restarted process gives back its folder.
+    private val directoryViewModel by activityViewModel<DirectoryViewModel>()
     private val homeViewModel by sharedViewModel<HomeViewModel>()
     private lateinit var directoryRecyclerViewAdapter: DirectoryRecyclerViewAdapter
     private lateinit var dialogListener: ShowDialog
@@ -207,6 +209,11 @@ class DirectoryFragment : Fragment() {
         fragmentManager.setFragmentResultListener(CompressDialog.REQUEST_KEY, viewLifecycleOwner) { _, bundle ->
             directoryViewModel.onFileCompressOkPressed(bundle.getString(CompressDialog.RESULT_NAME).orEmpty())
         }
+        for (cancelRequestKey in listOf(CompressDialog.CANCEL_REQUEST_KEY, RenameDialog.CANCEL_REQUEST_KEY)) {
+            fragmentManager.setFragmentResultListener(cancelRequestKey, viewLifecycleOwner) { _, _ ->
+                directoryViewModel.onSelectionDialogCancelled()
+            }
+        }
         fragmentManager.setFragmentResultListener(DeleteConfirmationDialog.REQUEST_KEY, viewLifecycleOwner) { _, bundle ->
             directoryViewModel.confirmDelete(DeleteConfirmationDialog.pathsIn(bundle))
         }
@@ -225,9 +232,9 @@ class DirectoryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         registerDialogResultListeners()
-        // Navigate to the argument path on first creation, or when the shared ViewModel has
-        // no state yet (e.g. after process death). On a plain recreation the ViewModel already
-        // holds the directory the user browsed to, so leave it untouched.
+        // Navigate to the argument path on first creation, or when the view model has no location to show. On a
+        // recreation, and after a stopped process, the view model already shows the folder or the search the user left
+        // and has listed it, so it is left as it is.
         if (savedInstanceState == null || directoryViewModel.uiState.value?.hasActiveLocation != true) {
             val path: String = DirectoryFragmentArgs.fromBundle(requireArguments()).currentPath ?: ROOT_DIRECTORY
             directoryViewModel.setPath(path)

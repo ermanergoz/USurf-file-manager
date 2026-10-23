@@ -99,7 +99,7 @@ val appModule =
             val context: Context = get()
             FileCompressionHandler(get(), context.cacheDir)
         }
-        viewModel { DirectoryViewModel(get(), get(), get(), get()) }
+        viewModel { DirectoryViewModel(get(), get(), get(), get(), get()) }
 
         single { HomeModel(get(), get()) }
         single<FavoriteRepository> { FavoriteRepositoryImpl(get(), get()) }

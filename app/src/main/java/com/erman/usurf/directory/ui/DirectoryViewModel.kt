@@ -3,6 +3,7 @@ package com.erman.usurf.directory.ui
 import androidx.annotation.StringRes
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.erman.usurf.R
@@ -21,16 +22,28 @@ import com.erman.usurf.utils.loge
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
+private const val KEY_CURRENT_PATH = "currentPath"
+private const val KEY_IS_SEARCH_MODE = "isSearchMode"
+private const val KEY_QUERY = "query"
+private const val KEY_PREVIOUS_PATH = "previousPath"
+private const val KEY_PENDING_SELECTION = "pendingSelection"
+
+/**
+ * The folder screen's state and intents. A stopped process gives back the folder or the search on screen and the
+ * items a compress or rename dialog was opened for; copy or move mode and the selected rows are not given back, so a
+ * restored screen browses the same folder, and a write waiting for the SD card grant is dropped with the process.
+ */
 class DirectoryViewModel(
     private val directoryModel: DirectoryModel,
     private val preferencesRepository: PreferencesRepository,
     private val storageAccessPolicy: StorageAccessPolicy,
-    private val archiveOperations: ArchiveOperations
+    private val archiveOperations: ArchiveOperations,
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val isMultiSelectionMode: Boolean
         get() = with(requireCurrentState()) { !isInCopyOrMoveMode && common.selectedFiles.isNotEmpty() }
 
-    private val _uiState = MutableLiveData(DirectoryUiState())
+    private val _uiState = MutableLiveData(restoredState())
     val uiState: LiveData<DirectoryUiState> = _uiState
 
     private val _uiEvents = MutableLiveData<Event<DirectoryUiEvent>>()
@@ -40,6 +53,15 @@ class DirectoryViewModel(
 
     private var actionAwaitingGrant: (() -> Unit)? = null
 
+    // The items a compress or rename dialog was opened for, as the listing found them, while the process lives; their
+    // paths are saved too, and a restarted process reads the items again from those.
+    private var pendingItems: List<FileModel> = emptyList()
+
+    init {
+        // A location given back after the process was stopped is listed here, once, so the screen lists nothing again.
+        if (requireCurrentState().hasActiveLocation) reload()
+    }
+
     val shouldShowThumbnails: Boolean
         get() = preferencesRepository.getShowThumbnailsPreference()
 
@@ -48,7 +70,46 @@ class DirectoryViewModel(
         val newState = transform(current)
         if (newState != current) {
             _uiState.value = newState
+            if (!newState.showsLocationOf(current) || newState.previousPath != current.previousPath) saveLocation(newState)
         }
+    }
+
+    private fun saveLocation(state: DirectoryUiState) {
+        savedStateHandle[KEY_CURRENT_PATH] = state.currentPath
+        savedStateHandle[KEY_IS_SEARCH_MODE] = state.isSearchMode
+        savedStateHandle[KEY_QUERY] = state.query
+        savedStateHandle[KEY_PREVIOUS_PATH] = state.previousPath
+    }
+
+    private fun restoredState(): DirectoryUiState {
+        val restored =
+            DirectoryUiState(
+                currentPath = savedStateHandle[KEY_CURRENT_PATH] ?: "",
+                isSearchMode = savedStateHandle[KEY_IS_SEARCH_MODE] ?: false,
+                query = savedStateHandle[KEY_QUERY] ?: "",
+                previousPath = savedStateHandle[KEY_PREVIOUS_PATH] ?: ""
+            )
+        return if (restored.hasActiveLocation) restored.copy(common = CommonUi(isLoading = true)) else restored
+    }
+
+    /** Keeps [selection] as the items the dialog about to open acts on, saved by their paths. */
+    private fun holdForDialog(selection: List<FileModel>) {
+        pendingItems = selection
+        savedStateHandle[KEY_PENDING_SELECTION] = ArrayList(selection.map { it.path })
+    }
+
+    /** The paths a dialog was opened for, now taken, so a dialog answers once; null when none is pending. */
+    private fun takePendingPaths(): List<String>? {
+        val paths = savedStateHandle.get<ArrayList<String>>(KEY_PENDING_SELECTION)
+        savedStateHandle.remove<ArrayList<String>>(KEY_PENDING_SELECTION)
+        return paths?.takeIf { it.isNotEmpty() }
+    }
+
+    /** The items at [paths]: as the listing found them while the process lives, else read again by the model. */
+    private suspend fun pendingItemsAt(paths: List<String>): List<FileModel> {
+        val items = pendingItems
+        pendingItems = emptyList()
+        return if (items.map { it.path } == paths) items else directoryModel.itemsAt(paths)
     }
 
     private fun requireCurrentState(): DirectoryUiState = _uiState.value ?: DirectoryUiState()
@@ -224,6 +285,9 @@ class DirectoryViewModel(
     }
 
     fun compress() {
+        val selection = requireCurrentState().common.selectedFiles
+        if (selection.isEmpty()) return
+        holdForDialog(selection)
         _uiEvents.value = Event(DirectoryUiEvent.ShowDialog(DialogArgs.CompressDialogArgs))
     }
 
@@ -233,8 +297,10 @@ class DirectoryViewModel(
     }
 
     fun onFileCompressOkPressed(zipNameWithExtension: String) {
-        val selection = requireNonEmptySelectionAndResetPanel() ?: return
+        val paths = takePendingPaths() ?: return
+        updateState(DirectoryUiState::reset)
         launchAction(ActionType.COMPRESS) {
+            val selection = pendingItemsAt(paths)
             // The archive is written into the folder of the selection.
             writingTo(listOf(selection.first().folderPath)) { archiveOperations.compressFiles(selection, zipNameWithExtension) }
         }
@@ -316,9 +382,10 @@ class DirectoryViewModel(
     }
 
     fun onRenameOkPressed(fileName: String) {
-        val selection = requireNonEmptySelectionAndResetPanel() ?: return
-        val fileToRename = selection.last()
+        val paths = takePendingPaths() ?: return
+        updateState(DirectoryUiState::reset)
         launchAction(ActionType.RENAME) {
+            val fileToRename = pendingItemsAt(paths).last()
             writingTo(listOf(fileToRename.path)) { directoryModel.rename(fileToRename, fileName) }
         }
     }
@@ -326,7 +393,14 @@ class DirectoryViewModel(
     fun rename() {
         val selection = requireCurrentState().common.selectedFiles
         if (selection.isEmpty()) return
+        holdForDialog(selection)
         _uiEvents.value = Event(DirectoryUiEvent.ShowDialog(DialogArgs.RenameDialogArgs(selection.last().name)))
+    }
+
+    /** A compress or rename dialog was cancelled: the items it was opened for are no longer pending. */
+    fun onSelectionDialogCancelled() {
+        takePendingPaths()
+        pendingItems = emptyList()
     }
 
     // Nothing is deleted on the tap itself: the confirmation is handed the paths of the selection and only the

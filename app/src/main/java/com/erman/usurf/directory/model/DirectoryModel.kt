@@ -88,8 +88,11 @@ class DirectoryModel(
      * names paths only, and what each one is gets read here, off the main thread.
      */
     @JvmName("deletePaths")
-    suspend fun delete(paths: List<String>) = operationOn(ioDispatcher) {
-        delete(paths.map { path -> File(path).let { FileModel(path = path, name = it.name, isDirectory = it.isDirectory) } })
+    suspend fun delete(paths: List<String>) = operationOn(ioDispatcher) { delete(itemsAt(paths)) }
+
+    /** The items at [paths], each a folder or a file as it is on the device now, read off the main thread. */
+    suspend fun itemsAt(paths: List<String>): List<FileModel> = operationOn(ioDispatcher) {
+        paths.map { path -> File(path).let { FileModel(path = path, name = it.name, isDirectory = it.isDirectory) } }
     }
 
     private fun deleteFileNonRoot(fileModel: FileModel) {
