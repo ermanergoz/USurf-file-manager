@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.PopupMenu
+import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -18,9 +19,9 @@ import com.erman.usurf.databinding.FragmentHomeBinding
 import com.erman.usurf.databinding.StorageButtonBinding
 import com.erman.usurf.dialog.model.DialogArgs
 import com.erman.usurf.dialog.model.FavoriteOptionsDialogListener
-import com.erman.usurf.dialog.model.OnRenameOkPressedListener
 import com.erman.usurf.dialog.ui.FavoriteOptionsDialog
-import com.erman.usurf.dialog.ui.RenameDialog
+import com.erman.usurf.dialog.ui.TextInputDialogFragment
+import com.erman.usurf.dialog.ui.TextInputRequest
 import com.erman.usurf.home.model.HomeStorageButton
 import com.erman.usurf.home.model.StorageAccessFramework
 import com.erman.usurf.home.model.StorageItem
@@ -141,12 +142,7 @@ class HomeFragment : Fragment() {
             object : FavoriteOptionsDialogListener {
                 override fun onRenameButtonClick(path: String, currentName: String) {
                     homeViewModel.setRenameMode()
-                    val renameDialog: RenameDialog = RenameDialog.newInstance(currentName)
-                    renameDialog.onRenameOkPressedListener =
-                        OnRenameOkPressedListener { newName ->
-                            homeViewModel.onRenameFavoriteOkPressed(path, newName)
-                        }
-                    dialogListener.showDialog(renameDialog)
+                    showRenameFavoriteDialog(path, currentName)
                 }
 
                 override fun onRename(path: String, newName: String) {
@@ -166,6 +162,26 @@ class HomeFragment : Fragment() {
         dialogListener.showDialog(dialog)
     }
 
+    private fun showRenameFavoriteDialog(path: String, currentName: String) {
+        val request =
+            TextInputRequest(
+                requestKey = RENAME_FAVORITE_REQUEST_KEY,
+                title = R.string.rename,
+                hint = R.string.hint_favorite_name,
+                defaultText = currentName,
+                positiveButton = R.string.rename,
+                validateAsName = true,
+                payload = bundleOf(PAYLOAD_PATH to path)
+            )
+        dialogListener.showDialog(TextInputDialogFragment.newInstance(request))
+    }
+
+    private fun registerDialogResultListeners() {
+        requireActivity().supportFragmentManager.setFragmentResultListener(RENAME_FAVORITE_REQUEST_KEY, viewLifecycleOwner) { _, bundle ->
+            homeViewModel.onRenameFavoriteOkPressed(bundle.getString(PAYLOAD_PATH).orEmpty(), TextInputDialogFragment.textIn(bundle))
+        }
+    }
+
     private fun openFile(path: String) {
         val isOpened: Boolean =
             FileOpenUtils.openFile(
@@ -180,6 +196,7 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        registerDialogResultListeners()
 
         favoriteRecyclerViewAdapter =
             FavoriteRecyclerViewAdapter(
@@ -233,5 +250,10 @@ class HomeFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private companion object {
+        const val RENAME_FAVORITE_REQUEST_KEY = "rename_favorite"
+        const val PAYLOAD_PATH = "path"
     }
 }

@@ -257,12 +257,7 @@ class DirectoryModel(
     }
 }
 
-// A name the user typed for a new or renamed item: refused when empty, a dot entry or a path.
+// A name the user typed for a new or renamed item: refused by the same rule the name dialog applies.
 internal fun requireValidName(name: String) {
-    val isInvalid =
-        name.isBlank() ||
-            name == "." ||
-            name == ".." ||
-            name.contains(File.separatorChar)
-    if (isInvalid) throw FileOperationException("Invalid file name: $name", OperationError.InvalidName)
+    NameRules.validate(name)?.let { error -> throw FileOperationException("Invalid file name: $name", error) }
 }

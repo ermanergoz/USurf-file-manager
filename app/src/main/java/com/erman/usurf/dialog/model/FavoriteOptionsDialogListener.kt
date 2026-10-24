@@ -3,10 +3,6 @@ package com.erman.usurf.dialog.model
 import androidx.lifecycle.LiveData
 import com.erman.usurf.home.ui.HomeUiState
 
-fun interface OnRenameOkPressedListener {
-    fun onRenameOkPressed(name: String)
-}
-
 interface FavoriteOptionsDialogListener {
     fun onRenameButtonClick(path: String, currentName: String)
 

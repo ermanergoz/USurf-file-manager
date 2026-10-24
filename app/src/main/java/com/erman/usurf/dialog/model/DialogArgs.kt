@@ -3,7 +3,7 @@ package com.erman.usurf.dialog.model
 import com.erman.usurf.directory.model.FileModel
 
 sealed class DialogArgs {
-    data class RenameDialogArgs(val name: String?) : DialogArgs()
+    data class RenameDialogArgs(val path: String, val name: String, val isDirectory: Boolean) : DialogArgs()
 
     data class InformationDialogArgs(val file: FileModel) : DialogArgs()
 

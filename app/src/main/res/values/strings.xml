@@ -90,7 +90,7 @@
     <string name="done">Done</string>
     <string name="ok">OK</string>
     <string name="favorite">Favorite</string>
-    <string name="addFavorite">Add Favorite</string>
+    <string name="addFavorite">Add to favorites</string>
     <string name="compressing">Compressing</string>
     <string name="extracting">Extracting</string>
     <string name="deleting">Deleting</string>
@@ -201,4 +201,12 @@
         <item quantity="one">and %d more</item>
         <item quantity="other">and %d more</item>
     </plurals>
+    <string name="hint_name">Name</string>
+    <string name="hint_folder_name">Folder name</string>
+    <string name="hint_file_name">File name</string>
+    <string name="hint_archive_name">Archive name</string>
+    <string name="hint_search_query">File or folder name</string>
+    <string name="hint_favorite_name">Favorite name</string>
+    <string name="create">Create</string>
+    <string name="add">Add</string>
 </resources>

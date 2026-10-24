@@ -195,4 +195,12 @@
         <item quantity="one">ve %d öğe daha</item>
         <item quantity="other">ve %d öğe daha</item>
     </plurals>
+    <string name="hint_name">Ad</string>
+    <string name="hint_folder_name">Klasör adı</string>
+    <string name="hint_file_name">Dosya adı</string>
+    <string name="hint_archive_name">Arşiv adı</string>
+    <string name="hint_search_query">Dosya veya klasör adı</string>
+    <string name="hint_favorite_name">Favori adı</string>
+    <string name="create">Oluştur</string>
+    <string name="add">Ekle</string>
 </resources>
