@@ -41,25 +41,25 @@
     <string name="disconnect">Disconnect</string>
     <string name="connected">Connected</string>
     <string name="no_connection">No Connection</string>
-    <string name="unsupported_file">There is no application that supports the file.</string>
-    <string name="unable_to_open_directory">Unable to open the directory.</string>
-    <string name="error_while_renaming">"Error while renaming: "</string>
+    <string name="unsupported_file">No app can open this file</string>
+    <string name="unable_to_open_directory">Could not open this folder</string>
+    <string name="error_while_renaming">Could not rename</string>
     <string name="renaming_successful">Renamed</string>
-    <string name="error_while_deleting">"Error while deleting"</string>
+    <string name="error_while_deleting">Could not delete</string>
     <string name="deleting_successful">Deleted</string>
     <string name="folder_creation_successful">"New folder created"</string>
-    <string name="error_when_creating_folder">"Error while creating new folder"</string>
+    <string name="error_when_creating_folder">Could not create the folder</string>
     <string name="file_creation_successful">"New file created"</string>
-    <string name="error_when_creating_file">"Error while creating new file"</string>
+    <string name="error_when_creating_file">Could not create the file</string>
     <string name="copy_successful">Copied</string>
-    <string name="error_while_copying">Error while copying</string>
+    <string name="error_while_copying">Could not copy</string>
     <string name="moving_successful">Moved</string>
-    <string name="error_while_moving">Error while moving</string>
+    <string name="error_while_moving">Could not move</string>
     <string name="compressing_successful">Compressed</string>
-    <string name="error_while_compressing">Error while compressing</string>
+    <string name="error_while_compressing">Could not compress</string>
     <string name="some_files_could_not_be_added">Some files could not be added</string>
     <string name="extracting_successful">Extracted</string>
-    <string name="error_while_extracting">Error while extracting</string>
+    <string name="error_while_extracting">Could not extract</string>
     <string name="su_not_found">Device is not rooted.</string>
     <string name="root_access_denied">Root access was denied.</string>
     <string name="root_access_required">Root access is required to open this folder.</string>
@@ -121,7 +121,7 @@
     <string name="storage_permission_rationale">Storage permission is required for the file manager to access your files.</string>
     <string name="notification_permission_not_granted">Notification permission is not granted. FTP server notifications will not be shown.</string>
     <string name="saf_access_message">Please choose the root directory of the removable storage to grant write permission to operate.</string>
-    <string name="supported_compression_formats">Supported formats are: 7z bzip2 gzip tar wim xz zip</string>
+    <string name="supported_compression_formats">Supported formats: 7z, bzip2, gzip, tar, wim, xz, zip</string>
     <string name="privacy_policy">Privacy Policy</string>
     <string name="privacy_policy_url" translatable="false">https://ermanergoz.github.io/policies/usurf-privacy-policy.html</string>
     <string name="tb" translatable="false">TB</string>
@@ -215,4 +215,5 @@
     <string name="permission_none">No access</string>
     <string name="open">Open</string>
     <string name="remove_favorite">Remove from favorites</string>
+    <string name="archive_extension_missing">Add an extension to the archive name, such as .zip</string>
 </resources>
