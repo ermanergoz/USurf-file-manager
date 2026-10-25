@@ -48,6 +48,9 @@ internal object RootCommands {
         return rename(source.path, File(destinationFolder, source.name).path)
     }
 
+    /** Succeeds when anything is at [path], a link to nothing included. */
+    fun isTaken(path: String): String = "[ -e ${quote(path)} ] || [ -L ${quote(path)} ]"
+
     /** Remounts the root file system with [mountOption]'s mode. */
     fun remountRoot(mountOption: MountOption): String = "mount -o ${mountOption.option},remount /"
 

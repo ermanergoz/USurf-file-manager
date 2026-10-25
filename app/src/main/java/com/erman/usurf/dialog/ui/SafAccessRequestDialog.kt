@@ -12,7 +12,7 @@ class SafAccessRequestDialog : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog = activity?.let {
         val builder = AlertDialog.Builder(it)
         builder.setMessage(getString(R.string.saf_access_message))
-            .setPositiveButton(R.string.ok) { _, _ ->
+            .setPositiveButton(R.string.choose_sd_card) { _, _ ->
                 parentFragmentManager.setFragmentResult(SAF_ACCESS_REQUEST_KEY, bundleOf())
             }.setNegativeButton(R.string.cancel) { _, _ ->
                 dialog?.cancel()

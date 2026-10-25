@@ -79,7 +79,8 @@ enum class CreateKind(val actionType: ActionType) {
  * no dialog opens on a screen the user has left or over one the user opened since.
  */
 sealed class DirectoryUiEvent {
-    data class ShowSnackbar(@StringRes val messageResId: Int) : DirectoryUiEvent()
+    /** Show the message [messageResId], its one placeholder, when it has one, filled with [formatArg]. */
+    data class ShowSnackbar(@StringRes val messageResId: Int, val formatArg: String? = null) : DirectoryUiEvent()
 
     /** Ask for a new name for the item at [path], now named [name]. */
     data class ShowRenameDialog(val path: String, val name: String, val isDirectory: Boolean) : DirectoryUiEvent()

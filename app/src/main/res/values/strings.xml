@@ -113,14 +113,13 @@
     <string name="ftp_notification_channel_description">FTP notification channel</string>
     <string name="drawer_open">Drawer open</string>
     <string name="drawer_close">Drawer close</string>
-    <string name="share_directory">Operation not supported for following. Not a file </string>
     <string name="create_new">Create new</string>
     <string name="device_wide_search">Device-wide search</string>
-    <string name="manage_all_files_message">In order this application to work, \"Allow access to manage all files\" setting needs to be turned on.</string>
+    <string name="manage_all_files_message">Turn on \"Allow access to manage all files\" so USurf can work with your files</string>
     <string name="storage_permission_not_granted">Storage permission is not granted.</string>
     <string name="storage_permission_rationale">Storage permission is required for the file manager to access your files.</string>
     <string name="notification_permission_not_granted">Notification permission is not granted. FTP server notifications will not be shown.</string>
-    <string name="saf_access_message">Please choose the root directory of the removable storage to grant write permission to operate.</string>
+    <string name="saf_access_message">Choose the SD card\'s top folder so USurf can change files on it</string>
     <string name="supported_compression_formats">Supported formats: 7z, bzip2, gzip, tar, wim, xz, zip</string>
     <string name="privacy_policy">Privacy Policy</string>
     <string name="privacy_policy_url" translatable="false">https://ermanergoz.github.io/policies/usurf-privacy-policy.html</string>
@@ -192,7 +191,7 @@
     <string name="grant_sd_card_access">Grant SD card access</string>
     <string name="sd_card_access">SD card access</string>
     <string name="sd_card_access_summary">Choose the SD card again so the app can change files on it</string>
-    <string name="sd_card_access_not_kept">Could not keep access to this storage</string>
+    <string name="sd_card_access_not_kept">Could not keep access to the SD card. USurf may ask again</string>
     <plurals name="delete_items_title">
         <item quantity="one">Delete %d item?</item>
         <item quantity="other">Delete %d items?</item>
@@ -216,4 +215,11 @@
     <string name="open">Open</string>
     <string name="remove_favorite">Remove from favorites</string>
     <string name="archive_extension_missing">Add an extension to the archive name, such as .zip</string>
+    <plurals name="share_folders_skipped">
+        <item quantity="one">%1$s is a folder and was not shared</item>
+        <item quantity="other">%1$s are folders and were not shared</item>
+    </plurals>
+    <string name="no_search_results">No results for \"%1$s\"</string>
+    <string name="choose_sd_card">Choose SD card</string>
+    <string name="open_settings">Open settings</string>
 </resources>

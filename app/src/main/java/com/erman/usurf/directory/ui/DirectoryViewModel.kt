@@ -273,7 +273,7 @@ class DirectoryViewModel(
                 if (!requireCurrentState().showsLocationOf(state)) return@launch
                 // A search the user waited for says when it found nothing; a refresh of one leaves the message it follows.
                 if (state.isSearchMode && state.isLoading && files.isEmpty()) {
-                    _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(R.string.empty_folder))
+                    _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(R.string.no_search_results, state.query))
                 }
                 updateState { current ->
                     current.copy(

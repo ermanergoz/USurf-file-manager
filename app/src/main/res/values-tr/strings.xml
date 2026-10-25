@@ -113,14 +113,13 @@
     <string name="ftp_notification_channel_description">FTP notification channel</string>
     <string name="drawer_open">Menüyü aç</string>
     <string name="drawer_close">Menüyü kapat</string>
-    <string name="share_directory">Şunlar için işlem yapılamıyor. Dosya değil </string>
     <string name="create_new">Yeni oluştur</string>
     <string name="device_wide_search">Cihaz genelinde ara</string>
-    <string name="manage_all_files_message">Bu uygulamanın çalışması için \"Tüm dosyaları yönetme erişimine izin ver\" ayarının açık olması gerekir.</string>
+    <string name="manage_all_files_message">USurf\'un dosyalarınızla çalışabilmesi için \"Tüm dosyaları yönetme erişimine izin ver\" ayarını açın</string>
     <string name="storage_permission_not_granted">Depolama izni verilmedi.</string>
     <string name="storage_permission_rationale">Dosya yöneticisinin dosyalarınıza erişebilmesi için depolama izni gereklidir.</string>
     <string name="notification_permission_not_granted">Bildirim izni verilmedi. FTP sunucusu bildirimleri gösterilmeyecek.</string>
-    <string name="saf_access_message">Uygulamaya yazma izni vermek için lütfen çıkarılabilir depolamanın kök dizinini seçin.</string>
+    <string name="saf_access_message">USurf\'un SD karttaki dosyaları değiştirebilmesi için SD kartın en üst klasörünü seçin</string>
     <string name="supported_compression_formats">Desteklenen biçimler: 7z, bzip2, gzip, tar, wim, xz, zip</string>
     <string name="privacy_policy">Gizlilik Politikası</string>
     <string name="bytes">Bayt</string>
@@ -186,7 +185,7 @@
     <string name="grant_sd_card_access">SD kart erişimi ver</string>
     <string name="sd_card_access">SD kart erişimi</string>
     <string name="sd_card_access_summary">Uygulamanın SD karttaki dosyaları değiştirebilmesi için SD kartı yeniden seçin</string>
-    <string name="sd_card_access_not_kept">Bu depolamaya erişim korunamadı</string>
+    <string name="sd_card_access_not_kept">SD kart erişimi korunamadı. USurf yeniden sorabilir</string>
     <plurals name="delete_items_title">
         <item quantity="one">%d öğe silinsin mi?</item>
         <item quantity="other">%d öğe silinsin mi?</item>
@@ -210,4 +209,11 @@
     <string name="open">Aç</string>
     <string name="remove_favorite">Favorilerden kaldır</string>
     <string name="archive_extension_missing">Arşiv adına .zip gibi bir uzantı ekleyin</string>
+    <plurals name="share_folders_skipped">
+        <item quantity="one">%1$s klasör olduğu için paylaşılmadı</item>
+        <item quantity="other">%1$s klasör olduğu için paylaşılmadı</item>
+    </plurals>
+    <string name="no_search_results">\"%1$s\" için sonuç yok</string>
+    <string name="choose_sd_card">SD kartı seç</string>
+    <string name="open_settings">Ayarları aç</string>
 </resources>

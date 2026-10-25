@@ -3,6 +3,7 @@ package com.erman.usurf.directory.ui
 import android.content.ClipData
 import android.content.Context
 import android.content.Intent
+import android.content.res.Resources
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -69,8 +70,10 @@ class DirectoryFragment : Fragment() {
             viewLifecycleOwner,
             EventObserver { event ->
                 when (event) {
-                    is DirectoryUiEvent.ShowSnackbar ->
-                        Snackbar.make(binding.root, getString(event.messageResId), Snackbar.LENGTH_LONG).show()
+                    is DirectoryUiEvent.ShowSnackbar -> {
+                        val message = event.formatArg?.let { getString(event.messageResId, it) } ?: getString(event.messageResId)
+                        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
+                    }
                     is DirectoryUiEvent.ShowRenameDialog -> showRenameDialog(event)
                     is DirectoryUiEvent.ShowInformation -> showInformation(event.files)
                     DirectoryUiEvent.ShowCreateFolderDialog -> showCreateDialog(CreateKind.FOLDER)
@@ -187,8 +190,7 @@ class DirectoryFragment : Fragment() {
 
     private fun showDirectoryShareWarning(directoryNames: List<String>) {
         if (directoryNames.isNotEmpty()) {
-            val messages = listOf(getString(R.string.share_directory)) + directoryNames
-            Snackbar.make(binding.root, messages.toString(), Snackbar.LENGTH_LONG).show()
+            Snackbar.make(binding.root, resources.folderShareWarning(directoryNames), Snackbar.LENGTH_LONG).show()
         }
     }
 
@@ -348,3 +350,7 @@ class DirectoryFragment : Fragment() {
         const val PAYLOAD_PATH = "path"
     }
 }
+
+/** The sentence that names the folders of a shared selection, which are not shared: only files are. */
+internal fun Resources.folderShareWarning(folderNames: List<String>): String =
+    getQuantityString(R.plurals.share_folders_skipped, folderNames.size, folderNames.joinToString(separator = ", "))
