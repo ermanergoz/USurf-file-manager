@@ -2,103 +2,104 @@ package com.erman.usurf.dialog.ui
 
 import android.app.Dialog
 import android.os.Bundle
+import android.view.View
+import android.view.ViewGroup
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
+import androidx.core.os.BundleCompat
 import androidx.core.os.bundleOf
-import androidx.databinding.DataBindingUtil
-import androidx.databinding.library.baseAdapters.BR
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.LiveData
+import androidx.viewpager.widget.PagerAdapter
+import androidx.viewpager.widget.ViewPager
 import com.erman.usurf.R
 import com.erman.usurf.databinding.DialogFileInformationBinding
 import com.erman.usurf.directory.model.FileModel
+import com.erman.usurf.directory.model.MountOption
 import com.erman.usurf.directory.ui.DirectoryViewModel
 import com.erman.usurf.directory.ui.forInformation
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
-private const val FILE_INFORMATION_DIALOG_ARG_PATH: String = "arg_path"
-private const val FILE_INFORMATION_DIALOG_ARG_NAME: String = "arg_name"
-private const val FILE_INFORMATION_DIALOG_ARG_NAME_WITHOUT_EXTENSION: String = "arg_name_without_extension"
-private const val FILE_INFORMATION_DIALOG_ARG_SIZE: String = "arg_size"
-private const val FILE_INFORMATION_DIALOG_ARG_IS_DIRECTORY: String = "arg_is_directory"
-private const val FILE_INFORMATION_DIALOG_ARG_LAST_MODIFIED: String = "arg_last_modified"
-private const val FILE_INFORMATION_DIALOG_ARG_EXTENSION: String = "arg_extension"
-private const val FILE_INFORMATION_DIALOG_ARG_SUB_FILE_COUNT: String = "arg_sub_file_count"
-private const val FILE_INFORMATION_DIALOG_ARG_IS_HIDDEN: String = "arg_is_hidden"
-private const val FILE_INFORMATION_DIALOG_ARG_IS_IN_ROOT: String = "arg_is_in_root"
+private const val ARG_FILES: String = "arg_files"
 
+/** The information of one or more items, one page each, titled by the name of the item on the page. */
 class FileInformationDialog : DialogFragment() {
     private val directoryViewModel: DirectoryViewModel by activityViewModel()
-    private lateinit var file: FileModel
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog = activity?.let {
-        val builder = AlertDialog.Builder(it)
-        val inflater = requireActivity().layoutInflater
+    // A folder's size is walked once per dialog, however often its page is shown again.
+    private val folderSizes: MutableMap<String, LiveData<String>> = mutableMapOf()
 
-        val binding: DialogFileInformationBinding =
-            DataBindingUtil.inflate(inflater, R.layout.dialog_file_information, null, false)
+    private val files: List<FileModel>
+        get() = BundleCompat.getParcelableArrayList(requireArguments(), ARG_FILES, FileModel::class.java).orEmpty()
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val files = files
+        val pages = WrapContentViewPager(requireContext()).apply { id = R.id.informationPages }
+        pages.adapter = InformationPages(files)
+        val dialog =
+            AlertDialog.Builder(requireActivity())
+                .setTitle(titleOf(files.firstOrNull()))
+                .setView(pages)
+                .setPositiveButton(R.string.ok, null)
+                .create()
+        pages.addOnPageChangeListener(
+            object : ViewPager.SimpleOnPageChangeListener() {
+                override fun onPageSelected(position: Int) {
+                    dialog.setTitle(titleOf(files.getOrNull(position)))
+                }
+            }
+        )
+        return dialog
+    }
+
+    private fun titleOf(file: FileModel?): String = getString(R.string.information_title, file?.name.orEmpty())
+
+    private fun bind(binding: DialogFileInformationBinding, file: FileModel) {
         val shownFile = file.forInformation(getString(R.string.not_available_in_root_mode))
-        binding.setVariable(BR.file, shownFile)
+        binding.permissionText = getString(file.permissionLabel())
+        binding.file = shownFile
         // A folder's size takes a walk of everything in it, so it is read only now that its Information is open.
         if (file.isDirectory && !file.isInRoot) {
-            binding.setVariable(BR.file, shownFile.copy(size = getString(R.string.calculating_size)))
-            directoryViewModel.folderSizeOf(file.path).observe(this) { size ->
-                binding.setVariable(BR.file, shownFile.copy(size = size))
+            binding.file = shownFile.copy(size = getString(R.string.calculating_size))
+            folderSizes.getOrPut(file.path) { directoryViewModel.folderSizeOf(file.path) }.observe(this) { size ->
+                binding.file = shownFile.copy(size = size)
             }
         }
-        binding.lifecycleOwner = this
+    }
 
-        builder.setTitle(file.name + " " + getString(R.string.information))
-            .setPositiveButton(R.string.ok) { _, _ ->
-            }
+    private inner class InformationPages(private val files: List<FileModel>) : PagerAdapter() {
+        override fun getCount(): Int = files.size
 
-        builder.setView(binding.root)
-        builder.create()
-    } ?: error("Activity cannot be null")
+        override fun isViewFromObject(view: View, page: Any): Boolean = view === page
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        val path: String = requireArguments().getString(FILE_INFORMATION_DIALOG_ARG_PATH, "")
-        val name: String = requireArguments().getString(FILE_INFORMATION_DIALOG_ARG_NAME, "")
-        val nameWithoutExtension: String =
-            requireArguments().getString(FILE_INFORMATION_DIALOG_ARG_NAME_WITHOUT_EXTENSION, "")
-        val size: String = requireArguments().getString(FILE_INFORMATION_DIALOG_ARG_SIZE, "")
-        val isDirectory: Boolean = requireArguments().getBoolean(FILE_INFORMATION_DIALOG_ARG_IS_DIRECTORY, false)
-        val lastModified: String = requireArguments().getString(FILE_INFORMATION_DIALOG_ARG_LAST_MODIFIED, "")
-        val extension: String = requireArguments().getString(FILE_INFORMATION_DIALOG_ARG_EXTENSION, "")
-        val subFileCount: String = requireArguments().getString(FILE_INFORMATION_DIALOG_ARG_SUB_FILE_COUNT, "")
-        val isHidden: Boolean = requireArguments().getBoolean(FILE_INFORMATION_DIALOG_ARG_IS_HIDDEN, false)
-        val isInRoot: Boolean = requireArguments().getBoolean(FILE_INFORMATION_DIALOG_ARG_IS_IN_ROOT, false)
-        file =
-            FileModel(
-                path = path,
-                name = name,
-                nameWithoutExtension = nameWithoutExtension,
-                size = size,
-                isDirectory = isDirectory,
-                lastModified = lastModified,
-                extension = extension,
-                subFileCount = subFileCount,
-                isHidden = isHidden,
-                isInRoot = isInRoot
-            )
+        override fun instantiateItem(container: ViewGroup, position: Int): Any {
+            val binding = DialogFileInformationBinding.inflate(layoutInflater, container, false)
+            bind(binding, files[position])
+            binding.executePendingBindings()
+            container.addView(binding.root)
+            return binding.root
+        }
+
+        override fun destroyItem(container: ViewGroup, position: Int, page: Any) {
+            container.removeView(page as View)
+        }
     }
 
     companion object {
-        fun newInstance(file: FileModel): FileInformationDialog {
-            val fragment = FileInformationDialog()
-            fragment.arguments =
-                bundleOf(
-                    FILE_INFORMATION_DIALOG_ARG_PATH to file.path,
-                    FILE_INFORMATION_DIALOG_ARG_NAME to file.name,
-                    FILE_INFORMATION_DIALOG_ARG_NAME_WITHOUT_EXTENSION to file.nameWithoutExtension,
-                    FILE_INFORMATION_DIALOG_ARG_SIZE to file.size,
-                    FILE_INFORMATION_DIALOG_ARG_IS_DIRECTORY to file.isDirectory,
-                    FILE_INFORMATION_DIALOG_ARG_LAST_MODIFIED to file.lastModified,
-                    FILE_INFORMATION_DIALOG_ARG_EXTENSION to file.extension,
-                    FILE_INFORMATION_DIALOG_ARG_SUB_FILE_COUNT to file.subFileCount,
-                    FILE_INFORMATION_DIALOG_ARG_IS_HIDDEN to file.isHidden,
-                    FILE_INFORMATION_DIALOG_ARG_IS_IN_ROOT to file.isInRoot
-                )
-            return fragment
+        fun newInstance(files: List<FileModel>): FileInformationDialog = FileInformationDialog().apply {
+            arguments = bundleOf(ARG_FILES to ArrayList(files))
         }
+    }
+}
+
+/** What the Permissions row says for this item: what the app may do with it, or that root listings do not tell. */
+@StringRes
+internal fun FileModel.permissionLabel(): Int = if (isInRoot) {
+    R.string.not_available_in_root_mode
+} else {
+    when (permission) {
+        MountOption.READ_WRITE -> R.string.permission_read_write
+        MountOption.READ -> R.string.permission_read_only
+        MountOption.OTHER -> R.string.permission_none
     }
 }

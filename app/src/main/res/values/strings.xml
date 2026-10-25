@@ -102,12 +102,12 @@
     <string name="search_failed">The search could not be completed</string>
     <string name="cancel">Cancel</string>
     <string name="favorite_created">Added to favorites</string>
-    <string name="unable_to_create_favorite">Unable to add to favorites</string>
-    <string name="favorite_deleted">Favorite deleted</string>
-    <string name="unable_to_delete_favorite">Unable to delete the favorite</string>
+    <string name="unable_to_create_favorite">Could not add to favorites</string>
+    <string name="favorite_deleted">Removed from favorites</string>
+    <string name="unable_to_delete_favorite">Could not remove the favorite</string>
     <string name="favorite_renamed">Favorite renamed</string>
-    <string name="unable_to_rename_favorite">Unable to rename the favorite</string>
-    <string name="invalid_favorite">Invalid favorite. Try removing it!</string>
+    <string name="unable_to_rename_favorite">Could not rename the favorite</string>
+    <string name="invalid_favorite">This folder no longer exists. Remove the favorite</string>
     <string name="ftp_server_is_running">Ftp Server is running</string>
     <string name="ftp_notification_channel_name">FTPNotificationChannel</string>
     <string name="ftp_notification_channel_description">FTP notification channel</string>
@@ -209,4 +209,10 @@
     <string name="hint_favorite_name">Favorite name</string>
     <string name="create">Create</string>
     <string name="add">Add</string>
+    <string name="information_title">Information: %1$s</string>
+    <string name="permission_read_write">Read and write</string>
+    <string name="permission_read_only">Read-only</string>
+    <string name="permission_none">No access</string>
+    <string name="open">Open</string>
+    <string name="remove_favorite">Remove from favorites</string>
 </resources>

@@ -7,7 +7,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.erman.usurf.R
-import com.erman.usurf.dialog.model.DialogArgs
 import com.erman.usurf.directory.model.ArchiveOperations
 import com.erman.usurf.directory.model.DirectoryModel
 import com.erman.usurf.directory.model.FileModel
@@ -198,7 +197,7 @@ class DirectoryViewModel(
             if (file.isDirectory) {
                 setPath(file.path)
             } else {
-                _uiEvents.value = Event(DirectoryUiEvent.ShowDialog(DialogArgs.OpenFileActivityArgs(file.path)))
+                _uiEvents.value = Event(DirectoryUiEvent.OpenFile(file.path))
             }
         }
     }
@@ -300,7 +299,7 @@ class DirectoryViewModel(
         val selection = requireCurrentState().common.selectedFiles
         if (selection.isEmpty()) return
         holdForDialog(selection)
-        _uiEvents.value = Event(DirectoryUiEvent.ShowDialog(DialogArgs.CompressDialogArgs))
+        _uiEvents.value = Event(DirectoryUiEvent.ShowCompressDialog)
     }
 
     fun onSwipeRefresh() {
@@ -327,9 +326,7 @@ class DirectoryViewModel(
 
     fun showFileInformation() {
         val selection = requireNonEmptySelectionAndResetPanel() ?: return
-        selection.forEach { file ->
-            _uiEvents.value = Event(DirectoryUiEvent.ShowDialog(DialogArgs.InformationDialogArgs(file)))
-        }
+        _uiEvents.value = Event(DirectoryUiEvent.ShowInformation(selection))
     }
 
     /** The size of the folder at [path], read when its Information asks for it; empty when it cannot be read. */
@@ -351,8 +348,7 @@ class DirectoryViewModel(
         val selection = requireNonEmptySelectionAndResetPanel() ?: return
         val shareablePaths = selection.filterNot { it.isDirectory }.map { it.path }
         val directoryNames = selection.filter { it.isDirectory }.map { it.name }
-        _uiEvents.value =
-            Event(DirectoryUiEvent.ShowDialog(DialogArgs.ShareActivityArgs(shareablePaths, directoryNames)))
+        _uiEvents.value = Event(DirectoryUiEvent.Share(shareablePaths, directoryNames))
     }
 
     fun toggleMoreMenu() {
@@ -412,7 +408,7 @@ class DirectoryViewModel(
     fun rename() {
         val file = requireCurrentState().common.selectedFiles.lastOrNull() ?: return
         holdForDialog(listOf(file))
-        _uiEvents.value = Event(DirectoryUiEvent.ShowDialog(DialogArgs.RenameDialogArgs(file.path, file.name, file.isDirectory)))
+        _uiEvents.value = Event(DirectoryUiEvent.ShowRenameDialog(file.path, file.name, file.isDirectory))
     }
 
     /** A compress or rename dialog was cancelled: the items it was opened for are no longer pending. */
@@ -444,12 +440,12 @@ class DirectoryViewModel(
 
     /** Asks for the name of a new folder or file, by [kind]. */
     fun requestCreate(kind: CreateKind) {
-        val dialogArgs =
+        val event =
             when (kind) {
-                CreateKind.FOLDER -> DialogArgs.CreateFolderDialogArgs
-                CreateKind.FILE -> DialogArgs.CreateFileDialogArgs
+                CreateKind.FOLDER -> DirectoryUiEvent.ShowCreateFolderDialog
+                CreateKind.FILE -> DirectoryUiEvent.ShowCreateFileDialog
             }
-        _uiEvents.value = Event(DirectoryUiEvent.ShowDialog(dialogArgs))
+        _uiEvents.value = Event(event)
     }
 
     /** Creates a folder or a file, by [kind], named [name] in the folder on screen. */
@@ -485,13 +481,13 @@ class DirectoryViewModel(
     }
 
     fun deviceWideSearch() {
-        _uiEvents.value = Event(DirectoryUiEvent.ShowDialog(DialogArgs.FileSearchDialogArgs))
+        _uiEvents.value = Event(DirectoryUiEvent.ShowSearchDialog)
     }
 
     fun onFavoriteButtonPressed() {
         val selection = requireNonEmptySelectionAndResetPanel() ?: return
         val file = selection.last()
-        _uiEvents.value = Event(DirectoryUiEvent.ShowDialog(DialogArgs.AddFavoriteDialogArgs(file.path)))
+        _uiEvents.value = Event(DirectoryUiEvent.ShowAddFavoriteDialog(file.path))
     }
 
     // The screen lists its folder when it enters it and after every change it makes; a resume lists nothing again,

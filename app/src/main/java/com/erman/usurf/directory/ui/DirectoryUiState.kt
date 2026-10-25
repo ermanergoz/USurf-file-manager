@@ -2,7 +2,6 @@ package com.erman.usurf.directory.ui
 
 import androidx.annotation.StringRes
 import com.erman.usurf.R
-import com.erman.usurf.dialog.model.DialogArgs
 import com.erman.usurf.directory.model.FileModel
 import com.erman.usurf.utils.ROOT_DIRECTORY
 
@@ -74,10 +73,36 @@ enum class CreateKind(val actionType: ActionType) {
     FILE(ActionType.CREATE_FILE)
 }
 
+/**
+ * What the folder screen is asked to do once. A dialog or navigation event is emitted only synchronously, from the user
+ * intent that asks for it; an operation that completes later emits [ShowSnackbar] or a new state, never a dialog, so
+ * no dialog opens on a screen the user has left or over one the user opened since.
+ */
 sealed class DirectoryUiEvent {
-    data class ShowSnackbar(val messageResId: Int) : DirectoryUiEvent()
+    data class ShowSnackbar(@StringRes val messageResId: Int) : DirectoryUiEvent()
 
-    data class ShowDialog(val dialogArgs: DialogArgs) : DirectoryUiEvent()
+    /** Ask for a new name for the item at [path], now named [name]. */
+    data class ShowRenameDialog(val path: String, val name: String, val isDirectory: Boolean) : DirectoryUiEvent()
+
+    /** Show the information of [files], one page each. */
+    data class ShowInformation(val files: List<FileModel>) : DirectoryUiEvent()
+
+    data object ShowCreateFolderDialog : DirectoryUiEvent()
+
+    data object ShowCreateFileDialog : DirectoryUiEvent()
+
+    /** Ask for the name of the archive the items held for the dialog are compressed into. */
+    data object ShowCompressDialog : DirectoryUiEvent()
+
+    data object ShowSearchDialog : DirectoryUiEvent()
+
+    /** Ask for the name the folder at [path] is added to the favourites with. */
+    data class ShowAddFavoriteDialog(val path: String) : DirectoryUiEvent()
+
+    data class OpenFile(val path: String) : DirectoryUiEvent()
+
+    /** Share the files at [paths]; the folders of the selection, named by [directoryNames], cannot be shared. */
+    data class Share(val paths: List<String>, val directoryNames: List<String>) : DirectoryUiEvent()
 
     /** Ask before deleting the items at these paths. */
     data class ConfirmDelete(val paths: List<String>) : DirectoryUiEvent()

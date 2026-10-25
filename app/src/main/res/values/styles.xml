@@ -33,6 +33,22 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <!-- One option of a bottom sheet: a full-width row at least 48 dp tall, with its icon before the text. -->
+    <style name="SheetRow">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:drawablePadding">@dimen/horizontal_margin_16</item>
+        <item name="android:paddingStart">@dimen/horizontal_margin_16</item>
+        <item name="android:paddingEnd">@dimen/horizontal_margin_16</item>
+        <item name="android:textColor">@color/daynnightTextColor</item>
+        <item name="android:textSize">@dimen/text_size_16</item>
+    </style>
+
     <style name="StorageProgressBar" parent="Widget.AppCompat.ProgressBar.Horizontal">
         <item name="android:minHeight">0dp</item>
         <item name="android:maxHeight">9999dp</item>

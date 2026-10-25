@@ -8,6 +8,10 @@
         <variable
             name="file"
             type="com.erman.usurf.directory.model.FileModel" />
+
+        <variable
+            name="permissionText"
+            type="String" />
     </data>
 
     <ScrollView
@@ -132,7 +136,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/vertical_margin_4"
-                android:text="@{file.permission.option}"
+                android:text="@{permissionText}"
                 android:textColor="@color/daynnightTextColor"
                 android:textSize="@dimen/text_size_14" />
 

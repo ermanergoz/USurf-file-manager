@@ -20,7 +20,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.erman.usurf.R
 import com.erman.usurf.activity.model.ShowDialog
 import com.erman.usurf.databinding.FragmentDirectoryBinding
-import com.erman.usurf.dialog.model.DialogArgs
 import com.erman.usurf.dialog.ui.DeleteConfirmationDialog
 import com.erman.usurf.dialog.ui.FileInformationDialog
 import com.erman.usurf.dialog.ui.TextInputDialogFragment
@@ -72,31 +71,24 @@ class DirectoryFragment : Fragment() {
                 when (event) {
                     is DirectoryUiEvent.ShowSnackbar ->
                         Snackbar.make(binding.root, getString(event.messageResId), Snackbar.LENGTH_LONG).show()
-                    is DirectoryUiEvent.ShowDialog -> handleDialogEvent(event.dialogArgs)
+                    is DirectoryUiEvent.ShowRenameDialog -> showRenameDialog(event)
+                    is DirectoryUiEvent.ShowInformation -> showInformation(event.files)
+                    DirectoryUiEvent.ShowCreateFolderDialog -> showCreateDialog(CreateKind.FOLDER)
+                    DirectoryUiEvent.ShowCreateFileDialog -> showCreateDialog(CreateKind.FILE)
+                    DirectoryUiEvent.ShowCompressDialog -> showCompressDialog()
+                    DirectoryUiEvent.ShowSearchDialog -> showSearchDialog()
+                    is DirectoryUiEvent.ShowAddFavoriteDialog -> showAddFavoriteDialog(event.path)
+                    is DirectoryUiEvent.OpenFile -> openFile(event.path)
+                    is DirectoryUiEvent.Share -> handleShare(event)
                     is DirectoryUiEvent.ConfirmDelete -> dialogListener.showDialog(DeleteConfirmationDialog.newInstance(event.paths))
-                    is DirectoryUiEvent.RequestSafGrant -> (activity as? StorageAccessFramework)?.launchSAF()
+                    DirectoryUiEvent.RequestSafGrant -> (activity as? StorageAccessFramework)?.launchSAF()
                 }
             }
         )
         return binding.root
     }
 
-    private fun handleDialogEvent(args: DialogArgs) {
-        when (args) {
-            is DialogArgs.RenameDialogArgs -> showRenameDialog(args)
-            is DialogArgs.InformationDialogArgs -> showInformationDialog(args)
-            is DialogArgs.CreateFolderDialogArgs -> showCreateDialog(CreateKind.FOLDER)
-            is DialogArgs.CreateFileDialogArgs -> showCreateDialog(CreateKind.FILE)
-            is DialogArgs.CompressDialogArgs -> showCompressDialog()
-            is DialogArgs.OpenFileActivityArgs -> openFileFromArgs(args.path)
-            is DialogArgs.ShareActivityArgs -> handleShare(args)
-            is DialogArgs.AddFavoriteDialogArgs -> showAddFavoriteDialog(args.path)
-            is DialogArgs.FileSearchDialogArgs -> showSearchDialog()
-            else -> loge("DirectoryFragment $args")
-        }
-    }
-
-    private fun showRenameDialog(args: DialogArgs.RenameDialogArgs) {
+    private fun showRenameDialog(args: DirectoryUiEvent.ShowRenameDialog) {
         // A file's name is selected without its extension, so typing keeps the extension.
         val nameLength = if (args.isDirectory) null else args.name.lastIndexOf(FILE_EXTENSION_SEPARATOR).takeIf { it > 0 }
         showTextInput(
@@ -117,8 +109,8 @@ class DirectoryFragment : Fragment() {
         dialogListener.showDialog(TextInputDialogFragment.newInstance(request))
     }
 
-    private fun showInformationDialog(args: DialogArgs.InformationDialogArgs) {
-        dialogListener.showDialog(FileInformationDialog.newInstance(args.file))
+    private fun showInformation(files: List<FileModel>) {
+        dialogListener.showDialog(FileInformationDialog.newInstance(files))
     }
 
     private fun showCreateDialog(kind: CreateKind) {
@@ -158,7 +150,7 @@ class DirectoryFragment : Fragment() {
         )
     }
 
-    private fun openFileFromArgs(path: String) {
+    private fun openFile(path: String) {
         val isOpened: Boolean =
             FileOpenUtils.openFile(
                 context = requireContext(),
@@ -172,10 +164,10 @@ class DirectoryFragment : Fragment() {
         }
     }
 
-    private fun handleShare(args: DialogArgs.ShareActivityArgs) {
-        val fileUris: ArrayList<Uri> = collectShareableFileUris(args.shareablePaths)
+    private fun handleShare(args: DirectoryUiEvent.Share) {
+        val fileUris: ArrayList<Uri> = collectShareableFileUris(args.paths)
         showDirectoryShareWarning(args.directoryNames)
-        launchShareIntent(fileUris, args.shareablePaths)
+        launchShareIntent(fileUris, args.paths)
     }
 
     private fun collectShareableFileUris(paths: List<String>): ArrayList<Uri> {
