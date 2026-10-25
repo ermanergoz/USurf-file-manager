@@ -125,8 +125,7 @@ class ArchiveOperations(
 
     suspend fun extractFiles(selectedDirectory: FileModel) = operationOn(ioDispatcher) {
         val parentPath: String = File(selectedDirectory.path).parent ?: ""
-        val extractedFolderName =
-            selectedDirectory.nameWithoutExtension + EXTRACTED_FOLDER_NAME_SUFFIX
+        val extractedFolderName = freeExtractionFolderName(parentPath, selectedDirectory.nameWithoutExtension)
         val extractionDestination = "$parentPath${File.separator}$extractedFolderName"
         // createFolder refuses a folder that already exists, so from here on the folder is one this extraction made.
         fileOperations.createFolder(parentPath, extractedFolderName)
@@ -141,6 +140,14 @@ class ArchiveOperations(
         } finally {
             if (!isDone) removeIfEmpty(File(extractionDestination))
         }
+    }
+
+    // An archive extracted again goes into a new folder, "<name>_extracted (2)" and on, so no earlier result is mixed in.
+    private fun freeExtractionFolderName(parentPath: String, archiveName: String): String {
+        val baseName = archiveName + EXTRACTED_FOLDER_NAME_SUFFIX
+        return generateSequence(1) { it + 1 }
+            .map { number -> if (number == 1) baseName else "$baseName ($number)" }
+            .first { name -> !File(parentPath, name).exists() }
     }
 
     // A folder that received part of the files stays, so the user can see what was extracted.
