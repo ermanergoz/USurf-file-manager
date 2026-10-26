@@ -42,7 +42,9 @@ import com.erman.usurf.storage.data.StorageAccessPolicyImpl
 import com.erman.usurf.storage.data.StorageDirectoryPreferenceProvider
 import com.erman.usurf.storage.data.StorageDirectoryRepositoryImpl
 import com.erman.usurf.storage.data.StoragePathsProviderImpl
+import com.erman.usurf.storage.data.StorageVolumeProbe
 import com.erman.usurf.storage.domain.StorageAccessPolicy
+import com.erman.usurf.storage.domain.StorageDirectoriesSource
 import com.erman.usurf.storage.domain.StorageDirectoryRepository
 import com.erman.usurf.storage.domain.StoragePathsProvider
 import com.erman.usurf.utils.SHARED_PREF_FILE
@@ -62,9 +64,18 @@ val appModule =
 
         single { ApplicationPreferenceProvider(get()) }
         single<ApplicationPreferencesRepository> { ApplicationPreferencesRepositoryImpl(get()) }
-        single<StoragePathsProvider> { StoragePathsProviderImpl(get(), get()) }
+        single {
+            StoragePathsProviderImpl(
+                probeVolumes = StorageVolumeProbe(get())::probe,
+                preferencesRepository = get(),
+                rootAccessPreference = get<PreferenceProvider>().observeRootAccessPreference(),
+                ioDispatcher = get(named(IO_DISPATCHER))
+            )
+        }
+        single<StoragePathsProvider> { get<StoragePathsProviderImpl>() }
+        single<StorageDirectoriesSource> { get<StoragePathsProviderImpl>() }
         single { ApplicationDao(get(), get()) }
-        viewModel { MainViewModel(get(), get(), get()) }
+        viewModel { MainViewModel(get(), get(), get(), get()) }
 
         single { PreferenceProvider(get()) }
         single<PreferencesRepository> { PreferencesRepositoryImpl(get()) }
@@ -101,9 +112,9 @@ val appModule =
         }
         viewModel { DirectoryViewModel(get(), get(), get(), get(), get()) }
 
-        single { HomeModel(get(), get()) }
+        single { HomeModel(get()) }
         single<FavoriteRepository> { FavoriteRepositoryImpl(get(), get()) }
-        viewModel { HomeViewModel(get(), get(), get(), get(named(IO_DISPATCHER))) }
+        viewModel { HomeViewModel(get(), get(), get(), get(), get(named(IO_DISPATCHER))) }
 
         single { FtpModel(get()) }
         single { ConnectionLiveData(get()) }

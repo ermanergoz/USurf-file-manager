@@ -22,7 +22,6 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.window.layout.WindowMetricsCalculator
 import com.erman.usurf.MobileNavigationDirections
 import com.erman.usurf.R
-import com.erman.usurf.activity.model.RefreshNavDrawer
 import com.erman.usurf.activity.model.ShowDialog
 import com.erman.usurf.databinding.ActivityMainBinding
 import com.erman.usurf.directory.ui.DirectoryViewModel
@@ -40,7 +39,6 @@ private const val STORAGE_MENU_ITEM_ORDER_FIRST: Int = 0
 class MainActivity :
     AppCompatActivity(),
     ShowDialog,
-    RefreshNavDrawer,
     StorageAccessFramework,
     HomeStorageButton {
     private lateinit var appBarConfiguration: AppBarConfiguration
@@ -191,10 +189,6 @@ class MainActivity :
 
     override fun showDialog(dialog: DialogFragment) {
         dialog.show(supportFragmentManager, "")
-    }
-
-    override fun refreshStorageButtons() {
-        mainViewModel.refreshStoragePaths()
     }
 
     override fun launchSAF() {

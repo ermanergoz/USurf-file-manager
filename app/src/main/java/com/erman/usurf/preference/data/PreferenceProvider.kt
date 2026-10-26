@@ -2,6 +2,7 @@ package com.erman.usurf.preference.data
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import androidx.lifecycle.LiveData
 import com.erman.usurf.preference.utils.KEY_PREFERENCE_ROOT_ACCESS
 
 private const val DESCENDING_ORDER_PREF_DEF_VAL: Boolean = false
@@ -21,6 +22,9 @@ class PreferenceProvider(private val preferences: SharedPreferences) {
     }
 
     fun getRootAccessPreference(): Boolean = preferences.getBoolean(KEY_PREFERENCE_ROOT_ACCESS, ROOT_ACCESS_PREF_DEF_VAL)
+
+    /** The root access preference while observed: its stored value, then each change written to it. */
+    fun observeRootAccessPreference(): LiveData<Boolean> = RootAccessPreferenceLiveData()
 
     fun editFileSortPreference(choice: String) {
         preferences.edit { putString(KEY_PREFERENCE_FILE_SORT, choice) }
@@ -55,4 +59,21 @@ class PreferenceProvider(private val preferences: SharedPreferences) {
     }
 
     fun getDescendingOrderPreference(): Boolean = preferences.getBoolean(KEY_PREFERENCE_DESCENDING_ORDER, DESCENDING_ORDER_PREF_DEF_VAL)
+
+    // The preferences keep their listeners weakly, so this object holds its own.
+    private inner class RootAccessPreferenceLiveData : LiveData<Boolean>() {
+        private val listener =
+            SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+                if (key == KEY_PREFERENCE_ROOT_ACCESS) value = getRootAccessPreference()
+            }
+
+        override fun onActive() {
+            value = getRootAccessPreference()
+            preferences.registerOnSharedPreferenceChangeListener(listener)
+        }
+
+        override fun onInactive() {
+            preferences.unregisterOnSharedPreferenceChangeListener(listener)
+        }
+    }
 }

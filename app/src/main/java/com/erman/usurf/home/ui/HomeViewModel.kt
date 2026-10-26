@@ -9,6 +9,7 @@ import com.erman.usurf.home.domain.FavoriteRepository
 import com.erman.usurf.home.model.FavoriteItem
 import com.erman.usurf.home.model.HomeModel
 import com.erman.usurf.storage.domain.StorageAccessPolicy
+import com.erman.usurf.storage.domain.StorageDirectoriesSource
 import com.erman.usurf.utils.Event
 import com.erman.usurf.utils.logi
 import java.io.File
@@ -20,6 +21,7 @@ class HomeViewModel(
     private val homeModel: HomeModel,
     private val storageAccessPolicy: StorageAccessPolicy,
     private val favoriteRepository: FavoriteRepository,
+    private val storageDirectoriesSource: StorageDirectoriesSource,
     private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
     private val _uiState = MutableLiveData(HomeUiState())
@@ -40,7 +42,7 @@ class HomeViewModel(
 
     fun onStorageButtonClick(path: String) {
         _uiEvents.value = Event(HomeUiEvent.NavigateToDirectory(path))
-        if (storageAccessPolicy.needsSafGrant(path)) {
+        if (storageAccessPolicy.needsFirstSafGrant(path)) {
             _uiEvents.value = Event(HomeUiEvent.RequestSafGrant)
         }
     }
@@ -91,10 +93,14 @@ class HomeViewModel(
         }
     }
 
+    // Looks for the volumes again, so a card put in while the app was away shows when the screen is back.
     fun refreshStorageItems() {
         viewModelScope.launch {
-            val items = withContext(ioDispatcher) { homeModel.getStorageItems() }
-            updateState { it.copy(storageItems = items) }
+            val items =
+                withContext(ioDispatcher) {
+                    homeModel.getStorageItems(storageDirectoriesSource.refreshStorageDirectories())
+                }
+            if (items != _uiState.value?.storageItems) updateState { it.copy(storageItems = items) }
         }
     }
 }

@@ -1,6 +1,5 @@
 package com.erman.usurf.preference.ui
 
-import android.content.Context
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.View
@@ -13,13 +12,10 @@ import androidx.preference.PreferenceGroup
 import androidx.preference.SwitchPreference
 import com.erman.usurf.R
 import com.erman.usurf.activity.MainViewModel
-import com.erman.usurf.activity.model.RefreshNavDrawer
 import com.erman.usurf.home.model.StorageAccessFramework
 import com.erman.usurf.preference.utils.KEY_PREFERENCE_ROOT_ACCESS
 import com.erman.usurf.preference.utils.KEY_PREFERENCE_SD_CARD_ACCESS
 import com.erman.usurf.utils.EventObserver
-import com.erman.usurf.utils.UNKNOWN_ERROR
-import com.erman.usurf.utils.loge
 import com.google.android.material.snackbar.Snackbar
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -31,7 +27,6 @@ private const val KEY_DESCENDING_ORDER_CHECKBOX: String = "descendingOrderPrefer
 private const val KEY_SORT_FILES_LIST_PREFERENCE: String = "sortListPreference"
 
 class PreferencesFragment : PreferenceFragmentCompat() {
-    private lateinit var navDrawerRefreshListener: RefreshNavDrawer
     private val preferencesViewModel by viewModel<PreferencesViewModel>()
     private val mainViewModel by activityViewModel<MainViewModel>()
 
@@ -105,9 +100,9 @@ class PreferencesFragment : PreferenceFragmentCompat() {
 
     private fun showRootAccessChangeResult(result: RootAccessChangeResult) {
         when (result) {
+            // The drawer lists the file system root by itself once the preference changes.
             is RootAccessChangeResult.Applied -> {
                 findPreference<SwitchPreference>(KEY_PREFERENCE_ROOT_ACCESS)?.isChecked = result.isRootAccessEnabled
-                navDrawerRefreshListener.refreshStorageButtons()
             }
             is RootAccessChangeResult.Rejected -> {
                 Snackbar.make(requireView(), getString(result.messageResId), Snackbar.LENGTH_LONG).show()
@@ -128,15 +123,6 @@ class PreferencesFragment : PreferenceFragmentCompat() {
             } else {
                 preference.icon?.setTintList(tintList)
             }
-        }
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        try {
-            navDrawerRefreshListener = context as RefreshNavDrawer
-        } catch (err: ClassCastException) {
-            loge(err.localizedMessage ?: UNKNOWN_ERROR)
         }
     }
 }

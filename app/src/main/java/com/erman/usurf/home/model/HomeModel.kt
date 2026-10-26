@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Environment
 import android.os.StatFs
 import com.erman.usurf.R
-import com.erman.usurf.storage.domain.StoragePathsProvider
 import com.erman.usurf.utils.ROOT_DIRECTORY
 import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
@@ -19,9 +18,9 @@ private const val BYTES_PER_GB: Long = BYTES_PER_MB * 1024L
 private const val BYTES_PER_TB: Long = BYTES_PER_GB * 1024L
 private const val SIZE_FORMAT: String = "%.1f"
 
-class HomeModel(private val context: Context, private val storagePathsProvider: StoragePathsProvider) {
-    fun getStorageItems(): List<StorageItem> {
-        val storageDirectories = storagePathsProvider.getStorageDirectories()
+class HomeModel(private val context: Context) {
+    /** One card per directory of [storageDirectories], with its usage read from the volume. */
+    fun getStorageItems(storageDirectories: Set<String>): List<StorageItem> {
         val internalPath: String = getInternalStoragePath()
         return storageDirectories.map { path ->
             val isExternal: Boolean = path != ROOT_DIRECTORY && path != internalPath
