@@ -3,6 +3,7 @@ package com.erman.usurf.directory.ui
 import android.content.ClipData
 import android.content.Context
 import android.content.Intent
+import android.content.res.Resources
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -12,6 +13,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.FileProvider
+import androidx.core.os.bundleOf
 import androidx.core.view.MenuProvider
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -19,17 +21,12 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.erman.usurf.R
 import com.erman.usurf.activity.model.ShowDialog
 import com.erman.usurf.databinding.FragmentDirectoryBinding
-import com.erman.usurf.dialog.model.DialogArgs
-import com.erman.usurf.dialog.model.OnRenameOkPressedListener
-import com.erman.usurf.dialog.ui.AddFavoriteDialog
-import com.erman.usurf.dialog.ui.CompressDialog
-import com.erman.usurf.dialog.ui.CreateFileDialog
-import com.erman.usurf.dialog.ui.CreateFolderDialog
 import com.erman.usurf.dialog.ui.DeleteConfirmationDialog
 import com.erman.usurf.dialog.ui.FileInformationDialog
-import com.erman.usurf.dialog.ui.RenameDialog
-import com.erman.usurf.dialog.ui.SearchDialog
+import com.erman.usurf.dialog.ui.TextInputDialogFragment
+import com.erman.usurf.dialog.ui.TextInputRequest
 import com.erman.usurf.directory.model.FileModel
+import com.erman.usurf.directory.utils.FILE_EXTENSION_SEPARATOR
 import com.erman.usurf.directory.utils.MIME_TYPE_ALL
 import com.erman.usurf.directory.utils.MimeUtils
 import com.erman.usurf.home.model.StorageAccessFramework
@@ -73,55 +70,90 @@ class DirectoryFragment : Fragment() {
             viewLifecycleOwner,
             EventObserver { event ->
                 when (event) {
-                    is DirectoryUiEvent.ShowSnackbar ->
-                        Snackbar.make(binding.root, getString(event.messageResId), Snackbar.LENGTH_LONG).show()
-                    is DirectoryUiEvent.ShowDialog -> handleDialogEvent(event.dialogArgs)
+                    is DirectoryUiEvent.ShowSnackbar -> {
+                        val message = event.formatArg?.let { getString(event.messageResId, it) } ?: getString(event.messageResId)
+                        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
+                    }
+                    is DirectoryUiEvent.ShowRenameDialog -> showRenameDialog(event)
+                    is DirectoryUiEvent.ShowInformation -> showInformation(event.files)
+                    DirectoryUiEvent.ShowCreateFolderDialog -> showCreateDialog(CreateKind.FOLDER)
+                    DirectoryUiEvent.ShowCreateFileDialog -> showCreateDialog(CreateKind.FILE)
+                    DirectoryUiEvent.ShowCompressDialog -> showCompressDialog()
+                    DirectoryUiEvent.ShowSearchDialog -> showSearchDialog()
+                    is DirectoryUiEvent.ShowAddFavoriteDialog -> showAddFavoriteDialog(event.path)
+                    is DirectoryUiEvent.OpenFile -> openFile(event.path)
+                    is DirectoryUiEvent.Share -> handleShare(event)
                     is DirectoryUiEvent.ConfirmDelete -> dialogListener.showDialog(DeleteConfirmationDialog.newInstance(event.paths))
-                    is DirectoryUiEvent.RequestSafGrant -> (activity as? StorageAccessFramework)?.launchSAF()
+                    DirectoryUiEvent.RequestSafGrant -> (activity as? StorageAccessFramework)?.launchSAF()
                 }
             }
         )
         return binding.root
     }
 
-    private fun handleDialogEvent(args: DialogArgs) {
-        when (args) {
-            is DialogArgs.RenameDialogArgs -> showRenameDialog(args)
-            is DialogArgs.InformationDialogArgs -> showInformationDialog(args)
-            is DialogArgs.CreateFolderDialogArgs -> showCreateFolderDialog()
-            is DialogArgs.CreateFileDialogArgs -> showCreateFileDialog()
-            is DialogArgs.CompressDialogArgs -> showCompressDialog()
-            is DialogArgs.OpenFileActivityArgs -> openFileFromArgs(args.path)
-            is DialogArgs.ShareActivityArgs -> handleShare(args)
-            is DialogArgs.AddFavoriteDialogArgs -> showAddFavoriteDialog(args.path)
-            is DialogArgs.FileSearchDialogArgs -> showSearchDialog()
-            else -> loge("DirectoryFragment $args")
-        }
+    private fun showRenameDialog(args: DirectoryUiEvent.ShowRenameDialog) {
+        // A file's name is selected without its extension, so typing keeps the extension.
+        val nameLength = if (args.isDirectory) null else args.name.lastIndexOf(FILE_EXTENSION_SEPARATOR).takeIf { it > 0 }
+        showTextInput(
+            TextInputRequest(
+                requestKey = RENAME_REQUEST_KEY,
+                title = R.string.rename,
+                hint = R.string.hint_name,
+                defaultText = args.name,
+                positiveButton = R.string.rename,
+                validateAsName = true,
+                payload = bundleOf(PAYLOAD_PATH to args.path),
+                selectedLength = nameLength
+            )
+        )
     }
 
-    private fun showRenameDialog(args: DialogArgs.RenameDialogArgs) {
-        val dialog: RenameDialog = RenameDialog.newInstance(args.name)
-        dialog.onRenameOkPressedListener = OnRenameOkPressedListener { directoryViewModel.onRenameOkPressed(it) }
-        dialogListener.showDialog(dialog)
+    private fun showTextInput(request: TextInputRequest) {
+        dialogListener.showDialog(TextInputDialogFragment.newInstance(request))
     }
 
-    private fun showInformationDialog(args: DialogArgs.InformationDialogArgs) {
-        dialogListener.showDialog(FileInformationDialog.newInstance(args.file))
+    private fun showInformation(files: List<FileModel>) {
+        dialogListener.showDialog(FileInformationDialog.newInstance(files))
     }
 
-    private fun showCreateFolderDialog() {
-        dialogListener.showDialog(CreateFolderDialog())
-    }
-
-    private fun showCreateFileDialog() {
-        dialogListener.showDialog(CreateFileDialog())
+    private fun showCreateDialog(kind: CreateKind) {
+        val request =
+            when (kind) {
+                CreateKind.FOLDER -> TextInputRequest(
+                    requestKey = CREATE_FOLDER_REQUEST_KEY,
+                    title = R.string.create_new_folder,
+                    hint = R.string.hint_folder_name,
+                    defaultText = getString(R.string.new_folder),
+                    positiveButton = R.string.create,
+                    validateAsName = true
+                )
+                CreateKind.FILE -> TextInputRequest(
+                    requestKey = CREATE_FILE_REQUEST_KEY,
+                    title = R.string.create_file,
+                    hint = R.string.hint_file_name,
+                    defaultText = getString(R.string.new_file),
+                    positiveButton = R.string.create,
+                    validateAsName = true
+                )
+            }
+        showTextInput(request)
     }
 
     private fun showCompressDialog() {
-        dialogListener.showDialog(CompressDialog())
+        showTextInput(
+            TextInputRequest(
+                requestKey = COMPRESS_REQUEST_KEY,
+                title = R.string.compress,
+                hint = R.string.hint_archive_name,
+                defaultText = getString(R.string.new_compressed),
+                message = R.string.supported_compression_formats,
+                positiveButton = R.string.compress,
+                validateAsName = true
+            )
+        )
     }
 
-    private fun openFileFromArgs(path: String) {
+    private fun openFile(path: String) {
         val isOpened: Boolean =
             FileOpenUtils.openFile(
                 context = requireContext(),
@@ -135,10 +167,10 @@ class DirectoryFragment : Fragment() {
         }
     }
 
-    private fun handleShare(args: DialogArgs.ShareActivityArgs) {
-        val fileUris: ArrayList<Uri> = collectShareableFileUris(args.shareablePaths)
+    private fun handleShare(args: DirectoryUiEvent.Share) {
+        val fileUris: ArrayList<Uri> = collectShareableFileUris(args.paths)
         showDirectoryShareWarning(args.directoryNames)
-        launchShareIntent(fileUris, args.shareablePaths)
+        launchShareIntent(fileUris, args.paths)
     }
 
     private fun collectShareableFileUris(paths: List<String>): ArrayList<Uri> {
@@ -158,8 +190,7 @@ class DirectoryFragment : Fragment() {
 
     private fun showDirectoryShareWarning(directoryNames: List<String>) {
         if (directoryNames.isNotEmpty()) {
-            val messages = listOf(getString(R.string.share_directory)) + directoryNames
-            Snackbar.make(binding.root, messages.toString(), Snackbar.LENGTH_LONG).show()
+            Snackbar.make(binding.root, resources.folderShareWarning(directoryNames), Snackbar.LENGTH_LONG).show()
         }
     }
 
@@ -190,42 +221,58 @@ class DirectoryFragment : Fragment() {
         startActivity(Intent.createChooser(shareIntent, requireContext().getString(R.string.share)))
     }
 
+    // A favourite is named after its folder by default; the top of the file system has no name of its own.
     private fun showAddFavoriteDialog(path: String) {
-        dialogListener.showDialog(AddFavoriteDialog.newInstance(path))
+        showTextInput(
+            TextInputRequest(
+                requestKey = ADD_FAVORITE_REQUEST_KEY,
+                title = R.string.addFavorite,
+                hint = R.string.hint_favorite_name,
+                defaultText = File(path).name.ifEmpty { getString(R.string.new_favorite) },
+                positiveButton = R.string.add,
+                validateAsName = true,
+                payload = bundleOf(PAYLOAD_PATH to path)
+            )
+        )
     }
 
     private fun showSearchDialog() {
-        dialogListener.showDialog(SearchDialog())
+        showTextInput(
+            TextInputRequest(
+                requestKey = SEARCH_REQUEST_KEY,
+                title = R.string.device_wide_search,
+                hint = R.string.hint_search_query,
+                positiveButton = R.string.search,
+                validateAsName = false
+            )
+        )
     }
 
     private fun registerDialogResultListeners() {
         val fragmentManager = requireActivity().supportFragmentManager
-        fragmentManager.setFragmentResultListener(CreateFolderDialog.REQUEST_KEY, viewLifecycleOwner) { _, bundle ->
-            directoryViewModel.onCreateNameEntered(CreateKind.FOLDER, bundle.getString(CreateFolderDialog.RESULT_NAME).orEmpty())
+        fun onText(requestKey: String, onResult: (Bundle, String) -> Unit) {
+            fragmentManager.setFragmentResultListener(requestKey, viewLifecycleOwner) { _, bundle ->
+                onResult(bundle, TextInputDialogFragment.textIn(bundle))
+            }
         }
-        fragmentManager.setFragmentResultListener(CreateFileDialog.REQUEST_KEY, viewLifecycleOwner) { _, bundle ->
-            directoryViewModel.onCreateNameEntered(CreateKind.FILE, bundle.getString(CreateFileDialog.RESULT_NAME).orEmpty())
+        onText(CREATE_FOLDER_REQUEST_KEY) { _, name -> directoryViewModel.onCreateNameEntered(CreateKind.FOLDER, name) }
+        onText(CREATE_FILE_REQUEST_KEY) { _, name -> directoryViewModel.onCreateNameEntered(CreateKind.FILE, name) }
+        onText(COMPRESS_REQUEST_KEY) { _, name -> directoryViewModel.onFileCompressOkPressed(name) }
+        onText(RENAME_REQUEST_KEY) { bundle, name -> directoryViewModel.onRenameOkPressed(bundle.getString(PAYLOAD_PATH).orEmpty(), name) }
+        onText(SEARCH_REQUEST_KEY) { _, query -> directoryViewModel.onFileSearchOkPressed(query) }
+        onText(ADD_FAVORITE_REQUEST_KEY) { bundle, name ->
+            val isSuccess = homeViewModel.onFavoriteAdd(bundle.getString(PAYLOAD_PATH).orEmpty(), name)
+            val messageResId = if (isSuccess) R.string.favorite_created else R.string.unable_to_create_favorite
+            Snackbar.make(binding.root, getString(messageResId), Snackbar.LENGTH_LONG).show()
         }
-        fragmentManager.setFragmentResultListener(CompressDialog.REQUEST_KEY, viewLifecycleOwner) { _, bundle ->
-            directoryViewModel.onFileCompressOkPressed(bundle.getString(CompressDialog.RESULT_NAME).orEmpty())
-        }
-        for (cancelRequestKey in listOf(CompressDialog.CANCEL_REQUEST_KEY, RenameDialog.CANCEL_REQUEST_KEY)) {
-            fragmentManager.setFragmentResultListener(cancelRequestKey, viewLifecycleOwner) { _, _ ->
+        // A cancelled compress or rename tells the view model that the items it was opened for are no longer waiting.
+        for (requestKey in listOf(COMPRESS_REQUEST_KEY, RENAME_REQUEST_KEY)) {
+            fragmentManager.setFragmentResultListener(TextInputDialogFragment.cancelKeyOf(requestKey), viewLifecycleOwner) { _, _ ->
                 directoryViewModel.onSelectionDialogCancelled()
             }
         }
         fragmentManager.setFragmentResultListener(DeleteConfirmationDialog.REQUEST_KEY, viewLifecycleOwner) { _, bundle ->
             directoryViewModel.confirmDelete(DeleteConfirmationDialog.pathsIn(bundle))
-        }
-        fragmentManager.setFragmentResultListener(SearchDialog.REQUEST_KEY, viewLifecycleOwner) { _, bundle ->
-            directoryViewModel.onFileSearchOkPressed(bundle.getString(SearchDialog.RESULT_QUERY).orEmpty())
-        }
-        fragmentManager.setFragmentResultListener(AddFavoriteDialog.REQUEST_KEY, viewLifecycleOwner) { _, bundle ->
-            val favoritePath = bundle.getString(AddFavoriteDialog.RESULT_PATH).orEmpty()
-            val favoriteName = bundle.getString(AddFavoriteDialog.RESULT_NAME).orEmpty()
-            val isSuccess = homeViewModel.onFavoriteAdd(favoritePath, favoriteName)
-            val messageResId = if (isSuccess) R.string.favorite_created else R.string.unable_to_create_favorite
-            Snackbar.make(binding.root, getString(messageResId), Snackbar.LENGTH_LONG).show()
         }
     }
 
@@ -292,4 +339,18 @@ class DirectoryFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+    private companion object {
+        const val RENAME_REQUEST_KEY = "rename"
+        const val CREATE_FOLDER_REQUEST_KEY = "create_folder"
+        const val CREATE_FILE_REQUEST_KEY = "create_file"
+        const val COMPRESS_REQUEST_KEY = "compress"
+        const val SEARCH_REQUEST_KEY = "search"
+        const val ADD_FAVORITE_REQUEST_KEY = "add_favorite"
+        const val PAYLOAD_PATH = "path"
+    }
 }
+
+/** The sentence that names the folders of a shared selection, which are not shared: only files are. */
+internal fun Resources.folderShareWarning(folderNames: List<String>): String =
+    getQuantityString(R.plurals.share_folders_skipped, folderNames.size, folderNames.joinToString(separator = ", "))

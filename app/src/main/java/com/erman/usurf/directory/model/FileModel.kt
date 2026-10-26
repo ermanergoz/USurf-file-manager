@@ -1,8 +1,11 @@
 package com.erman.usurf.directory.model
 
+import android.os.Parcelable
 import java.io.File
 import java.util.Locale
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class FileModel(
     val path: String = "",
     val name: String = "",
@@ -16,7 +19,7 @@ data class FileModel(
     val isHidden: Boolean = false,
     val isInRoot: Boolean = false,
     val isSelected: Boolean = false
-) {
+) : Parcelable {
     /** The extension as the row's badge shows it, upper cased the same in every language. */
     val extensionBadge: String
         get() = extension.uppercase(Locale.ROOT)

@@ -12,7 +12,7 @@ class ManageAllFilesRequestDialog : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog = activity?.let {
         val builder = AlertDialog.Builder(it)
         builder.setMessage(getString(R.string.manage_all_files_message))
-            .setPositiveButton(R.string.ok) { _, _ ->
+            .setPositiveButton(R.string.open_settings) { _, _ ->
                 parentFragmentManager.setFragmentResult(MANAGE_ALL_FILES_REQUEST_KEY, bundleOf())
             }.setNegativeButton(R.string.cancel) { _, _ ->
                 dialog?.cancel()

@@ -65,12 +65,19 @@ class FTPViewModel(private val ftpRepository: FtpRepository, private val ioDispa
         null
     }
 
-    // A failure is shown once, when this screen sees the start fail; an old failure read on opening is not.
+    // A failure is shown once, when this screen sees a start or a stop fail; an old failure read on opening is not.
     private fun onServerStatusChanged(status: FtpServerStatus) {
         val previous: FtpServerStatus? = lastServerStatus
         lastServerStatus = status
         if (status is FtpServerStatus.Failed && previous != null && previous !== status) {
-            _uiEvents.value = Event(FtpUiEvent.ShowStartFailure(status.reason))
+            val failure = if (previous is FtpServerStatus.Stopping) {
+                FtpUiEvent.ShowStopFailure(
+                    status.reason
+                )
+            } else {
+                FtpUiEvent.ShowStartFailure(status.reason)
+            }
+            _uiEvents.value = Event(failure)
         }
         updateState { it.copy(serverStatus = status) }
     }

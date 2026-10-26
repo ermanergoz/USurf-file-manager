@@ -7,7 +7,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.erman.usurf.R
-import com.erman.usurf.dialog.model.DialogArgs
 import com.erman.usurf.directory.model.ArchiveOperations
 import com.erman.usurf.directory.model.DirectoryModel
 import com.erman.usurf.directory.model.FileModel
@@ -27,6 +26,7 @@ private const val KEY_IS_SEARCH_MODE = "isSearchMode"
 private const val KEY_QUERY = "query"
 private const val KEY_PREVIOUS_PATH = "previousPath"
 private const val KEY_PENDING_SELECTION = "pendingSelection"
+private const val KEY_PENDING_ROOT_PATHS = "pendingRootPaths"
 
 /**
  * The folder screen's state and intents. A stopped process gives back the folder or the search on screen and the
@@ -92,25 +92,36 @@ class DirectoryViewModel(
         return if (restored.hasActiveLocation) restored.copy(common = CommonUi(isLoading = true)) else restored
     }
 
-    /** Keeps [selection] as the items the dialog about to open acts on, saved by their paths. */
+    /**
+     * Keeps [selection] as the items the dialog about to open acts on, saved by their paths and with the ones listed
+     * through root named apart, so a restarted process still reaches those through root.
+     */
     private fun holdForDialog(selection: List<FileModel>) {
         pendingItems = selection
         savedStateHandle[KEY_PENDING_SELECTION] = ArrayList(selection.map { it.path })
+        savedStateHandle[KEY_PENDING_ROOT_PATHS] = ArrayList(selection.filter { it.isInRoot }.map { it.path })
     }
 
     /** The paths a dialog was opened for, now taken, so a dialog answers once; null when none is pending. */
-    private fun takePendingPaths(): List<String>? {
+    private fun takePendingPaths(): PendingSelection? {
         val paths = savedStateHandle.get<ArrayList<String>>(KEY_PENDING_SELECTION)
+        val rootPaths = savedStateHandle.get<ArrayList<String>>(KEY_PENDING_ROOT_PATHS).orEmpty()
         savedStateHandle.remove<ArrayList<String>>(KEY_PENDING_SELECTION)
-        return paths?.takeIf { it.isNotEmpty() }
+        savedStateHandle.remove<ArrayList<String>>(KEY_PENDING_ROOT_PATHS)
+        return paths?.takeIf { it.isNotEmpty() }?.let { PendingSelection(it, rootPaths.toSet()) }
     }
 
-    /** The items at [paths]: as the listing found them while the process lives, else read again by the model. */
-    private suspend fun pendingItemsAt(paths: List<String>): List<FileModel> {
-        val items = pendingItems
-        pendingItems = emptyList()
-        return if (items.map { it.path } == paths) items else directoryModel.itemsAt(paths)
+    /** The pending items: as the listing found them while the process lives, else read again by the model. */
+    private suspend fun pendingItemsAt(pending: PendingSelection): List<FileModel> {
+        val items = takeHeldItems()
+        return if (items.map { it.path } == pending.paths) items else itemsAt(pending.paths, pending.rootPaths)
     }
+
+    // Items read again from their paths, those listed through root marked so again.
+    private suspend fun itemsAt(paths: List<String>, rootPaths: Set<String>): List<FileModel> =
+        directoryModel.itemsAt(paths).map { item -> if (item.path in rootPaths) item.copy(isInRoot = true) else item }
+
+    private fun takeHeldItems(): List<FileModel> = pendingItems.also { pendingItems = emptyList() }
 
     private fun requireCurrentState(): DirectoryUiState = _uiState.value ?: DirectoryUiState()
 
@@ -186,7 +197,7 @@ class DirectoryViewModel(
             if (file.isDirectory) {
                 setPath(file.path)
             } else {
-                _uiEvents.value = Event(DirectoryUiEvent.ShowDialog(DialogArgs.OpenFileActivityArgs(file.path)))
+                _uiEvents.value = Event(DirectoryUiEvent.OpenFile(file.path))
             }
         }
     }
@@ -262,7 +273,7 @@ class DirectoryViewModel(
                 if (!requireCurrentState().showsLocationOf(state)) return@launch
                 // A search the user waited for says when it found nothing; a refresh of one leaves the message it follows.
                 if (state.isSearchMode && state.isLoading && files.isEmpty()) {
-                    _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(R.string.empty_folder))
+                    _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(R.string.no_search_results, state.query))
                 }
                 updateState { current ->
                     current.copy(
@@ -288,7 +299,7 @@ class DirectoryViewModel(
         val selection = requireCurrentState().common.selectedFiles
         if (selection.isEmpty()) return
         holdForDialog(selection)
-        _uiEvents.value = Event(DirectoryUiEvent.ShowDialog(DialogArgs.CompressDialogArgs))
+        _uiEvents.value = Event(DirectoryUiEvent.ShowCompressDialog)
     }
 
     fun onSwipeRefresh() {
@@ -297,10 +308,10 @@ class DirectoryViewModel(
     }
 
     fun onFileCompressOkPressed(zipNameWithExtension: String) {
-        val paths = takePendingPaths() ?: return
+        val pending = takePendingPaths() ?: return
         updateState(DirectoryUiState::reset)
         launchAction(ActionType.COMPRESS) {
-            val selection = pendingItemsAt(paths)
+            val selection = pendingItemsAt(pending)
             // The archive is written into the folder of the selection.
             writingTo(listOf(selection.first().folderPath)) { archiveOperations.compressFiles(selection, zipNameWithExtension) }
         }
@@ -315,9 +326,7 @@ class DirectoryViewModel(
 
     fun showFileInformation() {
         val selection = requireNonEmptySelectionAndResetPanel() ?: return
-        selection.forEach { file ->
-            _uiEvents.value = Event(DirectoryUiEvent.ShowDialog(DialogArgs.InformationDialogArgs(file)))
-        }
+        _uiEvents.value = Event(DirectoryUiEvent.ShowInformation(selection))
     }
 
     /** The size of the folder at [path], read when its Information asks for it; empty when it cannot be read. */
@@ -339,8 +348,7 @@ class DirectoryViewModel(
         val selection = requireNonEmptySelectionAndResetPanel() ?: return
         val shareablePaths = selection.filterNot { it.isDirectory }.map { it.path }
         val directoryNames = selection.filter { it.isDirectory }.map { it.name }
-        _uiEvents.value =
-            Event(DirectoryUiEvent.ShowDialog(DialogArgs.ShareActivityArgs(shareablePaths, directoryNames)))
+        _uiEvents.value = Event(DirectoryUiEvent.Share(shareablePaths, directoryNames))
     }
 
     fun toggleMoreMenu() {
@@ -381,20 +389,26 @@ class DirectoryViewModel(
         }
     }
 
-    fun onRenameOkPressed(fileName: String) {
-        val paths = takePendingPaths() ?: return
+    /**
+     * Renames the item at [path], the one the rename dialog was opened for and hands back, to [newName]; the selection
+     * at the time of the answer never counts, so a dialog restored after the process was stopped renames what it named.
+     */
+    fun onRenameOkPressed(path: String, newName: String) {
+        val rootPaths = takePendingPaths()?.rootPaths.orEmpty()
+        val heldItems = takeHeldItems()
+        if (path.isEmpty()) return
         updateState(DirectoryUiState::reset)
         launchAction(ActionType.RENAME) {
-            val fileToRename = pendingItemsAt(paths).last()
-            writingTo(listOf(fileToRename.path)) { directoryModel.rename(fileToRename, fileName) }
+            // The item as the listing found it, while it is still held for the dialog, keeps how it was listed.
+            val fileToRename = heldItems.find { it.path == path } ?: itemsAt(listOf(path), rootPaths).first()
+            writingTo(listOf(fileToRename.path)) { directoryModel.rename(fileToRename, newName) }
         }
     }
 
     fun rename() {
-        val selection = requireCurrentState().common.selectedFiles
-        if (selection.isEmpty()) return
-        holdForDialog(selection)
-        _uiEvents.value = Event(DirectoryUiEvent.ShowDialog(DialogArgs.RenameDialogArgs(selection.last().name)))
+        val file = requireCurrentState().common.selectedFiles.lastOrNull() ?: return
+        holdForDialog(listOf(file))
+        _uiEvents.value = Event(DirectoryUiEvent.ShowRenameDialog(file.path, file.name, file.isDirectory))
     }
 
     /** A compress or rename dialog was cancelled: the items it was opened for are no longer pending. */
@@ -426,12 +440,12 @@ class DirectoryViewModel(
 
     /** Asks for the name of a new folder or file, by [kind]. */
     fun requestCreate(kind: CreateKind) {
-        val dialogArgs =
+        val event =
             when (kind) {
-                CreateKind.FOLDER -> DialogArgs.CreateFolderDialogArgs
-                CreateKind.FILE -> DialogArgs.CreateFileDialogArgs
+                CreateKind.FOLDER -> DirectoryUiEvent.ShowCreateFolderDialog
+                CreateKind.FILE -> DirectoryUiEvent.ShowCreateFileDialog
             }
-        _uiEvents.value = Event(DirectoryUiEvent.ShowDialog(dialogArgs))
+        _uiEvents.value = Event(event)
     }
 
     /** Creates a folder or a file, by [kind], named [name] in the folder on screen. */
@@ -467,13 +481,13 @@ class DirectoryViewModel(
     }
 
     fun deviceWideSearch() {
-        _uiEvents.value = Event(DirectoryUiEvent.ShowDialog(DialogArgs.FileSearchDialogArgs))
+        _uiEvents.value = Event(DirectoryUiEvent.ShowSearchDialog)
     }
 
     fun onFavoriteButtonPressed() {
         val selection = requireNonEmptySelectionAndResetPanel() ?: return
         val file = selection.last()
-        _uiEvents.value = Event(DirectoryUiEvent.ShowDialog(DialogArgs.AddFavoriteDialogArgs(file.path)))
+        _uiEvents.value = Event(DirectoryUiEvent.ShowAddFavoriteDialog(file.path))
     }
 
     // The screen lists its folder when it enters it and after every change it makes; a resume lists nothing again,
@@ -482,3 +496,6 @@ class DirectoryViewModel(
         updateState(DirectoryUiState::resumed)
     }
 }
+
+/** The items a compress or rename dialog was opened for, by path, with the paths of those listed through root. */
+private class PendingSelection(val paths: List<String>, val rootPaths: Set<String>)

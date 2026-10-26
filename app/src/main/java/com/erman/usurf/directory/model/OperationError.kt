@@ -21,7 +21,7 @@ sealed class OperationError(@StringRes val messageResId: Int) {
     data object FolderIntoItself : OperationError(R.string.folder_into_itself)
 
     /** An archive name has no extension to tell its format by. */
-    data object ArchiveExtensionMissing : OperationError(R.string.supported_compression_formats)
+    data object ArchiveExtensionMissing : OperationError(R.string.archive_extension_missing)
 
     /** A move stopped before any of its sources was deleted. */
     data object MoveFailedNothingDeleted : OperationError(R.string.move_failed_nothing_deleted)

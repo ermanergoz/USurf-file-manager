@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.erman.usurf.R
-import com.erman.usurf.dialog.model.DialogArgs
 import com.erman.usurf.home.domain.FavoriteRepository
 import com.erman.usurf.home.model.FavoriteItem
 import com.erman.usurf.home.model.HomeModel
@@ -40,10 +39,9 @@ class HomeViewModel(
     }
 
     fun onStorageButtonClick(path: String) {
-        updateState { it.copy(path = path) }
         _uiEvents.value = Event(HomeUiEvent.NavigateToDirectory(path))
         if (storageAccessPolicy.needsSafGrant(path)) {
-            _uiEvents.value = Event(HomeUiEvent.ShowDialog(DialogArgs.SAFActivityArgs))
+            _uiEvents.value = Event(HomeUiEvent.RequestSafGrant)
         }
     }
 
@@ -60,11 +58,10 @@ class HomeViewModel(
     fun onFavoriteClick(favoritePath: String) {
         if (File(favoritePath).exists()) {
             if (File(favoritePath).isDirectory) {
-                updateState { it.copy(path = favoritePath) }
                 _uiEvents.value =
                     Event(HomeUiEvent.NavigateToDirectory(favoritePath))
             } else {
-                _uiEvents.value = Event(HomeUiEvent.ShowDialog(DialogArgs.OpenFileActivityArgs(favoritePath)))
+                _uiEvents.value = Event(HomeUiEvent.OpenFile(favoritePath))
             }
         } else {
             _uiEvents.value = Event(HomeUiEvent.ShowSnackbar(R.string.invalid_favorite))
@@ -72,12 +69,7 @@ class HomeViewModel(
     }
 
     fun onFavoriteLongClick(favoritePath: String, favoriteName: String): Boolean {
-        _uiEvents.value =
-            Event(
-                HomeUiEvent.ShowDialog(
-                    DialogArgs.FavoriteOptionsDialogArgs(favoritePath, favoriteName)
-                )
-            )
+        _uiEvents.value = Event(HomeUiEvent.ShowFavoriteOptions(favoritePath, favoriteName))
         return true
     }
 
@@ -88,14 +80,6 @@ class HomeViewModel(
         } else {
             _uiEvents.value = Event(HomeUiEvent.ShowSnackbar(R.string.unable_to_delete_favorite))
         }
-    }
-
-    fun setRenameMode() {
-        updateState { it.copy(isRenameMode = true) }
-    }
-
-    fun turnOffRenameMode() {
-        updateState { it.copy(isRenameMode = false) }
     }
 
     fun onRenameFavoriteOkPressed(favoritePath: String, newName: String) {

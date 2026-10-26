@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.PopupMenu
+import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -16,11 +17,8 @@ import com.erman.usurf.R
 import com.erman.usurf.activity.model.ShowDialog
 import com.erman.usurf.databinding.FragmentHomeBinding
 import com.erman.usurf.databinding.StorageButtonBinding
-import com.erman.usurf.dialog.model.DialogArgs
-import com.erman.usurf.dialog.model.FavoriteOptionsDialogListener
-import com.erman.usurf.dialog.model.OnRenameOkPressedListener
-import com.erman.usurf.dialog.ui.FavoriteOptionsDialog
-import com.erman.usurf.dialog.ui.RenameDialog
+import com.erman.usurf.dialog.ui.TextInputDialogFragment
+import com.erman.usurf.dialog.ui.TextInputRequest
 import com.erman.usurf.home.model.HomeStorageButton
 import com.erman.usurf.home.model.StorageAccessFramework
 import com.erman.usurf.home.model.StorageItem
@@ -75,7 +73,9 @@ class HomeFragment : Fragment() {
                 when (event) {
                     is HomeUiEvent.NavigateToDirectory ->
                         findNavController().navigate(MobileNavigationDirections.globalActionNavDirectory(event.path))
-                    is HomeUiEvent.ShowDialog -> handleDialog(event.dialogArgs)
+                    is HomeUiEvent.ShowFavoriteOptions -> showFavoriteOptions(event.path, event.name)
+                    is HomeUiEvent.OpenFile -> openFile(event.path)
+                    HomeUiEvent.RequestSafGrant -> safListener.launchSAF()
                     is HomeUiEvent.ShowSnackbar ->
                         Snackbar.make(binding.root, getString(event.messageResId), Snackbar.LENGTH_LONG).show()
                 }
@@ -126,44 +126,39 @@ class HomeFragment : Fragment() {
         }.show()
     }
 
-    private fun handleDialog(args: DialogArgs) {
-        when (args) {
-            is DialogArgs.OpenFileActivityArgs -> openFile(args.path)
-            is DialogArgs.FavoriteOptionsDialogArgs -> showFavoriteOptionsDialog(args)
-            is DialogArgs.SAFActivityArgs -> safListener.launchSAF()
-            else -> loge("HomeFragment $args")
-        }
+    private fun showFavoriteOptions(favoritePath: String, favoriteName: String) {
+        dialogListener.showDialog(FavoriteOptionsSheet.newInstance(favoritePath, favoriteName))
     }
 
-    private fun showFavoriteOptionsDialog(args: DialogArgs.FavoriteOptionsDialogArgs) {
-        val dialog: FavoriteOptionsDialog = FavoriteOptionsDialog.newInstance(args.favoritePath, args.favoriteName)
-        dialog.listener =
-            object : FavoriteOptionsDialogListener {
-                override fun onRenameButtonClick(path: String, currentName: String) {
-                    homeViewModel.setRenameMode()
-                    val renameDialog: RenameDialog = RenameDialog.newInstance(currentName)
-                    renameDialog.onRenameOkPressedListener =
-                        OnRenameOkPressedListener { newName ->
-                            homeViewModel.onRenameFavoriteOkPressed(path, newName)
-                        }
-                    dialogListener.showDialog(renameDialog)
-                }
+    private fun showRenameFavoriteDialog(path: String, currentName: String) {
+        val request =
+            TextInputRequest(
+                requestKey = RENAME_FAVORITE_REQUEST_KEY,
+                title = R.string.rename,
+                hint = R.string.hint_favorite_name,
+                defaultText = currentName,
+                positiveButton = R.string.rename,
+                validateAsName = true,
+                payload = bundleOf(PAYLOAD_PATH to path)
+            )
+        dialogListener.showDialog(TextInputDialogFragment.newInstance(request))
+    }
 
-                override fun onRename(path: String, newName: String) {
-                    homeViewModel.onRenameFavoriteOkPressed(path, newName)
-                }
-
-                override fun onDelete(path: String) {
-                    homeViewModel.deleteFavorite(path)
-                }
-
-                override fun onDismiss() {
-                    homeViewModel.turnOffRenameMode()
-                }
-
-                override fun getUiState() = homeViewModel.uiState
+    private fun registerDialogResultListeners() {
+        val fragmentManager = requireActivity().supportFragmentManager
+        fragmentManager.setFragmentResultListener(FavoriteOptionsSheet.REQUEST_KEY, viewLifecycleOwner) { _, bundle ->
+            val path = FavoriteOptionsSheet.pathIn(bundle)
+            when (FavoriteOptionsSheet.optionIn(bundle)) {
+                FavoriteOption.OPEN -> homeViewModel.onFavoriteClick(path)
+                // Renaming is a second step, the name dialog, so the options never stay in a rename mode of their own.
+                FavoriteOption.RENAME -> showRenameFavoriteDialog(path, FavoriteOptionsSheet.nameIn(bundle))
+                FavoriteOption.REMOVE -> homeViewModel.deleteFavorite(path)
+                null -> Unit
             }
-        dialogListener.showDialog(dialog)
+        }
+        fragmentManager.setFragmentResultListener(RENAME_FAVORITE_REQUEST_KEY, viewLifecycleOwner) { _, bundle ->
+            homeViewModel.onRenameFavoriteOkPressed(bundle.getString(PAYLOAD_PATH).orEmpty(), TextInputDialogFragment.textIn(bundle))
+        }
     }
 
     private fun openFile(path: String) {
@@ -180,6 +175,7 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        registerDialogResultListeners()
 
         favoriteRecyclerViewAdapter =
             FavoriteRecyclerViewAdapter(
@@ -233,5 +229,10 @@ class HomeFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private companion object {
+        const val RENAME_FAVORITE_REQUEST_KEY = "rename_favorite"
+        const val PAYLOAD_PATH = "path"
     }
 }

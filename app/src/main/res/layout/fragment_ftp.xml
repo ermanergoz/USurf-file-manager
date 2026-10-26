@@ -20,9 +20,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <!-- Takes the first focus, so no field does and the keyboard opens only on a tap in a field. -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:orientation="vertical"
             android:paddingStart="@dimen/horizontal_margin_16"
             android:paddingEnd="@dimen/horizontal_margin_16"
@@ -84,7 +87,7 @@
                     android:layout_marginStart="@dimen/layout_margin_8"
                     android:ellipsize="end"
                     android:singleLine="true"
-                    android:text="@{uiState.isConnectedToWifi ? uiState.displayedUrl : @string/ftp_not_connected_hint}"
+                    android:text="@{uiState.isConnectedToWifi ? (uiState.isAddressAvailable ? uiState.displayedUrl : @string/ftp_address_unavailable) : @string/ftp_not_connected_hint}"
                     android:textColor="@color/sectionHeaderColor"
                     android:textSize="@dimen/text_size_12"
                     app:layout_constraintBottom_toBottomOf="@+id/wifiIcon"
@@ -103,7 +106,7 @@
                     android:onClick="@{() -> viewModel.onCopyUrlClicked()}"
                     android:padding="@dimen/layout_margin_4"
                     android:src="@drawable/ic_copy"
-                    app:tint="@color/colorPrimary"
+                    app:tint="@color/copy_icon_tint"
                     android:visibility="@{uiState.isConnectedToWifi &amp;&amp; uiState.isServerRunning ? View.VISIBLE : View.GONE}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -161,6 +164,7 @@
                     app:endIconContentDescription="@string/copy_password"
                     app:endIconDrawable="@drawable/ic_copy"
                     app:endIconMode="custom"
+                    app:endIconTint="@color/copy_icon_tint"
                     app:endIconOnClickListener="@{() -> viewModel.onCopyPasswordClicked()}"
                     app:errorTextRes="@{uiState.passwordErrorRes}">
 

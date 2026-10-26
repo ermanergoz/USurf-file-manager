@@ -172,13 +172,26 @@ class RootHandler(
         executeRootCommand(RootCommands.delete(source.path), TRANSFER_TIMEOUT_MS)
     }
 
-    fun createFolder(path: String, folderName: String): Boolean = executeRootCommand(RootCommands.createFolder(path, folderName))
+    fun createFolder(path: String, folderName: String): Boolean =
+        executeRootCommand(RootCommands.createFolder(path, folderName)) || refuseIfTaken(File(path, folderName).path)
 
-    fun createFile(path: String, fileName: String): Boolean = executeRootCommand(RootCommands.createFile(path, fileName))
+    fun createFile(path: String, fileName: String): Boolean =
+        executeRootCommand(RootCommands.createFile(path, fileName)) || refuseIfTaken(File(path, fileName).path)
 
     fun renameFile(selectedFile: FileModel, newName: String): Boolean {
         val newPath = "${getParentPath(selectedFile)}${File.separator}$newName"
-        return executeRootCommand(RootCommands.rename(selectedFile.path, newPath))
+        return executeRootCommand(RootCommands.rename(selectedFile.path, newPath)) || refuseIfTaken(newPath)
+    }
+
+    /**
+     * After a write that did not succeed: throws [OperationError.AlreadyExists] when something is at [target], so a
+     * taken name is reported as one; otherwise false, a failure with no reason of its own.
+     */
+    private fun refuseIfTaken(target: String): Boolean {
+        if (run(RootCommands.isTaken(target)) != null) {
+            throw FileOperationException("An item with this name already exists", OperationError.AlreadyExists)
+        }
+        return false
     }
 
     /**
@@ -216,10 +229,12 @@ class RootHandler(
 
     // Each item stops at a name already taken in the destination, so neither a copy nor a move replaces anything there.
     fun copyFile(selectedDirectories: List<FileModel>, copyOrMoveDestination: String): Boolean = selectedDirectories.all { source ->
-        executeRootCommand(RootCommands.copyInto(source.path, copyOrMoveDestination), TRANSFER_TIMEOUT_MS)
+        executeRootCommand(RootCommands.copyInto(source.path, copyOrMoveDestination), TRANSFER_TIMEOUT_MS) ||
+            refuseIfTaken(File(copyOrMoveDestination, File(source.path).name).path)
     }
 
     fun moveFile(selectedDirectories: List<FileModel>, copyOrMoveDestination: String): Boolean = selectedDirectories.all { source ->
-        executeRootCommand(RootCommands.moveInto(source.path, copyOrMoveDestination), TRANSFER_TIMEOUT_MS)
+        executeRootCommand(RootCommands.moveInto(source.path, copyOrMoveDestination), TRANSFER_TIMEOUT_MS) ||
+            refuseIfTaken(File(copyOrMoveDestination, File(source.path).name).path)
     }
 }
