@@ -25,7 +25,8 @@ class FtpModel(private val context: Context) {
                 !it.isLoopbackAddress && it is Inet4Address
             }?.let { ip = it.hostAddress?.toString() ?: "" }
         }
-        return "$URL_SCHEME$ip"
+        // With no IPv4 address there is nothing a client could connect to.
+        return if (ip.isEmpty()) "" else "$URL_SCHEME$ip"
     }
 
     fun getStorageDisplayName(path: String): String {

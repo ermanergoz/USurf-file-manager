@@ -108,7 +108,7 @@
     <string name="favorite_renamed">Favori yeniden isimlendirildi</string>
     <string name="unable_to_rename_favorite">Favori yeniden isimlendirilemedi</string>
     <string name="invalid_favorite">Bu klasör artık yok. Favoriyi kaldırın</string>
-    <string name="ftp_server_is_running">Ftp Sunucusu çalışıyor</string>
+    <string name="ftp_server_is_running">FTP sunucusu çalışıyor</string>
     <string name="ftp_notification_channel_name">FTPNotificationChannel</string>
     <string name="ftp_notification_channel_description">FTP notification channel</string>
     <string name="drawer_open">Menüyü aç</string>
@@ -144,7 +144,7 @@
     <string name="ftp_section_settings">Sunucu Ayarları</string>
     <string name="ftp_section_storage">Depolama Yolu</string>
     <string name="ftp_url_copied">URL panoya kopyalandı</string>
-    <string name="ftp_not_connected_hint">FTP sunucusunu başlatmak için WiFi\'ye bağlanın</string>
+    <string name="ftp_not_connected_hint">Sunucuyu başlatmak için Wi-Fi\'ye bağlanın</string>
     <string name="ftp_server_active">Sunucu çalışıyor</string>
     <string name="ftp_server_starting">Başlatılıyor…</string>
     <string name="ftp_server_stopping">Durduruluyor…</string>
@@ -161,7 +161,7 @@
     <string name="copy_password">Şifreyi kopyala</string>
     <string name="ftp_password_copied">Şifre panoya kopyalandı</string>
     <string name="ftp_allow_uploads_summary">Açıkken bağlanan cihazlar paylaşılan depolamada dosya ekleyebilir, değiştirebilir ve silebilir</string>
-    <string name="wifi_icon">WiFi durum simgesi</string>
+    <string name="wifi_icon">Wi-Fi durumu</string>
     <string name="copy_url">URL\'yi kopyala</string>
     <string name="show_thumbnails">Küçük resimleri göster</string>
     <string name="show_thumbnails_summary">Resim ve video önizlemelerini göster</string>
@@ -216,4 +216,6 @@
     <string name="no_search_results">\"%1$s\" için sonuç yok</string>
     <string name="choose_sd_card">SD kartı seç</string>
     <string name="open_settings">Ayarları aç</string>
+    <string name="ftp_server_stop_failed">Sunucu durdurulamadı: %1$s</string>
+    <string name="ftp_address_unavailable">Adres henüz alınamadı</string>
 </resources>

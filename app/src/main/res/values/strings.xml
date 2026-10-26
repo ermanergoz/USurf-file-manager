@@ -108,7 +108,7 @@
     <string name="favorite_renamed">Favorite renamed</string>
     <string name="unable_to_rename_favorite">Could not rename the favorite</string>
     <string name="invalid_favorite">This folder no longer exists. Remove the favorite</string>
-    <string name="ftp_server_is_running">Ftp Server is running</string>
+    <string name="ftp_server_is_running">FTP server is running</string>
     <string name="ftp_notification_channel_name">FTPNotificationChannel</string>
     <string name="ftp_notification_channel_description">FTP notification channel</string>
     <string name="drawer_open">Drawer open</string>
@@ -150,7 +150,7 @@
     <string name="ftp_section_settings">Server Settings</string>
     <string name="ftp_section_storage">Storage Path</string>
     <string name="ftp_url_copied">URL copied to clipboard</string>
-    <string name="ftp_not_connected_hint">Connect to WiFi to start FTP server</string>
+    <string name="ftp_not_connected_hint">Connect to Wi-Fi to start the server</string>
     <string name="ftp_server_active">Server running</string>
     <string name="ftp_server_starting">Starting…</string>
     <string name="ftp_server_stopping">Stopping…</string>
@@ -167,7 +167,7 @@
     <string name="copy_password">Copy password</string>
     <string name="ftp_password_copied">Password copied to clipboard</string>
     <string name="ftp_allow_uploads_summary">When on, connected devices can add, change and delete files in the shared storage</string>
-    <string name="wifi_icon">WiFi status icon</string>
+    <string name="wifi_icon">Wi-Fi status</string>
     <string name="copy_url">Copy URL</string>
     <string name="show_thumbnails">Show thumbnails</string>
     <string name="show_thumbnails_summary">Show image and video previews</string>
@@ -222,4 +222,6 @@
     <string name="no_search_results">No results for \"%1$s\"</string>
     <string name="choose_sd_card">Choose SD card</string>
     <string name="open_settings">Open settings</string>
+    <string name="ftp_server_stop_failed">Could not stop the server: %1$s</string>
+    <string name="ftp_address_unavailable">Address not available yet</string>
 </resources>

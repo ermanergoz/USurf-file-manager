@@ -68,6 +68,10 @@ data class FtpUiState(
                 if (isConnectedToWifi) R.string.connected else R.string.no_connection
         }
 
+    /** Whether an address was read for this device; without one the idle screen says it is not available yet. */
+    val isAddressAvailable: Boolean
+        get() = displayedUrl.isNotEmpty()
+
     /** The address a client connects to: with the port while the server runs. */
     val displayedUrl: String
         get() = (serverStatus as? FtpServerStatus.Running)?.url ?: url
@@ -90,4 +94,6 @@ sealed class FtpUiEvent {
 
     data class CopyPassword(val password: String) : FtpUiEvent()
     data class ShowStartFailure(val reason: String) : FtpUiEvent()
+
+    data class ShowStopFailure(val reason: String) : FtpUiEvent()
 }
