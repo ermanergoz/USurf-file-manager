@@ -7,12 +7,12 @@ import androidx.lifecycle.viewModelScope
 import com.erman.usurf.R
 import com.erman.usurf.home.domain.FavoriteRepository
 import com.erman.usurf.home.model.FavoriteItem
+import com.erman.usurf.home.model.FavoriteKind
 import com.erman.usurf.home.model.HomeModel
 import com.erman.usurf.storage.domain.StorageAccessPolicy
 import com.erman.usurf.storage.domain.StorageDirectoriesSource
 import com.erman.usurf.utils.Event
 import com.erman.usurf.utils.logi
-import java.io.File
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -57,16 +57,25 @@ class HomeViewModel(
         return favoriteRepository.addFavorite(path, name)
     }
 
-    fun onFavoriteClick(favoritePath: String) {
-        if (File(favoritePath).exists()) {
-            if (File(favoritePath).isDirectory) {
-                _uiEvents.value =
-                    Event(HomeUiEvent.NavigateToDirectory(favoritePath))
-            } else {
-                _uiEvents.value = Event(HomeUiEvent.OpenFile(favoritePath))
-            }
-        } else {
+    // The repository read what the path holds when it listed the favourites, so this needs no file system call.
+    fun onFavoriteClick(item: FavoriteItem) {
+        _uiEvents.value =
+            Event(
+                when (item.kind) {
+                    FavoriteKind.FOLDER -> HomeUiEvent.NavigateToDirectory(item.path)
+                    FavoriteKind.FILE -> HomeUiEvent.OpenFile(item.path)
+                    FavoriteKind.MISSING -> HomeUiEvent.ShowSnackbar(R.string.invalid_favorite)
+                }
+            )
+    }
+
+    /** Open, chosen in the options of the favourite at [path]: as a tap on it; one no longer listed reads as missing. */
+    fun onFavoriteOpenChosen(path: String) {
+        val item: FavoriteItem? = favorites.value?.firstOrNull { it.path == path }
+        if (item == null) {
             _uiEvents.value = Event(HomeUiEvent.ShowSnackbar(R.string.invalid_favorite))
+        } else {
+            onFavoriteClick(item)
         }
     }
 

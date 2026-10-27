@@ -21,7 +21,7 @@
         android:clickable="true"
         android:focusable="true"
         android:gravity="center"
-        android:onClick="@{() -> listener.onFavoriteClick(favoriteItem.path)}"
+        android:onClick="@{() -> listener.onFavoriteClick(favoriteItem)}"
         android:onLongClick="@{() -> listener.onFavoriteLongClick(favoriteItem.path, favoriteItem.name)}"
         android:orientation="vertical"
         android:padding="@dimen/layout_margin_8">

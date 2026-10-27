@@ -113,7 +113,7 @@ val appModule =
         viewModel { DirectoryViewModel(get(), get(), get(), get(), get()) }
 
         single { HomeModel(get()) }
-        single<FavoriteRepository> { FavoriteRepositoryImpl(get(), get()) }
+        single<FavoriteRepository> { FavoriteRepositoryImpl(get(), get(), get(named(IO_DISPATCHER))) }
         viewModel { HomeViewModel(get(), get(), get(), get(), get(named(IO_DISPATCHER))) }
 
         single { FtpModel(get()) }

@@ -50,9 +50,8 @@ class FavoriteRecyclerViewAdapter(private val listener: FavoriteItemListener) :
                 oldList = favorites,
                 newList = newFavorites,
                 areItemsTheSame = { oldItem, newItem -> oldItem.id == newItem.id },
-                areContentsTheSame = { oldItem, newItem ->
-                    oldItem.name == newItem.name && oldItem.path == newItem.path
-                }
+                // The kind counts too: a row binds the item its tap acts on.
+                areContentsTheSame = { oldItem, newItem -> oldItem == newItem }
             )
     }
 }

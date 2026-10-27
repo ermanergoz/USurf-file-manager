@@ -19,6 +19,7 @@ import com.erman.usurf.databinding.FragmentHomeBinding
 import com.erman.usurf.databinding.StorageButtonBinding
 import com.erman.usurf.dialog.ui.TextInputDialogFragment
 import com.erman.usurf.dialog.ui.TextInputRequest
+import com.erman.usurf.home.model.FavoriteItem
 import com.erman.usurf.home.model.HomeStorageButton
 import com.erman.usurf.home.model.StorageAccessFramework
 import com.erman.usurf.home.model.StorageItem
@@ -56,7 +57,7 @@ class HomeFragment : Fragment() {
     private fun setupStorageButtonsObserver() {
         var lastRenderedStorageItems: List<StorageItem>? = null
         homeViewModel.uiState.observe(viewLifecycleOwner) { state ->
-            if (state.storageItems !== lastRenderedStorageItems) {
+            if (state.storageItems != lastRenderedStorageItems) {
                 lastRenderedStorageItems = state.storageItems
                 binding.storageUsageBarLayout.removeAllViews()
                 if (state.storageItems.isNotEmpty()) {
@@ -149,7 +150,7 @@ class HomeFragment : Fragment() {
         fragmentManager.setFragmentResultListener(FavoriteOptionsSheet.REQUEST_KEY, viewLifecycleOwner) { _, bundle ->
             val path = FavoriteOptionsSheet.pathIn(bundle)
             when (FavoriteOptionsSheet.optionIn(bundle)) {
-                FavoriteOption.OPEN -> homeViewModel.onFavoriteClick(path)
+                FavoriteOption.OPEN -> homeViewModel.onFavoriteOpenChosen(path)
                 // Renaming is a second step, the name dialog, so the options never stay in a rename mode of their own.
                 FavoriteOption.RENAME -> showRenameFavoriteDialog(path, FavoriteOptionsSheet.nameIn(bundle))
                 FavoriteOption.REMOVE -> homeViewModel.deleteFavorite(path)
@@ -180,7 +181,7 @@ class HomeFragment : Fragment() {
         favoriteRecyclerViewAdapter =
             FavoriteRecyclerViewAdapter(
                 object : FavoriteItemListener {
-                    override fun onFavoriteClick(path: String) = homeViewModel.onFavoriteClick(path)
+                    override fun onFavoriteClick(item: FavoriteItem) = homeViewModel.onFavoriteClick(item)
 
                     override fun onFavoriteLongClick(path: String, name: String): Boolean = homeViewModel.onFavoriteLongClick(path, name)
                 }
@@ -200,19 +201,10 @@ class HomeFragment : Fragment() {
         binding.favoriteRecyclerView.visibility = if (isEmpty) View.GONE else View.VISIBLE
     }
 
-    private fun refreshStorageButtons() {
-        binding.storageUsageBarLayout.removeAllViews()
-        homeViewModel.refreshStorageItems()
-    }
-
+    // The cards show the space used now; the state changes, and the cards are built again, only when it differs.
     override fun onResume() {
         super.onResume()
-        refreshStorageButtons()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        binding.storageUsageBarLayout.removeAllViews()
+        homeViewModel.refreshStorageItems()
     }
 
     override fun onAttach(context: Context) {
