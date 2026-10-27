@@ -253,8 +253,7 @@
                 <RadioGroup
                     android:id="@+id/radioButtonGroup"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:onCheckedChanged="@{(group, checkedId) -> viewModel.onFtpPathSelected(checkedId)}" />
+                    android:layout_height="wrap_content" />
 
             </LinearLayout>
 

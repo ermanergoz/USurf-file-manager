@@ -4,6 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.distinctUntilChanged
+import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import com.erman.usurf.ftp.domain.FtpRepository
 import com.erman.usurf.ftp.domain.FtpServerStatus
@@ -40,6 +42,9 @@ class FTPViewModel(private val ftpRepository: FtpRepository, private val ioDispa
             }
         }
     val uiState: LiveData<FtpUiState> = _uiState
+
+    /** The storage paths the radio group lists: emitted only when they change, never on a keystroke in a field. */
+    val storagePaths: LiveData<List<StoragePathItem>> = _uiState.map { it.storagePaths }.distinctUntilChanged()
 
     init {
         loadServerDetails()
@@ -146,9 +151,8 @@ class FTPViewModel(private val ftpRepository: FtpRepository, private val ioDispa
         updateState { it.copy(allowUploads = allowed) }
     }
 
-    fun onFtpPathSelected(checkedId: Int) {
-        val paths: List<StoragePathItem> = _uiState.value?.storagePaths ?: emptyList()
-        ftpRepository.editFtpPath(paths.elementAtOrNull(checkedId)?.path)
+    fun onFtpPathSelected(path: String) {
+        ftpRepository.editFtpPath(path)
     }
 
     fun getFtpSelectedPath(): String? = ftpRepository.getFtpPath()

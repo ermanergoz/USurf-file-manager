@@ -29,6 +29,9 @@ class FTPFragment : Fragment() {
     private var _binding: FragmentFtpBinding? = null
     private val binding get() = _binding!!
 
+    // The radio buttons' generated view ids and the paths they stand for: no view id reaches the view model.
+    private val storagePathsByViewId = mutableMapOf<Int, String>()
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_ftp, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
@@ -36,9 +39,10 @@ class FTPFragment : Fragment() {
         binding.uiState = ftpViewModel.uiState.value ?: FtpUiState()
         ftpViewModel.uiState.observe(viewLifecycleOwner) { state ->
             binding.uiState = state
-            state?.storagePaths?.let { items ->
-                updateStorageRadioButtons(items)
-            }
+        }
+        ftpViewModel.storagePaths.observe(viewLifecycleOwner, ::updateStorageRadioButtons)
+        binding.radioButtonGroup.setOnCheckedChangeListener { _, checkedId ->
+            storagePathsByViewId[checkedId]?.let(ftpViewModel::onFtpPathSelected)
         }
         ftpViewModel.uiEvents.observe(
             viewLifecycleOwner,
@@ -60,12 +64,14 @@ class FTPFragment : Fragment() {
 
     private fun updateStorageRadioButtons(items: List<StoragePathItem>) {
         binding.radioButtonGroup.removeAllViews()
+        storagePathsByViewId.clear()
         val selectedPath: String? = ftpViewModel.getFtpSelectedPath()
         val density: Float = resources.displayMetrics.density
-        items.forEachIndexed { index, item ->
+        items.forEach { item ->
             val radioButton = RadioButton(context)
             radioButton.text = item.displayName
-            radioButton.id = index
+            radioButton.id = View.generateViewId()
+            storagePathsByViewId[radioButton.id] = item.path
             radioButton.setPadding(
                 (RADIO_BUTTON_PADDING_START * density).toInt(),
                 radioButton.paddingTop,
