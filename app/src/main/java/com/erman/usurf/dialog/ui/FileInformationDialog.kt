@@ -86,6 +86,8 @@ class FileInformationDialog : DialogFragment() {
     }
 
     companion object {
+        const val TAG = "file_information"
+
         fun newInstance(files: List<FileModel>): FileInformationDialog = FileInformationDialog().apply {
             arguments = bundleOf(ARG_FILES to ArrayList(files))
         }

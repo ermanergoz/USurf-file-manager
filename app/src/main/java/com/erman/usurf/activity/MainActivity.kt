@@ -11,8 +11,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
-import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.DialogFragment
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.findNavController
@@ -22,13 +20,11 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.window.layout.WindowMetricsCalculator
 import com.erman.usurf.MobileNavigationDirections
 import com.erman.usurf.R
-import com.erman.usurf.activity.model.ShowDialog
 import com.erman.usurf.databinding.ActivityMainBinding
 import com.erman.usurf.directory.ui.DirectoryViewModel
 import com.erman.usurf.home.model.HomeStorageButton
-import com.erman.usurf.home.model.StorageAccessFramework
+import com.erman.usurf.utils.EventObserver
 import com.erman.usurf.utils.KEY_INTENT_IS_FTP_NOTIFICATION_CLICKED
-import com.google.android.material.navigation.NavigationView
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 private const val INTENT_IS_FTP_NOTIFICATION_CLICKED_DEF_VAL: Boolean = false
@@ -38,15 +34,26 @@ private const val STORAGE_MENU_ITEM_ORDER_FIRST: Int = 0
 
 class MainActivity :
     AppCompatActivity(),
-    ShowDialog,
-    StorageAccessFramework,
     HomeStorageButton {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
     private var destination: NavDirections? = null
     private val mainViewModel by viewModel<MainViewModel>()
+
+    // Held here only to ask whether leaving would stop an operation, and to retry the write a new grant was asked for.
     private val directoryViewModel by viewModel<DirectoryViewModel>()
     private lateinit var permissionHandler: PermissionHandler
+
+    // Added while the drawer is open, after any screen's own handler, so Back closes the drawer before a screen sees it.
+    private val drawerBackCallback =
+        object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                binding.drawerLayout.closeDrawers()
+            }
+        }
+
+    private val navController: NavController
+        get() = findNavController(R.id.nav_host_fragment)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,58 +63,49 @@ class MainActivity :
                 directoryViewModel.onSafAccessGranted()
             }
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-        setContentView(binding.root)
         setSupportActionBar(binding.incAppBarMain.toolbar)
         permissionHandler.rootView = binding.root
 
-        val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
-        val navView: NavigationView = findViewById(R.id.nav_view)
-        val navController: NavController = findNavController(R.id.nav_host_fragment)
-
-        setupNavDrawer(navView, navController, drawerLayout)
-        mainViewModel.storagePaths.observe(this) { paths: List<String> ->
-            populateStorageDrawer(navView, drawerLayout, paths)
-        }
+        configureAppBar()
+        bindDrawerItems()
+        installDrawerToggle()
+        observeViewModel()
         permissionHandler.requestInitialPermissions()
 
         if (savedInstanceState == null) {
-            handleFtpNotificationIntent(intent, navController)
+            handleFtpNotificationIntent(intent)
         }
-
         onBackPressedDispatcher.addCallback(
             this,
             object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-                        drawerLayout.closeDrawers()
-                        return
-                    }
-                    if (navController.currentDestination?.id == R.id.nav_directory) {
-                        if (directoryViewModel.onBackPressed()) {
-                            return
-                        }
-                        if (navController.popBackStack()) {
-                            return
-                        }
-                        exitOrConfirm()
-                        return
-                    }
-                    if (navController.popBackStack()) {
-                        return
-                    }
-                    exitOrConfirm()
-                }
+                override fun handleOnBackPressed() = handleBackPressed()
             }
         )
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // A drawer the system reopened after a recreation gets its Back handler too.
+        if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) onDrawerOpenChanged(isOpen = true)
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        handleFtpNotificationIntent(intent, findNavController(R.id.nav_host_fragment))
+        handleFtpNotificationIntent(intent)
     }
 
-    private fun handleFtpNotificationIntent(intent: Intent, navController: NavController) {
+    // What no screen used: the drawer closes, the screen below comes back, or the app is left.
+    private fun handleBackPressed() {
+        if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            binding.drawerLayout.closeDrawers()
+            return
+        }
+        if (navController.popBackStack()) return
+        exitOrConfirm()
+    }
+
+    private fun handleFtpNotificationIntent(intent: Intent) {
         val fromFtpNotification =
             intent.getBooleanExtra(
                 KEY_INTENT_IS_FTP_NOTIFICATION_CLICKED,
@@ -119,7 +117,7 @@ class MainActivity :
         }
     }
 
-    private fun setupNavDrawer(navView: NavigationView, navController: NavController, drawerLayout: DrawerLayout) {
+    private fun configureAppBar() {
         appBarConfiguration =
             AppBarConfiguration(
                 setOf(
@@ -129,31 +127,42 @@ class MainActivity :
                     R.id.nav_ftp,
                     R.id.nav_info
                 ),
-                drawerLayout
+                binding.drawerLayout
             )
         setupActionBarWithNavController(navController, appBarConfiguration)
+    }
 
-        navView.setNavigationItemSelectedListener {
+    // A destination is opened once the drawer has closed, so the drawer does not slide over the new screen.
+    private fun bindDrawerItems() {
+        binding.navView.setNavigationItemSelectedListener {
             when (it.itemId) {
                 R.id.nav_home -> destination = MobileNavigationDirections.globalActionNavHome()
                 R.id.nav_preferences -> destination = MobileNavigationDirections.globalActionNavPreferences()
                 R.id.nav_ftp -> destination = MobileNavigationDirections.globalActionToNavFtp()
                 R.id.nav_info -> destination = MobileNavigationDirections.globalActionNavInfo()
             }
-            drawerLayout.closeDrawers()
+            binding.drawerLayout.closeDrawers()
             true
         }
+    }
 
+    private fun installDrawerToggle() {
         val drawerToggle: ActionBarDrawerToggle =
             object : ActionBarDrawerToggle(
                 this,
-                drawerLayout,
+                binding.drawerLayout,
                 binding.incAppBarMain.toolbar,
                 R.string.drawer_open,
                 R.string.drawer_close
             ) {
+                override fun onDrawerOpened(drawerView: View) {
+                    super.onDrawerOpened(drawerView)
+                    onDrawerOpenChanged(isOpen = true)
+                }
+
                 override fun onDrawerClosed(view: View) {
                     super.onDrawerClosed(view)
+                    onDrawerOpenChanged(isOpen = false)
                     destination?.let {
                         navController.navigate(it)
                         destination = null
@@ -161,39 +170,43 @@ class MainActivity :
                 }
             }
         drawerToggle.isDrawerIndicatorEnabled = true
-        drawerLayout.addDrawerListener(drawerToggle)
+        binding.drawerLayout.addDrawerListener(drawerToggle)
         drawerToggle.syncState()
     }
 
-    private fun populateStorageDrawer(navView: NavigationView, drawerLayout: DrawerLayout, paths: List<String>) {
-        navView.menu.removeGroup(R.id.storage)
+    private fun onDrawerOpenChanged(isOpen: Boolean) {
+        drawerBackCallback.remove()
+        if (isOpen) onBackPressedDispatcher.addCallback(this, drawerBackCallback)
+    }
+
+    private fun observeViewModel() {
+        mainViewModel.storagePaths.observe(this, ::populateStorageDrawer)
+        mainViewModel.uiEvents.observe(
+            this,
+            EventObserver { event ->
+                when (event) {
+                    MainUiEvent.LaunchSafPicker -> permissionHandler.requestSafAccess()
+                }
+            }
+        )
+    }
+
+    private fun populateStorageDrawer(paths: List<String>) {
+        val menu: Menu = binding.navView.menu
+        menu.removeGroup(R.id.storage)
         for (path in paths) {
-            val storage = navView.menu.add(R.id.storage, Menu.NONE, STORAGE_MENU_ITEM_ORDER_FIRST, path)
+            val storage = menu.add(R.id.storage, Menu.NONE, STORAGE_MENU_ITEM_ORDER_FIRST, path)
             storage.icon = ContextCompat.getDrawable(this, R.drawable.ic_hdd)
             storage.setOnMenuItemClickListener {
-                val result = mainViewModel.onStorageSelected(path)
                 destination = MobileNavigationDirections.globalActionNavDirectory(path)
-                if (result.showSafDialog) {
-                    launchSAF()
-                }
-                drawerLayout.closeDrawers()
+                mainViewModel.onStorageSelected(path)
+                binding.drawerLayout.closeDrawers()
                 true
             }
         }
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        val navController: NavController = findNavController(R.id.nav_host_fragment)
-        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
-    }
-
-    override fun showDialog(dialog: DialogFragment) {
-        dialog.show(supportFragmentManager, "")
-    }
-
-    override fun launchSAF() {
-        permissionHandler.requestSafAccess()
-    }
+    override fun onSupportNavigateUp(): Boolean = navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
 
     override fun autoSizeButtonDimensions(storageButtonCount: Int, sideMargin: Int, containerHorizontalPadding: Int): Pair<Int, Int> {
         val windowMetrics = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(this)

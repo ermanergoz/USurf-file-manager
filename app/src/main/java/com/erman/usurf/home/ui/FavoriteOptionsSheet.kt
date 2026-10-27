@@ -49,6 +49,7 @@ class FavoriteOptionsSheet : BottomSheetDialogFragment() {
     }
 
     companion object {
+        const val TAG = "favorite_options"
         const val REQUEST_KEY = "favorite_options"
 
         fun newInstance(path: String, name: String): FavoriteOptionsSheet = FavoriteOptionsSheet().apply {

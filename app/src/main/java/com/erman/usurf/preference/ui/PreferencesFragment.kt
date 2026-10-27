@@ -12,7 +12,6 @@ import androidx.preference.PreferenceGroup
 import androidx.preference.SwitchPreference
 import com.erman.usurf.R
 import com.erman.usurf.activity.MainViewModel
-import com.erman.usurf.home.model.StorageAccessFramework
 import com.erman.usurf.preference.utils.KEY_PREFERENCE_ROOT_ACCESS
 import com.erman.usurf.preference.utils.KEY_PREFERENCE_SD_CARD_ACCESS
 import com.erman.usurf.utils.EventObserver
@@ -43,7 +42,7 @@ class PreferencesFragment : PreferenceFragmentCompat() {
         findPreference<Preference>(KEY_PREFERENCE_SD_CARD_ACCESS)?.apply {
             isVisible = mainViewModel.canOfferSafGrant()
             setOnPreferenceClickListener {
-                (activity as? StorageAccessFramework)?.launchSAF()
+                mainViewModel.requestSafAccess()
                 true
             }
         }

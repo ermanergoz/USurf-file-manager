@@ -76,7 +76,9 @@ enum class CreateKind(val actionType: ActionType) {
 /**
  * What the folder screen is asked to do once. A dialog or navigation event is emitted only synchronously, from the user
  * intent that asks for it; an operation that completes later emits [ShowSnackbar] or a new state, never a dialog, so
- * no dialog opens on a screen the user has left or over one the user opened since.
+ * no dialog opens on a screen the user has left or over one the user opened since. The one exception is
+ * [RequestSafGrant], the permission request: a write the SD card refuses asks for the grant it needs and is retried
+ * once after it, so the request continues the user's own intent.
  */
 sealed class DirectoryUiEvent {
     /** Show the message [messageResId], its one placeholder, when it has one, filled with [formatArg]. */

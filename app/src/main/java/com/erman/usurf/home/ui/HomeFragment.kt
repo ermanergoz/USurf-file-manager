@@ -14,20 +14,21 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.erman.usurf.MobileNavigationDirections
 import com.erman.usurf.R
-import com.erman.usurf.activity.model.ShowDialog
+import com.erman.usurf.activity.MainViewModel
 import com.erman.usurf.databinding.FragmentHomeBinding
 import com.erman.usurf.databinding.StorageButtonBinding
 import com.erman.usurf.dialog.ui.TextInputDialogFragment
 import com.erman.usurf.dialog.ui.TextInputRequest
 import com.erman.usurf.home.model.FavoriteItem
 import com.erman.usurf.home.model.HomeStorageButton
-import com.erman.usurf.home.model.StorageAccessFramework
 import com.erman.usurf.home.model.StorageItem
 import com.erman.usurf.utils.EventObserver
 import com.erman.usurf.utils.FileOpenUtils
 import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
+import com.erman.usurf.utils.showOnce
 import com.google.android.material.snackbar.Snackbar
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 private const val STORAGE_BUTTON_HORIZONTAL_MARGIN: Int = 4
@@ -36,9 +37,8 @@ private const val FAVORITE_GRID_SPAN_COUNT: Int = 2
 
 class HomeFragment : Fragment() {
     private val homeViewModel by sharedViewModel<HomeViewModel>()
+    private val mainViewModel by activityViewModel<MainViewModel>()
     private lateinit var favoriteRecyclerViewAdapter: FavoriteRecyclerViewAdapter
-    private lateinit var dialogListener: ShowDialog
-    private lateinit var safListener: StorageAccessFramework
     private lateinit var storageButtonDimensions: HomeStorageButton
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
@@ -76,7 +76,7 @@ class HomeFragment : Fragment() {
                         findNavController().navigate(MobileNavigationDirections.globalActionNavDirectory(event.path))
                     is HomeUiEvent.ShowFavoriteOptions -> showFavoriteOptions(event.path, event.name)
                     is HomeUiEvent.OpenFile -> openFile(event.path)
-                    HomeUiEvent.RequestSafGrant -> safListener.launchSAF()
+                    HomeUiEvent.RequestSafGrant -> mainViewModel.requestSafAccess()
                     is HomeUiEvent.ShowSnackbar ->
                         Snackbar.make(binding.root, getString(event.messageResId), Snackbar.LENGTH_LONG).show()
                 }
@@ -121,14 +121,14 @@ class HomeFragment : Fragment() {
         PopupMenu(requireContext(), card).apply {
             menu.add(R.string.grant_sd_card_access)
             setOnMenuItemClickListener {
-                safListener.launchSAF()
+                mainViewModel.requestSafAccess()
                 true
             }
         }.show()
     }
 
     private fun showFavoriteOptions(favoritePath: String, favoriteName: String) {
-        dialogListener.showDialog(FavoriteOptionsSheet.newInstance(favoritePath, favoriteName))
+        showOnce(childFragmentManager, FavoriteOptionsSheet.newInstance(favoritePath, favoriteName), FavoriteOptionsSheet.TAG)
     }
 
     private fun showRenameFavoriteDialog(path: String, currentName: String) {
@@ -142,11 +142,12 @@ class HomeFragment : Fragment() {
                 validateAsName = true,
                 payload = bundleOf(PAYLOAD_PATH to path)
             )
-        dialogListener.showDialog(TextInputDialogFragment.newInstance(request))
+        showOnce(childFragmentManager, TextInputDialogFragment.newInstance(request), TextInputDialogFragment.TAG)
     }
 
     private fun registerDialogResultListeners() {
-        val fragmentManager = requireActivity().supportFragmentManager
+        // This screen's own fragment manager, the one its dialogs are shown on.
+        val fragmentManager = childFragmentManager
         fragmentManager.setFragmentResultListener(FavoriteOptionsSheet.REQUEST_KEY, viewLifecycleOwner) { _, bundle ->
             val path = FavoriteOptionsSheet.pathIn(bundle)
             when (FavoriteOptionsSheet.optionIn(bundle)) {
@@ -210,8 +211,6 @@ class HomeFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         try {
-            dialogListener = context as ShowDialog
-            safListener = context as StorageAccessFramework
             storageButtonDimensions = context as HomeStorageButton
         } catch (err: ClassCastException) {
             loge(err.localizedMessage ?: UNKNOWN_ERROR)

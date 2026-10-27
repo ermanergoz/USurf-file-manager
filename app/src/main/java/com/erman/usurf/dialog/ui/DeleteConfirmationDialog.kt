@@ -48,6 +48,7 @@ class DeleteConfirmationDialog : DialogFragment() {
     }
 
     companion object {
+        const val TAG = "delete_confirmation"
         const val REQUEST_KEY = "delete_confirmation_request"
         const val RESULT_PATHS = "result_paths"
 
