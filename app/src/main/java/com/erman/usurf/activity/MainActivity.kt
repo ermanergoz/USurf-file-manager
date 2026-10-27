@@ -17,24 +17,18 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.window.layout.WindowMetricsCalculator
 import com.erman.usurf.MobileNavigationDirections
 import com.erman.usurf.R
 import com.erman.usurf.databinding.ActivityMainBinding
 import com.erman.usurf.directory.ui.DirectoryViewModel
-import com.erman.usurf.home.model.HomeStorageButton
 import com.erman.usurf.utils.EventObserver
 import com.erman.usurf.utils.KEY_INTENT_IS_FTP_NOTIFICATION_CLICKED
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 private const val INTENT_IS_FTP_NOTIFICATION_CLICKED_DEF_VAL: Boolean = false
-private const val SIDE_MARGIN_MULTIPLIER: Int = 2
-private const val STORAGE_BUTTON_HEIGHT_DIVISOR_OFFSET: Int = 8
 private const val STORAGE_MENU_ITEM_ORDER_FIRST: Int = 0
 
-class MainActivity :
-    AppCompatActivity(),
-    HomeStorageButton {
+class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
     private var destination: NavDirections? = null
@@ -207,17 +201,6 @@ class MainActivity :
     }
 
     override fun onSupportNavigateUp(): Boolean = navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
-
-    override fun autoSizeButtonDimensions(storageButtonCount: Int, sideMargin: Int, containerHorizontalPadding: Int): Pair<Int, Int> {
-        val windowMetrics = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(this)
-        val currentBounds = windowMetrics.bounds
-        val availableWidth: Int = currentBounds.width() - containerHorizontalPadding
-        val screenHeight: Int = currentBounds.height()
-        return Pair(
-            ((availableWidth - ((sideMargin * SIDE_MARGIN_MULTIPLIER) * storageButtonCount)) / storageButtonCount),
-            (screenHeight / (STORAGE_BUTTON_HEIGHT_DIVISOR_OFFSET + storageButtonCount))
-        )
-    }
 
     private fun exitOrConfirm() {
         if (directoryViewModel.shouldConfirmExit()) {

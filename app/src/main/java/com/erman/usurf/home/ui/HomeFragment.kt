@@ -1,11 +1,10 @@
 package com.erman.usurf.home.ui
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
+import android.widget.LinearLayout
 import android.widget.PopupMenu
 import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
@@ -20,26 +19,20 @@ import com.erman.usurf.databinding.StorageButtonBinding
 import com.erman.usurf.dialog.ui.TextInputDialogFragment
 import com.erman.usurf.dialog.ui.TextInputRequest
 import com.erman.usurf.home.model.FavoriteItem
-import com.erman.usurf.home.model.HomeStorageButton
 import com.erman.usurf.home.model.StorageItem
 import com.erman.usurf.utils.EventObserver
 import com.erman.usurf.utils.FileOpenUtils
-import com.erman.usurf.utils.UNKNOWN_ERROR
-import com.erman.usurf.utils.loge
 import com.erman.usurf.utils.showOnce
 import com.google.android.material.snackbar.Snackbar
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
-private const val STORAGE_BUTTON_HORIZONTAL_MARGIN: Int = 4
-private const val STORAGE_BUTTON_VERTICAL_MARGIN: Int = 4
 private const val FAVORITE_GRID_SPAN_COUNT: Int = 2
 
 class HomeFragment : Fragment() {
     private val homeViewModel by sharedViewModel<HomeViewModel>()
     private val mainViewModel by activityViewModel<MainViewModel>()
     private lateinit var favoriteRecyclerViewAdapter: FavoriteRecyclerViewAdapter
-    private lateinit var storageButtonDimensions: HomeStorageButton
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
@@ -84,21 +77,9 @@ class HomeFragment : Fragment() {
         )
     }
 
+    // Each card an equal share of the row's width; the row is as tall as the tallest card's text needs.
     private fun createStorageButtons(items: List<StorageItem>) {
-        val containerHorizontalPadding: Int = binding.root.paddingStart + binding.root.paddingEnd
-        val dimensions =
-            storageButtonDimensions.autoSizeButtonDimensions(
-                items.size,
-                STORAGE_BUTTON_HORIZONTAL_MARGIN,
-                containerHorizontalPadding
-            )
-        val buttonLayoutParams = FrameLayout.LayoutParams(dimensions.first, dimensions.second)
-        buttonLayoutParams.setMargins(
-            STORAGE_BUTTON_HORIZONTAL_MARGIN,
-            STORAGE_BUTTON_VERTICAL_MARGIN,
-            STORAGE_BUTTON_HORIZONTAL_MARGIN,
-            STORAGE_BUTTON_VERTICAL_MARGIN
-        )
+        val margin: Int = resources.getDimensionPixelSize(R.dimen.layout_margin_4)
         items.forEach { item ->
             val buttonBinding: StorageButtonBinding =
                 DataBindingUtil.inflate(
@@ -113,7 +94,11 @@ class HomeFragment : Fragment() {
             buttonBinding.storageButton.setOnLongClickListener { card ->
                 homeViewModel.canOfferSafGrant(item.path).also { canGrant -> if (canGrant) showSafGrantMenu(card) }
             }
-            binding.storageUsageBarLayout.addView(buttonBinding.root, buttonLayoutParams)
+            val cardParams =
+                LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply {
+                    setMargins(margin, margin, margin, margin)
+                }
+            binding.storageUsageBarLayout.addView(buttonBinding.root, cardParams)
         }
     }
 
@@ -206,15 +191,6 @@ class HomeFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         homeViewModel.refreshStorageItems()
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        try {
-            storageButtonDimensions = context as HomeStorageButton
-        } catch (err: ClassCastException) {
-            loge(err.localizedMessage ?: UNKNOWN_ERROR)
-        }
     }
 
     override fun onDestroyView() {

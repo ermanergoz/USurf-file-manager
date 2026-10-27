@@ -18,6 +18,10 @@ private const val BYTES_PER_GB: Long = BYTES_PER_MB * 1024L
 private const val BYTES_PER_TB: Long = BYTES_PER_GB * 1024L
 private const val SIZE_FORMAT: String = "%.1f"
 
+// The units a storage size reads in, from the largest down.
+private val STORAGE_UNITS: List<Pair<Long, Int>> =
+    listOf(BYTES_PER_TB to R.string.tb, BYTES_PER_GB to R.string.gb, BYTES_PER_MB to R.string.mb, BYTES_PER_KB to R.string.kb)
+
 class HomeModel(private val context: Context) {
     /** One card per directory of [storageDirectories], with its usage read from the volume. */
     fun getStorageItems(storageDirectories: Set<String>): List<StorageItem> {
@@ -48,32 +52,11 @@ class HomeModel(private val context: Context) {
         else -> context.getString(R.string.sd_card)
     }
 
-    private fun formatStorageSize(bytes: Long): String = when {
-        bytes <= 0L -> "0 ${context.getString(R.string.bytes)}"
-        bytes < BYTES_PER_MB -> String.format(
-            Locale.getDefault(),
-            "$SIZE_FORMAT %s",
-            bytes.toDouble() / BYTES_PER_KB,
-            context.getString(R.string.kb)
-        )
-        bytes < BYTES_PER_GB -> String.format(
-            Locale.getDefault(),
-            "$SIZE_FORMAT %s",
-            bytes.toDouble() / BYTES_PER_MB,
-            context.getString(R.string.mb)
-        )
-        bytes < BYTES_PER_TB -> String.format(
-            Locale.getDefault(),
-            "$SIZE_FORMAT %s",
-            bytes.toDouble() / BYTES_PER_GB,
-            context.getString(R.string.gb)
-        )
-        else -> String.format(
-            Locale.getDefault(),
-            "$SIZE_FORMAT %s",
-            bytes.toDouble() / BYTES_PER_TB,
-            context.getString(R.string.tb)
-        )
+    /** [bytes] in the largest unit of [STORAGE_UNITS] it reaches, with one decimal; below a kilobyte, in kilobytes. */
+    internal fun formatStorageSize(bytes: Long): String {
+        if (bytes <= 0L) return "0 ${context.getString(R.string.bytes)}"
+        val (unitBytes, unitName) = STORAGE_UNITS.firstOrNull { (unitBytes, _) -> bytes >= unitBytes } ?: STORAGE_UNITS.last()
+        return String.format(Locale.getDefault(), "$SIZE_FORMAT %s", bytes.toDouble() / unitBytes, context.getString(unitName))
     }
 
     // StatFs refuses a path the volume cannot be read at with an IllegalArgumentException; the card then reads as empty.

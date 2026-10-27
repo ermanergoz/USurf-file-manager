@@ -166,8 +166,7 @@ class DirectoryFragment : Fragment() {
             FileOpenUtils.openFile(
                 context = requireContext(),
                 path = path,
-                grantWritePermission = true,
-                bringToFront = true
+                grantWritePermission = true
             )
         if (!isOpened) {
             Snackbar.make(binding.root, getString(R.string.unsupported_file), Snackbar.LENGTH_LONG).show()

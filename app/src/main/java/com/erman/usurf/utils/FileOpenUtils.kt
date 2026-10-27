@@ -10,7 +10,7 @@ import java.io.File
 private const val APK_EXTENSION = "apk"
 
 object FileOpenUtils {
-    fun openFile(context: Context, path: String, grantWritePermission: Boolean = false, bringToFront: Boolean = false): Boolean {
+    fun openFile(context: Context, path: String, grantWritePermission: Boolean = false): Boolean {
         val file = File(path)
         val uri =
             FileProvider.getUriForFile(
@@ -21,20 +21,7 @@ object FileOpenUtils {
         if (path.endsWith(".$APK_EXTENSION", ignoreCase = true)) {
             return openApkForInstall(context, uri)
         }
-        val mimeType: String = MimeUtils.getMimeTypeForPath(path)
-        val intent =
-            Intent(Intent.ACTION_VIEW).apply {
-                setDataAndType(uri, mimeType)
-                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
-                    if (grantWritePermission) {
-                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                    } else {
-                        0
-                    }
-                if (bringToFront) {
-                    addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT)
-                }
-            }
+        val intent = viewIntent(uri, MimeUtils.getMimeTypeForPath(path), grantWritePermission)
         val packageManager = context.packageManager
         val resolveInfo = intent.resolveActivity(packageManager)
         if (resolveInfo != null) {
@@ -42,6 +29,16 @@ object FileOpenUtils {
             return true
         }
         return false
+    }
+
+    /**
+     * The intent that opens [uri] as [mimeType] in another app, which may read it and, with [grantWritePermission],
+     * write it. It carries only those grants: how the other app's task is brought up is the system's to decide.
+     */
+    fun viewIntent(uri: Uri, mimeType: String, grantWritePermission: Boolean): Intent = Intent(Intent.ACTION_VIEW).apply {
+        setDataAndType(uri, mimeType)
+        flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
+            if (grantWritePermission) Intent.FLAG_GRANT_WRITE_URI_PERMISSION else 0
     }
 
     private fun openApkForInstall(context: Context, uri: Uri): Boolean {

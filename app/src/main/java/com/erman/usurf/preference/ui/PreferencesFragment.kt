@@ -31,14 +31,25 @@ class PreferencesFragment : PreferenceFragmentCompat() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences_main, rootKey)
+        bindRootAccessPreference()
+        bindSdCardAccessPreference()
+        tintPreferenceIcons()
+        bindSortPreference()
+        bindShowHiddenPreference()
+        bindShowThumbnailsPreference()
+        bindSortOrderPreferences()
+    }
 
+    private fun bindRootAccessPreference() {
         findPreference<SwitchPreference>(KEY_PREFERENCE_ROOT_ACCESS)?.setOnPreferenceChangeListener { _, newValue ->
             val isEnableRequest = newValue as Boolean
             preferencesViewModel.onRootAccessChangeRequested(isEnableRequest)
             // Turning root on waits for the su answer off the main thread; its result sets the switch.
             !isEnableRequest
         }
+    }
 
+    private fun bindSdCardAccessPreference() {
         findPreference<Preference>(KEY_PREFERENCE_SD_CARD_ACCESS)?.apply {
             isVisible = mainViewModel.canOfferSafGrant()
             setOnPreferenceClickListener {
@@ -46,47 +57,48 @@ class PreferencesFragment : PreferenceFragmentCompat() {
                 true
             }
         }
+    }
 
-        tintPreferenceIcons()
+    private fun bindSortPreference() {
         val sortListPreference = findPreference<ListPreference>(KEY_SORT_FILES_LIST_PREFERENCE)
         sortListPreference?.setOnPreferenceChangeListener { _, newValue ->
             sortListPreference.title = newValue.toString()
             preferencesViewModel.onSortPreferenceChanged(newValue.toString())
             true
         }
+    }
 
+    private fun bindShowHiddenPreference() {
         findPreference<SwitchPreference>(KEY_SHOW_HIDDEN_SWITCH)?.setOnPreferenceChangeListener { _, newValue ->
             preferencesViewModel.onShowHiddenPreferenceChanged(newValue as Boolean)
             true
         }
+    }
 
+    private fun bindShowThumbnailsPreference() {
         findPreference<SwitchPreference>(KEY_SHOW_THUMBNAILS_SWITCH)?.setOnPreferenceChangeListener { _, newValue ->
             preferencesViewModel.onShowThumbnailsPreferenceChanged(newValue as Boolean)
             true
         }
+    }
 
+    // One of the two orders is always on: checking one turns the other off, and the one that is on cannot be unchecked.
+    private fun bindSortOrderPreferences() {
         val ascendingOrderPreference = findPreference<CheckBoxPreference>(KEY_ASCENDING_ORDER_CHECKBOX)
         val descendingOrderPreference = findPreference<CheckBoxPreference>(KEY_DESCENDING_ORDER_CHECKBOX)
-
         ascendingOrderPreference?.setOnPreferenceChangeListener { _, newValue ->
-            if (descendingOrderPreference!!.isChecked) {
-                descendingOrderPreference.isChecked = false
-                preferencesViewModel.onAscendingOrderPreferenceChanged(newValue as Boolean)
-                true
-            } else {
-                false
-            }
+            switchOrder(from = descendingOrderPreference) { preferencesViewModel.onAscendingOrderPreferenceChanged(newValue as Boolean) }
         }
-
         descendingOrderPreference?.setOnPreferenceChangeListener { _, newValue ->
-            if (ascendingOrderPreference!!.isChecked) {
-                ascendingOrderPreference.isChecked = false
-                preferencesViewModel.onDescendingOrderPreferenceChanged(newValue as Boolean)
-                true
-            } else {
-                false
-            }
+            switchOrder(from = ascendingOrderPreference) { preferencesViewModel.onDescendingOrderPreferenceChanged(newValue as Boolean) }
         }
+    }
+
+    private fun switchOrder(from: CheckBoxPreference?, store: () -> Unit): Boolean {
+        if (from?.isChecked != true) return false
+        from.isChecked = false
+        store()
+        return true
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
