@@ -21,6 +21,7 @@ import com.erman.usurf.activity.MainActivity
 import com.erman.usurf.ftp.data.FtpServerState
 import com.erman.usurf.ftp.domain.FtpRepository
 import com.erman.usurf.ftp.domain.FtpServerStatus
+import com.erman.usurf.ftp.domain.FtpSettingsRepository
 import com.erman.usurf.utils.KEY_INTENT_IS_FTP_NOTIFICATION_CLICKED
 import com.erman.usurf.utils.loge
 import org.koin.android.ext.android.inject
@@ -32,8 +33,11 @@ private const val WORKER_THREAD_NAME: String = "FtpServerWorker"
 
 class FtpServer : Service() {
     private val ftpRepository: FtpRepository by inject()
+    private val ftpSettingsRepository: FtpSettingsRepository by inject()
     private val serverState: FtpServerState by inject()
-    private val controller: FtpServerController by lazy { FtpServerController(serverState, ::ApacheFtpServerEngine) }
+    private val controller: FtpServerController by lazy {
+        FtpServerController(serverState, ::ApacheFtpServerEngine) { message -> loge(message) }
+    }
     private val mainHandler = Handler(Looper.getMainLooper())
 
     // Starting and stopping run here, one after the other: binding and closing sessions never block the main thread.
@@ -58,11 +62,11 @@ class FtpServer : Service() {
 
     private fun readConfig(): FtpServerConfig = FtpServerConfig(
         address = ftpRepository.getIpAddress(),
-        port = ftpRepository.getPort(),
-        username = ftpRepository.getUsername(),
-        password = ftpRepository.getPassword(),
-        homeDirectory = ftpRepository.getFtpPath(),
-        allowUploads = ftpRepository.isUploadAllowed()
+        port = ftpSettingsRepository.getPort(),
+        username = ftpSettingsRepository.getUsername(),
+        password = ftpSettingsRepository.getPassword(),
+        homeDirectory = ftpSettingsRepository.getFtpPath(),
+        allowUploads = ftpSettingsRepository.isUploadAllowed()
     )
 
     override fun onDestroy() {

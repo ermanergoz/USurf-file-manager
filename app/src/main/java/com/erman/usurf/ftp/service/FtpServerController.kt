@@ -9,7 +9,11 @@ import com.erman.usurf.ftp.domain.FtpServerStatus
  * Not thread-safe: the service calls it from its one worker thread only. Nothing it calls may end that thread, so
  * neither [start] nor [stop] throws: every failure ends as [FtpServerStatus.Failed].
  */
-class FtpServerController(private val serverState: FtpServerState, private val createEngine: (FtpServerConfig) -> FtpServerEngine) {
+class FtpServerController(
+    private val serverState: FtpServerState,
+    private val createEngine: (FtpServerConfig) -> FtpServerEngine,
+    private val logFailure: (String) -> Unit
+) {
     private var engine: FtpServerEngine? = null
 
     /** Starts a server on the settings [readConfig] returns, unless one is already running; returns the status after the call. */
@@ -35,19 +39,24 @@ class FtpServerController(private val serverState: FtpServerState, private val c
         return serverState.status.value
     }
 
-    /** Stops the running server; without one it changes nothing, so a failure stays visible. */
+    /** Stops the running server; without one it changes nothing, so a failure stays visible. A failed stop is logged. */
     fun stop() {
         val current: FtpServerEngine = engine ?: return
         engine = null
         serverState.update(FtpServerStatus.Stopping)
         val failure: Exception? = release(current)
+        if (failure != null) logFailure("The FTP server could not be stopped: ${reasonsOf(failure)}")
         serverState.update(if (failure == null) FtpServerStatus.Stopped else FtpServerStatus.Failed(describe(failure)))
     }
 
-    /** Closes the sessions, then stops the server even when closing failed; returns the first failure instead of throwing it. */
+    /**
+     * Closes the sessions, then stops the server even when closing failed; returns the failure instead of throwing it.
+     * When both fail, the first is returned with the second added to it as suppressed, so neither is lost.
+     */
     private fun release(current: FtpServerEngine): Exception? {
         val closeFailure: Exception? = attempt(current::closeSessions)
         val stopFailure: Exception? = attempt(current::stop)
+        if (closeFailure != null && stopFailure != null) closeFailure.addSuppressed(stopFailure)
         return closeFailure ?: stopFailure
     }
 
@@ -59,6 +68,9 @@ class FtpServerController(private val serverState: FtpServerState, private val c
     } catch (err: Exception) {
         err
     }
+
+    // The reason of [failure], then of each failure kept with it.
+    private fun reasonsOf(failure: Throwable): String = (listOf(failure) + failure.suppressed).joinToString("; ") { describe(it) }
 
     private fun describe(reason: Throwable): String =
         generateSequence(reason) { it.cause }.mapNotNull { it.message }.lastOrNull() ?: reason.javaClass.simpleName

@@ -1,40 +1,21 @@
 package com.erman.usurf.ftp.domain
 
 import androidx.lifecycle.LiveData
+import com.erman.usurf.storage.domain.StorageKind
 
+/** The FTP server and what it serves on: its status, the Wi-Fi connection, the device's address and the storage. */
 interface FtpRepository {
     /** @throws java.net.SocketException when the device's network interfaces cannot be read. */
     fun getIpAddress(): String
 
-    fun getUsername(): String?
-
-    fun getPassword(): String?
-
-    fun getPort(): Int
-
     fun getStoragePaths(): List<String>
 
-    fun getStorageDisplayName(path: String): String
-
-    fun isExternalStorage(path: String): Boolean
-
-    fun getFtpPath(): String?
-
-    fun isUploadAllowed(): Boolean
+    /** What the storage directory [path] is, which the screen names it by. */
+    fun storageKindOf(path: String): StorageKind
 
     fun getConnectionLiveData(): LiveData<Boolean>
 
     fun getServerStatus(): LiveData<FtpServerStatus>
-
-    fun editUsername(username: String)
-
-    fun editPassword(password: String)
-
-    fun editPort(port: Int)
-
-    fun editFtpPath(path: String?)
-
-    fun editUploadAllowed(allowed: Boolean)
 
     fun startServer()
 

@@ -5,11 +5,16 @@ import com.erman.usurf.R
 import com.erman.usurf.ftp.domain.FtpServerStatus
 import com.erman.usurf.ftp.domain.FtpSettingError
 import com.erman.usurf.ftp.domain.FtpSettingsRules
+import com.erman.usurf.storage.domain.StorageKind
 
 /** A string id of 0: the field has no error. */
 const val NO_ERROR: Int = 0
 
-data class StoragePathItem(val path: String, val displayName: String, val isExternal: Boolean)
+/** One storage directory the server can share, with its kind, which the screen names it by. */
+data class StoragePathItem(val path: String, val kind: StorageKind) {
+    val isExternal: Boolean
+        get() = kind == StorageKind.SD_CARD
+}
 
 data class FtpUiState(
     val url: String = "",

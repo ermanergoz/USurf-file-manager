@@ -26,10 +26,13 @@ import com.erman.usurf.directory.ui.DirectoryViewModel
 import com.erman.usurf.ftp.data.FtpPreferenceProvider
 import com.erman.usurf.ftp.data.FtpRepositoryImpl
 import com.erman.usurf.ftp.data.FtpServerState
+import com.erman.usurf.ftp.data.FtpSettingsRepositoryImpl
 import com.erman.usurf.ftp.domain.FtpCredentialsInitializer
 import com.erman.usurf.ftp.domain.FtpRepository
+import com.erman.usurf.ftp.domain.FtpSettingsRepository
 import com.erman.usurf.ftp.model.ConnectionLiveData
 import com.erman.usurf.ftp.model.FtpModel
+import com.erman.usurf.ftp.service.FtpServiceLauncher
 import com.erman.usurf.ftp.ui.FTPViewModel
 import com.erman.usurf.home.data.FavoriteDao
 import com.erman.usurf.home.data.FavoriteRepositoryImpl
@@ -123,11 +126,13 @@ val appModule =
         single<FavoriteRepository> { FavoriteRepositoryImpl(get(), get(), get(named(IO_DISPATCHER))) }
         viewModel { HomeViewModel(get(), get(), get(), get(), get(named(IO_DISPATCHER))) }
 
-        single { FtpModel(get()) }
+        single { FtpModel() }
+        single { FtpServiceLauncher(get()) }
         single { ConnectionLiveData(get()) }
         single { FtpServerState() }
         single<FtpRepository> { FtpRepositoryImpl(get(), get(), get(), get(), get()) }
-        viewModel { FTPViewModel(get(), get(named(IO_DISPATCHER))) }
+        single<FtpSettingsRepository> { FtpSettingsRepositoryImpl(get()) }
+        viewModel { FTPViewModel(get(), get(), get(named(IO_DISPATCHER))) }
 
         single {
             val context: Context = get()

@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment
 import com.erman.usurf.R
 import com.erman.usurf.databinding.FragmentFtpBinding
 import com.erman.usurf.utils.EventObserver
+import com.erman.usurf.utils.displayNameRes
 import com.google.android.material.snackbar.Snackbar
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -69,7 +70,7 @@ class FTPFragment : Fragment() {
         val density: Float = resources.displayMetrics.density
         items.forEach { item ->
             val radioButton = RadioButton(context)
-            radioButton.text = item.displayName
+            radioButton.text = getString(item.kind.displayNameRes)
             radioButton.id = View.generateViewId()
             storagePathsByViewId[radioButton.id] = item.path
             radioButton.setPadding(

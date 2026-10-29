@@ -45,8 +45,8 @@ class ApacheFtpServerEngine(private val config: FtpServerConfig) : FtpServerEngi
     // The screen never stores such settings; this keeps an older or edited preference file from opening the share.
     private fun refuseUnprotectedLogin() {
         val error: FtpSettingError =
-            FtpSettingsRules.usernameError(config.username.orEmpty())
-                ?: FtpSettingsRules.passwordError(config.password.orEmpty())
+            FtpSettingsRules.usernameError(config.username)
+                ?: FtpSettingsRules.passwordError(config.password)
                 ?: return
         val reason: String =
             when (error) {

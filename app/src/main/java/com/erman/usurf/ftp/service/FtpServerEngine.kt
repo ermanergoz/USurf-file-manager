@@ -5,8 +5,8 @@ private const val PASSWORD_MASK: String = "***"
 data class FtpServerConfig(
     val address: String,
     val port: Int,
-    val username: String?,
-    val password: String?,
+    val username: String,
+    val password: String,
     val homeDirectory: String?,
     val allowUploads: Boolean
 ) {

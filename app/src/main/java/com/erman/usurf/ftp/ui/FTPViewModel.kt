@@ -9,6 +9,7 @@ import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import com.erman.usurf.ftp.domain.FtpRepository
 import com.erman.usurf.ftp.domain.FtpServerStatus
+import com.erman.usurf.ftp.domain.FtpSettingsRepository
 import com.erman.usurf.ftp.domain.FtpSettingsRules
 import com.erman.usurf.utils.Event
 import com.erman.usurf.utils.UNKNOWN_ERROR
@@ -18,7 +19,11 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class FTPViewModel(private val ftpRepository: FtpRepository, private val ioDispatcher: CoroutineDispatcher) : ViewModel() {
+class FTPViewModel(
+    private val ftpRepository: FtpRepository,
+    private val ftpSettingsRepository: FtpSettingsRepository,
+    private val ioDispatcher: CoroutineDispatcher
+) : ViewModel() {
     private var lastServerStatus: FtpServerStatus? = null
 
     private val _uiEvents = MutableLiveData<Event<FtpUiEvent>>()
@@ -28,10 +33,10 @@ class FTPViewModel(private val ftpRepository: FtpRepository, private val ioDispa
         MediatorLiveData<FtpUiState>().apply {
             value =
                 FtpUiState(
-                    username = ftpRepository.getUsername().orEmpty(),
-                    password = ftpRepository.getPassword().orEmpty(),
-                    port = ftpRepository.getPort().toString(),
-                    allowUploads = ftpRepository.isUploadAllowed(),
+                    username = ftpSettingsRepository.getUsername(),
+                    password = ftpSettingsRepository.getPassword(),
+                    port = ftpSettingsRepository.getPort().toString(),
+                    allowUploads = ftpSettingsRepository.isUploadAllowed(),
                     isConnectedToWifi = ftpRepository.getConnectionLiveData().value == true
                 )
             addSource(ftpRepository.getConnectionLiveData()) { connected ->
@@ -91,13 +96,8 @@ class FTPViewModel(private val ftpRepository: FtpRepository, private val ioDispa
         _uiState.value = transform(_uiState.value ?: FtpUiState())
     }
 
-    private fun mapStoragePaths(paths: List<String>): List<StoragePathItem> = paths.map { path ->
-        StoragePathItem(
-            path = path,
-            displayName = ftpRepository.getStorageDisplayName(path),
-            isExternal = ftpRepository.isExternalStorage(path)
-        )
-    }
+    private fun mapStoragePaths(paths: List<String>): List<StoragePathItem> =
+        paths.map { path -> StoragePathItem(path = path, kind = ftpRepository.storageKindOf(path)) }
 
     fun onConnectClicked() {
         val state: FtpUiState = _uiState.value ?: return
@@ -127,33 +127,33 @@ class FTPViewModel(private val ftpRepository: FtpRepository, private val ioDispa
     @Suppress("UNUSED_PARAMETER")
     fun onUsernameChanged(username: CharSequence, start: Int, before: Int, count: Int) {
         val str = username.toString()
-        if (FtpSettingsRules.usernameError(str) == null) ftpRepository.editUsername(str)
+        if (FtpSettingsRules.usernameError(str) == null) ftpSettingsRepository.editUsername(str)
         updateState { it.copy(username = str) }
     }
 
     @Suppress("UNUSED_PARAMETER")
     fun onPasswordChanged(password: CharSequence, start: Int, before: Int, count: Int) {
         val str = password.toString()
-        if (FtpSettingsRules.passwordError(str) == null) ftpRepository.editPassword(str)
+        if (FtpSettingsRules.passwordError(str) == null) ftpSettingsRepository.editPassword(str)
         updateState { it.copy(password = str) }
     }
 
     @Suppress("UNUSED_PARAMETER")
     fun onPortChanged(port: CharSequence, start: Int, before: Int, count: Int) {
         val str = port.toString()
-        FtpSettingsRules.parsePort(str)?.let(ftpRepository::editPort)
+        FtpSettingsRules.parsePort(str)?.let(ftpSettingsRepository::editPort)
         updateState { it.copy(port = str) }
     }
 
     // Read when the server starts: the switch is disabled while it runs.
     fun onAllowUploadsChanged(allowed: Boolean) {
-        ftpRepository.editUploadAllowed(allowed)
+        ftpSettingsRepository.editUploadAllowed(allowed)
         updateState { it.copy(allowUploads = allowed) }
     }
 
     fun onFtpPathSelected(path: String) {
-        ftpRepository.editFtpPath(path)
+        ftpSettingsRepository.editFtpPath(path)
     }
 
-    fun getFtpSelectedPath(): String? = ftpRepository.getFtpPath()
+    fun getFtpSelectedPath(): String? = ftpSettingsRepository.getFtpPath()
 }
