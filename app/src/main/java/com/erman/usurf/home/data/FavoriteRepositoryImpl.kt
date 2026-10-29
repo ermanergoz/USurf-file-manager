@@ -7,6 +7,7 @@ import androidx.lifecycle.switchMap
 import com.erman.usurf.home.domain.FavoriteRepository
 import com.erman.usurf.home.model.FavoriteItem
 import com.erman.usurf.home.model.FavoriteKind
+import com.erman.usurf.storage.domain.StoragePathsProvider
 import io.realm.Realm
 import java.io.File
 import kotlinx.coroutines.CoroutineDispatcher
@@ -14,6 +15,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 class FavoriteRepositoryImpl(
     private val favoriteDao: FavoriteDao,
     private val realm: Realm,
+    private val storagePathsProvider: StoragePathsProvider,
     private val ioDispatcher: CoroutineDispatcher
 ) : FavoriteRepository {
     override fun getFavorites(): LiveData<List<FavoriteItem>> =
@@ -24,7 +26,16 @@ class FavoriteRepositoryImpl(
     override fun removeFavorite(path: String): Boolean = favoriteDao.removeFavorite(path)
 
     override fun renameFavorite(path: String, newName: String): Boolean = favoriteDao.renameFavorite(path, newName)
+
+    override fun defaultNameFor(path: String): String? = defaultFavoriteNameOf(path, storagePathsProvider.getStorageDirectories())
 }
+
+/**
+ * The name a new favourite of the folder at [path] is offered: its own. A storage directory of [storageDirectories] is
+ * named by its volume's id, as "0" or "1A2B-3C4D", and the file system root has no name, so neither gets one.
+ */
+fun defaultFavoriteNameOf(path: String, storageDirectories: Set<String>): String? =
+    if (path in storageDirectories) null else File(path).name.ifEmpty { null }
 
 /**
  * Each of [favorites] with the kind [kindOf] reads from its path, on [ioDispatcher]: one file system call per favourite,

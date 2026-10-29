@@ -31,9 +31,18 @@ private const val KEY_PENDING_SELECTION = "pendingSelection"
 private const val KEY_PENDING_ROOT_PATHS = "pendingRootPaths"
 
 /**
- * The folder screen's state and intents. A stopped process gives back the folder or the search on screen and the
- * items a compress or rename dialog was opened for; copy or move mode and the selected rows are not given back, so a
- * restored screen browses the same folder, and a write waiting for the SD card grant is dropped with the process.
+ * The folder screen's state and intents.
+ *
+ * It is the activity's view model, for two reasons. Every drawer action clears the screens above Home, this one with
+ * them, so a view model of the screen would be cleared in the middle of an operation and a running copy or compress
+ * would be cancelled with its scope. And whether leaving the app needs a confirmation, [shouldConfirmExit], is read
+ * from any screen. Back is not a reason: this screen decides Back itself. The activity holds it for
+ * [shouldConfirmExit] and [onSafAccessGranted] only.
+ *
+ * A stopped process gives back the folder or the search on screen and the items a compress or rename dialog was
+ * opened for; copy or move mode and the selected rows are not given back, so a restored screen browses the same
+ * folder. A write waiting for the SD card grant is dropped with the process, by design: it is the action itself, which
+ * cannot be saved.
  */
 class DirectoryViewModel(
     private val directoryRepository: DirectoryRepository,
@@ -474,8 +483,8 @@ class DirectoryViewModel(
 
     fun onFavoriteButtonPressed() {
         val selection = requireNonEmptySelectionAndResetPanel() ?: return
-        val file = selection.last()
-        _uiEvents.value = Event(DirectoryUiEvent.ShowAddFavoriteDialog(file.path))
+        val path = selection.last().path
+        _uiEvents.value = Event(DirectoryUiEvent.ShowAddFavoriteDialog(path, favoriteRepository.defaultNameFor(path)))
     }
 
     /** The add-favourite dialog's answer: the folder at [path] joins the favourites as [name]. */

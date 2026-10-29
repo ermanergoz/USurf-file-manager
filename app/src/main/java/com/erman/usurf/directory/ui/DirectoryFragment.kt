@@ -77,7 +77,7 @@ class DirectoryFragment : Fragment() {
                     DirectoryUiEvent.ShowCreateFileDialog -> showCreateDialog(CreateKind.FILE)
                     DirectoryUiEvent.ShowCompressDialog -> showCompressDialog()
                     DirectoryUiEvent.ShowSearchDialog -> showSearchDialog()
-                    is DirectoryUiEvent.ShowAddFavoriteDialog -> showAddFavoriteDialog(event.path)
+                    is DirectoryUiEvent.ShowAddFavoriteDialog -> showAddFavoriteDialog(event.path, event.defaultName)
                     is DirectoryUiEvent.OpenFile -> openFile(event.path)
                     is DirectoryUiEvent.Share -> handleShare(event)
                     is DirectoryUiEvent.ConfirmDelete ->
@@ -225,14 +225,14 @@ class DirectoryFragment : Fragment() {
         startActivity(Intent.createChooser(shareIntent, requireContext().getString(R.string.share)))
     }
 
-    // A favourite is named after its folder by default; the top of the file system has no name of its own.
-    private fun showAddFavoriteDialog(path: String) {
+    // A favourite is named after its folder by default; one with no name of its own is offered the new favourite's.
+    private fun showAddFavoriteDialog(path: String, defaultName: String?) {
         showTextInput(
             TextInputRequest(
                 requestKey = ADD_FAVORITE_REQUEST_KEY,
                 title = R.string.addFavorite,
                 hint = R.string.hint_favorite_name,
-                defaultText = File(path).name.ifEmpty { getString(R.string.new_favorite) },
+                defaultText = defaultName ?: getString(R.string.new_favorite),
                 positiveButton = R.string.add,
                 validateAsName = true,
                 payload = bundleOf(PAYLOAD_PATH to path)

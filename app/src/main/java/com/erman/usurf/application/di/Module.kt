@@ -42,6 +42,7 @@ import com.erman.usurf.home.ui.HomeViewModel
 import com.erman.usurf.preference.data.PreferenceProvider
 import com.erman.usurf.preference.data.PreferencesRepositoryImpl
 import com.erman.usurf.preference.domain.PreferencesRepository
+import com.erman.usurf.preference.domain.RootAccessChecker
 import com.erman.usurf.preference.ui.PreferencesViewModel
 import com.erman.usurf.storage.data.SafDocumentAccess
 import com.erman.usurf.storage.data.SafDocumentAccessImpl
@@ -123,7 +124,7 @@ val appModule =
         viewModel { FileInformationViewModel(get()) }
 
         single { HomeModel() }
-        single<FavoriteRepository> { FavoriteRepositoryImpl(get(), get(), get(named(IO_DISPATCHER))) }
+        single<FavoriteRepository> { FavoriteRepositoryImpl(get(), get(), get(), get(named(IO_DISPATCHER))) }
         viewModel { HomeViewModel(get(), get(), get(), get(), get(named(IO_DISPATCHER))) }
 
         single { FtpModel() }
@@ -148,6 +149,7 @@ val appModule =
 
         single { FtpPreferenceProvider(get(), get(), FtpCredentialsInitializer(SecureRandom())) }
         single { RootHandler() }
+        single<RootAccessChecker> { get<RootHandler>() }
         single { FavoriteDao(get()) }
         viewModel { PreferencesViewModel(get(), get(), get(named(IO_DISPATCHER))) }
     }

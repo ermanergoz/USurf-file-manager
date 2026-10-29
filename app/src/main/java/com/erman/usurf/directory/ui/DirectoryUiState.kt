@@ -99,8 +99,8 @@ sealed class DirectoryUiEvent {
 
     data object ShowSearchDialog : DirectoryUiEvent()
 
-    /** Ask for the name the folder at [path] is added to the favourites with. */
-    data class ShowAddFavoriteDialog(val path: String) : DirectoryUiEvent()
+    /** Ask for the name the folder at [path] is added to the favourites with, offering [defaultName]; none offers the screen's own. */
+    data class ShowAddFavoriteDialog(val path: String, val defaultName: String?) : DirectoryUiEvent()
 
     data class OpenFile(val path: String) : DirectoryUiEvent()
 

@@ -6,8 +6,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.erman.usurf.R
-import com.erman.usurf.directory.model.RootHandler
 import com.erman.usurf.preference.domain.PreferencesRepository
+import com.erman.usurf.preference.domain.RootAccessChecker
 import com.erman.usurf.utils.Event
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
@@ -21,7 +21,7 @@ sealed class RootAccessChangeResult {
 
 class PreferencesViewModel(
     private val preferencesRepository: PreferencesRepository,
-    private val rootHandler: RootHandler,
+    private val rootAccessChecker: RootAccessChecker,
     private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
     private val _isRootAccessCheckPending = MutableLiveData(false)
@@ -49,8 +49,8 @@ class PreferencesViewModel(
     }
 
     private fun checkRootAccess(): RootAccessChangeResult = when {
-        !rootHandler.isDeviceRooted() -> RootAccessChangeResult.Rejected(R.string.su_not_found)
-        !rootHandler.isRootAccessGiven() -> RootAccessChangeResult.Rejected(R.string.root_access_denied)
+        !rootAccessChecker.isDeviceRooted() -> RootAccessChangeResult.Rejected(R.string.su_not_found)
+        !rootAccessChecker.isRootAccessGiven() -> RootAccessChangeResult.Rejected(R.string.root_access_denied)
         else -> RootAccessChangeResult.Applied(isRootAccessEnabled = true)
     }
 
