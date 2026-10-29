@@ -50,13 +50,6 @@ class HomeViewModel(
     /** Whether a long press on the storage card for [path] offers to grant (or grant again) its SD card access. */
     fun canOfferSafGrant(path: String): Boolean = storageAccessPolicy.canGrantSafAccess(path)
 
-    fun getUsedStoragePercentage(path: String): Int = homeModel.getUsedStoragePercentage(path)
-
-    fun onFavoriteAdd(path: String, name: String): Boolean {
-        logi("Add favorite: $name")
-        return favoriteRepository.addFavorite(path, name)
-    }
-
     // The repository read what the path holds when it listed the favourites, so this needs no file system call.
     fun onFavoriteClick(item: FavoriteItem) {
         _uiEvents.value =

@@ -113,7 +113,3 @@ sealed class DirectoryUiEvent {
     /** Ask the user to grant the SD card's document tree, so the write that failed can run again. */
     data object RequestSafGrant : DirectoryUiEvent()
 }
-
-/** This file as its Information shows it: an entry listed through root has no size or date read, and says so. */
-fun FileModel.forInformation(notAvailable: String): FileModel =
-    if (isInRoot) copy(size = notAvailable, lastModified = notAvailable) else this

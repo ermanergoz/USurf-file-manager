@@ -1,25 +1,20 @@
 package com.erman.usurf.directory.model
 
-import android.annotation.SuppressLint
-import android.content.Context
-import com.erman.usurf.R
 import com.erman.usurf.directory.utils.PATH_SEPARATOR_CHAR
 import com.erman.usurf.directory.utils.SUFFIX_LENGTH
 import com.erman.usurf.preference.domain.PreferencesRepository
 import com.erman.usurf.utils.ROOT_DIRECTORY
+import com.erman.usurf.utils.UNKNOWN_ERROR
+import com.erman.usurf.utils.loge
 import java.io.File
-import java.text.SimpleDateFormat
-import kotlin.math.round
+import java.io.IOException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
-private const val SIMPLE_DATE_FORMAT_PATTERN = "dd MMMM | HH:mm:ss"
 private const val HIDDEN_FILE_PREFIX = '.'
-private const val TWO_DECIMAL_SCALE = 100.0
-private const val KILOBYTE_DIVISOR = 1024.0
-private const val MEGABYTE_DIVISOR = 1024.0 * 1024.0
-private const val GIGABYTE_DIVISOR = 1024.0 * 1024.0 * 1024.0
-private const val TERABYTE_DIVISOR = 1024.0 * 1024.0 * 1024.0 * 1024.0
+
+// How many levels below a folder its size walk reads; a deeper tree is not one a person made by hand.
+private const val MAX_SIZE_WALK_DEPTH = 64
 
 // ls -a also prints the folder itself and its parent; neither is an entry to show or open.
 private val DOT_ENTRIES: Set<String> = setOf(".", "..")
@@ -27,12 +22,8 @@ private val DOT_ENTRIES: Set<String> = setOf(".", "..")
 class DirectoryListHandler(
     private val preferencesRepository: PreferencesRepository,
     private val rootHandler: RootHandler,
-    private val context: Context,
     private val ioDispatcher: CoroutineDispatcher
 ) {
-    @SuppressLint("SimpleDateFormat")
-    private val dateFormat = SimpleDateFormat(SIMPLE_DATE_FORMAT_PATTERN)
-
     suspend fun getFileModelsFromDirectory(path: String): List<FileModel> = withContext(ioDispatcher) {
         val fileList = File(path).listFiles()
         if (fileList != null) {
@@ -45,7 +36,16 @@ class DirectoryListHandler(
     fun mapFilesToFileModels(files: List<File>): List<FileModel> = files.map { mapFileToModel(it) }
 
     /** The size of the folder at [path]: the bytes of every file under it, read only when asked for. */
-    fun folderSizeText(path: String): String = sizeText(sizeOf(File(path)))
+    fun folderSize(path: String): Long {
+        // From the folder's own path with every link in it resolved, so a link inside it shows as one.
+        val folder = try {
+            File(path).canonicalFile
+        } catch (err: IOException) {
+            loge(err.localizedMessage ?: UNKNOWN_ERROR)
+            return 0
+        }
+        return sizeOf(folder, depth = 0)
+    }
 
     private fun getFileModelsFromNormalDirectory(fileList: Array<File>): List<FileModel> {
         val showHidden = preferencesRepository.getShowHiddenPreference()
@@ -116,11 +116,11 @@ class DirectoryListHandler(
         path = file.path,
         name = file.name,
         nameWithoutExtension = nameWithoutExtensionOf(file),
-        size = if (file.isFile) sizeText(file.length()) else "",
+        size = if (file.isFile) file.length() else null,
         isDirectory = file.isDirectory,
-        lastModified = dateFormat.format(file.lastModified()),
+        lastModified = file.lastModified(),
         extension = extensionOf(file),
-        subFileCount = fileCountOf(file),
+        subFileCount = if (file.isDirectory) fileCountOf(file) else null,
         permission = getPermissions(file),
         isHidden = file.isHidden,
         isInRoot = false,
@@ -132,10 +132,7 @@ class DirectoryListHandler(
 
     private fun nameWithoutExtensionOf(file: File): String = file.nameWithoutExtension.ifEmpty { file.name }
 
-    private fun fileCountOf(folder: File): String {
-        val count = folder.list()?.size ?: 0
-        return context.resources.getQuantityString(R.plurals.file_count, count, count)
-    }
+    private fun fileCountOf(folder: File): Int = folder.list()?.size ?: 0
 
     private fun createFileModelFromRootEntry(parentPath: String, entryName: String): FileModel {
         val isDirectory = entryName.last() == PATH_SEPARATOR_CHAR
@@ -145,11 +142,8 @@ class DirectoryListHandler(
             path = "$basePath$cleanName",
             name = cleanName,
             nameWithoutExtension = cleanName,
-            size = "",
             isDirectory = isDirectory,
-            lastModified = "",
             extension = "",
-            subFileCount = "",
             permission = MountOption.OTHER,
             isHidden = entryName.first() == HIDDEN_FILE_PREFIX,
             isInRoot = true,
@@ -157,26 +151,21 @@ class DirectoryListHandler(
         )
     }
 
-    private fun Double.roundSize(): Double = round(this * TWO_DECIMAL_SCALE) / TWO_DECIMAL_SCALE
-
-    private fun sizeText(size: Long): String {
-        val kilobyte = size / KILOBYTE_DIVISOR
-        val megabyte = size / MEGABYTE_DIVISOR
-        val gigabyte = size / GIGABYTE_DIVISOR
-        val terabyte = size / TERABYTE_DIVISOR
-        return when {
-            terabyte > 1 -> "${terabyte.roundSize()} ${context.getString(R.string.tb)}"
-            gigabyte > 1 -> "${gigabyte.roundSize()} ${context.getString(R.string.gb)}"
-            megabyte > 1 -> "${megabyte.roundSize()} ${context.getString(R.string.mb)}"
-            kilobyte > 1 -> "${kilobyte.roundSize()} ${context.getString(R.string.kb)}"
-            else -> "$size ${context.getString(R.string.bytes)}"
+    // A folder that is gone or cannot be read holds nothing. The folders right under the file system root, as /proc
+    // and /sys, are not walked: their entries are no files to count. A link is not followed, since it would count what
+    // it points at a second time and one that points back up would never end, and the walk stops at its depth cap.
+    private fun sizeOf(folder: File, depth: Int): Long {
+        if (folder.parent == ROOT_DIRECTORY || depth > MAX_SIZE_WALK_DEPTH) return 0
+        return folder.listFiles().orEmpty().filterNot(::isLink).sumOf { entry ->
+            if (entry.isDirectory) sizeOf(entry, depth + 1) else entry.length()
         }
     }
 
-    // A folder that is gone or cannot be read holds nothing. The folders right under the file system root, as /proc
-    // and /sys, are not walked: their entries are no files to count.
-    private fun sizeOf(folder: File): Long {
-        if (folder.parent == ROOT_DIRECTORY) return 0
-        return folder.listFiles().orEmpty().sumOf { entry -> if (entry.isDirectory) sizeOf(entry) else entry.length() }
+    // An entry whose path, resolved, is another one is a link; one that cannot be resolved is not followed either.
+    private fun isLink(entry: File): Boolean = try {
+        entry.canonicalFile != entry.absoluteFile
+    } catch (err: IOException) {
+        loge(err.localizedMessage ?: UNKNOWN_ERROR)
+        true
     }
 }

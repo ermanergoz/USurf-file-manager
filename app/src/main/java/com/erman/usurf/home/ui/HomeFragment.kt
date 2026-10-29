@@ -25,12 +25,12 @@ import com.erman.usurf.utils.FileOpenUtils
 import com.erman.usurf.utils.showOnce
 import com.google.android.material.snackbar.Snackbar
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 private const val FAVORITE_GRID_SPAN_COUNT: Int = 2
 
 class HomeFragment : Fragment() {
-    private val homeViewModel by sharedViewModel<HomeViewModel>()
+    private val homeViewModel by viewModel<HomeViewModel>()
     private val mainViewModel by activityViewModel<MainViewModel>()
     private lateinit var favoriteRecyclerViewAdapter: FavoriteRecyclerViewAdapter
     private var _binding: FragmentHomeBinding? = null

@@ -5,16 +5,21 @@ import java.io.File
 import java.util.Locale
 import kotlinx.parcelize.Parcelize
 
+/**
+ * One folder or file as a listing read it. [size] is a file's length in bytes, [lastModified] the time of its last
+ * change in milliseconds and [subFileCount] the number of entries a folder holds; each is null when it was not read,
+ * as for a folder's size or any entry listed through root. The screens put them into words.
+ */
 @Parcelize
 data class FileModel(
     val path: String = "",
     val name: String = "",
     val nameWithoutExtension: String = "",
-    val size: String = "",
+    val size: Long? = null,
     val isDirectory: Boolean = false,
-    val lastModified: String = "",
+    val lastModified: Long? = null,
     val extension: String = "",
-    val subFileCount: String = "",
+    val subFileCount: Int? = null,
     val permission: MountOption = MountOption.OTHER,
     val isHidden: Boolean = false,
     val isInRoot: Boolean = false,

@@ -1,5 +1,6 @@
 package com.erman.usurf.directory.model
 
+import com.erman.usurf.directory.domain.ArchiveRepository
 import com.erman.usurf.directory.utils.FILE_EXTENSION_SEPARATOR
 import com.erman.usurf.directory.utils.SUFFIX_LENGTH
 import com.erman.usurf.storage.data.SafDocumentAccess
@@ -45,19 +46,20 @@ class ArchiveOperations(
     private val fileOperations: FileOperations,
     private val safDocumentAccess: SafDocumentAccess,
     private val ioDispatcher: CoroutineDispatcher
-) {
+) : ArchiveRepository {
     // The cache folders the archive runs of this process work in now; any other one is a leftover.
     private val liveTempFolders: MutableSet<String> = Collections.newSetFromMap(ConcurrentHashMap())
 
-    suspend fun compressFiles(multipleSelection: List<FileModel>, compressedFileNameWithExtension: String) = operationOn(ioDispatcher) {
-        if (multipleSelection.isEmpty()) return@operationOn
-        val target = ArchiveTarget.of(multipleSelection, compressedFileNameWithExtension)
-        if (File(target.path).exists()) {
-            throw FileOperationException("An archive with this name already exists", OperationError.AlreadyExists)
+    override suspend fun compressFiles(multipleSelection: List<FileModel>, compressedFileNameWithExtension: String) =
+        operationOn(ioDispatcher) {
+            if (multipleSelection.isEmpty()) return@operationOn
+            val target = ArchiveTarget.of(multipleSelection, compressedFileNameWithExtension)
+            if (File(target.path).exists()) {
+                throw FileOperationException("An archive with this name already exists", OperationError.AlreadyExists)
+            }
+            val isCompressed = fileCompressionHandler.compress(target.path, multipleSelection, target.type)
+            if (!isCompressed) compressViaCache(multipleSelection, target)
         }
-        val isCompressed = fileCompressionHandler.compress(target.path, multipleSelection, target.type)
-        if (!isCompressed) compressViaCache(multipleSelection, target)
-    }
 
     private suspend fun compressViaCache(sources: List<FileModel>, target: ArchiveTarget) =
         inCacheTempFolder(sources.any { it.isInRoot }) { tempFolder ->
@@ -123,7 +125,7 @@ class ArchiveOperations(
         fileOperations.delete(listOf(folder))
     }
 
-    suspend fun extractFiles(selectedDirectory: FileModel) = operationOn(ioDispatcher) {
+    override suspend fun extractFiles(selectedDirectory: FileModel) = operationOn(ioDispatcher) {
         val parentPath: String = File(selectedDirectory.path).parent ?: ""
         val extractedFolderName = freeExtractionFolderName(parentPath, selectedDirectory.nameWithoutExtension)
         val extractionDestination = "$parentPath${File.separator}$extractedFolderName"

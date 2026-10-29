@@ -29,7 +29,6 @@ import com.erman.usurf.directory.model.FileModel
 import com.erman.usurf.directory.utils.FILE_EXTENSION_SEPARATOR
 import com.erman.usurf.directory.utils.MIME_TYPE_ALL
 import com.erman.usurf.directory.utils.MimeUtils
-import com.erman.usurf.home.ui.HomeViewModel
 import com.erman.usurf.utils.EventObserver
 import com.erman.usurf.utils.FileOpenUtils
 import com.erman.usurf.utils.ROOT_DIRECTORY
@@ -40,14 +39,12 @@ import com.erman.usurf.utils.showOnce
 import com.google.android.material.snackbar.Snackbar
 import java.io.File
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 private const val FILE_LIST_GRID_SPAN_COUNT = 1
 
 class DirectoryFragment : Fragment() {
     // The activity's view model, created with the activity's saved state, so a restarted process gives back its folder.
     private val directoryViewModel by activityViewModel<DirectoryViewModel>()
-    private val homeViewModel by sharedViewModel<HomeViewModel>()
     private val mainViewModel by activityViewModel<MainViewModel>()
     private lateinit var directoryRecyclerViewAdapter: DirectoryRecyclerViewAdapter
     private var _binding: FragmentDirectoryBinding? = null
@@ -268,9 +265,7 @@ class DirectoryFragment : Fragment() {
         onText(RENAME_REQUEST_KEY) { bundle, name -> directoryViewModel.onRenameOkPressed(bundle.getString(PAYLOAD_PATH).orEmpty(), name) }
         onText(SEARCH_REQUEST_KEY) { _, query -> directoryViewModel.onFileSearchOkPressed(query) }
         onText(ADD_FAVORITE_REQUEST_KEY) { bundle, name ->
-            val isSuccess = homeViewModel.onFavoriteAdd(bundle.getString(PAYLOAD_PATH).orEmpty(), name)
-            val messageResId = if (isSuccess) R.string.favorite_created else R.string.unable_to_create_favorite
-            Snackbar.make(binding.root, getString(messageResId), Snackbar.LENGTH_LONG).show()
+            directoryViewModel.onFavoriteAdd(bundle.getString(PAYLOAD_PATH).orEmpty(), name)
         }
         // A cancelled compress or rename tells the view model that the items it was opened for are no longer waiting.
         for (requestKey in listOf(COMPRESS_REQUEST_KEY, RENAME_REQUEST_KEY)) {

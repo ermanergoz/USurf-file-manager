@@ -8,6 +8,10 @@ import com.erman.usurf.application.data.ApplicationDao
 import com.erman.usurf.application.data.ApplicationPreferenceProvider
 import com.erman.usurf.application.data.ApplicationPreferencesRepositoryImpl
 import com.erman.usurf.application.domain.ApplicationPreferencesRepository
+import com.erman.usurf.dialog.ui.FileInformationViewModel
+import com.erman.usurf.directory.domain.ArchiveRepository
+import com.erman.usurf.directory.domain.DirectoryRepository
+import com.erman.usurf.directory.domain.FolderSizeRepository
 import com.erman.usurf.directory.model.ArchiveOperations
 import com.erman.usurf.directory.model.DirectoryListHandler
 import com.erman.usurf.directory.model.DirectoryModel
@@ -96,23 +100,26 @@ val appModule =
                 grantedTreeOf = StorageAccessPolicyImpl::grantedTreeOf
             )
         }
-        single { DirectoryListHandler(get(), get(), get(), get(named(IO_DISPATCHER))) }
+        single { DirectoryListHandler(get(), get(), get(named(IO_DISPATCHER))) }
         single<FileCopier> {
             val context: Context = get()
             FileCopierImpl(get()) { uri -> context.contentResolver.openOutputStream(uri) }
         }
         single { RootWriter(get(), get(), get(), Build.VERSION.SDK_INT, get<Context>().packageName) }
         single { DirectoryModel(get(), get(), get(), get(), get(), get(named(IO_DISPATCHER))) }
-        single { ArchiveOperations(get(), get<DirectoryModel>(), get(), get(named(IO_DISPATCHER))) }
+        single<DirectoryRepository> { get<DirectoryModel>() }
+        single<ArchiveRepository> { ArchiveOperations(get(), get<DirectoryModel>(), get(), get(named(IO_DISPATCHER))) }
         // The lambda defers loading the native library to the first 7-Zip run.
         single { SevenZipExecutor { arguments -> P7ZipApi.executeCommand(arguments) } }
         single {
             val context: Context = get()
             FileCompressionHandler(get(), context.cacheDir)
         }
-        viewModel { DirectoryViewModel(get(), get(), get(), get(), get()) }
+        viewModel { DirectoryViewModel(get(), get(), get(), get(), get(), get()) }
+        single<FolderSizeRepository> { get<DirectoryModel>() }
+        viewModel { FileInformationViewModel(get()) }
 
-        single { HomeModel(get()) }
+        single { HomeModel() }
         single<FavoriteRepository> { FavoriteRepositoryImpl(get(), get(), get(named(IO_DISPATCHER))) }
         viewModel { HomeViewModel(get(), get(), get(), get(), get(named(IO_DISPATCHER))) }
 
