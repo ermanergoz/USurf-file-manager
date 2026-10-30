@@ -95,7 +95,7 @@
                 android:layout_marginEnd="@dimen/horizontal_margin_8"
                 android:ellipsize="end"
                 android:singleLine="true"
-                android:text="@{file.isDirectory() ? file.subFileCount + `  ·  ` + file.lastModified : file.size + `  ·  ` + file.lastModified}"
+                app:fileMeta="@{file}"
                 android:textColor="@{file.isSelected ? @color/textColorLight : @color/sectionHeaderColor}"
                 android:textSize="@dimen/text_size_12"
                 app:layout_constraintBottom_toBottomOf="@+id/iconContainer"

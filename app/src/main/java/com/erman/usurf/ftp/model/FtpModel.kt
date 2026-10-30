@@ -1,13 +1,8 @@
 package com.erman.usurf.ftp.model
 
-import android.content.Context
-import android.content.Intent
-import android.os.Build
 import android.os.Environment
-import androidx.core.content.ContextCompat
-import com.erman.usurf.R
-import com.erman.usurf.ftp.service.FtpServer
-import com.erman.usurf.utils.ROOT_DIRECTORY
+import com.erman.usurf.storage.domain.StorageKind
+import com.erman.usurf.storage.domain.storageKindOf
 import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
 import java.io.File
@@ -17,7 +12,7 @@ import java.net.NetworkInterface
 
 private const val URL_SCHEME: String = "ftp://"
 
-class FtpModel(private val context: Context) {
+class FtpModel {
     fun getIpAddress(): String {
         var ip = ""
         NetworkInterface.getNetworkInterfaces()?.toList()?.map { networkInterface ->
@@ -29,38 +24,12 @@ class FtpModel(private val context: Context) {
         return if (ip.isEmpty()) "" else "$URL_SCHEME$ip"
     }
 
-    fun getStorageDisplayName(path: String): String {
-        val internalPath: String = getInternalStoragePath()
-        return when (path) {
-            ROOT_DIRECTORY -> context.getString(R.string.root_storage)
-            internalPath -> context.getString(R.string.internal_storage)
-            else -> context.getString(R.string.sd_card)
-        }
-    }
-
-    fun isExternalStorage(path: String): Boolean {
-        val internalPath: String = getInternalStoragePath()
-        return path != ROOT_DIRECTORY && path != internalPath
-    }
+    fun storageKindOf(path: String): StorageKind = storageKindOf(path, getInternalStoragePath())
 
     private fun getInternalStoragePath(): String = try {
         File(Environment.getExternalStorageDirectory().absolutePath).canonicalPath
     } catch (err: IOException) {
         loge(err.localizedMessage ?: UNKNOWN_ERROR)
         Environment.getExternalStorageDirectory().absolutePath
-    }
-
-    fun startFTPServer() {
-        val intent = Intent(context, FtpServer::class.java)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            ContextCompat.startForegroundService(context, intent)
-        } else {
-            context.startService(intent)
-        }
-    }
-
-    fun stopFTPServer() {
-        val intent = Intent(context, FtpServer::class.java)
-        context.stopService(intent)
     }
 }

@@ -6,47 +6,9 @@ import com.erman.usurf.R
 
 private const val CREATE_MENU_ANIM_DURATION_MS = 200L
 
-@BindingAdapter("loadingVisibility")
-fun setLoadingVisibility(view: View, isLoading: Boolean) {
-    view.visibility = if (isLoading) View.VISIBLE else View.GONE
-}
-
-@BindingAdapter("contentVisibility")
-fun setContentVisibility(view: View, isLoading: Boolean) {
-    view.visibility = if (isLoading) View.GONE else View.VISIBLE
-}
-
-@BindingAdapter("confirmationBarVisibility")
-fun setConfirmationBarVisibility(view: View, state: DirectoryUiState?) {
-    view.visibility = if (state != null && state.isInCopyOrMoveMode) View.VISIBLE else View.GONE
-}
-
-@BindingAdapter("optionBarVisibility")
-fun setOptionBarVisibility(view: View, state: DirectoryUiState?) {
-    val visible =
-        state != null &&
-            state.common.isOptionsPanelVisible &&
-            !state.isInCopyOrMoveMode
-    view.visibility = if (visible) View.VISIBLE else View.GONE
-}
-
-@BindingAdapter("moreMenuVisibility")
-fun setMoreMenuVisibility(view: View, state: DirectoryUiState?) {
-    view.visibility = if (state != null && state.common.isMoreMenuVisible) View.VISIBLE else View.GONE
-}
-
-@BindingAdapter("pathVisibility")
-fun setPathVisibility(view: View, state: DirectoryUiState?) {
-    view.visibility = if (state != null && state.isSearchMode) View.GONE else View.VISIBLE
-}
-
-@BindingAdapter("createFabVisibility")
-fun setCreateFabVisibility(view: View, state: DirectoryUiState?) {
-    val visible =
-        state != null &&
-            !state.isSearchMode &&
-            !state.common.isOptionsPanelVisible &&
-            !state.common.isLoading
+/** Fades the view in when it becomes [visible] and out when it stops being so; its first state is set at once. */
+@BindingAdapter("fadeVisible")
+fun setFadeVisible(view: View, visible: Boolean) {
     val wasVisible = view.getTag(R.id.tag_prev_create_fab_visible) as? Boolean
     view.setTag(R.id.tag_prev_create_fab_visible, visible)
     if (wasVisible == visible) return
@@ -74,13 +36,9 @@ fun setCreateFabVisibility(view: View, state: DirectoryUiState?) {
     }
 }
 
-@BindingAdapter("menuExpandedFabVisibility")
-fun setMenuExpandedFabVisibility(view: View, state: DirectoryUiState?) {
-    val visible =
-        state != null &&
-            state.common.isCreateMenuExpanded &&
-            !state.common.isOptionsPanelVisible &&
-            !state.common.isLoading
+/** Grows the view in when it becomes [visible] and shrinks it out when it stops being so; its first state is set at once. */
+@BindingAdapter("popVisible")
+fun setPopVisible(view: View, visible: Boolean) {
     val wasVisible = view.getTag(R.id.tag_prev_menu_expanded_fab_visible) as? Boolean
     view.setTag(R.id.tag_prev_menu_expanded_fab_visible, visible)
     if (wasVisible == visible) return
@@ -117,15 +75,4 @@ fun setMenuExpandedFabVisibility(view: View, state: DirectoryUiState?) {
             }
             .start()
     }
-}
-
-@BindingAdapter("actionProgressVisibility")
-fun setActionProgressVisibility(view: View, state: DirectoryUiState?) {
-    view.visibility = if (state != null && state.isActionInProgress) View.VISIBLE else View.GONE
-}
-
-@BindingAdapter("emptyFolderVisibility")
-fun setEmptyFolderVisibility(view: View, state: DirectoryUiState?) {
-    val visible = state != null && !state.isLoading && state.files.isEmpty()
-    view.visibility = if (visible) View.VISIBLE else View.GONE
 }

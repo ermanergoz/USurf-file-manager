@@ -1,5 +1,6 @@
 package com.erman.usurf.directory.model
 
+import com.erman.usurf.preference.domain.RootAccessChecker
 import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
 import com.stericson.RootShell.RootShell
@@ -115,7 +116,7 @@ class RootHandler(
     private val isRootShellOpen: () -> Boolean = { !rootShellRequest.openHealthy().isClosed },
     private val submitToShell: (Command) -> Unit = { command -> rootShellRequest.openHealthy().add(command) },
     private val latchWaitMs: (commandTimeoutMs: Int) -> Long = { commandTimeoutMs -> commandTimeoutMs + LATCH_MARGIN_MS }
-) {
+) : RootAccessChecker {
     companion object {
         /**
          * Sets the root shell library up for the whole app, once, before any root command is built: no command posts its
@@ -136,10 +137,10 @@ class RootHandler(
         return parent.removeSuffix(File.separator + fileModel.name)
     }
 
-    fun isDeviceRooted(): Boolean = isSuBinaryFound()
+    override fun isDeviceRooted(): Boolean = isSuBinaryFound()
 
     // A denied request, a request that outlives its bound and a su that cannot start all mean no root access.
-    fun isRootAccessGiven(): Boolean = try {
+    override fun isRootAccessGiven(): Boolean = try {
         isRootShellOpen()
     } catch (err: TimeoutException) {
         loge(err.localizedMessage ?: UNKNOWN_ERROR)
@@ -188,10 +189,15 @@ class RootHandler(
      * taken name is reported as one; otherwise false, a failure with no reason of its own.
      */
     private fun refuseIfTaken(target: String): Boolean {
+        requireFree(target)
+        return false
+    }
+
+    /** Throws [OperationError.AlreadyExists] when something is at [target]. */
+    private fun requireFree(target: String) {
         if (run(RootCommands.isTaken(target)) != null) {
             throw FileOperationException("An item with this name already exists", OperationError.AlreadyExists)
         }
-        return false
     }
 
     /**
@@ -228,13 +234,15 @@ class RootHandler(
     private fun executeRootCommand(line: String, timeoutMs: Int = COMMAND_TIMEOUT_MS): Boolean = run(line, timeoutMs) != null
 
     // Each item stops at a name already taken in the destination, so neither a copy nor a move replaces anything there.
+    // The name is checked before the transfer: a transfer that fails midway can leave part of its item at the name,
+    // which is then no name taken by something else.
     fun copyFile(selectedDirectories: List<FileModel>, copyOrMoveDestination: String): Boolean = selectedDirectories.all { source ->
-        executeRootCommand(RootCommands.copyInto(source.path, copyOrMoveDestination), TRANSFER_TIMEOUT_MS) ||
-            refuseIfTaken(File(copyOrMoveDestination, File(source.path).name).path)
+        requireFree(File(copyOrMoveDestination, File(source.path).name).path)
+        executeRootCommand(RootCommands.copyInto(source.path, copyOrMoveDestination), TRANSFER_TIMEOUT_MS)
     }
 
     fun moveFile(selectedDirectories: List<FileModel>, copyOrMoveDestination: String): Boolean = selectedDirectories.all { source ->
-        executeRootCommand(RootCommands.moveInto(source.path, copyOrMoveDestination), TRANSFER_TIMEOUT_MS) ||
-            refuseIfTaken(File(copyOrMoveDestination, File(source.path).name).path)
+        requireFree(File(copyOrMoveDestination, File(source.path).name).path)
+        executeRootCommand(RootCommands.moveInto(source.path, copyOrMoveDestination), TRANSFER_TIMEOUT_MS)
     }
 }

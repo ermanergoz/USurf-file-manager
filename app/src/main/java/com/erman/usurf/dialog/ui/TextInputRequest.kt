@@ -10,7 +10,8 @@ import kotlinx.parcelize.Parcelize
  * above the field, the positive button's label, and whether the text must be a valid item name. The result is sent
  * under [requestKey] and carries [payload] back with the text, so a dialog restored after the process was stopped
  * still answers for what it was opened for. [selectedLength] characters of the default text are selected when the
- * dialog opens; null selects all of it.
+ * dialog opens; null selects all of it. Only a request with [notifiesCancel] set tells of a cancel, under
+ * [TextInputDialogFragment.cancelKeyOf] its key: one whose screen waits on the answer, as compress and rename do.
  */
 @Parcelize
 data class TextInputRequest(
@@ -22,5 +23,6 @@ data class TextInputRequest(
     @StringRes val positiveButton: Int,
     val validateAsName: Boolean,
     val payload: Bundle = Bundle.EMPTY,
-    val selectedLength: Int? = null
+    val selectedLength: Int? = null,
+    val notifiesCancel: Boolean = false
 ) : Parcelable

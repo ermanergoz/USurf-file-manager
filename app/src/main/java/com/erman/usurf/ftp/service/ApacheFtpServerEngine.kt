@@ -45,20 +45,10 @@ class ApacheFtpServerEngine(private val config: FtpServerConfig) : FtpServerEngi
     // The screen never stores such settings; this keeps an older or edited preference file from opening the share.
     private fun refuseUnprotectedLogin() {
         val error: FtpSettingError =
-            FtpSettingsRules.usernameError(config.username.orEmpty())
-                ?: FtpSettingsRules.passwordError(config.password.orEmpty())
+            FtpSettingsRules.usernameError(config.username)
+                ?: FtpSettingsRules.passwordError(config.password)
                 ?: return
-        val reason: String =
-            when (error) {
-                FtpSettingError.USERNAME_REQUIRED -> "a username is required"
-                FtpSettingError.USERNAME_ANONYMOUS -> "anonymous login is not allowed"
-                FtpSettingError.USERNAME_SPACE_AT_ENDS -> "a username cannot start or end with a space"
-                FtpSettingError.USERNAME_CONTROL_CHARACTER -> "a username cannot contain a control character"
-                FtpSettingError.PASSWORD_REQUIRED -> "a password is required"
-                FtpSettingError.PASSWORD_SPACE_AT_ENDS -> "a password cannot start or end with a space"
-                FtpSettingError.PASSWORD_CONTROL_CHARACTER -> "a password cannot contain a control character"
-            }
-        throw FtpServerStartException(IllegalArgumentException(reason))
+        throw FtpSettingsRefusedException(error)
     }
 
     private fun createServer(listener: Listener): ApacheFtpServer {

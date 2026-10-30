@@ -25,7 +25,8 @@ sealed class BackAction {
  * Decides Back from the screen's state alone, in this order: copy or move mode goes up while it can and otherwise
  * stays; an open panel closes; a search returns to the folder it started from; a folder goes up while it can and
  * otherwise leaves the screen. Going up needs the folder above to be readable and not the top of the file system,
- * as the listing found it, or root.
+ * as the listing found it, or root. While a folder is still being opened its parent is not known yet, so Back stays
+ * rather than leave a screen the next moment would have gone up from.
  */
 internal object BackNavigationPolicy {
     fun decide(state: DirectoryUiState, rootEnabled: Boolean): BackAction {
@@ -34,9 +35,13 @@ internal object BackNavigationPolicy {
             state.isInCopyOrMoveMode -> wayUp(state, rootEnabled) ?: BackAction.Stay
             common.isOptionsPanelVisible || common.isCreateMenuExpanded -> BackAction.ClosePanel
             state.isSearchMode -> BackAction.LeaveSearch(state.previousPath.ifEmpty { ROOT_DIRECTORY })
-            else -> wayUp(state, rootEnabled) ?: BackAction.Leave
+            else -> wayUp(state, rootEnabled) ?: if (isParentStillBeingRead(state)) BackAction.Stay else BackAction.Leave
         }
     }
+
+    // Only a folder that has one: the top of the file system has no parent to wait for.
+    private fun isParentStillBeingRead(state: DirectoryUiState): Boolean =
+        state.readableParent == null && state.common.isLoading && File(state.currentPathForNavigation).parent != null
 
     private fun wayUp(state: DirectoryUiState, rootEnabled: Boolean): BackAction.GoUp? {
         val parent = File(state.currentPathForNavigation).parent ?: return null

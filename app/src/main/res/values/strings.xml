@@ -146,6 +146,7 @@
     <string name="sd_card">SD Card</string>
     <string name="root_storage">Root</string>
     <string name="storage_usage_format" translatable="false">%1$s / %2$s</string>
+    <string name="file_meta_format" translatable="false">"%1$s  ·  %2$s"</string>
     <string name="ftp_section_status">Connection</string>
     <string name="ftp_section_settings">Server Settings</string>
     <string name="ftp_section_storage">Storage Path</string>
@@ -223,5 +224,8 @@
     <string name="choose_sd_card">Choose SD card</string>
     <string name="open_settings">Open settings</string>
     <string name="ftp_server_stop_failed">Could not stop the server: %1$s</string>
+    <string name="ftp_reason_settings_invalid">check the username and password</string>
+    <string name="ftp_reason_port_in_use">port %1$d is already in use</string>
+    <string name="ftp_reason_port_restricted">ports below 1024 can\'t be used on this device</string>
     <string name="ftp_address_unavailable">Address not available yet</string>
 </resources>

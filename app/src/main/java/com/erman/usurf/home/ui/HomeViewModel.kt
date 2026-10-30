@@ -7,11 +7,12 @@ import androidx.lifecycle.viewModelScope
 import com.erman.usurf.R
 import com.erman.usurf.home.domain.FavoriteRepository
 import com.erman.usurf.home.model.FavoriteItem
+import com.erman.usurf.home.model.FavoriteKind
 import com.erman.usurf.home.model.HomeModel
 import com.erman.usurf.storage.domain.StorageAccessPolicy
+import com.erman.usurf.storage.domain.StorageDirectoriesSource
 import com.erman.usurf.utils.Event
 import com.erman.usurf.utils.logi
-import java.io.File
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -20,6 +21,7 @@ class HomeViewModel(
     private val homeModel: HomeModel,
     private val storageAccessPolicy: StorageAccessPolicy,
     private val favoriteRepository: FavoriteRepository,
+    private val storageDirectoriesSource: StorageDirectoriesSource,
     private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
     private val _uiState = MutableLiveData(HomeUiState())
@@ -40,7 +42,7 @@ class HomeViewModel(
 
     fun onStorageButtonClick(path: String) {
         _uiEvents.value = Event(HomeUiEvent.NavigateToDirectory(path))
-        if (storageAccessPolicy.needsSafGrant(path)) {
+        if (storageAccessPolicy.needsFirstSafGrant(path)) {
             _uiEvents.value = Event(HomeUiEvent.RequestSafGrant)
         }
     }
@@ -48,23 +50,25 @@ class HomeViewModel(
     /** Whether a long press on the storage card for [path] offers to grant (or grant again) its SD card access. */
     fun canOfferSafGrant(path: String): Boolean = storageAccessPolicy.canGrantSafAccess(path)
 
-    fun getUsedStoragePercentage(path: String): Int = homeModel.getUsedStoragePercentage(path)
-
-    fun onFavoriteAdd(path: String, name: String): Boolean {
-        logi("Add favorite: $name")
-        return favoriteRepository.addFavorite(path, name)
+    // The repository read what the path holds when it listed the favourites, so this needs no file system call.
+    fun onFavoriteClick(item: FavoriteItem) {
+        _uiEvents.value =
+            Event(
+                when (item.kind) {
+                    FavoriteKind.FOLDER -> HomeUiEvent.NavigateToDirectory(item.path)
+                    FavoriteKind.FILE -> HomeUiEvent.OpenFile(item.path)
+                    FavoriteKind.MISSING -> HomeUiEvent.ShowSnackbar(R.string.invalid_favorite)
+                }
+            )
     }
 
-    fun onFavoriteClick(favoritePath: String) {
-        if (File(favoritePath).exists()) {
-            if (File(favoritePath).isDirectory) {
-                _uiEvents.value =
-                    Event(HomeUiEvent.NavigateToDirectory(favoritePath))
-            } else {
-                _uiEvents.value = Event(HomeUiEvent.OpenFile(favoritePath))
-            }
-        } else {
+    /** Open, chosen in the options of the favourite at [path]: as a tap on it; one no longer listed reads as missing. */
+    fun onFavoriteOpenChosen(path: String) {
+        val item: FavoriteItem? = favorites.value?.firstOrNull { it.path == path }
+        if (item == null) {
             _uiEvents.value = Event(HomeUiEvent.ShowSnackbar(R.string.invalid_favorite))
+        } else {
+            onFavoriteClick(item)
         }
     }
 
@@ -91,10 +95,14 @@ class HomeViewModel(
         }
     }
 
+    // Looks for the volumes again, so a card put in while the app was away shows when the screen is back.
     fun refreshStorageItems() {
         viewModelScope.launch {
-            val items = withContext(ioDispatcher) { homeModel.getStorageItems() }
-            updateState { it.copy(storageItems = items) }
+            val items =
+                withContext(ioDispatcher) {
+                    homeModel.getStorageItems(storageDirectoriesSource.refreshStorageDirectories())
+                }
+            if (items != _uiState.value?.storageItems) updateState { it.copy(storageItems = items) }
         }
     }
 }

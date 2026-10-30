@@ -1,6 +1,8 @@
 package com.erman.usurf.directory.model
 
 import androidx.documentfile.provider.DocumentFile
+import com.erman.usurf.directory.domain.DirectoryRepository
+import com.erman.usurf.directory.domain.FolderSizeRepository
 import com.erman.usurf.directory.utils.MIME_TYPE_ALL
 import com.erman.usurf.storage.data.SafDocumentAccess
 import com.erman.usurf.storage.domain.StoragePathsProvider
@@ -22,16 +24,16 @@ class DirectoryModel(
     private val storagePathsProvider: StoragePathsProvider,
     private val fileCopier: FileCopier,
     private val ioDispatcher: CoroutineDispatcher
-) : FileOperations {
+) : DirectoryRepository,
+    FileOperations,
+    FolderSizeRepository {
     override suspend fun getFileModelsFromDirectory(path: String): List<FileModel> = operationOn(ioDispatcher) {
         directoryListHandler.getFileModelsFromDirectory(path)
     }
 
-    /** The size of the folder at [path], read only when asked for, since a listing never walks the folders it shows. */
-    suspend fun getFolderSize(path: String): String = operationOn(ioDispatcher) { directoryListHandler.folderSizeText(path) }
+    override suspend fun folderSizeOf(path: String): Long = operationOn(ioDispatcher) { directoryListHandler.folderSize(path) }
 
-    /** The folder above [path] when the app can read it; null at the top of the file system or when it cannot be read. */
-    suspend fun readableParentOf(path: String): String? = operationOn(ioDispatcher) {
+    override suspend fun readableParentOf(path: String): String? = operationOn(ioDispatcher) {
         File(path).parentFile?.takeIf { it.canRead() }?.path
     }
 
@@ -39,7 +41,7 @@ class DirectoryModel(
 
     private fun parentOf(path: String): String = File(path).parent ?: File.separator
 
-    suspend fun rename(selectedDirectory: FileModel, newFileName: String) = operationOn(ioDispatcher) {
+    override suspend fun rename(selectedDirectory: FileModel, newFileName: String) = operationOn(ioDispatcher) {
         requireValidName(newFileName)
         if (selectedDirectory.name == newFileName) {
             throw FileOperationException("New name matches the current name", OperationError.NameUnchanged)
@@ -83,15 +85,10 @@ class DirectoryModel(
         }
     }
 
-    /**
-     * Deletes the items at [paths], each a folder or a file as it is on the device when the delete runs: a confirmation
-     * names paths only, and what each one is gets read here, off the main thread.
-     */
-    @JvmName("deletePaths")
-    suspend fun delete(paths: List<String>) = operationOn(ioDispatcher) { delete(itemsAt(paths)) }
+    // A confirmation names paths only, and what each one is gets read here, off the main thread.
+    override suspend fun deletePaths(paths: List<String>) = operationOn(ioDispatcher) { delete(itemsAt(paths)) }
 
-    /** The items at [paths], each a folder or a file as it is on the device now, read off the main thread. */
-    suspend fun itemsAt(paths: List<String>): List<FileModel> = operationOn(ioDispatcher) {
+    override suspend fun itemsAt(paths: List<String>): List<FileModel> = operationOn(ioDispatcher) {
         paths.map { path -> File(path).let { FileModel(path = path, name = it.name, isDirectory = it.isDirectory) } }
     }
 
@@ -131,7 +128,7 @@ class DirectoryModel(
         }
     }
 
-    suspend fun createFile(path: String, fileName: String) = operationOn(ioDispatcher) {
+    override suspend fun createFile(path: String, fileName: String) = operationOn(ioDispatcher) {
         requireValidName(fileName)
         if (needsRoot(path)) {
             rootWriter.write { root -> root.createFile(path, fileName) }
@@ -170,7 +167,7 @@ class DirectoryModel(
         }
     }
 
-    suspend fun moveFile(copyOrMoveSources: List<FileModel>, copyOrMoveDestination: String) = operationOn(ioDispatcher) {
+    override suspend fun moveFile(copyOrMoveSources: List<FileModel>, copyOrMoveDestination: String) = operationOn(ioDispatcher) {
         if (copyOrMoveSources.isEmpty()) return@operationOn
         val isSourceInRoot = copyOrMoveSources.any { it.isInRoot }
         if (needsRoot(copyOrMoveDestination) || isSourceInRoot) {
@@ -230,7 +227,7 @@ class DirectoryModel(
     }
 
     // A search that fails says so instead of returning nothing, which would read as a device without a match.
-    suspend fun getSearchedDeviceFiles(searchQuery: String): List<FileModel> = operationOn(ioDispatcher) {
+    override suspend fun getSearchedDeviceFiles(searchQuery: String): List<FileModel> = operationOn(ioDispatcher) {
         val matchedFiles = mutableListOf<File>()
         val query = searchQuery.lowercase()
         val storagePaths = storagePathsProvider.getStorageDirectories()

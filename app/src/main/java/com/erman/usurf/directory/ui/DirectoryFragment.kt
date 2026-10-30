@@ -1,7 +1,6 @@
 package com.erman.usurf.directory.ui
 
 import android.content.ClipData
-import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
 import android.net.Uri
@@ -16,10 +15,11 @@ import androidx.core.content.FileProvider
 import androidx.core.os.bundleOf
 import androidx.core.view.MenuProvider
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import com.erman.usurf.R
-import com.erman.usurf.activity.model.ShowDialog
+import com.erman.usurf.activity.MainViewModel
 import com.erman.usurf.databinding.FragmentDirectoryBinding
 import com.erman.usurf.dialog.ui.DeleteConfirmationDialog
 import com.erman.usurf.dialog.ui.FileInformationDialog
@@ -29,27 +29,23 @@ import com.erman.usurf.directory.model.FileModel
 import com.erman.usurf.directory.utils.FILE_EXTENSION_SEPARATOR
 import com.erman.usurf.directory.utils.MIME_TYPE_ALL
 import com.erman.usurf.directory.utils.MimeUtils
-import com.erman.usurf.home.model.StorageAccessFramework
-import com.erman.usurf.home.ui.HomeViewModel
 import com.erman.usurf.utils.EventObserver
 import com.erman.usurf.utils.FileOpenUtils
 import com.erman.usurf.utils.ROOT_DIRECTORY
-import com.erman.usurf.utils.UNKNOWN_ERROR
+import com.erman.usurf.utils.ScreenBackCallback
 import com.erman.usurf.utils.loge
 import com.erman.usurf.utils.logi
+import com.erman.usurf.utils.showOnce
 import com.google.android.material.snackbar.Snackbar
 import java.io.File
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 private const val FILE_LIST_GRID_SPAN_COUNT = 1
 
 class DirectoryFragment : Fragment() {
     // The activity's view model, created with the activity's saved state, so a restarted process gives back its folder.
     private val directoryViewModel by activityViewModel<DirectoryViewModel>()
-    private val homeViewModel by sharedViewModel<HomeViewModel>()
-    private lateinit var directoryRecyclerViewAdapter: DirectoryRecyclerViewAdapter
-    private lateinit var dialogListener: ShowDialog
+    private val mainViewModel by activityViewModel<MainViewModel>()
     private var _binding: FragmentDirectoryBinding? = null
     private val binding get() = _binding!!
 
@@ -57,15 +53,6 @@ class DirectoryFragment : Fragment() {
         _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_directory, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = directoryViewModel
-        binding.uiState = directoryViewModel.uiState.value ?: DirectoryUiState()
-
-        directoryViewModel.uiState.observe(viewLifecycleOwner) { state ->
-            binding.uiState = state
-            binding.swipeRefreshLayout.isRefreshing = state.isRefreshing
-            if (::directoryRecyclerViewAdapter.isInitialized) {
-                directoryRecyclerViewAdapter.updateData(state.files)
-            }
-        }
         directoryViewModel.uiEvents.observe(
             viewLifecycleOwner,
             EventObserver { event ->
@@ -80,11 +67,12 @@ class DirectoryFragment : Fragment() {
                     DirectoryUiEvent.ShowCreateFileDialog -> showCreateDialog(CreateKind.FILE)
                     DirectoryUiEvent.ShowCompressDialog -> showCompressDialog()
                     DirectoryUiEvent.ShowSearchDialog -> showSearchDialog()
-                    is DirectoryUiEvent.ShowAddFavoriteDialog -> showAddFavoriteDialog(event.path)
+                    is DirectoryUiEvent.ShowAddFavoriteDialog -> showAddFavoriteDialog(event.path, event.defaultName)
                     is DirectoryUiEvent.OpenFile -> openFile(event.path)
                     is DirectoryUiEvent.Share -> handleShare(event)
-                    is DirectoryUiEvent.ConfirmDelete -> dialogListener.showDialog(DeleteConfirmationDialog.newInstance(event.paths))
-                    DirectoryUiEvent.RequestSafGrant -> (activity as? StorageAccessFramework)?.launchSAF()
+                    is DirectoryUiEvent.ConfirmDelete ->
+                        show(DeleteConfirmationDialog.newInstance(event.paths), DeleteConfirmationDialog.TAG)
+                    DirectoryUiEvent.RequestSafGrant -> mainViewModel.requestSafAccess()
                 }
             }
         )
@@ -103,17 +91,23 @@ class DirectoryFragment : Fragment() {
                 positiveButton = R.string.rename,
                 validateAsName = true,
                 payload = bundleOf(PAYLOAD_PATH to args.path),
-                selectedLength = nameLength
+                selectedLength = nameLength,
+                notifiesCancel = true
             )
         )
     }
 
+    // On this screen's own fragment manager, where its result listeners are, so a result reaches this screen.
+    private fun show(dialog: DialogFragment, tag: String) {
+        showOnce(childFragmentManager, dialog, tag)
+    }
+
     private fun showTextInput(request: TextInputRequest) {
-        dialogListener.showDialog(TextInputDialogFragment.newInstance(request))
+        show(TextInputDialogFragment.newInstance(request), TextInputDialogFragment.TAG)
     }
 
     private fun showInformation(files: List<FileModel>) {
-        dialogListener.showDialog(FileInformationDialog.newInstance(files))
+        show(FileInformationDialog.newInstance(files), FileInformationDialog.TAG)
     }
 
     private fun showCreateDialog(kind: CreateKind) {
@@ -148,7 +142,8 @@ class DirectoryFragment : Fragment() {
                 defaultText = getString(R.string.new_compressed),
                 message = R.string.supported_compression_formats,
                 positiveButton = R.string.compress,
-                validateAsName = true
+                validateAsName = true,
+                notifiesCancel = true
             )
         )
     }
@@ -158,8 +153,7 @@ class DirectoryFragment : Fragment() {
             FileOpenUtils.openFile(
                 context = requireContext(),
                 path = path,
-                grantWritePermission = true,
-                bringToFront = true
+                grantWritePermission = true
             )
         if (!isOpened) {
             Snackbar.make(binding.root, getString(R.string.unsupported_file), Snackbar.LENGTH_LONG).show()
@@ -221,14 +215,14 @@ class DirectoryFragment : Fragment() {
         startActivity(Intent.createChooser(shareIntent, requireContext().getString(R.string.share)))
     }
 
-    // A favourite is named after its folder by default; the top of the file system has no name of its own.
-    private fun showAddFavoriteDialog(path: String) {
+    // A favourite is named after its folder by default; one with no name of its own is offered the new favourite's.
+    private fun showAddFavoriteDialog(path: String, defaultName: String?) {
         showTextInput(
             TextInputRequest(
                 requestKey = ADD_FAVORITE_REQUEST_KEY,
                 title = R.string.addFavorite,
                 hint = R.string.hint_favorite_name,
-                defaultText = File(path).name.ifEmpty { getString(R.string.new_favorite) },
+                defaultText = defaultName ?: getString(R.string.new_favorite),
                 positiveButton = R.string.add,
                 validateAsName = true,
                 payload = bundleOf(PAYLOAD_PATH to path)
@@ -249,7 +243,7 @@ class DirectoryFragment : Fragment() {
     }
 
     private fun registerDialogResultListeners() {
-        val fragmentManager = requireActivity().supportFragmentManager
+        val fragmentManager = childFragmentManager
         fun onText(requestKey: String, onResult: (Bundle, String) -> Unit) {
             fragmentManager.setFragmentResultListener(requestKey, viewLifecycleOwner) { _, bundle ->
                 onResult(bundle, TextInputDialogFragment.textIn(bundle))
@@ -261,9 +255,7 @@ class DirectoryFragment : Fragment() {
         onText(RENAME_REQUEST_KEY) { bundle, name -> directoryViewModel.onRenameOkPressed(bundle.getString(PAYLOAD_PATH).orEmpty(), name) }
         onText(SEARCH_REQUEST_KEY) { _, query -> directoryViewModel.onFileSearchOkPressed(query) }
         onText(ADD_FAVORITE_REQUEST_KEY) { bundle, name ->
-            val isSuccess = homeViewModel.onFavoriteAdd(bundle.getString(PAYLOAD_PATH).orEmpty(), name)
-            val messageResId = if (isSuccess) R.string.favorite_created else R.string.unable_to_create_favorite
-            Snackbar.make(binding.root, getString(messageResId), Snackbar.LENGTH_LONG).show()
+            directoryViewModel.onFavoriteAdd(bundle.getString(PAYLOAD_PATH).orEmpty(), name)
         }
         // A cancelled compress or rename tells the view model that the items it was opened for are no longer waiting.
         for (requestKey in listOf(COMPRESS_REQUEST_KEY, RENAME_REQUEST_KEY)) {
@@ -279,6 +271,9 @@ class DirectoryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         registerDialogResultListeners()
+        // This screen decides Back first; what it does not use goes on to the activity, which closes the drawer or exits.
+        val dispatcher = requireActivity().onBackPressedDispatcher
+        dispatcher.addCallback(viewLifecycleOwner, ScreenBackCallback(dispatcher) { directoryViewModel.onBackPressed() })
         // Navigate to the argument path on first creation, or when the view model has no location to show. On a
         // recreation, and after a stopped process, the view model already shows the folder or the search the user left
         // and has listed it, so it is left as it is.
@@ -303,7 +298,8 @@ class DirectoryFragment : Fragment() {
             viewLifecycleOwner
         )
         binding.fileListRecyclerView.layoutManager = GridLayoutManager(context, FILE_LIST_GRID_SPAN_COUNT)
-        directoryRecyclerViewAdapter =
+        // The rows reach the adapter through the list's binding, from the view model's state.
+        binding.fileListRecyclerView.adapter =
             DirectoryRecyclerViewAdapter(
                 object : FileItemListener {
                     override fun onFileClick(file: FileModel) = directoryViewModel.onFileClick(file)
@@ -313,21 +309,10 @@ class DirectoryFragment : Fragment() {
             ).apply {
                 showThumbnails = directoryViewModel.shouldShowThumbnails
             }
-        binding.fileListRecyclerView.adapter = directoryRecyclerViewAdapter
         binding.fileListRecyclerView.itemAnimator = null
         binding.swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary)
         binding.swipeRefreshLayout.setDistanceToTriggerSync(resources.getDimensionPixelSize(R.dimen.swipe_refresh_trigger_distance))
         binding.swipeRefreshLayout.setOnRefreshListener { directoryViewModel.onSwipeRefresh() }
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-
-        try {
-            dialogListener = context as ShowDialog
-        } catch (err: ClassCastException) {
-            loge(err.localizedMessage ?: UNKNOWN_ERROR)
-        }
     }
 
     override fun onResume() {

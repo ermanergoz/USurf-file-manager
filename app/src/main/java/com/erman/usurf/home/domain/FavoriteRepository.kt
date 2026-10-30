@@ -11,4 +11,7 @@ interface FavoriteRepository {
     fun removeFavorite(path: String): Boolean
 
     fun renameFavorite(path: String, newName: String): Boolean
+
+    /** The name a new favourite of the folder at [path] is offered: the folder's own; none for a volume root, named by the screen. */
+    fun defaultNameFor(path: String): String?
 }

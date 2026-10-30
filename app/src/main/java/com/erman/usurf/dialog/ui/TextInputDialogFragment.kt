@@ -23,7 +23,7 @@ private const val CANCEL_KEY_SUFFIX: String = "_cancelled"
 /**
  * The one dialog that asks for a name or a query. OK is enabled only while the text is acceptable: a name passes
  * [NameRules], the rule the model applies too, and a query needs some text. Back, a tap outside and Cancel send no
- * text; they send the request's payload under [cancelKeyOf] its key, for a screen that waits on the answer.
+ * text; for a request that [TextInputRequest.notifiesCancel], they send its payload under [cancelKeyOf] its key.
  */
 class TextInputDialogFragment : DialogFragment() {
     private val request: TextInputRequest
@@ -79,11 +79,15 @@ class TextInputDialogFragment : DialogFragment() {
         setFragmentResult(request.requestKey, Bundle(request.payload).apply { putString(RESULT_TEXT, text) })
     }
 
+    // Sent only to a screen that listens for it: a result no one listens for would stay in the fragment manager.
     private fun sendCancelled() {
-        setFragmentResult(cancelKeyOf(request.requestKey), Bundle(request.payload))
+        val request = request
+        if (request.notifiesCancel) setFragmentResult(cancelKeyOf(request.requestKey), Bundle(request.payload))
     }
 
     companion object {
+        const val TAG = "text_input"
+
         fun newInstance(request: TextInputRequest): TextInputDialogFragment = TextInputDialogFragment().apply {
             arguments = argumentsFor(request)
         }

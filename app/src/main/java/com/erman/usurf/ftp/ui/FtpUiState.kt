@@ -1,15 +1,22 @@
 package com.erman.usurf.ftp.ui
 
+import android.content.res.Resources
 import androidx.annotation.StringRes
 import com.erman.usurf.R
+import com.erman.usurf.ftp.domain.FtpFailureReason
 import com.erman.usurf.ftp.domain.FtpServerStatus
 import com.erman.usurf.ftp.domain.FtpSettingError
 import com.erman.usurf.ftp.domain.FtpSettingsRules
+import com.erman.usurf.storage.domain.StorageKind
 
 /** A string id of 0: the field has no error. */
 const val NO_ERROR: Int = 0
 
-data class StoragePathItem(val path: String, val displayName: String, val isExternal: Boolean)
+/** One storage directory the server can share, with its kind, which the screen names it by. */
+data class StoragePathItem(val path: String, val kind: StorageKind) {
+    val isExternal: Boolean
+        get() = kind == StorageKind.SD_CARD
+}
 
 data class FtpUiState(
     val url: String = "",
@@ -18,6 +25,8 @@ data class FtpUiState(
     val port: String = "",
     val allowUploads: Boolean = false,
     val storagePaths: List<StoragePathItem> = emptyList(),
+    /** The storage directory the server shares, as stored, then as chosen on the screen; none when there is none. */
+    val selectedPath: String? = null,
     val isConnectedToWifi: Boolean = false,
     val serverStatus: FtpServerStatus = FtpServerStatus.Stopped
 ) {
@@ -75,6 +84,17 @@ data class FtpUiState(
     /** The address a client connects to: with the port while the server runs. */
     val displayedUrl: String
         get() = (serverStatus as? FtpServerStatus.Running)?.url ?: url
+
+    /** The address can be copied while the server runs and the device is on Wi-Fi. */
+    val isCopyUrlVisible: Boolean
+        get() = isConnectedToWifi && isServerRunning
+
+    /** The address line: without Wi-Fi, how to get an address; without one read, that there is none yet; else the address. */
+    fun urlText(resources: Resources): String = when {
+        !isConnectedToWifi -> resources.getString(R.string.ftp_not_connected_hint)
+        !isAddressAvailable -> resources.getString(R.string.ftp_address_unavailable)
+        else -> displayedUrl
+    }
 }
 
 @get:StringRes
@@ -89,11 +109,20 @@ private val FtpSettingError.messageRes: Int
         FtpSettingError.PASSWORD_CONTROL_CHARACTER -> R.string.ftp_password_control_character
     }
 
+/** The reason in the language of [resources]: it follows "Could not start the server: ", so it starts lower case. */
+fun FtpFailureReason.text(resources: Resources): String = when (this) {
+    FtpFailureReason.SettingsInvalid -> resources.getString(R.string.ftp_reason_settings_invalid)
+    is FtpFailureReason.PortInUse -> resources.getString(R.string.ftp_reason_port_in_use, port)
+    is FtpFailureReason.PortRestricted -> resources.getString(R.string.ftp_reason_port_restricted)
+    is FtpFailureReason.Other -> message
+}
+
 sealed class FtpUiEvent {
     data class CopyToClipboard(val url: String) : FtpUiEvent()
 
     data class CopyPassword(val password: String) : FtpUiEvent()
-    data class ShowStartFailure(val reason: String) : FtpUiEvent()
 
-    data class ShowStopFailure(val reason: String) : FtpUiEvent()
+    data class ShowStartFailure(val reason: FtpFailureReason) : FtpUiEvent()
+
+    data class ShowStopFailure(val reason: FtpFailureReason) : FtpUiEvent()
 }

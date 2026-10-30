@@ -15,5 +15,5 @@ sealed interface FtpServerStatus {
      * Not a data class on purpose: every failed attempt is a state of its own, so a second failure with
      * the same reason still reaches observers of a conflating StateFlow.
      */
-    class Failed(val reason: String) : FtpServerStatus
+    class Failed(val reason: FtpFailureReason) : FtpServerStatus
 }

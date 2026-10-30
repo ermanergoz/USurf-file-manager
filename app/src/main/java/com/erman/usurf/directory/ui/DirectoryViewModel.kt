@@ -7,17 +7,19 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.erman.usurf.R
-import com.erman.usurf.directory.model.ArchiveOperations
-import com.erman.usurf.directory.model.DirectoryModel
+import com.erman.usurf.directory.domain.ArchiveRepository
+import com.erman.usurf.directory.domain.DirectoryRepository
 import com.erman.usurf.directory.model.FileModel
 import com.erman.usurf.directory.model.FileOperationException
 import com.erman.usurf.directory.model.OperationError
 import com.erman.usurf.directory.model.operationMessageOr
+import com.erman.usurf.home.domain.FavoriteRepository
 import com.erman.usurf.preference.domain.PreferencesRepository
 import com.erman.usurf.storage.domain.StorageAccessPolicy
 import com.erman.usurf.utils.Event
 import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
+import com.erman.usurf.utils.logi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
@@ -29,15 +31,25 @@ private const val KEY_PENDING_SELECTION = "pendingSelection"
 private const val KEY_PENDING_ROOT_PATHS = "pendingRootPaths"
 
 /**
- * The folder screen's state and intents. A stopped process gives back the folder or the search on screen and the
- * items a compress or rename dialog was opened for; copy or move mode and the selected rows are not given back, so a
- * restored screen browses the same folder, and a write waiting for the SD card grant is dropped with the process.
+ * The folder screen's state and intents.
+ *
+ * It is the activity's view model, for two reasons. Every drawer action clears the screens above Home, this one with
+ * them, so a view model of the screen would be cleared in the middle of an operation and a running copy or compress
+ * would be cancelled with its scope. And whether leaving the app needs a confirmation, [shouldConfirmExit], is read
+ * from any screen. Back is not a reason: this screen decides Back itself. The activity holds it for
+ * [shouldConfirmExit] and [onSafAccessGranted] only.
+ *
+ * A stopped process gives back the folder or the search on screen and the items a compress or rename dialog was
+ * opened for; copy or move mode and the selected rows are not given back, so a restored screen browses the same
+ * folder. A write waiting for the SD card grant is dropped with the process, by design: it is the action itself, which
+ * cannot be saved.
  */
 class DirectoryViewModel(
-    private val directoryModel: DirectoryModel,
+    private val directoryRepository: DirectoryRepository,
     private val preferencesRepository: PreferencesRepository,
     private val storageAccessPolicy: StorageAccessPolicy,
-    private val archiveOperations: ArchiveOperations,
+    private val archiveRepository: ArchiveRepository,
+    private val favoriteRepository: FavoriteRepository,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val isMultiSelectionMode: Boolean
@@ -119,7 +131,7 @@ class DirectoryViewModel(
 
     // Items read again from their paths, those listed through root marked so again.
     private suspend fun itemsAt(paths: List<String>, rootPaths: Set<String>): List<FileModel> =
-        directoryModel.itemsAt(paths).map { item -> if (item.path in rootPaths) item.copy(isInRoot = true) else item }
+        directoryRepository.itemsAt(paths).map { item -> if (item.path in rootPaths) item.copy(isInRoot = true) else item }
 
     private fun takeHeldItems(): List<FileModel> = pendingItems.also { pendingItems = emptyList() }
 
@@ -261,14 +273,14 @@ class DirectoryViewModel(
         listLoadJob = viewModelScope.launch {
             try {
                 // The way up is stored before the listing, so Back finds it even when the folder cannot be listed.
-                val readableParent = if (state.isSearchMode) null else directoryModel.readableParentOf(state.currentPath)
+                val readableParent = if (state.isSearchMode) null else directoryRepository.readableParentOf(state.currentPath)
                 if (!requireCurrentState().showsLocationOf(state)) return@launch
                 updateState { it.copy(readableParent = readableParent) }
                 val files =
                     if (state.isSearchMode) {
-                        directoryModel.getSearchedDeviceFiles(state.query)
+                        directoryRepository.getSearchedDeviceFiles(state.query)
                     } else {
-                        directoryModel.getFileModelsFromDirectory(state.currentPath)
+                        directoryRepository.getFileModelsFromDirectory(state.currentPath)
                     }
                 if (!requireCurrentState().showsLocationOf(state)) return@launch
                 // A search the user waited for says when it found nothing; a refresh of one leaves the message it follows.
@@ -313,35 +325,20 @@ class DirectoryViewModel(
         launchAction(ActionType.COMPRESS) {
             val selection = pendingItemsAt(pending)
             // The archive is written into the folder of the selection.
-            writingTo(listOf(selection.first().folderPath)) { archiveOperations.compressFiles(selection, zipNameWithExtension) }
+            writingTo(listOf(selection.first().folderPath)) { archiveRepository.compressFiles(selection, zipNameWithExtension) }
         }
     }
 
     fun extract() {
         val selection = requireNonEmptySelectionAndResetPanel() ?: return
         launchAction(ActionType.EXTRACT) {
-            writingTo(listOf(selection.first().path)) { archiveOperations.extractFiles(selection.first()) }
+            writingTo(listOf(selection.first().path)) { archiveRepository.extractFiles(selection.first()) }
         }
     }
 
     fun showFileInformation() {
         val selection = requireNonEmptySelectionAndResetPanel() ?: return
         _uiEvents.value = Event(DirectoryUiEvent.ShowInformation(selection))
-    }
-
-    /** The size of the folder at [path], read when its Information asks for it; empty when it cannot be read. */
-    fun folderSizeOf(path: String): LiveData<String> {
-        val size = MutableLiveData<String>()
-        viewModelScope.launch {
-            size.value =
-                try {
-                    directoryModel.getFolderSize(path)
-                } catch (err: FileOperationException) {
-                    loge(err.localizedMessage ?: UNKNOWN_ERROR)
-                    ""
-                }
-        }
-        return size
     }
 
     fun share() {
@@ -381,9 +378,9 @@ class DirectoryViewModel(
             val writtenPaths = if (isMove) listOf(destination) + selection.map { it.path } else listOf(destination)
             writingTo(writtenPaths) {
                 if (isMove) {
-                    directoryModel.moveFile(selection, destination)
+                    directoryRepository.moveFile(selection, destination)
                 } else {
-                    directoryModel.copyFile(selection, destination)
+                    directoryRepository.copyFile(selection, destination)
                 }
             }
         }
@@ -401,7 +398,7 @@ class DirectoryViewModel(
         launchAction(ActionType.RENAME) {
             // The item as the listing found it, while it is still held for the dialog, keeps how it was listed.
             val fileToRename = heldItems.find { it.path == path } ?: itemsAt(listOf(path), rootPaths).first()
-            writingTo(listOf(fileToRename.path)) { directoryModel.rename(fileToRename, newName) }
+            writingTo(listOf(fileToRename.path)) { directoryRepository.rename(fileToRename, newName) }
         }
     }
 
@@ -430,7 +427,7 @@ class DirectoryViewModel(
         if (paths.isEmpty()) return
         updateState(DirectoryUiState::reset)
         launchAction(ActionType.DELETE) {
-            writingTo(paths) { directoryModel.delete(paths) }
+            writingTo(paths) { directoryRepository.deletePaths(paths) }
         }
     }
 
@@ -455,8 +452,8 @@ class DirectoryViewModel(
         launchAction(kind.actionType, DirectoryUiState::closeCreateMenu) {
             writingTo(listOf(path)) {
                 when (kind) {
-                    CreateKind.FOLDER -> directoryModel.createFolder(path, name)
-                    CreateKind.FILE -> directoryModel.createFile(path, name)
+                    CreateKind.FOLDER -> directoryRepository.createFolder(path, name)
+                    CreateKind.FILE -> directoryRepository.createFile(path, name)
                 }
             }
         }
@@ -486,8 +483,15 @@ class DirectoryViewModel(
 
     fun onFavoriteButtonPressed() {
         val selection = requireNonEmptySelectionAndResetPanel() ?: return
-        val file = selection.last()
-        _uiEvents.value = Event(DirectoryUiEvent.ShowAddFavoriteDialog(file.path))
+        val path = selection.last().path
+        _uiEvents.value = Event(DirectoryUiEvent.ShowAddFavoriteDialog(path, favoriteRepository.defaultNameFor(path)))
+    }
+
+    /** The add-favourite dialog's answer: the folder at [path] joins the favourites as [name]. */
+    fun onFavoriteAdd(path: String, name: String) {
+        logi("Add favorite: $name")
+        val messageResId = if (favoriteRepository.addFavorite(path, name)) R.string.favorite_created else R.string.unable_to_create_favorite
+        _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(messageResId))
     }
 
     // The screen lists its folder when it enters it and after every change it makes; a resume lists nothing again,

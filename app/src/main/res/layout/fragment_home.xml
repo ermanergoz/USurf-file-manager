@@ -4,13 +4,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-        <variable
-            name="viewModel"
-            type="com.erman.usurf.home.ui.HomeViewModel" />
-    </data>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -31,16 +24,17 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.gridlayout.widget.GridLayout
+        <!-- The storage cards share the width and take the height their text needs, at any font size. -->
+        <LinearLayout
             android:id="@+id/storageUsageBarLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/vertical_margin_8"
+            android:baselineAligned="false"
+            android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/storageSectionHeader">
-
-        </androidx.gridlayout.widget.GridLayout>
+            app:layout_constraintTop_toBottomOf="@+id/storageSectionHeader" />
 
         <TextView
             android:id="@+id/favoritesSectionHeader"
