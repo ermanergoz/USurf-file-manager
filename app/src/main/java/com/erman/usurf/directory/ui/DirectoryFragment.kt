@@ -46,7 +46,6 @@ class DirectoryFragment : Fragment() {
     // The activity's view model, created with the activity's saved state, so a restarted process gives back its folder.
     private val directoryViewModel by activityViewModel<DirectoryViewModel>()
     private val mainViewModel by activityViewModel<MainViewModel>()
-    private lateinit var directoryRecyclerViewAdapter: DirectoryRecyclerViewAdapter
     private var _binding: FragmentDirectoryBinding? = null
     private val binding get() = _binding!!
 
@@ -54,15 +53,6 @@ class DirectoryFragment : Fragment() {
         _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_directory, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = directoryViewModel
-        binding.uiState = directoryViewModel.uiState.value ?: DirectoryUiState()
-
-        directoryViewModel.uiState.observe(viewLifecycleOwner) { state ->
-            binding.uiState = state
-            binding.swipeRefreshLayout.isRefreshing = state.isRefreshing
-            if (::directoryRecyclerViewAdapter.isInitialized) {
-                directoryRecyclerViewAdapter.updateData(state.files)
-            }
-        }
         directoryViewModel.uiEvents.observe(
             viewLifecycleOwner,
             EventObserver { event ->
@@ -308,7 +298,8 @@ class DirectoryFragment : Fragment() {
             viewLifecycleOwner
         )
         binding.fileListRecyclerView.layoutManager = GridLayoutManager(context, FILE_LIST_GRID_SPAN_COUNT)
-        directoryRecyclerViewAdapter =
+        // The rows reach the adapter through the list's binding, from the view model's state.
+        binding.fileListRecyclerView.adapter =
             DirectoryRecyclerViewAdapter(
                 object : FileItemListener {
                     override fun onFileClick(file: FileModel) = directoryViewModel.onFileClick(file)
@@ -318,7 +309,6 @@ class DirectoryFragment : Fragment() {
             ).apply {
                 showThumbnails = directoryViewModel.shouldShowThumbnails
             }
-        binding.fileListRecyclerView.adapter = directoryRecyclerViewAdapter
         binding.fileListRecyclerView.itemAnimator = null
         binding.swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary)
         binding.swipeRefreshLayout.setDistanceToTriggerSync(resources.getDimensionPixelSize(R.dimen.swipe_refresh_trigger_distance))
