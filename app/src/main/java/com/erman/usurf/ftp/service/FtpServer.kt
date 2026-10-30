@@ -55,7 +55,7 @@ class FtpServer : Service() {
     private fun startServer(startId: Int) {
         val status: FtpServerStatus = controller.start(::readConfig)
         if (status is FtpServerStatus.Failed) {
-            loge(status.reason)
+            loge(status.reason.toString())
             mainHandler.post { stopSelf(startId) }
         }
     }

@@ -1,5 +1,7 @@
 package com.erman.usurf.ftp.service
 
+import com.erman.usurf.ftp.domain.FtpSettingError
+
 private const val PASSWORD_MASK: String = "***"
 
 data class FtpServerConfig(
@@ -21,6 +23,7 @@ interface FtpServerEngine {
      * Binds the listener and starts serving.
      *
      * @return the port the server listens on
+     * @throws FtpSettingsRefusedException when the login it was given is one the server refuses
      * @throws FtpServerStartException when the server cannot start
      */
     fun start(): Int
@@ -33,3 +36,6 @@ interface FtpServerEngine {
 }
 
 class FtpServerStartException(cause: Throwable) : Exception(cause.message, cause)
+
+/** The server refuses to start on a login the screen refuses too: [error] says which rule it breaks. */
+class FtpSettingsRefusedException(val error: FtpSettingError) : Exception("The FTP login is refused: $error")

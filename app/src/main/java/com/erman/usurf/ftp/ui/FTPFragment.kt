@@ -11,11 +11,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
+import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import com.erman.usurf.R
 import com.erman.usurf.databinding.FragmentFtpBinding
+import com.erman.usurf.ftp.domain.FtpFailureReason
 import com.erman.usurf.utils.EventObserver
 import com.erman.usurf.utils.displayNameRes
 import com.google.android.material.snackbar.Snackbar
@@ -30,20 +32,14 @@ class FTPFragment : Fragment() {
     private var _binding: FragmentFtpBinding? = null
     private val binding get() = _binding!!
 
-    // The radio buttons' generated view ids and the paths they stand for: no view id reaches the view model.
-    private val storagePathsByViewId = mutableMapOf<Int, String>()
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_ftp, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = ftpViewModel
-        binding.uiState = ftpViewModel.uiState.value ?: FtpUiState()
-        ftpViewModel.uiState.observe(viewLifecycleOwner) { state ->
-            binding.uiState = state
-        }
         ftpViewModel.storagePaths.observe(viewLifecycleOwner, ::updateStorageRadioButtons)
-        binding.radioButtonGroup.setOnCheckedChangeListener { _, checkedId ->
-            storagePathsByViewId[checkedId]?.let(ftpViewModel::onFtpPathSelected)
+        // Each choice is tagged with its path, so no view id reaches the view model.
+        binding.radioButtonGroup.setOnCheckedChangeListener { group, checkedId ->
+            (group.findViewById<RadioButton>(checkedId)?.tag as? String)?.let(ftpViewModel::onFtpPathSelected)
         }
         ftpViewModel.uiEvents.observe(
             viewLifecycleOwner,
@@ -53,10 +49,8 @@ class FTPFragment : Fragment() {
                         copyUrlToClipboard(event.url)
                     is FtpUiEvent.CopyPassword ->
                         copyPasswordToClipboard(event.password)
-                    is FtpUiEvent.ShowStartFailure ->
-                        Snackbar.make(binding.root, getString(R.string.ftp_server_start_failed, event.reason), Snackbar.LENGTH_LONG).show()
-                    is FtpUiEvent.ShowStopFailure ->
-                        Snackbar.make(binding.root, getString(R.string.ftp_server_stop_failed, event.reason), Snackbar.LENGTH_LONG).show()
+                    is FtpUiEvent.ShowStartFailure -> showFailure(R.string.ftp_server_start_failed, event.reason)
+                    is FtpUiEvent.ShowStopFailure -> showFailure(R.string.ftp_server_stop_failed, event.reason)
                 }
             }
         )
@@ -64,15 +58,14 @@ class FTPFragment : Fragment() {
     }
 
     private fun updateStorageRadioButtons(items: List<StoragePathItem>) {
+        // The state checks the chosen one, through the group's binding, once the group lists it.
         binding.radioButtonGroup.removeAllViews()
-        storagePathsByViewId.clear()
-        val selectedPath: String? = ftpViewModel.getFtpSelectedPath()
         val density: Float = resources.displayMetrics.density
         items.forEach { item ->
             val radioButton = RadioButton(context)
             radioButton.text = getString(item.kind.displayNameRes)
             radioButton.id = View.generateViewId()
-            storagePathsByViewId[radioButton.id] = item.path
+            radioButton.tag = item.path
             radioButton.setPadding(
                 (RADIO_BUTTON_PADDING_START * density).toInt(),
                 radioButton.paddingTop,
@@ -85,11 +78,12 @@ class FTPFragment : Fragment() {
             icon?.setBounds(0, 0, iconSizePx, iconSizePx)
             radioButton.setCompoundDrawables(icon, null, null, null)
             radioButton.compoundDrawablePadding = (RADIO_BUTTON_DRAWABLE_PADDING * density).toInt()
-            if (item.path == selectedPath) {
-                radioButton.isChecked = true
-            }
             binding.radioButtonGroup.addView(radioButton)
         }
+    }
+
+    private fun showFailure(@StringRes messageResId: Int, reason: FtpFailureReason) {
+        Snackbar.make(binding.root, getString(messageResId, reason.text(resources)), Snackbar.LENGTH_LONG).show()
     }
 
     private fun copyUrlToClipboard(url: String) {

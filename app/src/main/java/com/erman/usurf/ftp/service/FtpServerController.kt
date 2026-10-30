@@ -1,7 +1,12 @@
 package com.erman.usurf.ftp.service
 
 import com.erman.usurf.ftp.data.FtpServerState
+import com.erman.usurf.ftp.domain.FtpFailureReason
 import com.erman.usurf.ftp.domain.FtpServerStatus
+import java.net.BindException
+
+// Ports below this one are the privileged ones, which only the system may listen on.
+private const val FIRST_UNPRIVILEGED_PORT: Int = 1024
 
 /**
  * Starts and stops the FTP server and is the only writer of [FtpServerState].
@@ -22,8 +27,11 @@ class FtpServerController(
     fun start(readConfig: () -> FtpServerConfig): FtpServerStatus {
         if (engine != null) return serverState.status.value
         serverState.update(FtpServerStatus.Starting)
+        // The port asked for, once the settings are read: a failure to bind says which one.
+        var configuredPort: Int? = null
         try {
             val config: FtpServerConfig = readConfig()
+            configuredPort = config.port
             val newEngine: FtpServerEngine = createEngine(config)
             engine = newEngine
             val port: Int = newEngine.start()
@@ -34,7 +42,7 @@ class FtpServerController(
             val current: FtpServerEngine? = engine
             engine = null
             current?.let(::release)
-            serverState.update(FtpServerStatus.Failed(describe(err)))
+            serverState.update(FtpServerStatus.Failed(classify(err, configuredPort)))
         }
         return serverState.status.value
     }
@@ -46,7 +54,7 @@ class FtpServerController(
         serverState.update(FtpServerStatus.Stopping)
         val failure: Exception? = release(current)
         if (failure != null) logFailure("The FTP server could not be stopped: ${reasonsOf(failure)}")
-        serverState.update(if (failure == null) FtpServerStatus.Stopped else FtpServerStatus.Failed(describe(failure)))
+        serverState.update(failure?.let { FtpServerStatus.Failed(FtpFailureReason.Other(describe(it))) } ?: FtpServerStatus.Stopped)
     }
 
     /**
@@ -67,6 +75,20 @@ class FtpServerController(
         null
     } catch (err: Exception) {
         err
+    }
+
+    /**
+     * Why a start on [port] failed with [err]: a login the server refuses, a port it could not listen on, a privileged
+     * one below 1024 or one in use, or else the library's own text. Without a port read, a bind failure is the latter.
+     */
+    private fun classify(err: Throwable, port: Int?): FtpFailureReason {
+        val causes: List<Throwable> = generateSequence(err) { it.cause }.toList()
+        return when {
+            causes.any { it is FtpSettingsRefusedException } -> FtpFailureReason.SettingsInvalid
+            port != null && causes.any { it is BindException } ->
+                if (port < FIRST_UNPRIVILEGED_PORT) FtpFailureReason.PortRestricted(port) else FtpFailureReason.PortInUse(port)
+            else -> FtpFailureReason.Other(describe(err))
+        }
     }
 
     // The reason of [failure], then of each failure kept with it.

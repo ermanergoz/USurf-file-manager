@@ -217,5 +217,8 @@
     <string name="choose_sd_card">SD kartı seç</string>
     <string name="open_settings">Ayarları aç</string>
     <string name="ftp_server_stop_failed">Sunucu durdurulamadı: %1$s</string>
+    <string name="ftp_reason_settings_invalid">kullanıcı adını ve şifreyi kontrol edin</string>
+    <string name="ftp_reason_port_in_use">%1$d numaralı port zaten kullanımda</string>
+    <string name="ftp_reason_port_restricted">bu cihazda 1024\'ten küçük portlar kullanılamaz</string>
     <string name="ftp_address_unavailable">Adres henüz alınamadı</string>
 </resources>
