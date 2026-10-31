@@ -36,6 +36,8 @@ import com.erman.usurf.ftp.service.FtpServiceLauncher
 import com.erman.usurf.ftp.ui.FTPViewModel
 import com.erman.usurf.home.data.FavoriteDao
 import com.erman.usurf.home.data.FavoriteRepositoryImpl
+import com.erman.usurf.home.data.RealmFavoriteDao
+import com.erman.usurf.home.data.favoritesRealm
 import com.erman.usurf.home.domain.FavoriteRepository
 import com.erman.usurf.home.model.HomeModel
 import com.erman.usurf.home.ui.HomeViewModel
@@ -56,7 +58,6 @@ import com.erman.usurf.storage.domain.StorageDirectoriesSource
 import com.erman.usurf.storage.domain.StorageDirectoryRepository
 import com.erman.usurf.storage.domain.StoragePathsProvider
 import com.erman.usurf.utils.SHARED_PREF_FILE
-import io.realm.Realm
 import java.security.SecureRandom
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -82,7 +83,7 @@ val appModule =
         }
         single<StoragePathsProvider> { get<StoragePathsProviderImpl>() }
         single<StorageDirectoriesSource> { get<StoragePathsProviderImpl>() }
-        single { ApplicationDao(get(), get()) }
+        single { ApplicationDao(get(), get(), get(named(IO_DISPATCHER))) }
         viewModel { MainViewModel(get(), get(), get(), get()) }
 
         single { PreferenceProvider(get()) }
@@ -124,7 +125,9 @@ val appModule =
         viewModel { FileInformationViewModel(get()) }
 
         single { HomeModel() }
-        single<FavoriteRepository> { FavoriteRepositoryImpl(get(), get(), get(), get(named(IO_DISPATCHER))) }
+        single { favoritesRealm().build() }
+        single<FavoriteDao> { RealmFavoriteDao(get()) }
+        single<FavoriteRepository> { FavoriteRepositoryImpl(get(), get(), get(named(IO_DISPATCHER))) }
         viewModel { HomeViewModel(get(), get(), get(), get(), get(named(IO_DISPATCHER))) }
 
         single { FtpModel() }
@@ -143,13 +146,8 @@ val appModule =
             )
         }
 
-        single {
-            return@single Realm.getDefaultInstance()
-        }
-
         single { FtpPreferenceProvider(get(), get(), FtpCredentialsInitializer(SecureRandom())) }
         single { RootHandler() }
         single<RootAccessChecker> { get<RootHandler>() }
-        single { FavoriteDao(get()) }
         viewModel { PreferencesViewModel(get(), get(), get(named(IO_DISPATCHER))) }
     }

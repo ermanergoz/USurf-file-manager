@@ -79,19 +79,19 @@ class HomeViewModel(
 
     fun deleteFavorite(favoritePath: String) {
         logi("Delete favorite: $favoritePath")
-        if (favoriteRepository.removeFavorite(favoritePath)) {
-            _uiEvents.value = Event(HomeUiEvent.ShowSnackbar(R.string.favorite_deleted))
-        } else {
-            _uiEvents.value = Event(HomeUiEvent.ShowSnackbar(R.string.unable_to_delete_favorite))
+        viewModelScope.launch {
+            val removed: Boolean = favoriteRepository.removeFavorite(favoritePath)
+            val messageResId = if (removed) R.string.favorite_deleted else R.string.unable_to_delete_favorite
+            _uiEvents.value = Event(HomeUiEvent.ShowSnackbar(messageResId))
         }
     }
 
     fun onRenameFavoriteOkPressed(favoritePath: String, newName: String) {
         logi("Rename favorite: $favoritePath to $newName")
-        if (favoriteRepository.renameFavorite(favoritePath, newName)) {
-            _uiEvents.value = Event(HomeUiEvent.ShowSnackbar(R.string.favorite_renamed))
-        } else {
-            _uiEvents.value = Event(HomeUiEvent.ShowSnackbar(R.string.unable_to_rename_favorite))
+        viewModelScope.launch {
+            val renamed: Boolean = favoriteRepository.renameFavorite(favoritePath, newName)
+            val messageResId = if (renamed) R.string.favorite_renamed else R.string.unable_to_rename_favorite
+            _uiEvents.value = Event(HomeUiEvent.ShowSnackbar(messageResId))
         }
     }
 

@@ -490,8 +490,11 @@ class DirectoryViewModel(
     /** The add-favourite dialog's answer: the folder at [path] joins the favourites as [name]. */
     fun onFavoriteAdd(path: String, name: String) {
         logi("Add favorite: $name")
-        val messageResId = if (favoriteRepository.addFavorite(path, name)) R.string.favorite_created else R.string.unable_to_create_favorite
-        _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(messageResId))
+        viewModelScope.launch {
+            val added: Boolean = favoriteRepository.addFavorite(path, name)
+            val messageResId = if (added) R.string.favorite_created else R.string.unable_to_create_favorite
+            _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(messageResId))
+        }
     }
 
     // The screen lists its folder when it enters it and after every change it makes; a resume lists nothing again,

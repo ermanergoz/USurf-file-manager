@@ -2,30 +2,33 @@ package com.erman.usurf.home.data
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
-import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import com.erman.usurf.home.domain.FavoriteRepository
 import com.erman.usurf.home.model.FavoriteItem
 import com.erman.usurf.home.model.FavoriteKind
 import com.erman.usurf.storage.domain.StoragePathsProvider
-import io.realm.Realm
 import java.io.File
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
 
+/** The favourites of [favoriteDao], each written on [ioDispatcher], never on the main thread. */
 class FavoriteRepositoryImpl(
     private val favoriteDao: FavoriteDao,
-    private val realm: Realm,
     private val storagePathsProvider: StoragePathsProvider,
     private val ioDispatcher: CoroutineDispatcher
 ) : FavoriteRepository {
     override fun getFavorites(): LiveData<List<FavoriteItem>> =
-        favoritesWithKinds(favoriteDao.getFavorites().map { results -> realm.copyFromRealm(results) }, ioDispatcher, ::favoriteKindOf)
+        favoritesWithKinds(favoriteDao.getFavorites(), ioDispatcher, ::favoriteKindOf)
 
-    override fun addFavorite(path: String, name: String): Boolean = favoriteDao.addFavorite(path, name)
+    override suspend fun addFavorite(path: String, name: String): Boolean = withContext(ioDispatcher) {
+        favoriteDao.addFavorite(path, name)
+    }
 
-    override fun removeFavorite(path: String): Boolean = favoriteDao.removeFavorite(path)
+    override suspend fun removeFavorite(path: String): Boolean = withContext(ioDispatcher) { favoriteDao.removeFavorite(path) }
 
-    override fun renameFavorite(path: String, newName: String): Boolean = favoriteDao.renameFavorite(path, newName)
+    override suspend fun renameFavorite(path: String, newName: String): Boolean = withContext(ioDispatcher) {
+        favoriteDao.renameFavorite(path, newName)
+    }
 
     override fun defaultNameFor(path: String): String? = defaultFavoriteNameOf(path, storagePathsProvider.getStorageDirectories())
 }
