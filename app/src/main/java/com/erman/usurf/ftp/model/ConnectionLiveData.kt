@@ -5,7 +5,6 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
-import android.os.Build
 import androidx.lifecycle.LiveData
 import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
@@ -27,7 +26,7 @@ class ConnectionLiveData(private val context: Context) : LiveData<Boolean>() {
 
     override fun onActive() {
         super.onActive()
-        postValue(context.isConnected ?: false)
+        postValue(context.isConnected)
         val request =
             NetworkRequest.Builder()
                 .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
@@ -51,19 +50,9 @@ class ConnectionLiveData(private val context: Context) : LiveData<Boolean>() {
     }
 }
 
-val Context.isConnected: Boolean?
-    get() =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val connectivityManager =
-                (getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager)
-            val activeNetwork =
-                connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
-            activeNetwork?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ?: false
-        } else {
-            @Suppress("DEPRECATION")
-            (
-                getSystemService(
-                    Context.CONNECTIVITY_SERVICE
-                ) as? ConnectivityManager
-                )?.getNetworkInfo(ConnectivityManager.TYPE_WIFI)?.isConnected
-        }
+val Context.isConnected: Boolean
+    get() {
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+        return activeNetwork?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ?: false
+    }

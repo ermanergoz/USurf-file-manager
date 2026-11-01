@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_pressed="true">
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/lightBlue">
+    <item android:id="@android:id/mask">
         <shape android:shape="rectangle">
             <corners android:radius="@dimen/corner_radius_12" />
             <solid android:color="@color/lightBlue" />
@@ -15,4 +16,4 @@
                 android:color="@color/cardStroke" />
         </shape>
     </item>
-</selector>
+</ripple>

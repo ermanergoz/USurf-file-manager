@@ -15,7 +15,7 @@ android {
 
     defaultConfig {
         applicationId = "com.erman.usurf"
-        minSdk = 21
+        minSdk = 23
         targetSdk = 36
         versionCode = 8
         versionName = "1.3.1"
@@ -26,7 +26,7 @@ android {
         ndkVersion = "28.0.12433566"
         externalNativeBuild {
             cmake {
-                arguments '-DANDROID_STL=c++_static', '-DANDROID_PLATFORM=android-21'
+                arguments '-DANDROID_STL=c++_static'
                 abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'
             }
         }

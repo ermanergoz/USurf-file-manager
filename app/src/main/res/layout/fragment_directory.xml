@@ -197,11 +197,15 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
+                android:drawablePadding="@dimen/vertical_margin_4"
+                android:drawableTop="@{viewModel.uiState.actionButtonsEnabled ? @drawable/ic_favorite : @drawable/ic_favorite_disabled}"
+                android:drawableTint="@color/colorPrimary"
                 android:enabled="@{viewModel.uiState.actionButtonsEnabled}"
                 android:onClick="@{() -> viewModel.onFavoriteButtonPressed()}"
+                android:paddingTop="@dimen/vertical_margin_8"
                 android:text="@string/favorite"
                 android:textColor="@color/action_button_text"
-                android:textSize="@dimen/text_size_12" />
+                android:textSize="@dimen/text_size_10" />
 
             <Button
                 android:id="@+id/compressButton"
@@ -209,10 +213,14 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
+                android:drawablePadding="@dimen/vertical_margin_4"
+                android:drawableTop="@drawable/ic_zip"
+                android:drawableTint="@color/colorPrimary"
                 android:onClick="@{() -> viewModel.compress()}"
+                android:paddingTop="@dimen/vertical_margin_8"
                 android:text="@string/compress"
                 android:textColor="@color/daynnightTextColor"
-                android:textSize="@dimen/text_size_12" />
+                android:textSize="@dimen/text_size_10" />
 
             <Button
                 android:id="@+id/extractButton"
@@ -220,11 +228,15 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
+                android:drawablePadding="@dimen/vertical_margin_4"
+                android:drawableTop="@{viewModel.uiState.actionButtonsEnabled ? @drawable/ic_unzip : @drawable/ic_unzip_disabled}"
+                android:drawableTint="@color/colorPrimary"
                 android:enabled="@{viewModel.uiState.actionButtonsEnabled}"
                 android:onClick="@{() -> viewModel.extract()}"
+                android:paddingTop="@dimen/vertical_margin_8"
                 android:text="@string/extract"
                 android:textColor="@color/action_button_text"
-                android:textSize="@dimen/text_size_12" />
+                android:textSize="@dimen/text_size_10" />
 
             <Button
                 android:id="@+id/informationButton"
@@ -232,10 +244,14 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
+                android:drawablePadding="@dimen/vertical_margin_4"
+                android:drawableTop="@drawable/ic_info_menu"
+                android:drawableTint="@color/colorPrimary"
                 android:onClick="@{() -> viewModel.showFileInformation()}"
+                android:paddingTop="@dimen/vertical_margin_8"
                 android:text="@string/information"
                 android:textColor="@color/daynnightTextColor"
-                android:textSize="@dimen/text_size_12" />
+                android:textSize="@dimen/text_size_10" />
 
             <Button
                 android:id="@+id/shareButton"
@@ -243,10 +259,14 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
+                android:drawablePadding="@dimen/vertical_margin_4"
+                android:drawableTop="@drawable/ic_share"
+                android:drawableTint="@color/colorPrimary"
                 android:onClick="@{() -> viewModel.share()}"
+                android:paddingTop="@dimen/vertical_margin_8"
                 android:text="@string/share"
                 android:textColor="@color/daynnightTextColor"
-                android:textSize="@dimen/text_size_12" />
+                android:textSize="@dimen/text_size_10" />
         </LinearLayout>
 
         <!-- Option Bar (bottom actions) -->
@@ -270,10 +290,14 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
+                android:drawablePadding="@dimen/vertical_margin_4"
+                android:drawableTop="@drawable/ic_copy"
+                android:drawableTint="@color/colorPrimary"
                 android:onClick="@{() -> viewModel.enterTransferMode(ActionType.COPY)}"
+                android:paddingTop="@dimen/vertical_margin_8"
                 android:text="@string/copy_file"
                 android:textColor="@color/daynnightTextColor"
-                android:textSize="@dimen/text_size_12" />
+                android:textSize="@dimen/text_size_10" />
 
             <Button
                 android:id="@+id/moveButton"
@@ -281,10 +305,14 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
+                android:drawablePadding="@dimen/vertical_margin_4"
+                android:drawableTop="@drawable/ic_move"
+                android:drawableTint="@color/colorPrimary"
                 android:onClick="@{() -> viewModel.enterTransferMode(ActionType.MOVE)}"
+                android:paddingTop="@dimen/vertical_margin_8"
                 android:text="@string/move"
                 android:textColor="@color/daynnightTextColor"
-                android:textSize="@dimen/text_size_12" />
+                android:textSize="@dimen/text_size_10" />
 
             <Button
                 android:id="@+id/renameButton"
@@ -292,11 +320,15 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
+                android:drawablePadding="@dimen/vertical_margin_4"
+                android:drawableTop="@{viewModel.uiState.actionButtonsEnabled ? @drawable/ic_rename : @drawable/ic_rename_disabled}"
+                android:drawableTint="@color/colorPrimary"
                 android:enabled="@{viewModel.uiState.actionButtonsEnabled}"
                 android:onClick="@{() -> viewModel.rename()}"
+                android:paddingTop="@dimen/vertical_margin_8"
                 android:text="@string/rename"
                 android:textColor="@color/action_button_text"
-                android:textSize="@dimen/text_size_12" />
+                android:textSize="@dimen/text_size_10" />
 
             <Button
                 android:id="@+id/deleteButton"
@@ -304,10 +336,14 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
+                android:drawablePadding="@dimen/vertical_margin_4"
+                android:drawableTop="@drawable/ic_delete"
+                android:drawableTint="@color/colorPrimary"
                 android:onClick="@{() -> viewModel.requestDelete()}"
+                android:paddingTop="@dimen/vertical_margin_8"
                 android:text="@string/delete"
                 android:textColor="@color/daynnightTextColor"
-                android:textSize="@dimen/text_size_12" />
+                android:textSize="@dimen/text_size_10" />
 
             <ImageButton
                 android:id="@+id/moreButton"
