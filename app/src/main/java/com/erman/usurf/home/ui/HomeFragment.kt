@@ -66,9 +66,13 @@ class HomeFragment : Fragment() {
                 when (event) {
                     is HomeUiEvent.NavigateToDirectory ->
                         findNavController().navigate(MobileNavigationDirections.globalActionNavDirectory(event.path))
+
                     is HomeUiEvent.ShowFavoriteOptions -> showFavoriteOptions(event.path, event.name)
+
                     is HomeUiEvent.OpenFile -> openFile(event.path)
+
                     HomeUiEvent.RequestSafGrant -> mainViewModel.requestSafAccess()
+
                     is HomeUiEvent.ShowSnackbar ->
                         Snackbar.make(binding.root, getString(event.messageResId), Snackbar.LENGTH_LONG).show()
                 }
@@ -136,9 +140,12 @@ class HomeFragment : Fragment() {
             val path = FavoriteOptionsSheet.pathIn(bundle)
             when (FavoriteOptionsSheet.optionIn(bundle)) {
                 FavoriteOption.OPEN -> homeViewModel.onFavoriteOpenChosen(path)
+
                 // Renaming is a second step, the name dialog, so the options never stay in a rename mode of their own.
                 FavoriteOption.RENAME -> showRenameFavoriteDialog(path, FavoriteOptionsSheet.nameIn(bundle))
+
                 FavoriteOption.REMOVE -> homeViewModel.deleteFavorite(path)
+
                 null -> Unit
             }
         }

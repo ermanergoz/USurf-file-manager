@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Every lint finding fails the build, except the ones below. Each says why it is off for now and what ends it. -->
+<!-- Every lint finding fails the build, except the ones below. Each says why, and what ends it or that it stays. -->
 <lint>
-    <!-- Newer releases of Gradle, its Android plugin and the libraries exist. The build moves to them one step at a
-         time in the toolchain update, which removes these two entries; until then a release elsewhere cannot break
-         this build. -->
-    <issue id="AndroidGradlePluginVersion" severity="ignore" />
-    <issue id="GradleDependency" severity="ignore" />
-    <!-- Glide's annotation processor moves from kapt to KSP in the same toolchain update. -->
-    <issue id="KaptUsageInsteadOfKsp" severity="ignore" />
+    <!-- A newer release of the Android plugin or of a library is listed in the report, never failed on: a release
+         elsewhere cannot break this build. The versions move on purpose, recorded in docs/toolchain.md. It stays. -->
+    <issue id="AndroidGradlePluginVersion" severity="informational" />
+    <issue id="GradleDependency" severity="informational" />
+    <!-- The app targets the API level Google Play requires. A newer platform changes how the app runs, so its target
+         moves on purpose, on its own branch with a device check; the report keeps listing it. It stays. -->
+    <issue id="OldTargetApi" severity="informational" />
     <!-- Found inside the Apache MINA library, in its SSL filter. The FTP server serves plain FTP and never turns that
-         filter on, so no connection of the app's uses this trust manager. -->
+         filter on, so no connection of the app's uses this trust manager. It stays. -->
     <issue id="TrustAllX509TrustManager">
         <ignore path="**/mina-core-*.jar" />
     </issue>

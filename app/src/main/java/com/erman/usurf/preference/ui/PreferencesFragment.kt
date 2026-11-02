@@ -115,6 +115,7 @@ class PreferencesFragment : PreferenceFragmentCompat() {
             is RootAccessChangeResult.Applied -> {
                 findPreference<SwitchPreference>(KEY_PREFERENCE_ROOT_ACCESS)?.isChecked = result.isRootAccessEnabled
             }
+
             is RootAccessChangeResult.Rejected -> {
                 Snackbar.make(requireView(), getString(result.messageResId), Snackbar.LENGTH_LONG).show()
             }

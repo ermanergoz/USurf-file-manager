@@ -18,7 +18,7 @@ class FtpModel {
         NetworkInterface.getNetworkInterfaces()?.toList()?.map { networkInterface ->
             networkInterface.inetAddresses?.toList()?.find {
                 !it.isLoopbackAddress && it is Inet4Address
-            }?.let { ip = it.hostAddress?.toString() ?: "" }
+            }?.let { ip = it.hostAddress ?: "" }
         }
         // With no IPv4 address there is nothing a client could connect to.
         return if (ip.isEmpty()) "" else "$URL_SCHEME$ip"

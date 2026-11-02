@@ -61,17 +61,28 @@ class DirectoryFragment : Fragment() {
                         val message = event.formatArg?.let { getString(event.messageResId, it) } ?: getString(event.messageResId)
                         Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
                     }
+
                     is DirectoryUiEvent.ShowRenameDialog -> showRenameDialog(event)
+
                     is DirectoryUiEvent.ShowInformation -> showInformation(event.files)
+
                     DirectoryUiEvent.ShowCreateFolderDialog -> showCreateDialog(CreateKind.FOLDER)
+
                     DirectoryUiEvent.ShowCreateFileDialog -> showCreateDialog(CreateKind.FILE)
+
                     DirectoryUiEvent.ShowCompressDialog -> showCompressDialog()
+
                     DirectoryUiEvent.ShowSearchDialog -> showSearchDialog()
+
                     is DirectoryUiEvent.ShowAddFavoriteDialog -> showAddFavoriteDialog(event.path, event.defaultName)
+
                     is DirectoryUiEvent.OpenFile -> openFile(event.path)
+
                     is DirectoryUiEvent.Share -> handleShare(event)
+
                     is DirectoryUiEvent.ConfirmDelete ->
                         show(DeleteConfirmationDialog.newInstance(event.paths), DeleteConfirmationDialog.TAG)
+
                     DirectoryUiEvent.RequestSafGrant -> mainViewModel.requestSafAccess()
                 }
             }
@@ -121,6 +132,7 @@ class DirectoryFragment : Fragment() {
                     positiveButton = R.string.create,
                     validateAsName = true
                 )
+
                 CreateKind.FILE -> TextInputRequest(
                     requestKey = CREATE_FILE_REQUEST_KEY,
                     title = R.string.create_file,

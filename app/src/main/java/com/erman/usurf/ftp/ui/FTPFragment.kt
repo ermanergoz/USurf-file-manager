@@ -47,9 +47,12 @@ class FTPFragment : Fragment() {
                 when (event) {
                     is FtpUiEvent.CopyToClipboard ->
                         copyUrlToClipboard(event.url)
+
                     is FtpUiEvent.CopyPassword ->
                         copyPasswordToClipboard(event.password)
+
                     is FtpUiEvent.ShowStartFailure -> showFailure(R.string.ftp_server_start_failed, event.reason)
+
                     is FtpUiEvent.ShowStopFailure -> showFailure(R.string.ftp_server_stop_failed, event.reason)
                 }
             }

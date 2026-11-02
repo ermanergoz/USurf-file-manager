@@ -85,8 +85,10 @@ class FtpServerController(
         val causes: List<Throwable> = generateSequence(err) { it.cause }.toList()
         return when {
             causes.any { it is FtpSettingsRefusedException } -> FtpFailureReason.SettingsInvalid
+
             port != null && causes.any { it is BindException } ->
                 if (port < FIRST_UNPRIVILEGED_PORT) FtpFailureReason.PortRestricted(port) else FtpFailureReason.PortInUse(port)
+
             else -> FtpFailureReason.Other(describe(err))
         }
     }
