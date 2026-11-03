@@ -1,6 +1,5 @@
 package com.erman.usurf.ftp.service
 
-import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -76,23 +75,16 @@ class FtpServer : Service() {
         stopServiceWithNotificationRemoval()
     }
 
-    @SuppressLint("InlinedApi")
     private fun getNotification(): Notification {
         createNotificationChannel()
         val pendingIntent = createNotificationPendingIntent()
         return buildNotification(pendingIntent)
     }
 
-    @SuppressLint("InlinedApi")
     private fun createNotificationPendingIntent(): PendingIntent {
         val intent = Intent(this, MainActivity::class.java)
         intent.putExtra(KEY_INTENT_IS_FTP_NOTIFICATION_CLICKED, true)
-        val flags =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-            } else {
-                PendingIntent.FLAG_IMMUTABLE
-            }
+        val flags = PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         return PendingIntent.getActivity(this, PENDING_INTENT_REQUEST_CODE, intent, flags)
     }
 

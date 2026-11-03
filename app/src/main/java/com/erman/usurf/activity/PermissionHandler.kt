@@ -125,11 +125,9 @@ class PermissionHandler(private val activity: AppCompatActivity, private val onS
             } else {
                 storagePermissionLauncher.launch(permissions)
             }
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (!Environment.isExternalStorageManager()) {
-                ManageAllFilesRequestDialog()
-                    .show(activity.supportFragmentManager, MANAGE_ALL_FILES_DIALOG_TAG)
-            }
+        } else if (!Environment.isExternalStorageManager()) {
+            ManageAllFilesRequestDialog()
+                .show(activity.supportFragmentManager, MANAGE_ALL_FILES_DIALOG_TAG)
         }
     }
 

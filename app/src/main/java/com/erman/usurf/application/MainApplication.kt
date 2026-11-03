@@ -10,39 +10,35 @@ import com.erman.usurf.application.di.appModule
 import com.erman.usurf.application.domain.ApplicationPreferencesRepository
 import com.erman.usurf.directory.model.RootHandler
 import io.realm.Realm
-import io.realm.RealmConfiguration
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext.startKoin
-
-private const val REALM_CONFIG_FILE_NAME = "usurf.realm"
 
 class MainApplication : Application() {
     private val applicationPreferencesRepository: ApplicationPreferencesRepository by inject()
     private val applicationDao: ApplicationDao by inject()
 
+    // Work the process does for itself, outside any screen: it lasts as long as the process.
+    private val applicationScope: CoroutineScope = MainScope()
+
     override fun onCreate() {
         super.onCreate()
 
         RootHandler.configureShell()
+        Realm.init(this)
         startKoin {
             androidContext(this@MainApplication)
             modules(appModule)
         }
 
-        Realm.init(this)
-        val config =
-            RealmConfiguration.Builder()
-                .name(REALM_CONFIG_FILE_NAME)
-                .deleteRealmIfMigrationNeeded()
-                .allowWritesOnUiThread(true)
-                .build()
-
-        Realm.setDefaultConfiguration(config)
-
         if (applicationPreferencesRepository.getIsFirstLaunch()) {
-            applicationDao.addInitialFavorites()
-            applicationPreferencesRepository.setIsFirstLaunch(false)
+            applicationScope.launch {
+                applicationDao.addInitialFavorites()
+                applicationPreferencesRepository.setIsFirstLaunch(false)
+            }
         }
 
         registerActivityLifecycleCallbacks(

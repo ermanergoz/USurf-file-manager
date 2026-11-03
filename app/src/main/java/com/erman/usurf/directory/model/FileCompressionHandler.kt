@@ -23,11 +23,13 @@ class FileCompressionHandler(
     suspend fun compress(compressedFileDirectory: String, multipleSelection: List<FileModel>, archiveType: String): Boolean =
         when (run(SevenZipCommand.compress(compressedFileDirectory, multipleSelection.map { it.path }, archiveType))) {
             SevenZipExitCode.SUCCESS -> isWritten(File(compressedFileDirectory))
+
             SevenZipExitCode.WARNING -> {
                 // The archive lacks the skipped files; left on disk it would look like a complete one.
                 File(compressedFileDirectory).delete()
                 throw FileOperationException("7-Zip skipped some of the files", OperationError.SomeFilesSkipped)
             }
+
             else -> false
         }
 

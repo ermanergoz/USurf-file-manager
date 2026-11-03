@@ -23,8 +23,10 @@ fun relativeToSdCard(canonicalPath: String, base: String): SdCardPath {
     val prefix = base + PATH_SEPARATOR
     return when {
         canonicalPath == base -> SdCardPath.Root
+
         canonicalPath.startsWith(prefix) && base != PATH_SEPARATOR ->
             SdCardPath.Relative(canonicalPath.removePrefix(prefix).split(PATH_SEPARATOR).filter { it.isNotEmpty() })
+
         else -> SdCardPath.Outside
     }
 }

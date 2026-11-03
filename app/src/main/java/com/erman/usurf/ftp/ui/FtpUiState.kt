@@ -71,8 +71,11 @@ data class FtpUiState(
     val statusTextRes: Int
         get() = when (serverStatus) {
             is FtpServerStatus.Running -> R.string.ftp_server_active
+
             FtpServerStatus.Starting -> R.string.ftp_server_starting
+
             FtpServerStatus.Stopping -> R.string.ftp_server_stopping
+
             FtpServerStatus.Stopped, is FtpServerStatus.Failed ->
                 if (isConnectedToWifi) R.string.connected else R.string.no_connection
         }

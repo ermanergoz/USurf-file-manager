@@ -449,5 +449,61 @@
             </LinearLayout>
         </LinearLayout>
 
+        <!-- Open Source Licenses Section -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/vertical_margin_16"
+            android:text="@string/section_licenses"
+            android:textColor="@color/sectionHeaderColor"
+            android:textSize="@dimen/text_size_12"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/vertical_margin_8"
+            android:background="@drawable/button_frame"
+            android:orientation="vertical"
+            android:paddingTop="@dimen/padding_12"
+            android:paddingBottom="@dimen/padding_12">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/horizontal_margin_16"
+                android:paddingEnd="@dimen/horizontal_margin_16"
+                android:text="@string/license_7zip_notice"
+                android:textColor="@color/daynnightTextColor"
+                android:textSize="@dimen/text_size_12" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/vertical_margin_4"
+                android:paddingStart="@dimen/horizontal_margin_16"
+                android:paddingEnd="@dimen/horizontal_margin_16"
+                android:text="@string/license_unrar_restriction"
+                android:textColor="@color/sectionHeaderColor"
+                android:textSize="@dimen/text_size_12"
+                android:textStyle="italic" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="@dimen/horizontal_margin_16"
+                android:layout_marginTop="@dimen/padding_12"
+                android:layout_marginEnd="@dimen/horizontal_margin_16"
+                android:layout_marginBottom="@dimen/vertical_margin_8"
+                android:background="@color/cardStroke" />
+
+            <!-- One row per bundled component, added by the screen from license_entries. -->
+            <LinearLayout
+                android:id="@+id/licenseList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </LinearLayout>
+
     </LinearLayout>
 </ScrollView>

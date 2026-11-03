@@ -135,6 +135,8 @@
     <string name="section_favorites">Favoriler</string>
     <string name="section_links">Bağlantılar</string>
     <string name="section_icon_credits">İkon Kredileri</string>
+    <string name="section_licenses">Açık Kaynak Lisansları</string>
+    <string name="license_7zip_notice">7-Zip © 1999–2026 Igor Pavlov, GNU LGPL 2.1 veya sonraki bir sürümüyle dağıtılır; kaynak kodu github.com/ip7z/7zip adresindedir. RAR çözücüsü, telif hakları Alexander Roshal\'a ait unRAR programının kaynak kodu kullanılarak geliştirilmiştir. unRAR lisansı aşağıdaki kısıtlamayı içerir; bu nedenle kod, RAR (WinRAR) uyumlu bir arşivleyici geliştirmek için kullanılamaz:</string>
     <string name="empty_favorites_title">Henüz favori yok</string>
     <string name="empty_favorites_subtitle">Favori eklemek için bir klasöre uzun basın</string>
     <string name="internal_storage">Dahili Depolama</string>
