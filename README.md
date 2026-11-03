@@ -66,6 +66,12 @@ The archive engine is the upstream [7-Zip source](https://github.com/ip7z/7zip),
 
 Distributed under the MIT license. See `LICENSE` for more information.
 
+USurf includes third-party software under its own licenses, listed in `THIRD_PARTY.md` and on the app's Information
+screen. The archive engine is 7-Zip by Igor Pavlov, under the GNU LGPL 2.1 or later (`app/src/main/cpp/7zip/DOC/License.txt`);
+since the whole app is open source, it can be rebuilt with a modified 7-Zip. Its RAR decoder was developed using source
+code of the unRAR program by Alexander Roshal, whose license does not allow that code to be used to develop a RAR
+(WinRAR) compatible archiver.
+
 ## Author
 
 Yusuf Erman ERGÖZ — erman.ergoz@gmail.com
