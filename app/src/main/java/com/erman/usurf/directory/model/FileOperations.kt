@@ -10,7 +10,11 @@ interface FileOperations {
 
     suspend fun delete(selectedDirectories: List<FileModel>)
 
-    suspend fun copyFile(copyOrMoveSources: List<FileModel>, copyOrMoveDestination: String)
+    /**
+     * Copies [sources] into [destinationFolder], a folder of the app's own, so that every copy is the app's to read and
+     * delete, a copy made through root of an item listed through root included; the sources stay as they are.
+     */
+    suspend fun copyOwned(sources: List<FileModel>, destinationFolder: String)
 
     /** Copies [source] into [destinationFolder] and reads the copy back against it; the source stays as it is. */
     suspend fun copyVerified(source: File, destinationFolder: File)

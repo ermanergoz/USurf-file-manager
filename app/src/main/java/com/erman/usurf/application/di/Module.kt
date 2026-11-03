@@ -2,6 +2,7 @@ package com.erman.usurf.application.di
 
 import android.content.Context
 import android.os.Build
+import android.os.Process
 import androidx.documentfile.provider.DocumentFile
 import com.erman.usurf.activity.MainViewModel
 import com.erman.usurf.application.data.ApplicationDao
@@ -111,7 +112,7 @@ val appModule =
             FileCopierImpl(get()) { uri -> context.contentResolver.openOutputStream(uri) }
         }
         single { RootWriter(get(), get(), get(), Build.VERSION.SDK_INT, get<Context>().packageName) }
-        single { DirectoryModel(get(), get(), get(), get(), get(), get(named(IO_DISPATCHER))) }
+        single { DirectoryModel(get(), get(), get(), get(), get(), get(named(IO_DISPATCHER)), Process.myUid()) }
         single<DirectoryRepository> { get<DirectoryModel>() }
         single<ArchiveRepository> { ArchiveOperations(get(), get<DirectoryModel>(), get(), get(named(IO_DISPATCHER))) }
         // The lambda defers loading the native library to the first 7-Zip run.

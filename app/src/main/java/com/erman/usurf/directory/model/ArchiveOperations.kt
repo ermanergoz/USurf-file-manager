@@ -61,18 +61,17 @@ class ArchiveOperations(
             if (!isCompressed) compressViaCache(multipleSelection, target)
         }
 
-    private suspend fun compressViaCache(sources: List<FileModel>, target: ArchiveTarget) =
-        inCacheTempFolder(sources.any { it.isInRoot }) { tempFolder ->
-            val cachedArchivePath = "${tempFolder.path}${File.separator}${target.fileName}"
-            fileOperations.copyFile(sources, tempFolder.path)
-            val cachedFiles = fileOperations.getFileModelsFromDirectory(tempFolder.path).toMutableList()
-            val isCompressed = fileCompressionHandler.compress(cachedArchivePath, cachedFiles, target.type)
-            if (isCompressed) {
-                placeArchiveInParent(File(cachedArchivePath), target)
-            } else {
-                throw FileOperationException("Compression failed", OperationError.CompressionFailed)
-            }
+    private suspend fun compressViaCache(sources: List<FileModel>, target: ArchiveTarget) = inCacheTempFolder { tempFolder ->
+        val cachedArchivePath = "${tempFolder.path}${File.separator}${target.fileName}"
+        fileOperations.copyOwned(sources, tempFolder.path)
+        val cachedFiles = fileOperations.getFileModelsFromDirectory(tempFolder.path).toMutableList()
+        val isCompressed = fileCompressionHandler.compress(cachedArchivePath, cachedFiles, target.type)
+        if (isCompressed) {
+            placeArchiveInParent(File(cachedArchivePath), target)
+        } else {
+            throw FileOperationException("Compression failed", OperationError.CompressionFailed)
         }
+    }
 
     // The cache lies on no storage volume, so the archive reaches its folder as a copy that is read back, and the cached
     // archive goes with the temp folder. A copy the platform refuses stays a refusal, the case an SD card grant can help.
@@ -87,10 +86,9 @@ class ArchiveOperations(
 
     // Every run through the cache works in a folder of its own, made inside the try so a failed start is cleaned up
     // too, and deleted however the run ends. A folder a killed run left behind is deleted first, so it never blocks or
-    // fills the cache; a folder another run of this process still works in is kept. Root copies items listed through
-    // root into the cache with root kept as their owner, so the folder of such a run, [holdsRootCopies], is deleted
-    // through root.
-    private suspend fun <T> inCacheTempFolder(holdsRootCopies: Boolean, work: suspend (File) -> T): T {
+    // fills the cache; a folder another run of this process still works in is kept. Everything in the folder is the
+    // app's, copies of items listed through root included, so the app deletes it itself.
+    private suspend fun <T> inCacheTempFolder(work: suspend (File) -> T): T {
         deleteLeftoverTempFolders()
         val tempFolder = File(fileCompressionHandler.cacheDirectory, "$TEMP_FOLDER_PREFIX-${System.nanoTime()}")
         liveTempFolders += tempFolder.name
@@ -99,30 +97,36 @@ class ArchiveOperations(
             return work(tempFolder)
         } finally {
             try {
-                deleteTempFolder(tempFolder, holdsRootCopies)
+                deleteTempFolder(tempFolder)
             } finally {
                 liveTempFolders -= tempFolder.name
             }
         }
     }
 
-    // A leftover that cannot be deleted is logged and left: it no longer blocks a run, which works in a folder of its own.
+    // A leftover the app cannot delete is one a run left whose copies through root were still root's, as before they
+    // were given to the app, so root, while it is on, deletes it, once. One that stays is logged and left: it no
+    // longer blocks a run, which works in a folder of its own.
     private suspend fun deleteLeftoverTempFolders() {
         val leftovers =
             fileCompressionHandler.cacheDirectory.listFiles().orEmpty()
                 .filter { it.name.startsWith(TEMP_FOLDER_PREFIX) && it.name !in liveTempFolders }
         leftovers.forEach { leftover ->
-            try {
-                deleteTempFolder(leftover, holdsRootCopies = false)
-            } catch (err: FileOperationException) {
-                loge(err.localizedMessage ?: UNKNOWN_ERROR)
-            }
+            if (!deleteTempFolder(leftover)) deleteTempFolder(leftover, throughRoot = true)
         }
     }
 
-    private suspend fun deleteTempFolder(tempFolder: File, holdsRootCopies: Boolean) {
-        val folder = FileModel(path = tempFolder.path, name = tempFolder.name, isDirectory = true, isInRoot = holdsRootCopies)
-        fileOperations.delete(listOf(folder))
+    // A temp folder that cannot be deleted is logged and left to the next run, so it never replaces the result of the
+    // work done in it. True when the folder is gone.
+    private suspend fun deleteTempFolder(tempFolder: File, throughRoot: Boolean = false): Boolean {
+        val folder = FileModel(path = tempFolder.path, name = tempFolder.name, isDirectory = true, isInRoot = throughRoot)
+        return try {
+            fileOperations.delete(listOf(folder))
+            true
+        } catch (err: FileOperationException) {
+            loge("The temp folder ${tempFolder.name} stays in the cache: ${err.localizedMessage ?: UNKNOWN_ERROR}")
+            false
+        }
     }
 
     override suspend fun extractFiles(selectedDirectory: FileModel) = operationOn(ioDispatcher) {
@@ -160,10 +164,10 @@ class ArchiveOperations(
     }
 
     private suspend fun extractViaCache(selectedDirectory: FileModel, extractedFolderName: String, extractionDestination: String) =
-        inCacheTempFolder(selectedDirectory.isInRoot) { tempFolder ->
+        inCacheTempFolder { tempFolder ->
             val cachedCompressedFilePath = tempFolder.path + File.separator + selectedDirectory.name
             val cachedExtractedFolderPath = tempFolder.path + File.separator + extractedFolderName
-            fileOperations.copyFile(listOf(selectedDirectory), tempFolder.path)
+            fileOperations.copyOwned(listOf(selectedDirectory), tempFolder.path)
             fileOperations.createFolder(tempFolder.path, extractedFolderName)
             val isExtracted =
                 fileCompressionHandler.extract(cachedCompressedFilePath, cachedExtractedFolderPath)

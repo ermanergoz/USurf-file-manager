@@ -8,12 +8,6 @@ import java.io.File
  */
 internal object RootCommands {
     /**
-     * Wraps an arbitrary file name or path so it is a single literal argument in a POSIX shell,
-     * preventing quotes and metacharacters in a name from breaking out of the command (root injection).
-     */
-    fun quote(value: String): String = "'" + value.replace("'", "'\\''") + "'"
-
-    /**
      * Lists [folder] with a slash after each folder name and hidden entries included; fails and lists nothing when
      * [folder] cannot be entered. An entry ls cannot read, as in /proc, leaves out that entry only: the listing does not
      * fail on the exit status of ls, and its error messages never become rows.
@@ -48,11 +42,24 @@ internal object RootCommands {
         return rename(source.path, File(destinationFolder, source.name).path)
     }
 
+    /**
+     * Gives [path] and everything inside it to the user [uid], in the group of the same id as an app's own files are,
+     * and lets that owner read and write every entry and enter every folder. A link is changed itself, never what it
+     * points to.
+     */
+    fun ownInto(path: String, uid: Int): String = "chown -R ${quote("$uid:$uid")} ${quote(path)} && chmod -R u+rwX ${quote(path)}"
+
     /** Succeeds when anything is at [path], a link to nothing included. */
     fun isTaken(path: String): String = "[ -e ${quote(path)} ] || [ -L ${quote(path)} ]"
 
     /** Remounts the root file system with [mountOption]'s mode. */
     fun remountRoot(mountOption: MountOption): String = "mount -o ${mountOption.option},remount /"
+
+    /**
+     * Wraps an arbitrary file name or path so it is a single literal argument in a POSIX shell,
+     * preventing quotes and metacharacters in a name from breaking out of the command (root injection).
+     */
+    private fun quote(value: String): String = "'" + value.replace("'", "'\\''") + "'"
 
     // A link is checked apart from what it points to, since -e follows it and is false for a link to nothing.
     private fun unlessTaken(path: String): String = "[ ! -e ${quote(path)} ] && [ ! -L ${quote(path)} ] &&"

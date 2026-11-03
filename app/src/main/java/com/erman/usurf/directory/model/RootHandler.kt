@@ -19,8 +19,8 @@ import java.util.concurrent.atomic.AtomicInteger
 private const val EXIT_CODE_SUCCESS: Int = 0
 
 // How long the shell lets a command run before it ends it: a listing, a new folder or file, a rename or a remount
-// answers at once, so 20 s (the shell's own default) still ends one that hangs; a delete, copy or move of a large
-// tree may run for minutes.
+// answers at once, so 20 s (the shell's own default) still ends one that hangs; a delete, copy, move or change of
+// owner of a large tree may run for minutes.
 private const val COMMAND_TIMEOUT_MS: Int = 20_000
 private const val TRANSFER_TIMEOUT_MS: Int = 600_000
 
@@ -245,4 +245,7 @@ class RootHandler(
         requireFree(File(copyOrMoveDestination, File(source.path).name).path)
         executeRootCommand(RootCommands.moveInto(source.path, copyOrMoveDestination), TRANSFER_TIMEOUT_MS)
     }
+
+    /** Gives [path] and everything inside it to the user [uid], who can then read, write and delete all of it. */
+    fun takeOwnership(path: String, uid: Int): Boolean = executeRootCommand(RootCommands.ownInto(path, uid), TRANSFER_TIMEOUT_MS)
 }
