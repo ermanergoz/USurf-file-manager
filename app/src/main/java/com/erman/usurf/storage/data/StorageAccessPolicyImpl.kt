@@ -20,9 +20,10 @@ private const val PATH_SEPARATOR: String = "/"
  * [StorageAccessPolicy] from the volumes the app sees, the tree it stored and the platform version. Android 11 and
  * newer write to removable volumes through all-files access, so there no tree is ever asked for.
  *
- * The platform is asked once per volume whether it is removable and once per tree whether its grant is held, so a tap
- * costs no call to the system after the first. A grant not held is asked again each time, so a new one counts at once;
- * a held one stays held, since only the app itself, or clearing its data, gives a persisted grant up.
+ * The platform is asked once per volume whether it is removable. Opening a card asks once per tree whether its grant
+ * is held, so a tap costs no call to the system after the first; a grant not held is asked again each time, so a new
+ * one counts at once. A refused write asks the platform every time, since clearing the storage of the documents
+ * provider gives up a grant the app still remembers; what it answers also holds for the next tap.
  */
 class StorageAccessPolicyImpl(
     private val storagePathsProvider: StoragePathsProvider,
@@ -54,23 +55,29 @@ class StorageAccessPolicyImpl(
 
     // The app stores one tree, so after the card was swapped it is a grant on the old card: it counts only
     // when the tree lies on the volume asked about, and only while the platform still holds its grant.
-    private fun holdsStoredGrantOn(volume: String): Boolean = heldTreeFolderOn(volume) != null
+    private fun holdsStoredGrantOn(volume: String): Boolean = heldTreeFolderOn(volume, ::isHeldAsRemembered) != null
 
     // The tree reaches only the folder it was granted for and what lies inside it.
     private fun holdsStoredGrantCovering(path: String, volume: String): Boolean {
-        val folder = heldTreeFolderOn(volume) ?: return false
+        val folder = heldTreeFolderOn(volume, ::isHeldNow) ?: return false
         return path == folder || path.startsWith("$folder$PATH_SEPARATOR")
     }
 
-    // The stored tree's folder as a path on [volume], while its grant is held; null for a tree on another volume.
-    private fun heldTreeFolderOn(volume: String): String? {
+    // The stored tree's folder as a path on [volume], while [isHeld] says its grant is; null for a tree on another volume.
+    private fun heldTreeFolderOn(volume: String, isHeld: (String) -> Boolean): String? {
         val treeUri = storageDirectoryRepository.getChosenUri()?.takeIf { it.isNotBlank() } ?: return null
         val folder = grantedTreeOf(treeUri)?.folderOn(volume) ?: return null
         return folder.takeIf { isHeld(treeUri) }
     }
 
-    private fun isHeld(treeUri: String): Boolean =
-        heldTrees.containsKey(treeUri) || isGrantHeld(treeUri).also { held -> if (held) heldTrees[treeUri] = true }
+    private fun isHeldAsRemembered(treeUri: String): Boolean = heldTrees.containsKey(treeUri) || isHeldNow(treeUri)
+
+    // Asks the platform and remembers its answer, so a grant it gave up no longer counts when the card is opened.
+    private fun isHeldNow(treeUri: String): Boolean {
+        val held = isGrantHeld(treeUri)
+        if (held) heldTrees[treeUri] = true else heldTrees.remove(treeUri)
+        return held
+    }
 
     companion object {
         /** Whether the volume mounted at [volumePath] is removable; a path that is no storage volume is not. */
