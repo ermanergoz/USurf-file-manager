@@ -104,23 +104,29 @@ class ArchiveOperations(
         }
     }
 
-    // A leftover that cannot be deleted is logged and left: it no longer blocks a run, which works in a folder of its own.
+    // A leftover the app cannot delete is one a run left whose copies through root were still root's, as before they
+    // were given to the app, so root, while it is on, deletes it, once. One that stays is logged and left: it no
+    // longer blocks a run, which works in a folder of its own.
     private suspend fun deleteLeftoverTempFolders() {
         val leftovers =
             fileCompressionHandler.cacheDirectory.listFiles().orEmpty()
                 .filter { it.name.startsWith(TEMP_FOLDER_PREFIX) && it.name !in liveTempFolders }
         leftovers.forEach { leftover ->
-            try {
-                deleteTempFolder(leftover)
-            } catch (err: FileOperationException) {
-                loge(err.localizedMessage ?: UNKNOWN_ERROR)
-            }
+            if (!deleteTempFolder(leftover)) deleteTempFolder(leftover, throughRoot = true)
         }
     }
 
-    private suspend fun deleteTempFolder(tempFolder: File) {
-        val folder = FileModel(path = tempFolder.path, name = tempFolder.name, isDirectory = true)
-        fileOperations.delete(listOf(folder))
+    // A temp folder that cannot be deleted is logged and left to the next run, so it never replaces the result of the
+    // work done in it. True when the folder is gone.
+    private suspend fun deleteTempFolder(tempFolder: File, throughRoot: Boolean = false): Boolean {
+        val folder = FileModel(path = tempFolder.path, name = tempFolder.name, isDirectory = true, isInRoot = throughRoot)
+        return try {
+            fileOperations.delete(listOf(folder))
+            true
+        } catch (err: FileOperationException) {
+            loge("The temp folder ${tempFolder.name} stays in the cache: ${err.localizedMessage ?: UNKNOWN_ERROR}")
+            false
+        }
     }
 
     override suspend fun extractFiles(selectedDirectory: FileModel) = operationOn(ioDispatcher) {
