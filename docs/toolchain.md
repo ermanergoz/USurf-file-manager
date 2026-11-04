@@ -18,7 +18,7 @@ fails the build; the versions here move on purpose, on a branch of their own.
 | Dependency | Version | Resolved as | Checked on |
 |---|---|---|---|
 | Gradle (wrapper) | 9.9.0 | latest stable | 2026-11-08 |
-| Android Gradle plugin (`com.android.tools.build:gradle`) | 9.5.1 | latest stable; run with `android.builtInKotlin=false` and `android.newDsl=false`, because Realm's plugin finds Kotlin through the Kotlin Android plugin and reads the classic `android` extension. A later plugin that drops both options is held until the favourites leave Realm Java | 2026-11-08 |
+| Android Gradle plugin (`com.android.tools.build:gradle`) | 9.5.1 | latest stable; run with `android.builtInKotlin=false` and `android.newDsl=false`, because Realm's plugin finds Kotlin through the Kotlin Android plugin and reads the classic `android` extension. A later plugin that drops both options is held until the favourites leave Realm Java. The plugin prints both options as deprecated on every build, beside the Kotlin Android plugin's own deprecation notice and the obsolete variant API warnings of Realm's and Safe Args' plugins; those warnings are this hold's trigger and are never silenced: the first plugin release that removes either option, or breaks this path, is held here with its reason | 2026-11-08 |
 | Kotlin (`org.jetbrains.kotlin:kotlin-gradle-plugin`, with kapt and parcelize) | 2.4.21 | latest stable | 2026-11-08 |
 | KSP (`com.google.devtools.ksp:symbol-processing-gradle-plugin`) | 2.3.13 | latest stable | 2026-11-08 |
 | Realm (`io.realm:realm-gradle-plugin`, `realm-annotations-processor`) | 10.19.0 | latest stable; the last Realm Java release | 2026-11-08 |
@@ -26,8 +26,8 @@ fails the build; the versions here move on purpose, on a branch of their own.
 | compileSdk | 37 | latest stable platform | 2026-11-08 |
 | targetSdk | 36 | held: the level Google Play requires; a newer target changes how the app runs and moves on its own branch with a device check | 2026-11-08 |
 | minSdk | 23 | the product's minimum (Android 6.0) | 2026-11-08 |
-| NDK | 29.0.14206865 | the newest NDK in this machine's SDK; the SDK manager is not queried by the build | 2026-11-08 |
-| CMake | 3.22.1 | the newest CMake in this machine's SDK | 2026-11-08 |
+| NDK | 29.0.14206865 | held: 30.0.16248370 is the newest stable; the 7-Zip native library is built and checked on 29 for all four ABIs, so the NDK moves on a branch of its own with that build and a device check | 2026-11-08 |
+| CMake | 3.22.1 | held: 4.1.2 is the newest stable; the native build list asks for 3.22.1 at least and is checked on it, so CMake moves with the NDK, on the same branch | 2026-11-08 |
 | 7-Zip (`app/src/main/cpp/7zip`, ip7z/7zip) | 26.06 (`d3296e3`) | latest stable tag; never below 26.02 | 2026-11-08 |
 | JDK | 17 | the build machine's; Java and Kotlin compile for JVM 11 | 2026-11-08 |
 
@@ -51,7 +51,7 @@ fails the build; the versions here move on purpose, on a branch of their own.
 | `com.github.bumptech.glide:glide`, `ksp` | 5.0.9 | latest stable | 2026-11-08 |
 | `io.insert-koin:koin-android` | 4.2.2 | latest stable | 2026-11-08 |
 | `com.github.Stericson:RootTools` (JitPack) | 5.0 | latest stable | 2026-11-08 |
-| RootShell (`app/libs/RootShell.aar`) | 1.6 | held: JitPack lists `com.github.Stericson:RootShell:1.6` but serves no AAR or JAR for it, so the build keeps the 1.6 AAR in the repository (SHA-256 `02d1a560fcaa1f803a6179da8be4b0fab3f8ea5bbcf168998f0f305b48cadc45`) | 2026-11-08 |
+| RootShell (`app/libs/RootShell.aar`) | 1.6 | held: JitPack lists `com.github.Stericson:RootShell:1.6` but serves no AAR or JAR for it, so the build keeps the 1.6 AAR in the repository (SHA-256 `02d1a560fcaa1f803a6179da8be4b0fab3f8ea5bbcf168998f0f305b48cadc45`), which equals the GitHub release asset `RootShell.aar` of RootShell 1.6, 2017-11-26 | 2026-11-08 |
 
 ## Quality tools
 
