@@ -355,8 +355,7 @@
                 android:onClick="@{() -> viewModel.toggleMoreMenu()}"
                 android:src="@{viewModel.uiState.common.isMoreMenuVisible ? @drawable/ic_down_arrow : @drawable/ic_up_arrow}"
                 app:tint="@color/daynnightTextColor"
-                android:visibility="@{viewModel.uiState.atRootDirectory ? View.GONE : View.VISIBLE}"
-                tools:ignore="ContentDescription" />
+                android:visibility="@{viewModel.uiState.atRootDirectory ? View.GONE : View.VISIBLE}" />
         </LinearLayout>
 
         <!-- FABs -->

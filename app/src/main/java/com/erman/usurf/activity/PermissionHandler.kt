@@ -173,7 +173,6 @@ class PermissionHandler(private val activity: AppCompatActivity, private val onS
         manageAllFilesLauncher.launch(intent)
     }
 
-    @SuppressLint("InlinedApi")
     private fun launchSafPicker() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
         safLauncher.launch(intent)

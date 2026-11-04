@@ -8,6 +8,15 @@
     <!-- The app targets the API level Google Play requires. A newer platform changes how the app runs, so its target
          moves on purpose, on its own branch with a device check; the report keeps listing it. It stays. -->
     <issue id="OldTargetApi" severity="informational" />
+    <!-- The app is laid out for portrait only, so its one activity asks for portrait in the manifest. Android 16 and
+         later may still rotate it on a large screen, which lint names; the request stays for every other device. It
+         stays. -->
+    <issue id="LockedOrientationActivity">
+        <ignore path="src/main/AndroidManifest.xml" />
+    </issue>
+    <issue id="DiscouragedApi">
+        <ignore path="src/main/AndroidManifest.xml" />
+    </issue>
     <!-- Found inside the Apache MINA library, in its SSL filter. The FTP server serves plain FTP and never turns that
          filter on, so no connection of the app's uses this trust manager. It stays. -->
     <issue id="TrustAllX509TrustManager">

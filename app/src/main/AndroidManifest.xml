@@ -50,10 +50,12 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_provider_paths" />
         </provider>
+        <!-- Every screen is laid out for portrait only, so the one activity asks for portrait. -->
         <activity
             android:exported="true"
             android:name="com.erman.usurf.activity.MainActivity"
             android:launchMode="singleTop"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
