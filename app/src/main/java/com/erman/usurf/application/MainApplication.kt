@@ -1,10 +1,6 @@
 package com.erman.usurf.application
 
-import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.Application
-import android.content.pm.ActivityInfo
-import android.os.Bundle
 import com.erman.usurf.application.data.ApplicationDao
 import com.erman.usurf.application.di.appModule
 import com.erman.usurf.application.domain.ApplicationPreferencesRepository
@@ -40,26 +36,5 @@ class MainApplication : Application() {
                 applicationPreferencesRepository.setIsFirstLaunch(false)
             }
         }
-
-        registerActivityLifecycleCallbacks(
-            object : ActivityLifecycleCallbacks {
-                @SuppressLint("SourceLockedOrientationActivity")
-                override fun onActivityCreated(p0: Activity, p1: Bundle?) {
-                    p0.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                }
-
-                override fun onActivityStarted(p0: Activity) = Unit
-
-                override fun onActivityResumed(p0: Activity) = Unit
-
-                override fun onActivityPaused(p0: Activity) = Unit
-
-                override fun onActivityStopped(p0: Activity) = Unit
-
-                override fun onActivitySaveInstanceState(p0: Activity, p1: Bundle) = Unit
-
-                override fun onActivityDestroyed(p0: Activity) = Unit
-            }
-        )
     }
 }

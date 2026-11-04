@@ -67,7 +67,7 @@ class PreferencesViewModel(
     }
 
     fun onAscendingOrderPreferenceChanged(newValue: Boolean) {
-        preferencesRepository.setAscendingOrderPreference(newValue)
+        preferencesRepository.setDescendingOrderPreference(!newValue)
     }
 
     fun onDescendingOrderPreferenceChanged(newValue: Boolean) {

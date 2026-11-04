@@ -27,7 +27,7 @@ The app lists the bundled components on its Information screen. Versions are the
 | Glide | `com.github.bumptech.glide:glide`, `com.github.bumptech.glide:ksp` | 5.0.9 | BSD 2-Clause; parts under Apache-2.0 and MIT | The KSP processor runs at build time only. |
 | Koin | `io.insert-koin:koin-android` | 4.2.2 | Apache-2.0 | |
 | RootTools | `com.github.Stericson:RootTools` | 5.0 | Apache-2.0 or GPL-2.0, at the user's choice; used under Apache-2.0 | From JitPack. |
-| RootShell | `RootShell.aar` (`app/libs`) | 1.6 | Apache-2.0 or GPL-2.0, at the user's choice, as RootTools; used under Apache-2.0 | The 1.6 build of github.com/Stericson/RootShell, kept in the repository because JitPack serves no artifact for 1.6. SHA-256 `02d1a560fcaa1f803a6179da8be4b0fab3f8ea5bbcf168998f0f305b48cadc45`. |
+| RootShell | `RootShell.aar` (`app/libs`) | 1.6 | Apache-2.0 or GPL-2.0, at the user's choice, as RootTools; used under Apache-2.0 | The 1.6 build of github.com/Stericson/RootShell, kept in the repository because JitPack serves no artifact for 1.6. SHA-256 `02d1a560fcaa1f803a6179da8be4b0fab3f8ea5bbcf168998f0f305b48cadc45`, which equals the GitHub release asset `RootShell.aar` of RootShell 1.6, 2017-11-26. |
 | Flaticon icons | `app/src/main/res/drawable` | — | Flaticon license, free with attribution | Icons by Pixel perfect, Freepik, iconixar, Smashicons, Roundicons, Those Icons, Kiranshastry and xnimrodx; credited on the Information screen. |
 
 ## Used to build and test only
