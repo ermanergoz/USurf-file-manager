@@ -1,48 +1,20 @@
-build:
-  maxIssues: 0
+# detekt's defaults hold except for the values below; each one says why above it.
 
 complexity:
-  LongMethod:
-    threshold: 80
-  LongParameterList:
-    functionThreshold: 7
-    constructorThreshold: 8
   # Counts a class's public surface: private functions are how long functions are split.
   TooManyFunctions:
     thresholdInClasses: 30
     thresholdInFiles: 30
     ignorePrivate: true
-  CyclomaticComplexMethod:
-    threshold: 18
-  LargeClass:
-    threshold: 800
-  NestedBlockDepth:
-    threshold: 5
-
-exceptions:
-  SwallowedException:
-    ignoredExceptionTypes:
-      - InterruptedException
-      - MalformedURLException
-      - NumberFormatException
-      - ParseException
-
-naming:
-  FunctionNaming:
-    ignoreAnnotated:
-      - Composable
 
 style:
-  MagicNumber:
-    ignorePropertyDeclaration: true
-    ignoreCompanionObjectPropertyDeclaration: true
-    ignoreEnums: true
-    ignoreAnnotation: true
+  # Guard clauses (?: return) are the idiom here; three returns in a body beyond them is the limit.
   ReturnCount:
-    max: 6
+    max: 3
+    excludeGuardClauses: true
+  # One line length for detekt and ktlint (.editorconfig max_line_length = 140).
   MaxLineLength:
     maxLineLength: 140
-  UnusedPrivateMember:
-    active: true
+  # A note of work left may stay in a comment: a reviewer reads every comment, so the build does not refuse one.
   ForbiddenComment:
     active: false

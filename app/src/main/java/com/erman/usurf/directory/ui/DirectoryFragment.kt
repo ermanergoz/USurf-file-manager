@@ -53,41 +53,42 @@ class DirectoryFragment : Fragment() {
         _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_directory, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = directoryViewModel
-        directoryViewModel.uiEvents.observe(
-            viewLifecycleOwner,
-            EventObserver { event ->
-                when (event) {
-                    is DirectoryUiEvent.ShowSnackbar -> {
-                        val message = event.formatArg?.let { getString(event.messageResId, it) } ?: getString(event.messageResId)
-                        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
-                    }
-
-                    is DirectoryUiEvent.ShowRenameDialog -> showRenameDialog(event)
-
-                    is DirectoryUiEvent.ShowInformation -> showInformation(event.files)
-
-                    DirectoryUiEvent.ShowCreateFolderDialog -> showCreateDialog(CreateKind.FOLDER)
-
-                    DirectoryUiEvent.ShowCreateFileDialog -> showCreateDialog(CreateKind.FILE)
-
-                    DirectoryUiEvent.ShowCompressDialog -> showCompressDialog()
-
-                    DirectoryUiEvent.ShowSearchDialog -> showSearchDialog()
-
-                    is DirectoryUiEvent.ShowAddFavoriteDialog -> showAddFavoriteDialog(event.path, event.defaultName)
-
-                    is DirectoryUiEvent.OpenFile -> openFile(event.path)
-
-                    is DirectoryUiEvent.Share -> handleShare(event)
-
-                    is DirectoryUiEvent.ConfirmDelete ->
-                        show(DeleteConfirmationDialog.newInstance(event.paths), DeleteConfirmationDialog.TAG)
-
-                    DirectoryUiEvent.RequestSafGrant -> mainViewModel.requestSafAccess()
-                }
-            }
-        )
+        directoryViewModel.uiEvents.observe(viewLifecycleOwner, EventObserver(::onUiEvent))
         return binding.root
+    }
+
+    private fun onUiEvent(event: DirectoryUiEvent) {
+        when (event) {
+            is DirectoryUiEvent.ShowSnackbar -> showSnackbar(event)
+
+            is DirectoryUiEvent.ShowRenameDialog -> showRenameDialog(event)
+
+            is DirectoryUiEvent.ShowInformation -> showInformation(event.files)
+
+            DirectoryUiEvent.ShowCreateFolderDialog -> showCreateDialog(CreateKind.FOLDER)
+
+            DirectoryUiEvent.ShowCreateFileDialog -> showCreateDialog(CreateKind.FILE)
+
+            DirectoryUiEvent.ShowCompressDialog -> showCompressDialog()
+
+            DirectoryUiEvent.ShowSearchDialog -> showSearchDialog()
+
+            is DirectoryUiEvent.ShowAddFavoriteDialog -> showAddFavoriteDialog(event.path, event.defaultName)
+
+            is DirectoryUiEvent.OpenFile -> openFile(event.path)
+
+            is DirectoryUiEvent.Share -> handleShare(event)
+
+            is DirectoryUiEvent.ConfirmDelete ->
+                show(DeleteConfirmationDialog.newInstance(event.paths), DeleteConfirmationDialog.TAG)
+
+            DirectoryUiEvent.RequestSafGrant -> mainViewModel.requestSafAccess()
+        }
+    }
+
+    private fun showSnackbar(event: DirectoryUiEvent.ShowSnackbar) {
+        val message = event.formatArg?.let { getString(event.messageResId, it) } ?: getString(event.messageResId)
+        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
     }
 
     private fun showRenameDialog(args: DirectoryUiEvent.ShowRenameDialog) {

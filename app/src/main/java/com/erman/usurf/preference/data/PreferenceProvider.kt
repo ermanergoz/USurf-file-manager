@@ -12,7 +12,6 @@ private const val SHOW_HIDDEN_PREF_DEF_VAL: Boolean = false
 private const val SHOW_THUMBNAILS_PREF_DEF_VAL: Boolean = true
 private const val KEY_PREFERENCE_SHOW_HIDDEN: String = "showHidden"
 private const val KEY_PREFERENCE_SHOW_THUMBNAILS: String = "showThumbnails"
-private const val KEY_PREFERENCE_ASCENDING_ORDER: String = "ascendingOrder"
 private const val KEY_PREFERENCE_DESCENDING_ORDER: String = "descendingOrder"
 private const val KEY_PREFERENCE_FILE_SORT: String = "sortFileMode"
 
@@ -44,18 +43,8 @@ class PreferenceProvider(private val preferences: SharedPreferences) {
 
     fun getShowThumbnailsPreference(): Boolean = preferences.getBoolean(KEY_PREFERENCE_SHOW_THUMBNAILS, SHOW_THUMBNAILS_PREF_DEF_VAL)
 
-    fun editAscendingOrderPreference(choice: Boolean) {
-        preferences.edit {
-            putBoolean(KEY_PREFERENCE_DESCENDING_ORDER, false)
-                .putBoolean(KEY_PREFERENCE_ASCENDING_ORDER, choice)
-        }
-    }
-
     fun editDescendingOrderPreference(choice: Boolean) {
-        preferences.edit {
-            putBoolean(KEY_PREFERENCE_ASCENDING_ORDER, false)
-                .putBoolean(KEY_PREFERENCE_DESCENDING_ORDER, choice)
-        }
+        preferences.edit { putBoolean(KEY_PREFERENCE_DESCENDING_ORDER, choice) }
     }
 
     fun getDescendingOrderPreference(): Boolean = preferences.getBoolean(KEY_PREFERENCE_DESCENDING_ORDER, DESCENDING_ORDER_PREF_DEF_VAL)

@@ -17,15 +17,14 @@ import kotlinx.coroutines.ensureActive
 
 private const val OFFSET_START = 0
 
-/** The directory's file work; [appUid] is the user id the app runs as, which owns the app's own folders. */
+/** The directory's file work. */
 class DirectoryModel(
     private val directoryListHandler: DirectoryListHandler,
     private val safDocumentAccess: SafDocumentAccess,
     private val rootWriter: RootWriter,
     private val storagePathsProvider: StoragePathsProvider,
     private val fileCopier: FileCopier,
-    private val ioDispatcher: CoroutineDispatcher,
-    private val appUid: Int
+    private val ioDispatcher: CoroutineDispatcher
 ) : DirectoryRepository,
     FileOperations,
     FolderSizeRepository {
@@ -211,10 +210,7 @@ class DirectoryModel(
     // so the copies are then given to the app; what a copy that failed partway left is given to it too.
     override suspend fun copyOwned(sources: List<FileModel>, destinationFolder: String) = operationOn(ioDispatcher) {
         if (sources.any { it.isInRoot }) {
-            rootWriter.write { root ->
-                val isCopied = root.copyFile(sources, destinationFolder)
-                root.takeOwnership(destinationFolder, appUid) && isCopied
-            }
+            rootWriter.writeOwned(destinationFolder) { root -> root.copyFile(sources, destinationFolder) }
         } else {
             copyFile(sources, destinationFolder)
         }

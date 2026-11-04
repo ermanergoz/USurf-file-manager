@@ -1,9 +1,2 @@
 <?xml version="1.0" ?>
-<SmellBaseline>
-  <ManuallySuppressedIssues></ManuallySuppressedIssues>
-  <CurrentIssues>
-    <ID>EmptyFunctionBlock:DirectoryModelTest.kt$DirectoryModelTest.&lt;no name provided&gt;${}</ID>
-    <ID>TooManyFunctions:FtpRepository.kt$FtpRepository</ID>
-    <ID>TooManyFunctions:PreferencesRepository.kt$PreferencesRepository</ID>
-  </CurrentIssues>
-</SmellBaseline>
+<SmellBaseline/>

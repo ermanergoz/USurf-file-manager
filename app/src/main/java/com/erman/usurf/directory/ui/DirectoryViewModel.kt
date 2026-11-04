@@ -272,39 +272,48 @@ class DirectoryViewModel(
         }
         listLoadJob = viewModelScope.launch {
             try {
-                // The way up is stored before the listing, so Back finds it even when the folder cannot be listed.
-                val readableParent = if (state.isSearchMode) null else directoryRepository.readableParentOf(state.currentPath)
-                if (!requireCurrentState().showsLocationOf(state)) return@launch
-                updateState { it.copy(readableParent = readableParent) }
-                val files =
-                    if (state.isSearchMode) {
-                        directoryRepository.getSearchedDeviceFiles(state.query)
-                    } else {
-                        directoryRepository.getFileModelsFromDirectory(state.currentPath)
-                    }
-                if (!requireCurrentState().showsLocationOf(state)) return@launch
-                // A search the user waited for says when it found nothing; a refresh of one leaves the message it follows.
-                if (state.isSearchMode && state.isLoading && files.isEmpty()) {
-                    _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(R.string.no_search_results, state.query))
-                }
-                updateState { current ->
-                    current.copy(
-                        common = current.common.copy(
-                            isLoading = false,
-                            isCreateMenuExpanded = current.common.isCreateMenuExpanded && !state.isSearchMode
-                        ),
-                        files = files,
-                        isRefreshing = false
-                    )
-                }
+                list(state)
             } catch (err: FileOperationException) {
-                if (!requireCurrentState().showsLocationOf(state)) return@launch
-                updateState { it.copy(common = it.common.copy(isLoading = false), isRefreshing = false) }
-                val fallbackResId = if (state.isSearchMode) R.string.search_failed else R.string.unable_to_open_directory
-                _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(err.operationMessageOr(fallbackResId)))
-                loge(err.localizedMessage ?: UNKNOWN_ERROR)
+                if (requireCurrentState().showsLocationOf(state)) reportListingFailure(state, err)
             }
         }
+    }
+
+    // Reads the way up, then the rows of the folder or the search [state] shows; each is applied only while the screen
+    // still shows that location.
+    private suspend fun list(state: DirectoryUiState) {
+        // The way up is stored before the listing, so Back finds it even when the folder cannot be listed.
+        val readableParent = if (state.isSearchMode) null else directoryRepository.readableParentOf(state.currentPath)
+        if (!requireCurrentState().showsLocationOf(state)) return
+        updateState { it.copy(readableParent = readableParent) }
+        val files =
+            if (state.isSearchMode) {
+                directoryRepository.getSearchedDeviceFiles(state.query)
+            } else {
+                directoryRepository.getFileModelsFromDirectory(state.currentPath)
+            }
+        if (!requireCurrentState().showsLocationOf(state)) return
+        // A search the user waited for says when it found nothing; a refresh of one leaves the message it follows.
+        if (state.isSearchMode && state.isLoading && files.isEmpty()) {
+            _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(R.string.no_search_results, state.query))
+        }
+        updateState { current ->
+            current.copy(
+                common = current.common.copy(
+                    isLoading = false,
+                    isCreateMenuExpanded = current.common.isCreateMenuExpanded && !state.isSearchMode
+                ),
+                files = files,
+                isRefreshing = false
+            )
+        }
+    }
+
+    private fun reportListingFailure(state: DirectoryUiState, err: FileOperationException) {
+        updateState { it.copy(common = it.common.copy(isLoading = false), isRefreshing = false) }
+        val fallbackResId = if (state.isSearchMode) R.string.search_failed else R.string.unable_to_open_directory
+        _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(err.operationMessageOr(fallbackResId)))
+        loge(err.localizedMessage ?: UNKNOWN_ERROR)
     }
 
     fun compress() {

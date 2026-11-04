@@ -17,8 +17,7 @@ interface PreferencesRepository {
 
     fun setShowThumbnailsPreference(value: Boolean)
 
-    fun setAscendingOrderPreference(value: Boolean)
-
+    /** Stores the sort order; ascending is the order that is not descending. */
     fun setDescendingOrderPreference(value: Boolean)
 
     fun getDescendingOrderPreference(): Boolean

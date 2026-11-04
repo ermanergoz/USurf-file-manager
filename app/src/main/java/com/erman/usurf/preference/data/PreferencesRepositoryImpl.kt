@@ -27,10 +27,6 @@ class PreferencesRepositoryImpl(private val preferenceProvider: PreferenceProvid
         preferenceProvider.editShowThumbnailsPreference(value)
     }
 
-    override fun setAscendingOrderPreference(value: Boolean) {
-        preferenceProvider.editAscendingOrderPreference(value)
-    }
-
     override fun setDescendingOrderPreference(value: Boolean) {
         preferenceProvider.editDescendingOrderPreference(value)
     }

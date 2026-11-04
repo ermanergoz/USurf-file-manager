@@ -111,8 +111,8 @@ val appModule =
             val context: Context = get()
             FileCopierImpl(get()) { uri -> context.contentResolver.openOutputStream(uri) }
         }
-        single { RootWriter(get(), get(), get(), Build.VERSION.SDK_INT, get<Context>().packageName) }
-        single { DirectoryModel(get(), get(), get(), get(), get(), get(named(IO_DISPATCHER)), Process.myUid()) }
+        single { RootWriter(get(), get(), get(), Build.VERSION.SDK_INT, get<Context>().packageName, Process.myUid()) }
+        single { DirectoryModel(get(), get(), get(), get(), get(), get(named(IO_DISPATCHER))) }
         single<DirectoryRepository> { get<DirectoryModel>() }
         single<ArchiveRepository> { ArchiveOperations(get(), get<DirectoryModel>(), get(), get(named(IO_DISPATCHER))) }
         // The lambda defers loading the native library to the first 7-Zip run.
