@@ -22,6 +22,7 @@ import com.erman.usurf.home.model.FavoriteItem
 import com.erman.usurf.home.model.StorageItem
 import com.erman.usurf.utils.EventObserver
 import com.erman.usurf.utils.FileOpenUtils
+import com.erman.usurf.utils.keepClearOfBottomInset
 import com.erman.usurf.utils.showOnce
 import com.google.android.material.snackbar.Snackbar
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
@@ -181,6 +182,7 @@ class HomeFragment : Fragment() {
         binding.favoriteRecyclerView.layoutManager = GridLayoutManager(context, FAVORITE_GRID_SPAN_COUNT)
         binding.favoriteRecyclerView.adapter = favoriteRecyclerViewAdapter
         binding.favoriteRecyclerView.itemAnimator = null
+        binding.root.keepClearOfBottomInset(padded = listOf(binding.favoriteRecyclerView))
 
         homeViewModel.favorites.observe(viewLifecycleOwner) { favorites ->
             favoriteRecyclerViewAdapter.updateData(favorites)

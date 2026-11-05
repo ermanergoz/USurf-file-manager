@@ -1,10 +1,13 @@
 package com.erman.usurf.activity
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.Menu
 import android.view.View
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -51,6 +54,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Drawn edge to edge on every version, as Android 15 and later draw it anyway. The status bar's icons are light,
+        // over the brand-blue app bar of both themes; each screen keeps its content clear of the navigation bar.
+        enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT))
         permissionHandler =
             PermissionHandler(this) { uri: String ->
                 mainViewModel.onSafUriChosen(uri)

@@ -8,6 +8,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.erman.usurf.R
+import com.erman.usurf.utils.keepClearOfBottomInset
 
 class Credits : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -18,6 +19,7 @@ class Credits : Fragment() {
             row.text = entry
             licenseList.addView(row)
         }
+        view.keepClearOfBottomInset(padded = listOf(view))
         return view
     }
 }

@@ -33,6 +33,7 @@ import com.erman.usurf.utils.EventObserver
 import com.erman.usurf.utils.FileOpenUtils
 import com.erman.usurf.utils.ROOT_DIRECTORY
 import com.erman.usurf.utils.ScreenBackCallback
+import com.erman.usurf.utils.keepClearOfBottomInset
 import com.erman.usurf.utils.loge
 import com.erman.usurf.utils.logi
 import com.erman.usurf.utils.showOnce
@@ -326,6 +327,10 @@ class DirectoryFragment : Fragment() {
         binding.swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary)
         binding.swipeRefreshLayout.setDistanceToTriggerSync(resources.getDimensionPixelSize(R.dimen.swipe_refresh_trigger_distance))
         binding.swipeRefreshLayout.setOnRefreshListener { directoryViewModel.onSwipeRefresh() }
+        binding.root.keepClearOfBottomInset(
+            padded = listOf(binding.fileListRecyclerView, binding.optionButtonBar, binding.confirmationButtonBar),
+            lifted = listOf(binding.createNewFloatingButton)
+        )
     }
 
     override fun onResume() {

@@ -50,7 +50,6 @@
     <color name="colorPrimary">@color/md_theme_primary</color>
     <color name="lightBlue">@color/md_theme_secondaryContainer</color>
     <color name="textColorLight">@color/md_theme_onSecondaryContainer</color>
-    <color name="textColorDark">#ffffff</color>
     <color name="daynnightTextColor">@color/md_theme_onSurface</color>
     <color name="cardSurface">@color/md_theme_surfaceContainerHigh</color>
     <color name="cardStroke">@color/md_theme_outlineVariant</color>

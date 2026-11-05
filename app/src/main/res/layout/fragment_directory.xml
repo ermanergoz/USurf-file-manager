@@ -99,16 +99,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/empty_folder_title"
-                android:textColor="@color/emptyStateColor"
-                android:textSize="@dimen/text_size_16" />
+                android:textAppearance="?attr/textAppearanceTitleMedium"
+                android:textColor="?attr/colorOnSurface" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/vertical_margin_4"
                 android:text="@string/empty_folder_subtitle"
-                android:textColor="@color/emptyStateColor"
-                android:textSize="@dimen/text_size_12" />
+                android:textAppearance="?attr/textAppearanceBodySmall"
+                android:textColor="?attr/colorOnSurfaceVariant" />
         </LinearLayout>
 
         <!-- File List -->
@@ -140,7 +140,7 @@
             android:id="@+id/confirmationButtonBar"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@color/colorAccent"
+            android:background="?attr/colorPrimary"
             android:orientation="horizontal"
             android:visibility="@{viewModel.uiState.isConfirmationBarVisible ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toTopOf="@+id/optionButtonBar"
@@ -158,8 +158,8 @@
                 style="@style/BarActionButton"
                 android:onClick="@{() -> viewModel.endCopyMode()}"
                 android:text="@string/done"
-                android:textColor="@color/textColorDark"
-                android:textSize="@dimen/text_size_14" />
+                android:textAppearance="?attr/textAppearanceLabelLarge"
+                android:textColor="?attr/colorOnPrimary" />
 
             <Button
                 android:id="@+id/OKButton"
@@ -169,8 +169,8 @@
                 style="@style/BarActionButton"
                 android:onClick="@{() -> viewModel.confirmAction()}"
                 android:text="@string/ok"
-                android:textColor="@color/textColorDark"
-                android:textSize="@dimen/text_size_14" />
+                android:textAppearance="?attr/textAppearanceLabelLarge"
+                android:textColor="?attr/colorOnPrimary" />
         </LinearLayout>
 
         <!-- More Menu (floating card) -->
@@ -446,8 +446,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/vertical_margin_16"
                 android:text="@string/loading_text"
-                android:textColor="@color/emptyStateColor"
-                android:textSize="@dimen/text_size_14" />
+                android:textAppearance="?attr/textAppearanceBodyMedium"
+                android:textColor="?attr/colorOnSurfaceVariant" />
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
