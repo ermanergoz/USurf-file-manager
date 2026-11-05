@@ -2,15 +2,15 @@ package com.erman.usurf.dialog.ui
 
 import android.app.Dialog
 import android.os.Bundle
-import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import com.erman.usurf.R
 import com.erman.usurf.utils.SAF_ACCESS_REQUEST_KEY
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class SafAccessRequestDialog : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog = activity?.let {
-        val builder = AlertDialog.Builder(it)
+        val builder = MaterialAlertDialogBuilder(it)
         builder.setMessage(getString(R.string.saf_access_message))
             .setPositiveButton(R.string.choose_sd_card) { _, _ ->
                 parentFragmentManager.setFragmentResult(SAF_ACCESS_REQUEST_KEY, bundleOf())

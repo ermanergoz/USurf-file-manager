@@ -261,14 +261,14 @@
                 android:layout_height="@dimen/height_48"
                 android:layout_marginTop="@dimen/vertical_margin_16"
                 android:layout_marginBottom="@dimen/vertical_margin_32"
-                android:background="@drawable/button_primary_background"
                 android:contentDescription="@string/connect"
                 android:enabled="@{viewModel.uiState.isConnectButtonEnabled}"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
                 android:onClick="@{() -> viewModel.onConnectClicked()}"
                 android:text="@{viewModel.uiState.connectButtonTextRes}"
-                android:textColor="@android:color/white"
-                android:textSize="@dimen/text_size_16"
-                android:textStyle="bold" />
+                android:textAppearance="?attr/textAppearanceTitleMedium"
+                app:shapeAppearance="?attr/shapeAppearanceCornerMedium" />
 
         </LinearLayout>
     </ScrollView>
