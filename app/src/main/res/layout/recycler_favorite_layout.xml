@@ -31,7 +31,7 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_marginBottom="@dimen/icon_label_gap"
-            android:contentDescription="@string/favorite"
+            android:importantForAccessibility="no"
             android:src="@{favoriteItem.isDirectory ? @drawable/ic_folder : @drawable/ic_file}"
             app:tint="@color/colorPrimary" />
 

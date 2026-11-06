@@ -49,7 +49,7 @@
                     android:layout_width="@dimen/icon_size"
                     android:layout_height="@dimen/icon_size"
                     android:layout_gravity="center"
-                    android:contentDescription="@string/folder_icon"
+                    android:importantForAccessibility="no"
                     app:filePath="@{file.path}"
                     app:isDirectory="@{file.isDirectory}"
                     app:showThumbnails="@{showThumbnails}" />

@@ -2,7 +2,6 @@
 <resources>
     <string name="app_name">USurf</string>
     <string name="nav_header_title">USurf</string>
-    <string name="nav_header_desc">Gezinme başlığı</string>
     <string name="empty" />
     <string name="menu_home">Ana Sayfa</string>
     <string name="menu_ftp">FTP</string>
@@ -72,7 +71,6 @@
     <string name="last_modification_date">Son değiştirilme tarihi:</string>
     <string name="extension">Uzantı:</string>
     <string name="hidden_file">Gizli</string>
-    <string name="empty_folder">Boş</string>
     <string name="copy_file">Kopyala</string>
     <string name="move">Taşı</string>
     <string name="rename">Yeniden isimlendir</string>
@@ -111,8 +109,8 @@
     <string name="ftp_server_is_running">FTP sunucusu çalışıyor</string>
     <string name="ftp_notification_channel_name">FTPNotificationChannel</string>
     <string name="ftp_notification_channel_description">FTP notification channel</string>
-    <string name="drawer_open">Menüyü aç</string>
-    <string name="drawer_close">Menüyü kapat</string>
+    <string name="drawer_open">Gezinme çekmecesini aç</string>
+    <string name="drawer_close">Gezinme çekmecesini kapat</string>
     <string name="create_new">Yeni oluştur</string>
     <string name="device_wide_search">Cihaz genelinde ara</string>
     <string name="manage_all_files_message">USurf\'un dosyalarınızla çalışabilmesi için \"Tüm dosyaları yönetme erişimine izin ver\" ayarını açın</string>
@@ -127,7 +125,7 @@
         <item quantity="one">%d dosya</item>
         <item quantity="other">%d dosya</item>
     </plurals>
-    <string name="more">Daha fazla</string>
+    <string name="more">Diğer işlemler</string>
     <string name="hint_port">Port</string>
     <string name="hint_password">Şifre</string>
     <string name="hint_username">Kullanıcı adı</string>
@@ -173,7 +171,6 @@
     <string name="pref_category_advanced">Gelişmiş</string>
     <string name="empty_folder_title">Bu klasör boş</string>
     <string name="empty_folder_subtitle">Dosya veya klasör oluşturmak için + düğmesini kullanın</string>
-    <string name="path_icon">Yol simgesi</string>
     <string name="loading_text">Yükleniyor…</string>
     <string name="loading_description">Yükleniyor</string>
     <string name="action_progress_description">İşlem devam ediyor</string>
@@ -223,4 +220,6 @@
     <string name="ftp_reason_port_in_use">%1$d numaralı port zaten kullanımda</string>
     <string name="ftp_reason_port_restricted">bu cihazda 1024\'ten küçük portlar kullanılamaz</string>
     <string name="ftp_address_unavailable">Adres henüz alınamadı</string>
+    <string name="state_expanded">Genişletildi</string>
+    <string name="state_collapsed">Daraltıldı</string>
 </resources>

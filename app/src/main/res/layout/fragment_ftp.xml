@@ -261,7 +261,6 @@
                 android:layout_height="@dimen/touch_target"
                 android:layout_marginTop="@dimen/section_gap"
                 android:layout_marginBottom="@dimen/screen_bottom"
-                android:contentDescription="@string/connect"
                 android:enabled="@{viewModel.uiState.isConnectButtonEnabled}"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"

@@ -45,7 +45,7 @@
             <ImageView
                 android:layout_width="@dimen/icon_size"
                 android:layout_height="@dimen/icon_size"
-                android:contentDescription="@string/path_icon"
+                android:importantForAccessibility="no"
                 android:src="@drawable/ic_chevron_right" />
 
             <TextView
@@ -92,7 +92,7 @@
                 android:layout_width="@dimen/illustration_size"
                 android:layout_height="@dimen/illustration_size"
                 android:layout_marginBottom="@dimen/empty_state_gap"
-                android:contentDescription="@string/empty_folder"
+                android:importantForAccessibility="no"
                 android:src="@drawable/ic_empty_folder" />
 
             <TextView
@@ -353,6 +353,7 @@
                 android:background="?android:attr/selectableItemBackground"
                 android:contentDescription="@string/more"
                 android:onClick="@{() -> viewModel.toggleMoreMenu()}"
+                app:expandedState="@{viewModel.uiState.common.isMoreMenuVisible}"
                 android:src="@{viewModel.uiState.common.isMoreMenuVisible ? @drawable/ic_down_arrow : @drawable/ic_up_arrow}"
                 app:tint="@color/daynnightTextColor"
                 android:visibility="@{viewModel.uiState.atRootDirectory ? View.GONE : View.VISIBLE}" />
@@ -385,7 +386,7 @@
             android:layout_marginEnd="@dimen/fab_margin"
             android:layout_marginBottom="@dimen/fab_margin"
             android:clickable="true"
-            android:contentDescription="@string/new_file"
+            android:contentDescription="@string/create_file"
             android:enabled="@{!viewModel.uiState.isSearchMode}"
             android:focusable="true"
             android:onClick="@{() -> viewModel.requestCreate(CreateKind.FILE)}"
@@ -405,7 +406,7 @@
             android:layout_marginEnd="@dimen/fab_margin"
             android:layout_marginBottom="@dimen/fab_margin"
             android:clickable="true"
-            android:contentDescription="@string/new_folder"
+            android:contentDescription="@string/create_new_folder"
             android:enabled="@{!viewModel.uiState.isSearchMode}"
             android:focusable="true"
             android:onClick="@{() -> viewModel.requestCreate(CreateKind.FOLDER)}"

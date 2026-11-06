@@ -16,7 +16,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/drawer_header_padding"
-        android:contentDescription="@string/nav_header_desc"
+        android:importantForAccessibility="no"
         android:paddingTop="@dimen/item_gap"
         app:srcCompat="@mipmap/ic_launcher_round" />
 

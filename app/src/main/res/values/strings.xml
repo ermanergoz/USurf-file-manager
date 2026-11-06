@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name">USurf</string>
     <string name="nav_header_title">USurf</string>
-    <string name="nav_header_desc">Navigation header</string>
     <string name="empty" />
     <string name="menu_home">Home</string>
     <string name="menu_ftp">FTP</string>
@@ -72,7 +71,6 @@
     <string name="last_modification_date">Last modification date:</string>
     <string name="extension">Extension:</string>
     <string name="hidden_file">Hidden</string>
-    <string name="empty_folder">Empty</string>
     <string name="copy_file">Copy</string>
     <string name="move">Move</string>
     <string name="rename">Rename</string>
@@ -111,8 +109,8 @@
     <string name="ftp_server_is_running">FTP server is running</string>
     <string name="ftp_notification_channel_name">FTPNotificationChannel</string>
     <string name="ftp_notification_channel_description">FTP notification channel</string>
-    <string name="drawer_open">Drawer open</string>
-    <string name="drawer_close">Drawer close</string>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
     <string name="create_new">Create new</string>
     <string name="device_wide_search">Device-wide search</string>
     <string name="manage_all_files_message">Turn on \"Allow access to manage all files\" so USurf can work with your files</string>
@@ -132,7 +130,7 @@
         <item quantity="one">%d file</item>
         <item quantity="other">%d files</item>
     </plurals>
-    <string name="more">More</string>
+    <string name="more">More actions</string>
     <string name="hint_port">Port</string>
     <string name="hint_password">Password</string>
     <string name="hint_username">Username</string>
@@ -180,7 +178,6 @@
     <string name="pref_category_advanced">Advanced</string>
     <string name="empty_folder_title">This folder is empty</string>
     <string name="empty_folder_subtitle">Create files or folders using the + button</string>
-    <string name="path_icon">Path icon</string>
     <string name="loading_text">Loading…</string>
     <string name="loading_description">Loading</string>
     <string name="action_progress_description">Operation in progress</string>
@@ -230,4 +227,6 @@
     <string name="ftp_reason_port_in_use">port %1$d is already in use</string>
     <string name="ftp_reason_port_restricted">ports below 1024 can\'t be used on this device</string>
     <string name="ftp_address_unavailable">Address not available yet</string>
+    <string name="state_expanded">Expanded</string>
+    <string name="state_collapsed">Collapsed</string>
 </resources>

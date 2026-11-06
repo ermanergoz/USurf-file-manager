@@ -27,7 +27,7 @@
             android:id="@+id/storageIcon"
             android:layout_width="28dp"
             android:layout_height="28dp"
-            android:contentDescription="@string/storage_icon"
+            android:importantForAccessibility="no"
             android:src="@{storageItem.isExternal ? @drawable/ic_sd_card : @drawable/ic_hdd}"
             app:tint="@color/colorPrimary"
             app:layout_constraintBottom_toTopOf="@+id/storageProgressBar"

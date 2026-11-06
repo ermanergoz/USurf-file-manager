@@ -1,6 +1,7 @@
 package com.erman.usurf.directory.ui
 
 import android.view.View
+import androidx.core.view.ViewCompat
 import androidx.databinding.BindingAdapter
 import com.erman.usurf.R
 
@@ -75,4 +76,10 @@ fun setPopVisible(view: View, visible: Boolean) {
             }
             .start()
     }
+}
+
+/** Tells a screen reader whether the menu the view opens is open, as its label names the action only. */
+@BindingAdapter("expandedState")
+fun setExpandedState(view: View, isExpanded: Boolean) {
+    ViewCompat.setStateDescription(view, view.resources.expandedStateText(isExpanded))
 }
