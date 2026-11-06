@@ -72,6 +72,8 @@ class FTPFragment : Fragment() {
             radioButton.text = getString(item.kind.displayNameRes)
             radioButton.id = View.generateViewId()
             radioButton.tag = item.path
+            // A finger's height, as every control of the app has.
+            radioButton.minHeight = resources.getDimensionPixelSize(R.dimen.touch_target)
             radioButton.setPadding(
                 (RADIO_BUTTON_PADDING_START * density).toInt(),
                 radioButton.paddingTop,

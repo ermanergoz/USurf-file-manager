@@ -205,7 +205,7 @@
                 android:paddingTop="@dimen/bar_action_padding_top"
                 android:text="@string/favorite"
                 android:textColor="@color/action_button_text"
-                android:textSize="@dimen/text_action_label" />
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
 
             <Button
                 android:id="@+id/compressButton"
@@ -220,7 +220,7 @@
                 android:paddingTop="@dimen/bar_action_padding_top"
                 android:text="@string/compress"
                 android:textColor="@color/daynnightTextColor"
-                android:textSize="@dimen/text_action_label" />
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
 
             <Button
                 android:id="@+id/extractButton"
@@ -236,7 +236,7 @@
                 android:paddingTop="@dimen/bar_action_padding_top"
                 android:text="@string/extract"
                 android:textColor="@color/action_button_text"
-                android:textSize="@dimen/text_action_label" />
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
 
             <Button
                 android:id="@+id/informationButton"
@@ -251,7 +251,7 @@
                 android:paddingTop="@dimen/bar_action_padding_top"
                 android:text="@string/information"
                 android:textColor="@color/daynnightTextColor"
-                android:textSize="@dimen/text_action_label" />
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
 
             <Button
                 android:id="@+id/shareButton"
@@ -266,7 +266,7 @@
                 android:paddingTop="@dimen/bar_action_padding_top"
                 android:text="@string/share"
                 android:textColor="@color/daynnightTextColor"
-                android:textSize="@dimen/text_action_label" />
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
         </LinearLayout>
 
         <!-- Option Bar (bottom actions) -->
@@ -297,7 +297,7 @@
                 android:paddingTop="@dimen/bar_action_padding_top"
                 android:text="@string/copy_file"
                 android:textColor="@color/daynnightTextColor"
-                android:textSize="@dimen/text_action_label" />
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
 
             <Button
                 android:id="@+id/moveButton"
@@ -312,7 +312,7 @@
                 android:paddingTop="@dimen/bar_action_padding_top"
                 android:text="@string/move"
                 android:textColor="@color/daynnightTextColor"
-                android:textSize="@dimen/text_action_label" />
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
 
             <Button
                 android:id="@+id/renameButton"
@@ -328,7 +328,7 @@
                 android:paddingTop="@dimen/bar_action_padding_top"
                 android:text="@string/rename"
                 android:textColor="@color/action_button_text"
-                android:textSize="@dimen/text_action_label" />
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
 
             <Button
                 android:id="@+id/deleteButton"
@@ -343,7 +343,7 @@
                 android:paddingTop="@dimen/bar_action_padding_top"
                 android:text="@string/delete"
                 android:textColor="@color/daynnightTextColor"
-                android:textSize="@dimen/text_action_label" />
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
 
             <ImageButton
                 android:id="@+id/moreButton"

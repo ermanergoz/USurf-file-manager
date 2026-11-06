@@ -39,7 +39,9 @@
             android:id="@+id/favorite"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:ellipsize="middle"
             android:gravity="center"
+            android:singleLine="true"
             android:text="@{favoriteItem.name}"
             android:textColor="@color/daynnightTextColor"
             android:textSize="@dimen/text_body" />

@@ -1,6 +1,5 @@
 package com.erman.usurf.directory.ui
 
-import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
@@ -9,7 +8,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.erman.usurf.R
 import com.erman.usurf.databinding.RecyclerDirectoryLayoutBinding
 import com.erman.usurf.directory.model.FileModel
-import com.erman.usurf.utils.MARQUEE_REPEAT_LIM
 import com.erman.usurf.utils.updateWithDiff
 
 class DirectoryRecyclerViewAdapter(private val listener: FileItemListener) :
@@ -39,10 +37,6 @@ class DirectoryRecyclerViewAdapter(private val listener: FileItemListener) :
         fun bindDirectory(directory: FileModel) {
             binding.setVariable(BR.file, directory)
             binding.showThumbnails = showThumbnails
-            binding.nameTextView.ellipsize = TextUtils.TruncateAt.MARQUEE
-            // for sliding names if the length is longer than 1 line
-            binding.nameTextView.isSelected = true
-            binding.nameTextView.marqueeRepeatLimit = MARQUEE_REPEAT_LIM // -1 is for forever
             binding.executePendingBindings()
         }
     }

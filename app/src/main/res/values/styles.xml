@@ -58,9 +58,11 @@
         <item name="subtitleTextColor">@color/onAppBar</item>
     </style>
 
-    <!-- An action of the folder screen's bars, its icon above its label, sharing the bar's width with the others. Under
-         Material 3 a button is a Material button, so this keeps the bar's own spacing and leaves it unfilled. -->
+    <!-- An action of the folder screen's bars, its icon above its label, sharing the bar's width with the others and at
+         least a finger's height. Under Material 3 a button is a Material button, so this keeps the bar's own spacing and
+         leaves it unfilled. -->
     <style name="BarActionButton" parent="Widget.Material3.Button.TextButton">
+        <item name="android:minHeight">@dimen/touch_target</item>
         <item name="android:paddingLeft">0dp</item>
         <item name="android:paddingRight">0dp</item>
         <item name="android:paddingBottom">0dp</item>

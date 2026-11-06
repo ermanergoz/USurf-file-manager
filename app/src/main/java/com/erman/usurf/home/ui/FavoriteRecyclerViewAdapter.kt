@@ -1,6 +1,5 @@
 package com.erman.usurf.home.ui
 
-import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
@@ -8,7 +7,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.erman.usurf.R
 import com.erman.usurf.databinding.RecyclerFavoriteLayoutBinding
 import com.erman.usurf.home.model.FavoriteItem
-import com.erman.usurf.utils.MARQUEE_REPEAT_LIM
 import com.erman.usurf.utils.updateWithDiff
 
 class FavoriteRecyclerViewAdapter(private val listener: FavoriteItemListener) :
@@ -37,10 +35,6 @@ class FavoriteRecyclerViewAdapter(private val listener: FavoriteItemListener) :
         fun bind(favorite: FavoriteItem) {
             binding.favoriteItem = favorite
             binding.executePendingBindings()
-            binding.favorite.isSingleLine = true
-            binding.favorite.ellipsize = TextUtils.TruncateAt.MARQUEE
-            binding.favorite.isSelected = true
-            binding.favorite.marqueeRepeatLimit = MARQUEE_REPEAT_LIM
         }
     }
 
