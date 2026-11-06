@@ -7,18 +7,22 @@
         android:layout_height="match_parent"
         tools:context="com.erman.usurf.activity.MainActivity">
 
+        <!-- Brand blue in both themes, never lifted to another colour by a scrolled list, and drawn under the status bar,
+             whose icons are light over it. -->
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/app_bar_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:theme="@style/AppTheme.AppBarOverlay">
+            android:background="@color/appBar"
+            android:fitsSystemWindows="true"
+            android:theme="@style/ThemeOverlay.App.AppBar"
+            app:liftOnScroll="false">
 
-            <androidx.appcompat.widget.Toolbar
+            <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
+                style="@style/AppBarToolbar"
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="?attr/colorPrimary"
-                app:popupTheme="@style/AppTheme.PopupOverlay" />
+                android:layout_height="?attr/actionBarSize" />
 
         </com.google.android.material.appbar.AppBarLayout>
 

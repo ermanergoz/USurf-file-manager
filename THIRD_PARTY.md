@@ -18,7 +18,7 @@ The app lists the bundled components on its Information screen. Versions are the
 | AndroidX DocumentFile | `androidx.documentfile:documentfile` | 1.1.0 | Apache-2.0 | |
 | AndroidX Lifecycle | `androidx.lifecycle:lifecycle-livedata-ktx` | 2.11.0 | Apache-2.0 | |
 | AndroidX Preference | `androidx.preference:preference-ktx` | 1.2.1 | Apache-2.0 | |
-| Material Components for Android | `com.google.android.material:material` | 1.4.0 | Apache-2.0 | Comes with AndroidX Navigation UI. |
+| Material Components for Android | `com.google.android.material:material` | 1.14.0 | Apache-2.0 | |
 | Kotlin standard library | `org.jetbrains.kotlin:kotlin-stdlib` | 2.4.21 | Apache-2.0 | Added by the Kotlin plugin. |
 | Kotlin coroutines | `org.jetbrains.kotlinx:kotlinx-coroutines-android` | 1.11.0 | Apache-2.0 | |
 | Apache MINA | `org.apache.mina:mina-core` | 2.2.10 | Apache-2.0 | |
@@ -52,9 +52,10 @@ The app lists the bundled components on its Information screen. Versions are the
 ## 7-Zip notice
 
 7-Zip Copyright (C) 1999-2026 Igor Pavlov. 7-Zip is free software: it can be redistributed and modified under the
-terms of the GNU Lesser General Public License, version 2.1 or (at your option) any later version. It is distributed
-in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE. Its full license is `app/src/main/cpp/7zip/DOC/License.txt`, and its source is at
+terms of the GNU Lesser General Public License, version 2.1 or (at your option) any later version
+(https://www.gnu.org/licenses/lgpl-2.1.html). It is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Its full license is
+`app/src/main/cpp/7zip/DOC/License.txt` (https://github.com/ip7z/7zip/blob/main/DOC/License.txt), and its source is at
 https://github.com/ip7z/7zip.
 
 The decompression engine for RAR archives was developed using source code of the unRAR program; all copyrights to the

@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AlertDialog
 import androidx.core.os.BundleCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
@@ -18,6 +17,7 @@ import com.erman.usurf.directory.model.FileModel
 import com.erman.usurf.directory.model.MountOption
 import com.erman.usurf.utils.SizeFormatter
 import com.erman.usurf.utils.modificationDateText
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 private const val ARG_FILES: String = "arg_files"
@@ -40,7 +40,7 @@ class FileInformationDialog : DialogFragment() {
         val pages = WrapContentViewPager(requireContext()).apply { id = R.id.informationPages }
         pages.adapter = InformationPages(files)
         val dialog =
-            AlertDialog.Builder(requireActivity())
+            MaterialAlertDialogBuilder(requireActivity())
                 .setTitle(titleOf(files.firstOrNull()))
                 .setView(pages)
                 .setPositiveButton(R.string.ok, null)

@@ -1,12 +1,14 @@
 package com.erman.usurf.activity
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.Menu
 import android.view.View
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
@@ -23,6 +25,7 @@ import com.erman.usurf.databinding.ActivityMainBinding
 import com.erman.usurf.directory.ui.DirectoryViewModel
 import com.erman.usurf.utils.EventObserver
 import com.erman.usurf.utils.KEY_INTENT_IS_FTP_NOTIFICATION_CLICKED
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 private const val INTENT_IS_FTP_NOTIFICATION_CLICKED_DEF_VAL: Boolean = false
@@ -51,6 +54,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Drawn edge to edge on every version, as Android 15 and later draw it anyway. The status bar's icons are light,
+        // over the brand-blue app bar of both themes; each screen keeps its content clear of the navigation bar.
+        enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT))
         permissionHandler =
             PermissionHandler(this) { uri: String ->
                 mainViewModel.onSafUriChosen(uri)
@@ -211,7 +217,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showExitConfirmationDialog() {
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setMessage(R.string.exit_confirmation_message)
             .setPositiveButton(R.string.ok) { _, _ -> finish() }
             .setNegativeButton(R.string.cancel, null)

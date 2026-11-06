@@ -2,9 +2,9 @@
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingStart="@dimen/horizontal_margin_16"
-    android:paddingTop="@dimen/vertical_margin_4"
-    android:paddingEnd="@dimen/horizontal_margin_16"
-    android:paddingBottom="@dimen/vertical_margin_4"
+    android:paddingStart="@dimen/card_padding"
+    android:paddingTop="@dimen/text_line_gap"
+    android:paddingEnd="@dimen/card_padding"
+    android:paddingBottom="@dimen/text_line_gap"
     android:textColor="@color/daynnightTextColor"
-    android:textSize="@dimen/text_size_12" />
+    android:textSize="@dimen/text_supporting" />

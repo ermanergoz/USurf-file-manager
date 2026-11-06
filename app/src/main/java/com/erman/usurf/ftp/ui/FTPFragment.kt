@@ -20,6 +20,7 @@ import com.erman.usurf.databinding.FragmentFtpBinding
 import com.erman.usurf.ftp.domain.FtpFailureReason
 import com.erman.usurf.utils.EventObserver
 import com.erman.usurf.utils.displayNameRes
+import com.erman.usurf.utils.keepClearOfBottomInset
 import com.google.android.material.snackbar.Snackbar
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -37,6 +38,8 @@ class FTPFragment : Fragment() {
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = ftpViewModel
         ftpViewModel.storagePaths.observe(viewLifecycleOwner, ::updateStorageRadioButtons)
+        // The form ends above the navigation bar, and above the keyboard while a field is typed in.
+        binding.root.keepClearOfBottomInset(lifted = listOf(binding.root), withKeyboard = true)
         // Each choice is tagged with its path, so no view id reaches the view model.
         binding.radioButtonGroup.setOnCheckedChangeListener { group, checkedId ->
             (group.findViewById<RadioButton>(checkedId)?.tag as? String)?.let(ftpViewModel::onFtpPathSelected)

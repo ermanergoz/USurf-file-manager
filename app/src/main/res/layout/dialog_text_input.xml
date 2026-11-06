@@ -2,10 +2,10 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingStart="@dimen/horizontal_margin_24"
-    android:paddingTop="@dimen/vertical_margin_8"
-    android:paddingEnd="@dimen/horizontal_margin_24"
-    android:paddingBottom="@dimen/vertical_margin_8">
+    android:paddingStart="@dimen/dialog_content_edge"
+    android:paddingTop="@dimen/dialog_field_padding_vertical"
+    android:paddingEnd="@dimen/dialog_content_edge"
+    android:paddingBottom="@dimen/dialog_field_padding_vertical">
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/textInputLayout"
@@ -21,6 +21,6 @@
             android:inputType="text"
             android:maxLines="1"
             android:textColor="@color/daynnightTextColor"
-            android:textSize="@dimen/text_size_16" />
+            android:textSize="@dimen/text_input" />
     </com.google.android.material.textfield.TextInputLayout>
 </FrameLayout>

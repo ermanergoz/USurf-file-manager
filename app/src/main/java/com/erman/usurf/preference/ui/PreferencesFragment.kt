@@ -15,6 +15,7 @@ import com.erman.usurf.activity.MainViewModel
 import com.erman.usurf.preference.utils.KEY_PREFERENCE_ROOT_ACCESS
 import com.erman.usurf.preference.utils.KEY_PREFERENCE_SD_CARD_ACCESS
 import com.erman.usurf.utils.EventObserver
+import com.erman.usurf.utils.keepClearOfBottomInset
 import com.google.android.material.snackbar.Snackbar
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -103,6 +104,8 @@ class PreferencesFragment : PreferenceFragmentCompat() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        listView.clipToPadding = false
+        view.keepClearOfBottomInset(padded = listOf(listView))
         preferencesViewModel.isRootAccessCheckPending.observe(viewLifecycleOwner) { isPending ->
             findPreference<SwitchPreference>(KEY_PREFERENCE_ROOT_ACCESS)?.isEnabled = !isPending
         }

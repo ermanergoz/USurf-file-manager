@@ -3,32 +3,31 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/side_nav_bar"
+    android:background="@drawable/drawer_header_background"
     android:gravity="bottom"
     android:orientation="vertical"
-    android:paddingLeft="@dimen/horizontal_margin_16"
-    android:paddingTop="@dimen/vertical_margin_16"
-    android:paddingRight="@dimen/horizontal_margin_16"
-    android:paddingBottom="@dimen/vertical_margin_16"
-    android:theme="@style/ThemeOverlay.AppCompat.Dark">
+    android:paddingLeft="@dimen/drawer_header_padding"
+    android:paddingTop="@dimen/drawer_header_padding"
+    android:paddingRight="@dimen/drawer_header_padding"
+    android:paddingBottom="@dimen/drawer_header_padding">
 
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/vertical_margin_16"
+        android:layout_marginTop="@dimen/drawer_header_padding"
         android:contentDescription="@string/nav_header_desc"
-        android:paddingTop="@dimen/vertical_margin_8"
+        android:paddingTop="@dimen/item_gap"
         app:srcCompat="@mipmap/ic_launcher_round" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="end"
-        android:paddingTop="@dimen/vertical_margin_8"
+        android:paddingTop="@dimen/item_gap"
         android:text="@string/nav_header_title"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:textSize="@dimen/text_size_24"
+        android:textAppearance="?attr/textAppearanceHeadlineSmall"
+        android:textColor="@color/onAppBar"
         android:textStyle="bold" />
 
 </LinearLayout>

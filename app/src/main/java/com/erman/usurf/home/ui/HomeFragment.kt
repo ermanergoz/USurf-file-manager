@@ -22,6 +22,7 @@ import com.erman.usurf.home.model.FavoriteItem
 import com.erman.usurf.home.model.StorageItem
 import com.erman.usurf.utils.EventObserver
 import com.erman.usurf.utils.FileOpenUtils
+import com.erman.usurf.utils.keepClearOfBottomInset
 import com.erman.usurf.utils.showOnce
 import com.google.android.material.snackbar.Snackbar
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
@@ -82,7 +83,7 @@ class HomeFragment : Fragment() {
 
     // Each card an equal share of the row's width; the row is as tall as the tallest card's text needs.
     private fun createStorageButtons(items: List<StorageItem>) {
-        val margin: Int = resources.getDimensionPixelSize(R.dimen.layout_margin_4)
+        val margin: Int = resources.getDimensionPixelSize(R.dimen.card_margin)
         items.forEach { item ->
             val buttonBinding: StorageButtonBinding =
                 DataBindingUtil.inflate(
@@ -181,6 +182,7 @@ class HomeFragment : Fragment() {
         binding.favoriteRecyclerView.layoutManager = GridLayoutManager(context, FAVORITE_GRID_SPAN_COUNT)
         binding.favoriteRecyclerView.adapter = favoriteRecyclerViewAdapter
         binding.favoriteRecyclerView.itemAnimator = null
+        binding.root.keepClearOfBottomInset(padded = listOf(binding.favoriteRecyclerView))
 
         homeViewModel.favorites.observe(viewLifecycleOwner) { favorites ->
             favoriteRecyclerViewAdapter.updateData(favorites)

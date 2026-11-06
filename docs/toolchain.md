@@ -37,6 +37,7 @@ fails the build; the versions here move on purpose, on a branch of their own.
 |---|---|---|---|
 | `androidx.core:core-ktx` | 1.19.1 | latest stable | 2026-11-08 |
 | `androidx.appcompat:appcompat` | 1.8.0 | latest stable | 2026-11-08 |
+| `com.google.android.material:material` | 1.14.0 | latest stable | 2026-11-08 |
 | `androidx.constraintlayout:constraintlayout` | 2.2.2 | latest stable | 2026-11-08 |
 | `androidx.recyclerview:recyclerview` | 1.4.0 | latest stable | 2026-11-08 |
 | `androidx.swiperefreshlayout:swiperefreshlayout` | 1.2.0 | latest stable | 2026-11-08 |

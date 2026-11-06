@@ -8,6 +8,7 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
 import com.erman.usurf.R
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.io.File
 
 private const val ARG_PATHS: String = "arg_paths"
@@ -24,7 +25,7 @@ class DeleteConfirmationDialog : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val names = targetPaths.map { File(it).name }
-        return AlertDialog.Builder(requireActivity())
+        return MaterialAlertDialogBuilder(requireActivity())
             .setTitle(resources.getQuantityString(R.plurals.delete_items_title, names.size, names.size))
             .setMessage(listedNames(names))
             .setPositiveButton(R.string.delete) { _, _ -> setFragmentResult(REQUEST_KEY, confirmationResult()) }

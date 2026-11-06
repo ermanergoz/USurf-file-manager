@@ -24,13 +24,13 @@
         android:onClick="@{() -> listener.onFavoriteClick(favoriteItem)}"
         android:onLongClick="@{() -> listener.onFavoriteLongClick(favoriteItem.path, favoriteItem.name)}"
         android:orientation="vertical"
-        android:padding="@dimen/layout_margin_8">
+        android:padding="@dimen/card_padding_compact">
 
         <ImageView
             android:id="@+id/favoriteIcon"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:layout_marginBottom="@dimen/layout_margin_4"
+            android:layout_marginBottom="@dimen/icon_label_gap"
             android:contentDescription="@string/favorite"
             android:src="@{favoriteItem.isDirectory ? @drawable/ic_folder : @drawable/ic_file}"
             app:tint="@color/colorPrimary" />
@@ -42,6 +42,6 @@
             android:gravity="center"
             android:text="@{favoriteItem.name}"
             android:textColor="@color/daynnightTextColor"
-            android:textSize="@dimen/text_size_14" />
+            android:textSize="@dimen/text_body" />
     </LinearLayout>
 </layout>

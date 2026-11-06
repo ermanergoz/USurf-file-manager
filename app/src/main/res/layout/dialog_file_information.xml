@@ -30,10 +30,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingStart="@dimen/horizontal_margin_24"
-            android:paddingTop="@dimen/vertical_margin_16"
-            android:paddingEnd="@dimen/horizontal_margin_24"
-            android:paddingBottom="@dimen/vertical_margin_16">
+            android:paddingStart="@dimen/dialog_content_edge"
+            android:paddingTop="@dimen/dialog_content_vertical"
+            android:paddingEnd="@dimen/dialog_content_edge"
+            android:paddingBottom="@dimen/dialog_content_vertical">
 
             <!-- Name -->
             <TextView
@@ -42,27 +42,27 @@
                 android:layout_height="wrap_content"
                 android:text="@string/name"
                 android:textColor="@color/sectionHeaderColor"
-                android:textSize="@dimen/text_size_12"
+                android:textSize="@dimen/text_label"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/nameTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/vertical_margin_4"
+                android:layout_marginTop="@dimen/text_line_gap"
                 android:text="@{file.nameWithoutExtension}"
                 android:textColor="@color/daynnightTextColor"
-                android:textSize="@dimen/text_size_14" />
+                android:textSize="@dimen/text_body" />
 
             <!-- Extension (hidden for directories) -->
             <TextView
                 android:id="@+id/extensionLabelTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/vertical_margin_16"
+                android:layout_marginTop="@dimen/section_gap"
                 android:text="@string/extension"
                 android:textColor="@color/sectionHeaderColor"
-                android:textSize="@dimen/text_size_12"
+                android:textSize="@dimen/text_label"
                 android:textStyle="bold"
                 android:visibility="@{file.isDirectory ? View.GONE : View.VISIBLE}" />
 
@@ -70,10 +70,10 @@
                 android:id="@+id/extensionTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/vertical_margin_4"
+                android:layout_marginTop="@dimen/text_line_gap"
                 android:text="@{file.extension}"
                 android:textColor="@color/daynnightTextColor"
-                android:textSize="@dimen/text_size_14"
+                android:textSize="@dimen/text_body"
                 android:visibility="@{file.isDirectory ? View.GONE : View.VISIBLE}" />
 
             <!-- Path -->
@@ -81,30 +81,30 @@
                 android:id="@+id/pathLabelTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/vertical_margin_16"
+                android:layout_marginTop="@dimen/section_gap"
                 android:text="@string/path"
                 android:textColor="@color/sectionHeaderColor"
-                android:textSize="@dimen/text_size_12"
+                android:textSize="@dimen/text_label"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/pathTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/vertical_margin_4"
+                android:layout_marginTop="@dimen/text_line_gap"
                 android:text="@{file.path}"
                 android:textColor="@color/daynnightTextColor"
-                android:textSize="@dimen/text_size_14" />
+                android:textSize="@dimen/text_body" />
 
             <!-- Hidden file indicator -->
             <TextView
                 android:id="@+id/isHiddenTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/vertical_margin_16"
+                android:layout_marginTop="@dimen/section_gap"
                 android:text="@{file.isHidden ? @string/hidden_file : @string/empty}"
                 android:textColor="@color/sectionHeaderColor"
-                android:textSize="@dimen/text_size_12"
+                android:textSize="@dimen/text_label"
                 android:textStyle="bold"
                 android:visibility="@{file.isHidden ? View.VISIBLE : View.GONE}" />
 
@@ -113,60 +113,60 @@
                 android:id="@+id/sizeLabelTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/vertical_margin_16"
+                android:layout_marginTop="@dimen/section_gap"
                 android:text="@string/size"
                 android:textColor="@color/sectionHeaderColor"
-                android:textSize="@dimen/text_size_12"
+                android:textSize="@dimen/text_label"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/sizeTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/vertical_margin_4"
+                android:layout_marginTop="@dimen/text_line_gap"
                 android:text="@{sizeText}"
                 android:textColor="@color/daynnightTextColor"
-                android:textSize="@dimen/text_size_14" />
+                android:textSize="@dimen/text_body" />
 
             <!-- Permission -->
             <TextView
                 android:id="@+id/permissionLabelTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/vertical_margin_16"
+                android:layout_marginTop="@dimen/section_gap"
                 android:text="@string/permission"
                 android:textColor="@color/sectionHeaderColor"
-                android:textSize="@dimen/text_size_12"
+                android:textSize="@dimen/text_label"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/permissionTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/vertical_margin_4"
+                android:layout_marginTop="@dimen/text_line_gap"
                 android:text="@{permissionText}"
                 android:textColor="@color/daynnightTextColor"
-                android:textSize="@dimen/text_size_14" />
+                android:textSize="@dimen/text_body" />
 
             <!-- Last modification date -->
             <TextView
                 android:id="@+id/lastModifiedLabelTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/vertical_margin_16"
+                android:layout_marginTop="@dimen/section_gap"
                 android:text="@string/last_modification_date"
                 android:textColor="@color/sectionHeaderColor"
-                android:textSize="@dimen/text_size_12"
+                android:textSize="@dimen/text_label"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/lastModificationDateTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/vertical_margin_4"
+                android:layout_marginTop="@dimen/text_line_gap"
                 android:text="@{dateText}"
                 android:textColor="@color/daynnightTextColor"
-                android:textSize="@dimen/text_size_14" />
+                android:textSize="@dimen/text_body" />
 
         </LinearLayout>
 

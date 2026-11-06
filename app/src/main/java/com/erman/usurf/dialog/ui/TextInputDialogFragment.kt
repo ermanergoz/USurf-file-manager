@@ -14,6 +14,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
 import com.erman.usurf.R
 import com.erman.usurf.directory.model.NameRules
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 
 private const val ARG_REQUEST: String = "arg_request"
@@ -40,7 +41,7 @@ class TextInputDialogFragment : DialogFragment() {
             field.setSelection(0, request.selectedLength?.coerceIn(0, request.defaultText.length) ?: request.defaultText.length)
         }
         val builder =
-            AlertDialog.Builder(requireActivity())
+            MaterialAlertDialogBuilder(requireActivity())
                 .setTitle(request.title)
                 .setView(view)
                 .setPositiveButton(request.positiveButton) { _, _ -> sendText(field.text.toString()) }
