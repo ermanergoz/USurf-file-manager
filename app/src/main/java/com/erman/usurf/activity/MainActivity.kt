@@ -23,6 +23,7 @@ import com.erman.usurf.MobileNavigationDirections
 import com.erman.usurf.R
 import com.erman.usurf.databinding.ActivityMainBinding
 import com.erman.usurf.directory.ui.DirectoryViewModel
+import com.erman.usurf.directory.ui.selectionTitle
 import com.erman.usurf.utils.EventObserver
 import com.erman.usurf.utils.KEY_INTENT_IS_FTP_NOTIFICATION_CLICKED
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -37,9 +38,14 @@ class MainActivity : AppCompatActivity() {
     private var destination: NavDirections? = null
     private val mainViewModel by viewModel<MainViewModel>()
 
-    // Held here only to ask whether leaving would stop an operation, and to retry the write a new grant was asked for.
+    // Held here to ask whether leaving would stop an operation, to retry the write a new grant was asked for, and to show
+    // the folder screen's selection in the app bar, which this activity owns.
     private val directoryViewModel by viewModel<DirectoryViewModel>()
     private lateinit var permissionHandler: PermissionHandler
+    private lateinit var drawerToggle: ActionBarDrawerToggle
+
+    // Whether the app bar shows a selection now, instead of the drawer button and the screen's title.
+    private var isSelectionBarShown: Boolean = false
 
     // Added while the drawer is open, after any screen's own handler, so Back closes the drawer before a screen sees it.
     private val drawerBackCallback =
@@ -147,7 +153,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun installDrawerToggle() {
-        val drawerToggle: ActionBarDrawerToggle =
+        drawerToggle =
             object : ActionBarDrawerToggle(
                 this,
                 binding.drawerLayout,
@@ -170,8 +176,29 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         drawerToggle.isDrawerIndicatorEnabled = true
+        drawerToggle.setHomeAsUpIndicator(R.drawable.ic_close)
+        drawerToggle.toolbarNavigationClickListener = View.OnClickListener { directoryViewModel.endCopyMode() }
         binding.drawerLayout.addDrawerListener(drawerToggle)
         drawerToggle.syncState()
+    }
+
+    // While items are selected on the folder screen, the app bar says how many and its drawer button becomes Close, which
+    // ends the selection. On any other screen, or once nothing is selected, the bar is the drawer's and the screen's again.
+    private fun showSelectionBar() {
+        val isOnFolderScreen = navController.currentDestination?.id == R.id.nav_directory
+        val count = if (isOnFolderScreen) directoryViewModel.uiState.value?.selectionCount ?: 0 else 0
+        val toolbar = binding.incAppBarMain.toolbar
+        if (count > 0) {
+            drawerToggle.isDrawerIndicatorEnabled = false
+            toolbar.navigationContentDescription = getString(R.string.close_selection)
+            supportActionBar?.title = resources.selectionTitle(count)
+            isSelectionBarShown = true
+        } else if (isSelectionBarShown) {
+            drawerToggle.isDrawerIndicatorEnabled = true
+            // The screen on now titles the bar as its destination does; the folder screen has no title.
+            if (isOnFolderScreen) supportActionBar?.title = navController.currentDestination?.label
+            isSelectionBarShown = false
+        }
     }
 
     private fun onDrawerOpenChanged(isOpen: Boolean) {
@@ -181,6 +208,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun observeViewModel() {
         mainViewModel.storagePaths.observe(this, ::populateStorageDrawer)
+        directoryViewModel.uiState.observe(this) { showSelectionBar() }
+        navController.addOnDestinationChangedListener { _, _, _ -> showSelectionBar() }
         mainViewModel.uiEvents.observe(
             this,
             EventObserver { event ->

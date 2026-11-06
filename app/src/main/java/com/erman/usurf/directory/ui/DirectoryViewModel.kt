@@ -220,6 +220,7 @@ class DirectoryViewModel(
         return true
     }
 
+    /** Ends copy or move mode, or the selection: the paste bar's Cancel and the app bar's Close. */
     fun endCopyMode() {
         updateState(DirectoryUiState::reset)
     }

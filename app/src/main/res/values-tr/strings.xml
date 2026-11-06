@@ -220,6 +220,13 @@
     <string name="ftp_reason_port_in_use">%1$d numaralı port zaten kullanımda</string>
     <string name="ftp_reason_port_restricted">bu cihazda 1024\'ten küçük portlar kullanılamaz</string>
     <string name="ftp_address_unavailable">Adres henüz alınamadı</string>
+    <string name="state_selected">Seçili</string>
+    <string name="state_not_selected">Seçili değil</string>
+    <plurals name="items_selected">
+        <item quantity="one">%d öğe seçildi</item>
+        <item quantity="other">%d öğe seçildi</item>
+    </plurals>
+    <string name="close_selection">Seçimi kapat</string>
     <string name="state_expanded">Genişletildi</string>
     <string name="state_collapsed">Daraltıldı</string>
 </resources>

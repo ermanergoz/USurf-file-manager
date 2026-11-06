@@ -67,6 +67,10 @@ data class DirectoryUiState(
     val isEmptyFolderVisible: Boolean
         get() = !isLoading && files.isEmpty()
 
+    /** How many items the app bar says are selected: none in copy or move mode, which keeps them for the paste. */
+    val selectionCount: Int
+        get() = if (isInCopyOrMoveMode) 0 else common.selectedFiles.size
+
     /** The create button shows in a listed folder while no item is selected. */
     val isCreateFabVisible: Boolean
         get() = !isSearchMode && !common.isOptionsPanelVisible && !isLoading

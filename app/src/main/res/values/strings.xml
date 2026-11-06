@@ -227,6 +227,13 @@
     <string name="ftp_reason_port_in_use">port %1$d is already in use</string>
     <string name="ftp_reason_port_restricted">ports below 1024 can\'t be used on this device</string>
     <string name="ftp_address_unavailable">Address not available yet</string>
+    <string name="state_selected">Selected</string>
+    <string name="state_not_selected">Not selected</string>
+    <plurals name="items_selected">
+        <item quantity="one">%d selected</item>
+        <item quantity="other">%d selected</item>
+    </plurals>
+    <string name="close_selection">Close selection</string>
     <string name="state_expanded">Expanded</string>
     <string name="state_collapsed">Collapsed</string>
 </resources>
