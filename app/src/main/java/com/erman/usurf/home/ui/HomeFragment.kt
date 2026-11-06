@@ -83,7 +83,7 @@ class HomeFragment : Fragment() {
 
     // Each card an equal share of the row's width; the row is as tall as the tallest card's text needs.
     private fun createStorageButtons(items: List<StorageItem>) {
-        val margin: Int = resources.getDimensionPixelSize(R.dimen.layout_margin_4)
+        val margin: Int = resources.getDimensionPixelSize(R.dimen.card_margin)
         items.forEach { item ->
             val buttonBinding: StorageButtonBinding =
                 DataBindingUtil.inflate(

@@ -7,18 +7,18 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingStart="@dimen/horizontal_margin_16"
-        android:paddingEnd="@dimen/horizontal_margin_16"
+        android:paddingStart="@dimen/screen_edge"
+        android:paddingEnd="@dimen/screen_edge"
         tools:context=".home.ui.HomeFragment">
 
         <TextView
             android:id="@+id/storageSectionHeader"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/vertical_margin_16"
+            android:layout_marginTop="@dimen/section_gap"
             android:text="@string/section_storage"
             android:textColor="@color/sectionHeaderColor"
-            android:textSize="@dimen/text_size_12"
+            android:textSize="@dimen/text_label"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -29,7 +29,7 @@
             android:id="@+id/storageUsageBarLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/vertical_margin_8"
+            android:layout_marginTop="@dimen/header_to_content"
             android:baselineAligned="false"
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
@@ -40,10 +40,10 @@
             android:id="@+id/favoritesSectionHeader"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/vertical_margin_16"
+            android:layout_marginTop="@dimen/section_gap"
             android:text="@string/section_favorites"
             android:textColor="@color/sectionHeaderColor"
-            android:textSize="@dimen/text_size_12"
+            android:textSize="@dimen/text_label"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -53,9 +53,9 @@
             android:id="@+id/favoriteRecyclerView"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginTop="@dimen/vertical_margin_4"
+            android:layout_marginTop="@dimen/list_top_gap"
             android:clipToPadding="false"
-            android:paddingBottom="@dimen/layout_margin_8"
+            android:paddingBottom="@dimen/list_bottom_gap"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -76,7 +76,7 @@
             <ImageView
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:layout_marginBottom="@dimen/vertical_margin_8"
+                android:layout_marginBottom="@dimen/item_gap"
                 android:contentDescription="@string/favorite"
                 android:src="@drawable/ic_favorite"
                 app:tint="@color/emptyStateColor" />
@@ -86,12 +86,12 @@
                 android:layout_height="wrap_content"
                 android:text="@string/empty_favorites_title"
                 android:textColor="@color/daynnightTextColor"
-                android:textSize="@dimen/text_size_16" />
+                android:textSize="@dimen/text_title" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/vertical_margin_4"
+                android:layout_marginTop="@dimen/text_line_gap"
                 android:text="@string/empty_favorites_subtitle"
                 android:textAppearance="?attr/textAppearanceBodySmall"
                 android:textColor="?attr/colorOnSurfaceVariant" />

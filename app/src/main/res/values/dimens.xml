@@ -1,44 +1,119 @@
 <resources>
-    <!-- Text sizes -->
-    <dimen name="text_size_10">10sp</dimen>
-    <dimen name="text_size_12">12sp</dimen>
-    <dimen name="text_size_14">14sp</dimen>
-    <dimen name="text_size_16">16sp</dimen>
-    <dimen name="text_size_22">22sp</dimen>
+    <!-- Text sizes, by what the text is. A view Material 3 restyles takes its text appearance instead. -->
+    <!-- A label under an icon in the folder screen's bars. -->
+    <dimen name="text_action_label">10sp</dimen>
+    <!-- A file's extension on its row. -->
+    <dimen name="text_badge">10sp</dimen>
+    <!-- A section header, or the name of a field above its value. -->
+    <dimen name="text_label">12sp</dimen>
+    <!-- A second line, a summary, a link or a notice. -->
+    <dimen name="text_supporting">12sp</dimen>
+    <!-- A value, the path, a card's main line. -->
+    <dimen name="text_body">14sp</dimen>
+    <!-- A row's or an option's name. -->
+    <dimen name="text_title">16sp</dimen>
+    <!-- Text the user types. -->
+    <dimen name="text_input">16sp</dimen>
+    <!-- The app's name on the Information screen. -->
+    <dimen name="text_app_name">22sp</dimen>
 
-    <!-- Margins -->
-    <dimen name="layout_margin_4">4dp</dimen>
-    <dimen name="layout_margin_8">8dp</dimen>
+    <!-- A screen's edges. -->
+    <!-- Between a screen's content and its left and right edges. -->
+    <dimen name="screen_edge">16dp</dimen>
+    <!-- Above a scrolling screen's content. -->
+    <dimen name="screen_top">16dp</dimen>
+    <!-- Below a scrolling screen's last item. -->
+    <dimen name="screen_bottom">32dp</dimen>
+    <!-- Above the logo and name that open the Information screen. -->
+    <dimen name="hero_padding_top">16dp</dimen>
+    <!-- Below the logo and name that open the Information screen. -->
+    <dimen name="hero_padding_bottom">32dp</dimen>
 
-    <dimen name="vertical_margin_4">4dp</dimen>
-    <dimen name="vertical_margin_8">8dp</dimen>
-    <dimen name="vertical_margin_16">16dp</dimen>
-    <dimen name="vertical_margin_32">32dp</dimen>
+    <!-- Sections, and what is stacked in them. -->
+    <!-- Above a section header, a group of fields or a screen's main button. -->
+    <dimen name="section_gap">16dp</dimen>
+    <!-- Between a section header and the card below it. -->
+    <dimen name="header_to_content">8dp</dimen>
+    <!-- Between two items stacked in a card, a form or a header. -->
+    <dimen name="item_gap">8dp</dimen>
+    <!-- Between two lines of text that belong together. -->
+    <dimen name="text_line_gap">4dp</dimen>
 
-    <dimen name="horizontal_margin_4">4dp</dimen>
-    <dimen name="horizontal_margin_8">8dp</dimen>
-    <dimen name="horizontal_margin_16">16dp</dimen>
-    <dimen name="horizontal_margin_24">24dp</dimen>
+    <!-- Cards, sheets, dialogs and the drawer's header. -->
+    <!-- Inside a card, a sheet or the rows of a card. -->
+    <dimen name="card_padding">16dp</dimen>
+    <!-- Inside a small card, a storage card or a favourite. -->
+    <dimen name="card_padding_compact">8dp</dimen>
+    <!-- Above and below a row of a card. -->
+    <dimen name="card_row_padding_vertical">12dp</dimen>
+    <!-- Around a storage card: half the gap between two. -->
+    <dimen name="card_margin">4dp</dimen>
+    <!-- Above and below a bottom sheet's title and its options. -->
+    <dimen name="sheet_padding_vertical">8dp</dimen>
+    <!-- Between a dialog's content and its left and right edges. -->
+    <dimen name="dialog_content_edge">24dp</dimen>
+    <!-- Above and below a dialog's content. -->
+    <dimen name="dialog_content_vertical">16dp</dimen>
+    <!-- Above and below a dialog's text field. -->
+    <dimen name="dialog_field_padding_vertical">8dp</dimen>
+    <!-- Inside the drawer's header. -->
+    <dimen name="drawer_header_padding">16dp</dimen>
 
-    <dimen name="height_48">48dp</dimen>
+    <!-- Lists and their rows. -->
+    <!-- Inside a list row and the path bar, left and right. -->
+    <dimen name="row_padding_horizontal">12dp</dimen>
+    <!-- Inside a list row and the path bar, above and below. -->
+    <dimen name="row_padding_vertical">8dp</dimen>
+    <!-- Between a row's icon and its text. -->
+    <dimen name="row_icon_text_gap">12dp</dimen>
+    <!-- Between a row's text and what ends the row. -->
+    <dimen name="row_text_end_gap">8dp</dimen>
+    <!-- Above a list's first row. -->
+    <dimen name="list_top_gap">4dp</dimen>
+    <!-- Below the favourites' last row. -->
+    <dimen name="list_bottom_gap">8dp</dimen>
+    <!-- Below a folder's last row, so the create button never covers it. -->
+    <dimen name="list_bottom_inset">128dp</dimen>
 
-    <!-- Sizes -->
-    <dimen name="progress_bar_size">50dp</dimen>
+    <!-- Bars, buttons and icons. -->
+    <!-- Between a floating bar, or its progress, and its surroundings. -->
+    <dimen name="bar_margin">8dp</dimen>
+    <!-- Above and below the actions of a bar. -->
+    <dimen name="bar_padding_vertical">4dp</dimen>
+    <!-- Above the icon of an action in a bar. -->
+    <dimen name="bar_action_padding_top">8dp</dimen>
+    <!-- Between an icon and the label next to it or below it. -->
+    <dimen name="icon_label_gap">4dp</dimen>
+    <!-- Between a card's icon and its text. -->
+    <dimen name="icon_text_gap">8dp</dimen>
+    <!-- Between a sheet option's icon and its text. -->
+    <dimen name="sheet_icon_text_gap">16dp</dimen>
+    <!-- Around the icon of a small icon button. -->
+    <dimen name="icon_button_padding">4dp</dimen>
+    <!-- Between the create button and the screen's edges. -->
+    <dimen name="fab_margin">16dp</dimen>
+    <!-- The height of a control a finger taps. -->
+    <dimen name="touch_target">48dp</dimen>
+    <!-- The width of the folder bar's More button. -->
     <dimen name="more_button_width">60dp</dimen>
 
-    <!-- Corner radii -->
-    <dimen name="corner_radius_8">8dp</dimen>
-    <dimen name="corner_radius_12">12dp</dimen>
-
-    <!-- Icon sizes -->
+    <!-- Sizes. -->
+    <!-- An icon. -->
+    <dimen name="icon_size">24dp</dimen>
+    <!-- The circle behind a row's icon. -->
     <dimen name="icon_background_size">44dp</dimen>
-    <dimen name="icon_size_24">24dp</dimen>
-    <dimen name="empty_state_icon_size">64dp</dimen>
+    <!-- A large centred icon: an empty folder's, the app's logo. -->
+    <dimen name="illustration_size">64dp</dimen>
+    <!-- The spinner while a folder loads. -->
+    <dimen name="loading_indicator_size">50dp</dimen>
+    <!-- Between an empty or a loading screen's icon and its text. -->
+    <dimen name="empty_state_gap">16dp</dimen>
 
-    <!-- Paddings -->
-    <dimen name="padding_12">12dp</dimen>
-    <dimen name="padding_128">128dp</dimen>
-
-    <!-- Swipe refresh -->
+    <!-- Corners and gestures. -->
+    <!-- The corners of the path bar, a selected row and the storage bars. -->
+    <dimen name="corner_small">8dp</dimen>
+    <!-- The corners of a card and of the folder bar. -->
+    <dimen name="corner_medium">12dp</dimen>
+    <!-- How far a pull refreshes a folder. -->
     <dimen name="swipe_refresh_trigger_distance">200dp</dimen>
 </resources>

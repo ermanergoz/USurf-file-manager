@@ -23,8 +23,8 @@
             android:focusable="true"
             android:focusableInTouchMode="true"
             android:orientation="vertical"
-            android:paddingStart="@dimen/horizontal_margin_16"
-            android:paddingEnd="@dimen/horizontal_margin_16"
+            android:paddingStart="@dimen/screen_edge"
+            android:paddingEnd="@dimen/screen_edge"
             tools:context=".ftp.ui.FTPFragment">
 
             <!-- Connection Section Header -->
@@ -32,10 +32,10 @@
                 android:id="@+id/statusSectionHeader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/vertical_margin_16"
+                android:layout_marginTop="@dimen/section_gap"
                 android:text="@string/ftp_section_status"
                 android:textColor="@color/sectionHeaderColor"
-                android:textSize="@dimen/text_size_12"
+                android:textSize="@dimen/text_label"
                 android:textStyle="bold" />
 
             <!-- Status Card -->
@@ -43,9 +43,9 @@
                 android:id="@+id/statusCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/vertical_margin_8"
+                android:layout_marginTop="@dimen/header_to_content"
                 android:background="@drawable/button_frame"
-                android:padding="@dimen/layout_margin_8">
+                android:padding="@dimen/card_padding_compact">
 
                 <ImageView
                     android:id="@+id/wifiIcon"
@@ -63,12 +63,12 @@
                     android:id="@+id/statusTextView"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/layout_margin_8"
+                    android:layout_marginStart="@dimen/icon_text_gap"
                     android:ellipsize="end"
                     android:singleLine="true"
                     android:text="@{viewModel.uiState.statusTextRes}"
                     android:textColor="@color/daynnightTextColor"
-                    android:textSize="@dimen/text_size_14"
+                    android:textSize="@dimen/text_body"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toTopOf="@+id/urlTextView"
                     app:layout_constraintEnd_toStartOf="@+id/copyUrlButton"
@@ -80,12 +80,12 @@
                     android:id="@+id/urlTextView"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/layout_margin_8"
+                    android:layout_marginStart="@dimen/icon_text_gap"
                     android:ellipsize="end"
                     android:singleLine="true"
                     android:text="@{viewModel.uiState.urlText(context.resources)}"
                     android:textColor="@color/sectionHeaderColor"
-                    android:textSize="@dimen/text_size_12"
+                    android:textSize="@dimen/text_supporting"
                     app:layout_constraintBottom_toBottomOf="@+id/wifiIcon"
                     app:layout_constraintEnd_toStartOf="@+id/copyUrlButton"
                     app:layout_constraintStart_toEndOf="@+id/wifiIcon"
@@ -100,7 +100,7 @@
                     android:contentDescription="@string/copy_url"
                     android:focusable="true"
                     android:onClick="@{() -> viewModel.onCopyUrlClicked()}"
-                    android:padding="@dimen/layout_margin_4"
+                    android:padding="@dimen/icon_button_padding"
                     android:src="@drawable/ic_copy"
                     app:tint="@color/copy_icon_tint"
                     android:visibility="@{viewModel.uiState.isCopyUrlVisible ? View.VISIBLE : View.GONE}"
@@ -115,10 +115,10 @@
                 android:id="@+id/settingsSectionHeader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/vertical_margin_16"
+                android:layout_marginTop="@dimen/section_gap"
                 android:text="@string/ftp_section_settings"
                 android:textColor="@color/sectionHeaderColor"
-                android:textSize="@dimen/text_size_12"
+                android:textSize="@dimen/text_label"
                 android:textStyle="bold" />
 
             <!-- Settings Card -->
@@ -126,11 +126,11 @@
                 android:id="@+id/settingsCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/vertical_margin_8"
+                android:layout_marginTop="@dimen/header_to_content"
                 android:alpha="@{viewModel.uiState.isServerActive ? 0.5f : 1.0f}"
                 android:background="@drawable/button_frame"
                 android:orientation="vertical"
-                android:padding="@dimen/horizontal_margin_16">
+                android:padding="@dimen/card_padding">
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/usernameInputLayout"
@@ -148,7 +148,7 @@
                         android:inputType="textPersonName"
                         android:afterTextChanged="@{(text) -> viewModel.onUsernameChanged(text.toString())}"
                         android:text="@{viewModel.uiState.username}"
-                        android:textSize="@dimen/text_size_16" />
+                        android:textSize="@dimen/text_input" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -156,7 +156,7 @@
                     android:id="@+id/passwordInputLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/vertical_margin_8"
+                    android:layout_marginTop="@dimen/item_gap"
                     app:endIconContentDescription="@string/copy_password"
                     app:endIconDrawable="@drawable/ic_copy"
                     app:endIconMode="custom"
@@ -175,7 +175,7 @@
                         android:inputType="textVisiblePassword"
                         android:afterTextChanged="@{(text) -> viewModel.onPasswordChanged(text.toString())}"
                         android:text="@{viewModel.uiState.password}"
-                        android:textSize="@dimen/text_size_16" />
+                        android:textSize="@dimen/text_input" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -183,7 +183,7 @@
                     android:id="@+id/portInputLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/vertical_margin_8"
+                    android:layout_marginTop="@dimen/item_gap"
                     app:errorTextRes="@{viewModel.uiState.portErrorRes}">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -196,7 +196,7 @@
                         android:inputType="number"
                         android:afterTextChanged="@{(text) -> viewModel.onPortChanged(text.toString())}"
                         android:text="@{viewModel.uiState.port}"
-                        android:textSize="@dimen/text_size_16" />
+                        android:textSize="@dimen/text_input" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -204,14 +204,14 @@
                     android:id="@+id/allowUploadsSwitch"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/vertical_margin_8"
+                    android:layout_marginTop="@dimen/item_gap"
                     android:checked="@{viewModel.uiState.allowUploads}"
                     android:enabled="@{!viewModel.uiState.isServerActive}"
-                    android:minHeight="@dimen/height_48"
+                    android:minHeight="@dimen/touch_target"
                     android:onCheckedChanged="@{(button, checked) -> viewModel.onAllowUploadsChanged(checked)}"
                     android:text="@string/ftp_allow_uploads"
                     android:textColor="@color/daynnightTextColor"
-                    android:textSize="@dimen/text_size_16" />
+                    android:textSize="@dimen/text_title" />
 
                 <TextView
                     android:id="@+id/allowUploadsSummary"
@@ -219,7 +219,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/ftp_allow_uploads_summary"
                     android:textColor="@color/sectionHeaderColor"
-                    android:textSize="@dimen/text_size_12" />
+                    android:textSize="@dimen/text_supporting" />
 
             </LinearLayout>
 
@@ -228,10 +228,10 @@
                 android:id="@+id/storageSectionHeader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/vertical_margin_16"
+                android:layout_marginTop="@dimen/section_gap"
                 android:text="@string/ftp_section_storage"
                 android:textColor="@color/sectionHeaderColor"
-                android:textSize="@dimen/text_size_12"
+                android:textSize="@dimen/text_label"
                 android:textStyle="bold"
                 android:visibility="@{viewModel.uiState.isServerActive ? View.GONE : View.VISIBLE}" />
 
@@ -240,10 +240,10 @@
                 android:id="@+id/storageCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/vertical_margin_8"
+                android:layout_marginTop="@dimen/header_to_content"
                 android:background="@drawable/button_frame"
                 android:orientation="vertical"
-                android:padding="@dimen/layout_margin_8"
+                android:padding="@dimen/card_padding_compact"
                 android:visibility="@{viewModel.uiState.isServerActive ? View.GONE : View.VISIBLE}">
 
                 <RadioGroup
@@ -258,9 +258,9 @@
             <Button
                 android:id="@+id/connectButton"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/height_48"
-                android:layout_marginTop="@dimen/vertical_margin_16"
-                android:layout_marginBottom="@dimen/vertical_margin_32"
+                android:layout_height="@dimen/touch_target"
+                android:layout_marginTop="@dimen/section_gap"
+                android:layout_marginBottom="@dimen/screen_bottom"
                 android:contentDescription="@string/connect"
                 android:enabled="@{viewModel.uiState.isConnectButtonEnabled}"
                 android:insetTop="0dp"

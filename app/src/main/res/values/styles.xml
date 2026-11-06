@@ -71,7 +71,7 @@
 
     <style name="PreferenceCategoryStyle">
         <item name="android:textColor">@color/sectionHeaderColor</item>
-        <item name="android:textSize">@dimen/text_size_12</item>
+        <item name="android:textSize">@dimen/text_label</item>
         <item name="android:textStyle">bold</item>
     </style>
 
@@ -84,11 +84,11 @@
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
         <item name="android:gravity">center_vertical</item>
-        <item name="android:drawablePadding">@dimen/horizontal_margin_16</item>
-        <item name="android:paddingStart">@dimen/horizontal_margin_16</item>
-        <item name="android:paddingEnd">@dimen/horizontal_margin_16</item>
+        <item name="android:drawablePadding">@dimen/sheet_icon_text_gap</item>
+        <item name="android:paddingStart">@dimen/card_padding</item>
+        <item name="android:paddingEnd">@dimen/card_padding</item>
         <item name="android:textColor">@color/daynnightTextColor</item>
-        <item name="android:textSize">@dimen/text_size_16</item>
+        <item name="android:textSize">@dimen/text_title</item>
     </style>
 
     <style name="StorageProgressBar" parent="Widget.AppCompat.ProgressBar.Horizontal">

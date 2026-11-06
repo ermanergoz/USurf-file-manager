@@ -4,21 +4,21 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingTop="@dimen/vertical_margin_8"
-    android:paddingBottom="@dimen/vertical_margin_8">
+    android:paddingTop="@dimen/sheet_padding_vertical"
+    android:paddingBottom="@dimen/sheet_padding_vertical">
 
     <TextView
         android:id="@+id/favoriteNameTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ellipsize="middle"
-        android:paddingStart="@dimen/horizontal_margin_16"
-        android:paddingTop="@dimen/vertical_margin_8"
-        android:paddingEnd="@dimen/horizontal_margin_16"
-        android:paddingBottom="@dimen/vertical_margin_8"
+        android:paddingStart="@dimen/card_padding"
+        android:paddingTop="@dimen/sheet_padding_vertical"
+        android:paddingEnd="@dimen/card_padding"
+        android:paddingBottom="@dimen/sheet_padding_vertical"
         android:singleLine="true"
         android:textColor="@color/daynnightTextColor"
-        android:textSize="@dimen/text_size_16"
+        android:textSize="@dimen/text_title"
         android:textStyle="bold" />
 
     <TextView

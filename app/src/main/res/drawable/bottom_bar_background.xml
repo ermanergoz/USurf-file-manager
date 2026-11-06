@@ -8,6 +8,6 @@
     <corners
         android:bottomLeftRadius="0dp"
         android:bottomRightRadius="0dp"
-        android:topLeftRadius="@dimen/corner_radius_12"
-        android:topRightRadius="@dimen/corner_radius_12" />
+        android:topLeftRadius="@dimen/corner_medium"
+        android:topRightRadius="@dimen/corner_medium" />
 </shape>
