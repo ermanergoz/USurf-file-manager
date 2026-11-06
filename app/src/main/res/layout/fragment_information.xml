@@ -474,6 +474,7 @@
                 android:layout_height="wrap_content"
                 android:paddingStart="@dimen/card_padding"
                 android:paddingEnd="@dimen/card_padding"
+                android:autoLink="web"
                 android:text="@string/license_7zip_notice"
                 android:textColor="@color/daynnightTextColor"
                 android:textSize="@dimen/text_supporting" />
