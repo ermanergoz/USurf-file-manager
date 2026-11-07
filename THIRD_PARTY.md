@@ -10,6 +10,7 @@ The app lists the bundled components on its Information screen. Versions are the
 | 7-Zip | `app/src/main/cpp/7zip` (github.com/ip7z/7zip) | 26.06 | GNU LGPL 2.1 or later; the RAR decoder also under the unRAR license restriction; the LZFSE and Zstandard decoders under BSD 3-Clause; xxHash64 under BSD 2-Clause | Built from source into `libp7zip.so`. The app's whole source is public, so the library can be rebuilt and relinked. Notice below. |
 | AndroidX Core | `androidx.core:core-ktx` | 1.19.1 | Apache-2.0 | |
 | AndroidX AppCompat | `androidx.appcompat:appcompat` | 1.8.0 | Apache-2.0 | |
+| AndroidX Activity | `androidx.activity:activity` | 1.12.4 | Apache-2.0 | Called directly for edge-to-edge drawing and Back; the version AppCompat and Material resolve it to. |
 | AndroidX ConstraintLayout | `androidx.constraintlayout:constraintlayout` | 2.2.2 | Apache-2.0 | |
 | AndroidX RecyclerView | `androidx.recyclerview:recyclerview` | 1.4.0 | Apache-2.0 | |
 | AndroidX SwipeRefreshLayout | `androidx.swiperefreshlayout:swiperefreshlayout` | 1.2.0 | Apache-2.0 | |
