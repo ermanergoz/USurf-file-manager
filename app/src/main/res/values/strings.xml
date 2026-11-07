@@ -105,7 +105,7 @@
     <string name="unable_to_delete_favorite">Could not remove the favorite</string>
     <string name="favorite_renamed">Favorite renamed</string>
     <string name="unable_to_rename_favorite">Could not rename the favorite</string>
-    <string name="invalid_favorite">This folder no longer exists. Remove the favorite</string>
+    <string name="invalid_favorite">This folder is missing or can\'t be opened</string>
     <string name="ftp_server_is_running">FTP server is running</string>
     <string name="ftp_notification_channel_name">FTPNotificationChannel</string>
     <string name="ftp_notification_channel_description">FTP notification channel</string>

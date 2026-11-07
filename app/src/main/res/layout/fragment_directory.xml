@@ -82,7 +82,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:orientation="vertical"
-            android:visibility="@{viewModel.uiState.isEmptyFolderVisible ? View.VISIBLE : View.GONE}"
+            android:visibility="@{viewModel.uiState.isEmptyStateVisible ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toTopOf="@+id/confirmationButtonBar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -98,7 +98,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/empty_folder_title"
+                android:text="@{viewModel.uiState.isSearchMode ? @string/no_search_results(viewModel.uiState.query) : @string/empty_folder_title}"
                 android:textAppearance="?attr/textAppearanceTitleMedium"
                 android:textColor="?attr/colorOnSurface" />
 
@@ -108,7 +108,8 @@
                 android:layout_marginTop="@dimen/text_line_gap"
                 android:text="@string/empty_folder_subtitle"
                 android:textAppearance="?attr/textAppearanceBodySmall"
-                android:textColor="?attr/colorOnSurfaceVariant" />
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:visibility="@{viewModel.uiState.isEmptyFolderVisible ? View.VISIBLE : View.GONE}" />
         </LinearLayout>
 
         <!-- File List -->

@@ -305,13 +305,14 @@ class DirectoryViewModel(
                     isCreateMenuExpanded = current.common.isCreateMenuExpanded && !state.isSearchMode
                 ),
                 files = files,
-                isRefreshing = false
+                isRefreshing = false,
+                isListingFailed = false
             )
         }
     }
 
     private fun reportListingFailure(state: DirectoryUiState, err: FileOperationException) {
-        updateState { it.copy(common = it.common.copy(isLoading = false), isRefreshing = false) }
+        updateState { it.copy(common = it.common.copy(isLoading = false), isRefreshing = false, isListingFailed = true) }
         val fallbackResId = if (state.isSearchMode) R.string.search_failed else R.string.unable_to_open_directory
         _uiEvents.value = Event(DirectoryUiEvent.ShowSnackbar(err.operationMessageOr(fallbackResId)))
         loge(err.localizedMessage ?: UNKNOWN_ERROR)

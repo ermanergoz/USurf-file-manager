@@ -43,7 +43,7 @@
     <string name="unsupported_file">Bu dosyayı açabilecek bir uygulama yok</string>
     <string name="unable_to_open_directory">Bu klasör açılamadı</string>
     <string name="error_while_renaming">Yeniden isimlendirilemedi</string>
-    <string name="renaming_successful">Yeniden adlandırıldı</string>
+    <string name="renaming_successful">Yeniden isimlendirildi</string>
     <string name="error_while_deleting">Silinemedi</string>
     <string name="deleting_successful">Silindi</string>
     <string name="folder_creation_successful">"Yeni klasör oluşturuldu"</string>
@@ -105,7 +105,7 @@
     <string name="unable_to_delete_favorite">Favori kaldırılamadı</string>
     <string name="favorite_renamed">Favori yeniden isimlendirildi</string>
     <string name="unable_to_rename_favorite">Favori yeniden isimlendirilemedi</string>
-    <string name="invalid_favorite">Bu klasör artık yok. Favoriyi kaldırın</string>
+    <string name="invalid_favorite">Bu klasör yok ya da açılamıyor</string>
     <string name="ftp_server_is_running">FTP sunucusu çalışıyor</string>
     <string name="ftp_notification_channel_name">FTPNotificationChannel</string>
     <string name="ftp_notification_channel_description">FTP notification channel</string>
