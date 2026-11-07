@@ -77,7 +77,8 @@
         <item name="android:textStyle">bold</item>
     </style>
 
-    <!-- One option of a bottom sheet: a full-width row at least 48 dp tall, with its icon before the text. -->
+    <!-- One option of a bottom sheet: a full-width row at least 48 dp tall, with its icon before the text, every icon in
+         the primary blue, as the storage icons are. -->
     <style name="SheetRow">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
@@ -87,6 +88,7 @@
         <item name="android:focusable">true</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:drawablePadding">@dimen/sheet_icon_text_gap</item>
+        <item name="drawableTint">?attr/colorPrimary</item>
         <item name="android:paddingStart">@dimen/card_padding</item>
         <item name="android:paddingEnd">@dimen/card_padding</item>
         <item name="android:textColor">@color/daynnightTextColor</item>

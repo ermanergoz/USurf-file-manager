@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The icon of the favourite sheet's "Remove from favorites" option, at the size every option's icon has. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:width="@dimen/icon_size"
+        android:height="@dimen/icon_size"
+        android:drawable="@drawable/ic_favorite_disabled" />
+</layer-list>
