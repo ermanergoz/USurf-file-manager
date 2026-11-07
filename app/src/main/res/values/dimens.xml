@@ -90,7 +90,7 @@
     <dimen name="fab_margin">16dp</dimen>
     <!-- The height of a control a finger taps. -->
     <dimen name="touch_target">48dp</dimen>
-    <!-- The width of the folder bar's More button. -->
+    <!-- The width of the folder bar's More button, which it keeps however wide the labels beside it grow. -->
     <dimen name="more_button_width">60dp</dimen>
 
     <!-- Sizes. -->

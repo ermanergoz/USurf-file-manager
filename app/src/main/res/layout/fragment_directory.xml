@@ -160,7 +160,8 @@
                 android:onClick="@{() -> viewModel.endCopyMode()}"
                 android:text="@string/done"
                 android:textAppearance="?attr/textAppearanceLabelLarge"
-                android:textColor="?attr/colorOnPrimary" />
+                android:textColor="?attr/colorOnPrimary"
+                app:rippleColor="@color/bar_on_primary_ripple" />
 
             <Button
                 android:id="@+id/OKButton"
@@ -171,7 +172,8 @@
                 android:onClick="@{() -> viewModel.confirmAction()}"
                 android:text="@string/ok"
                 android:textAppearance="?attr/textAppearanceLabelLarge"
-                android:textColor="?attr/colorOnPrimary" />
+                android:textColor="?attr/colorOnPrimary"
+                app:rippleColor="@color/bar_on_primary_ripple" />
         </LinearLayout>
 
         <!-- More Menu (floating card) -->
@@ -287,7 +289,7 @@
 
             <Button
                 android:id="@+id/copyButton"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 style="@style/BarActionButton"
@@ -302,7 +304,7 @@
 
             <Button
                 android:id="@+id/moveButton"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 style="@style/BarActionButton"
@@ -317,7 +319,7 @@
 
             <Button
                 android:id="@+id/renameButton"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 style="@style/BarActionButton"
@@ -333,7 +335,7 @@
 
             <Button
                 android:id="@+id/deleteButton"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 style="@style/BarActionButton"
@@ -350,7 +352,7 @@
                 android:id="@+id/moreButton"
                 android:layout_width="@dimen/more_button_width"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_weight="0"
                 android:background="?android:attr/selectableItemBackground"
                 android:contentDescription="@string/more"
                 android:onClick="@{() -> viewModel.toggleMoreMenu()}"
