@@ -38,6 +38,9 @@
         <item name="colorSurfaceContainerHighest">@color/md_theme_surfaceContainerHighest</item>
         <item name="materialAlertDialogTheme">@style/ThemeOverlay.App.MaterialAlertDialog</item>
         <item name="preferenceCategoryTitleTextAppearance">@style/PreferenceCategoryStyle</item>
+        <!-- Preferences' category titles are section headers, as on Home. The library's title layout takes its colour
+             from this attribute, never from the text appearance above. -->
+        <item name="preferenceCategoryTitleTextColor">@color/sectionHeaderColor</item>
     </style>
 
     <!-- Dialogs keep the width the app's dialogs had: most of the screen, so a long name fits on one line. -->
@@ -91,7 +94,6 @@
     </style>
 
     <style name="PreferenceCategoryStyle">
-        <item name="android:textColor">@color/sectionHeaderColor</item>
         <item name="android:textSize">@dimen/text_label</item>
         <item name="android:textStyle">bold</item>
     </style>
