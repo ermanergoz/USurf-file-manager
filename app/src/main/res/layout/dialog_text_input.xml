@@ -7,6 +7,7 @@
     android:paddingEnd="@dimen/dialog_content_edge"
     android:paddingBottom="@dimen/dialog_field_padding_vertical">
 
+    <!-- Inside a Material dialog the text takes the dialog's own roles, not the colours of the cards and lists. -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/textInputLayout"
         android:layout_width="match_parent"
@@ -20,7 +21,7 @@
             android:importantForAutofill="no"
             android:inputType="text"
             android:maxLines="1"
-            android:textColor="@color/daynnightTextColor"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="@dimen/text_input" />
     </com.google.android.material.textfield.TextInputLayout>
 </FrameLayout>

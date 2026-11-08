@@ -22,6 +22,7 @@
             type="String" />
     </data>
 
+    <!-- Inside a Material dialog the text takes the dialog's own roles, not the colours of the cards and lists. -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -41,7 +42,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/name"
-                android:textColor="@color/sectionHeaderColor"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 android:textSize="@dimen/text_label"
                 android:textStyle="bold" />
 
@@ -51,7 +52,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/text_line_gap"
                 android:text="@{file.nameWithoutExtension}"
-                android:textColor="@color/daynnightTextColor"
+                android:textColor="?attr/colorOnSurface"
                 android:textSize="@dimen/text_body" />
 
             <!-- Extension (hidden for directories) -->
@@ -61,7 +62,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/section_gap"
                 android:text="@string/extension"
-                android:textColor="@color/sectionHeaderColor"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 android:textSize="@dimen/text_label"
                 android:textStyle="bold"
                 android:visibility="@{file.isDirectory ? View.GONE : View.VISIBLE}" />
@@ -72,7 +73,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/text_line_gap"
                 android:text="@{file.extension}"
-                android:textColor="@color/daynnightTextColor"
+                android:textColor="?attr/colorOnSurface"
                 android:textSize="@dimen/text_body"
                 android:visibility="@{file.isDirectory ? View.GONE : View.VISIBLE}" />
 
@@ -83,7 +84,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/section_gap"
                 android:text="@string/path"
-                android:textColor="@color/sectionHeaderColor"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 android:textSize="@dimen/text_label"
                 android:textStyle="bold" />
 
@@ -93,7 +94,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/text_line_gap"
                 android:text="@{file.path}"
-                android:textColor="@color/daynnightTextColor"
+                android:textColor="?attr/colorOnSurface"
                 android:textSize="@dimen/text_body" />
 
             <!-- Hidden file indicator -->
@@ -103,7 +104,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/section_gap"
                 android:text="@{file.isHidden ? @string/hidden_file : @string/empty}"
-                android:textColor="@color/sectionHeaderColor"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 android:textSize="@dimen/text_label"
                 android:textStyle="bold"
                 android:visibility="@{file.isHidden ? View.VISIBLE : View.GONE}" />
@@ -115,7 +116,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/section_gap"
                 android:text="@string/size"
-                android:textColor="@color/sectionHeaderColor"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 android:textSize="@dimen/text_label"
                 android:textStyle="bold" />
 
@@ -125,7 +126,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/text_line_gap"
                 android:text="@{sizeText}"
-                android:textColor="@color/daynnightTextColor"
+                android:textColor="?attr/colorOnSurface"
                 android:textSize="@dimen/text_body" />
 
             <!-- Permission -->
@@ -135,7 +136,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/section_gap"
                 android:text="@string/permission"
-                android:textColor="@color/sectionHeaderColor"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 android:textSize="@dimen/text_label"
                 android:textStyle="bold" />
 
@@ -145,7 +146,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/text_line_gap"
                 android:text="@{permissionText}"
-                android:textColor="@color/daynnightTextColor"
+                android:textColor="?attr/colorOnSurface"
                 android:textSize="@dimen/text_body" />
 
             <!-- Last modification date -->
@@ -155,7 +156,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/section_gap"
                 android:text="@string/last_modification_date"
-                android:textColor="@color/sectionHeaderColor"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 android:textSize="@dimen/text_label"
                 android:textStyle="bold" />
 
@@ -165,7 +166,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/text_line_gap"
                 android:text="@{dateText}"
-                android:textColor="@color/daynnightTextColor"
+                android:textColor="?attr/colorOnSurface"
                 android:textSize="@dimen/text_body" />
 
         </LinearLayout>
