@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- The gradient reaches up under the status bar; the content starts below it, as its top padding is the status bar's
+     height, which MainActivity applies. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -7,7 +9,6 @@
     android:gravity="bottom"
     android:orientation="vertical"
     android:paddingLeft="@dimen/drawer_header_padding"
-    android:paddingTop="@dimen/drawer_header_padding"
     android:paddingRight="@dimen/drawer_header_padding"
     android:paddingBottom="@dimen/drawer_header_padding">
 

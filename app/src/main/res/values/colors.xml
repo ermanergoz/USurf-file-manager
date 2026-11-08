@@ -47,6 +47,9 @@
     <color name="onAppBar">@color/onBrandStrong</color>
     <!-- The pale end of the drawer header's gradient, at its top start corner, away from the app's name. -->
     <color name="drawerHeaderGradientEnd">#99CBFD</color>
+    <!-- Black at 42 %, over the open drawer's status-bar strip: the lightest that keeps the white clock 4.5:1 on the
+         gradient's pale end. -->
+    <color name="drawerStatusBarScrim">#6B000000</color>
 
     <!-- The brand blue itself, for the create buttons and the storage bars, under white glyphs. -->
     <color name="colorAccent">#168DDA</color>
