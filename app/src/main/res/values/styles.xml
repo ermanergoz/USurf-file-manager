@@ -44,6 +44,17 @@
     <style name="ThemeOverlay.App.MaterialAlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="android:windowMinWidthMajor">85%</item>
         <item name="android:windowMinWidthMinor">95%</item>
+        <item name="alertDialogStyle">@style/MaterialAlertDialog.App</item>
+    </style>
+
+    <!-- The dialog's rounded surface fills its window. Material's own inset around it, 24 dp at the sides and 80 dp
+         above and below on a phone, would narrow the surface inside the width above and, with the keyboard up on a
+         640 dp tall phone, leave the text field and the buttons no room. -->
+    <style name="MaterialAlertDialog.App" parent="MaterialAlertDialog.Material3">
+        <item name="backgroundInsetStart">0dp</item>
+        <item name="backgroundInsetTop">0dp</item>
+        <item name="backgroundInsetEnd">0dp</item>
+        <item name="backgroundInsetBottom">0dp</item>
     </style>
 
     <!-- The app bar in its brand blue: its title, the drawer button and the overflow button in the colour made for it. -->
