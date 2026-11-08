@@ -93,6 +93,16 @@
         <item name="shapeAppearance">?attr/shapeAppearanceCornerSmall</item>
     </style>
 
+    <!-- A section header on a screen's background, such as Home's "Storage" and "Favorites". values-v28 also makes it an
+         accessibility heading, so a screen reader can jump between them. -->
+    <style name="Base.Widget.App.SectionHeader" parent="">
+        <item name="android:textColor">@color/sectionHeaderColor</item>
+        <item name="android:textSize">@dimen/text_label</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Widget.App.SectionHeader" parent="Base.Widget.App.SectionHeader" />
+
     <style name="PreferenceCategoryStyle">
         <item name="android:textSize">@dimen/text_label</item>
         <item name="android:textStyle">bold</item>

@@ -5,4 +5,9 @@
         <item name="android:outlineAmbientShadowColor">@android:color/black</item>
         <item name="android:outlineSpotShadowColor">@android:color/black</item>
     </style>
+
+    <!-- A section header is an accessibility heading from Android 9 on, as the Preferences category titles are. -->
+    <style name="Widget.App.SectionHeader" parent="Base.Widget.App.SectionHeader">
+        <item name="android:accessibilityHeading">true</item>
+    </style>
 </resources>

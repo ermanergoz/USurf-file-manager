@@ -13,13 +13,11 @@
 
         <TextView
             android:id="@+id/storageSectionHeader"
+            style="@style/Widget.App.SectionHeader"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/section_gap"
             android:text="@string/section_storage"
-            android:textColor="@color/sectionHeaderColor"
-            android:textSize="@dimen/text_label"
-            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -38,13 +36,11 @@
 
         <TextView
             android:id="@+id/favoritesSectionHeader"
+            style="@style/Widget.App.SectionHeader"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/section_gap"
             android:text="@string/section_favorites"
-            android:textColor="@color/sectionHeaderColor"
-            android:textSize="@dimen/text_label"
-            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/storageUsageBarLayout" />
