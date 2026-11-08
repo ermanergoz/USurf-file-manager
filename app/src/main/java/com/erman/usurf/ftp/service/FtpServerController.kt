@@ -4,6 +4,7 @@ import com.erman.usurf.ftp.data.FtpServerState
 import com.erman.usurf.ftp.domain.FtpFailureReason
 import com.erman.usurf.ftp.domain.FtpServerStatus
 import java.net.BindException
+import java.net.SocketException
 
 // Ports below this one are the privileged ones, which only the system may listen on.
 private const val FIRST_UNPRIVILEGED_PORT: Int = 1024
@@ -80,15 +81,15 @@ class FtpServerController(
     /**
      * Why a start on [port] failed with [err]: a login the server refuses, a port it could not listen on, a privileged
      * one below 1024 or one in use, or else the library's own text. Without a port read, a bind failure is the latter.
+     * Android refuses a privileged port with a plain SocketException, "Permission denied", where a port in use gives a
+     * BindException, so below 1024 any socket failure of the start is the refusal.
      */
     private fun classify(err: Throwable, port: Int?): FtpFailureReason {
         val causes: List<Throwable> = generateSequence(err) { it.cause }.toList()
         return when {
             causes.any { it is FtpSettingsRefusedException } -> FtpFailureReason.SettingsInvalid
-
-            port != null && causes.any { it is BindException } ->
-                if (port < FIRST_UNPRIVILEGED_PORT) FtpFailureReason.PortRestricted(port) else FtpFailureReason.PortInUse(port)
-
+            port != null && port < FIRST_UNPRIVILEGED_PORT && causes.any { it is SocketException } -> FtpFailureReason.PortRestricted(port)
+            port != null && causes.any { it is BindException } -> FtpFailureReason.PortInUse(port)
             else -> FtpFailureReason.Other(describe(err))
         }
     }
