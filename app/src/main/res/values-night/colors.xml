@@ -36,11 +36,8 @@
     <color name="md_theme_surfaceContainerHigh">#282A2F</color>
     <color name="md_theme_surfaceContainerHighest">#32353A</color>
 
-    <!-- The app bar stays brand blue: the primary container, under its own text colour. -->
-    <color name="appBar">@color/md_theme_primaryContainer</color>
-    <color name="onAppBar">@color/md_theme_onPrimaryContainer</color>
-
-    <!-- The dark colours of the cards and lists, one per role that values describes. -->
+    <!-- The dark colours of the cards and lists, one per role that values describes. The app bar and the icons keep the
+         brand blues of values. -->
     <color name="cardSurface">#1E293B</color>
     <color name="cardStroke">#334155</color>
     <color name="progressTrack">#303D51</color>

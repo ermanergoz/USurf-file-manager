@@ -37,10 +37,14 @@
     <color name="md_theme_surfaceContainerHigh">#E6E8EE</color>
     <color name="md_theme_surfaceContainerHighest">#E1E2E8</color>
 
-    <!-- The app bar is brand blue in both themes: the primary role here, the primary container in the dark theme, each
-         with its own colour for the title and icons. -->
-    <color name="appBar">@color/md_theme_primary</color>
-    <color name="onAppBar">@color/md_theme_onPrimary</color>
+    <!-- The brand blue darkened only as far as white text on it needs, 4.55:1, the same in both themes. It stays apart
+         from the primary role, which Material draws dialog buttons in as text. -->
+    <color name="brandStrong">#127BC0</color>
+    <color name="onBrandStrong">#FFFFFF</color>
+
+    <!-- The app bar, also under the status bar, and its title and icons. -->
+    <color name="appBar">@color/brandStrong</color>
+    <color name="onAppBar">@color/onBrandStrong</color>
 
     <!-- The brand blue itself, for the create buttons and the storage bars, under white glyphs. -->
     <color name="colorAccent">#168DDA</color>
