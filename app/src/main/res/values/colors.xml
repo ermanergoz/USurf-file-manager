@@ -70,11 +70,11 @@
     <!-- Section headers and supporting text: a storage's usage, a row's count and date, a file's extension badge. -->
     <color name="sectionHeaderColor">#64748B</color>
     <!-- The press ripple of cards and list rows. -->
-    <color name="lightBlue">#99CBFD</color>
+    <color name="pressRipple">#99CBFD</color>
     <!-- The fill of a selected list row. -->
     <color name="selectionBackground">#99CBFD</color>
     <!-- Every text of a selected list row, on selectionBackground. -->
-    <color name="textColorLight">#3C3C3C</color>
+    <color name="selectedRowText">#3C3C3C</color>
     <!-- Disabled text and glyphs that are not text, so 3:1 is their floor; text that is read uses the variant role. -->
     <color name="emptyStateColor">@color/md_theme_outline</color>
 </resources>
