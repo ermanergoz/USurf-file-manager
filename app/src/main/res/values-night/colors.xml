@@ -46,4 +46,8 @@
     <color name="progressTrack">#303D51</color>
     <color name="daynnightTextColor">#A9B7C6</color>
     <color name="sectionHeaderColor">#94A3B8</color>
+    <!-- The brand blue at 40 % over the dark page, pale text on it. -->
+    <color name="lightBlue">#134466</color>
+    <color name="selectionBackground">#134466</color>
+    <color name="textColorLight">#E2E8F0</color>
 </resources>
