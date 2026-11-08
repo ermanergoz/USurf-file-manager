@@ -46,15 +46,22 @@
     <color name="colorAccent">#168DDA</color>
     <color name="onColorAccent">#FFFFFF</color>
 
-    <!-- Older names the layouts still use, each now the role that replaces it. -->
-    <color name="colorPrimary">@color/md_theme_primary</color>
+    <!-- The colours of the cards and lists, one role each, as the README screenshots show them; the dark theme's are in
+         values-night. Material's own components and dialogs keep the roles above. -->
+    <!-- Icons and spinners, in the brand blue in both themes. It never colours text: it is 3.59:1 on a card. -->
+    <color name="colorPrimary">@color/colorAccent</color>
+    <!-- Cards, the path bar, the bottom bar and the More menu. -->
+    <color name="cardSurface">#FFFFFF</color>
+    <!-- A card's 1 dp outline and the line between list rows. -->
+    <color name="cardStroke">#E2E8F0</color>
+    <!-- The unfilled part of a storage bar, light enough that the brand blue fill stands 3:1 against it. -->
+    <color name="progressTrack">#E8EDF3</color>
+    <!-- The main text of cards and list rows. -->
+    <color name="daynnightTextColor">#3C3C3C</color>
+    <!-- Section headers and supporting text: a storage's usage, a row's count and date, a file's extension badge. -->
+    <color name="sectionHeaderColor">#64748B</color>
     <color name="lightBlue">@color/md_theme_secondaryContainer</color>
     <color name="textColorLight">@color/md_theme_onSecondaryContainer</color>
-    <color name="daynnightTextColor">@color/md_theme_onSurface</color>
-    <color name="cardSurface">@color/md_theme_surfaceContainerHigh</color>
-    <color name="cardStroke">@color/md_theme_outlineVariant</color>
-    <color name="progressTrack">@color/md_theme_outlineVariant</color>
-    <color name="sectionHeaderColor">@color/md_theme_onSurfaceVariant</color>
     <!-- Disabled text and glyphs that are not text, so 3:1 is their floor; text that is read uses the variant role. -->
     <color name="emptyStateColor">@color/md_theme_outline</color>
 </resources>

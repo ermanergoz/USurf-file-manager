@@ -99,7 +99,7 @@
         <item name="android:focusable">true</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:drawablePadding">@dimen/sheet_icon_text_gap</item>
-        <item name="drawableTint">?attr/colorPrimary</item>
+        <item name="drawableTint">@color/colorPrimary</item>
         <item name="android:paddingStart">@dimen/card_padding</item>
         <item name="android:paddingEnd">@dimen/card_padding</item>
         <item name="android:textColor">@color/daynnightTextColor</item>

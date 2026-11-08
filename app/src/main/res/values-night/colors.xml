@@ -39,4 +39,11 @@
     <!-- The app bar stays brand blue: the primary container, under its own text colour. -->
     <color name="appBar">@color/md_theme_primaryContainer</color>
     <color name="onAppBar">@color/md_theme_onPrimaryContainer</color>
+
+    <!-- The dark colours of the cards and lists, one per role that values describes. -->
+    <color name="cardSurface">#1E293B</color>
+    <color name="cardStroke">#334155</color>
+    <color name="progressTrack">#303D51</color>
+    <color name="daynnightTextColor">#A9B7C6</color>
+    <color name="sectionHeaderColor">#94A3B8</color>
 </resources>
