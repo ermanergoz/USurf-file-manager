@@ -1,9 +1,9 @@
 # Toolchain — USurf
 
-Every version the build pins, one row each. Versions move as a ladder, top down: Gradle, the Android Gradle plugin,
-Kotlin, the libraries, the quality tools, the test libraries; each rung takes the newest stable release the rungs above
-it support. The ladder is capped by Realm 10.19.0, the last release of Realm Java, which the app keeps for its
-favourites.
+Every version the build pins, one row each. The build reads them from `gradle/libs.versions.toml`, where each is
+written once. Versions move as a ladder, top down: Gradle, the Android Gradle plugin, Kotlin, the libraries, the quality
+tools, the test libraries; each rung takes the newest stable release the rungs above it support. The ladder is capped by
+Realm 10.19.0, the last release of Realm Java, which the app keeps for its favourites.
 
 Resolved as, one of three:
 - `latest stable`: the newest release with no pre-release marker on the day it was checked;
@@ -18,7 +18,7 @@ fails the build; the versions here move on purpose, on a branch of their own.
 | Dependency | Version | Resolved as | Checked on |
 |---|---|---|---|
 | Gradle (wrapper) | 9.9.0 | latest stable | 2026-11-08 |
-| Android Gradle plugin (`com.android.tools.build:gradle`) | 9.5.1 | latest stable; run with `android.builtInKotlin=false` and `android.newDsl=false`, because Realm's plugin finds Kotlin through the Kotlin Android plugin and reads the classic `android` extension. A later plugin that drops both options is held until the favourites leave Realm Java. The plugin prints both options as deprecated on every build, beside the Kotlin Android plugin's own deprecation notice and the obsolete variant API warnings of Realm's and Safe Args' plugins; those warnings are this hold's trigger and are never silenced: the first plugin release that removes either option, or breaks this path, is held here with its reason | 2026-11-08 |
+| Android Gradle plugin (`com.android.tools.build:gradle`) | 9.5.1 | latest stable; run with `android.builtInKotlin=false` and `android.newDsl=false`, because Realm's plugin finds Kotlin through the Kotlin Android plugin and reads the classic `android` extension. A later plugin that drops both options is held until the favourites leave Realm Java. The plugin prints both options as deprecated on every build, beside the Kotlin Android plugin's own deprecation notice and the obsolete variant API warnings (`applicationVariants`, `testVariants`, `unitTestVariants`) that the Android plugin traces to the Kotlin Android plugin; those warnings are this hold's trigger and are never silenced: the first plugin release that removes either option, or breaks this path, is held here with its reason | 2026-11-09 |
 | Kotlin (`org.jetbrains.kotlin:kotlin-gradle-plugin`, with kapt and parcelize) | 2.4.21 | latest stable | 2026-11-08 |
 | KSP (`com.google.devtools.ksp:symbol-processing-gradle-plugin`) | 2.3.13 | latest stable | 2026-11-08 |
 | Realm (`io.realm:realm-gradle-plugin`, `realm-annotations-processor`) | 10.19.0 | latest stable; the last Realm Java release | 2026-11-08 |
@@ -60,7 +60,7 @@ fails the build; the versions here move on purpose, on a branch of their own.
 
 | Dependency | Version | Resolved as | Checked on |
 |---|---|---|---|
-| detekt (`io.gitlab.arturbosch.detekt`) | 1.23.8 | latest stable; detekt 2 has no stable release | 2026-11-08 |
+| detekt (`io.gitlab.arturbosch.detekt`) | 1.23.8 | latest stable; detekt 2 has no stable release. Its Gradle plugin calls two Gradle methods that Gradle 9 deprecates, `ReportingExtension.file` and `Configuration.setVisible`, so every build reports deprecated Gradle features; the warnings stay until detekt moves, and are never silenced | 2026-11-09 |
 | ktlint Gradle plugin (`org.jlleitschuh.gradle.ktlint`) | 14.2.0 | latest stable | 2026-11-08 |
 | ktlint | 1.8.0 | latest stable | 2026-11-08 |
 
