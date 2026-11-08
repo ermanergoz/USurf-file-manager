@@ -26,7 +26,9 @@ data class DirectoryUiState(
     val query: String = "",
     val previousPath: String = "",
     /** The folder above [currentPath] when the app can read it, as the listing of [currentPath] found it; null for a search. */
-    val readableParent: String? = null
+    val readableParent: String? = null,
+    /** Whether the last listing of the folder or the search on screen failed, so its rows were never read. */
+    val isListingFailed: Boolean = false
 ) {
     val isAtRootDirectory: Boolean
         get() = currentPath == ROOT_DIRECTORY
@@ -63,9 +65,17 @@ data class DirectoryUiState(
     val actionButtonsEnabled: Boolean
         get() = common.canRename
 
-    /** A listed folder with nothing in it says so. */
+    /** A folder or a search that was listed and holds nothing says so; one that could not be listed says nothing. */
+    val isEmptyStateVisible: Boolean
+        get() = !isLoading && files.isEmpty() && !isListingFailed
+
+    /** A listed folder with nothing in it says so; a search that found nothing names its query instead. */
     val isEmptyFolderVisible: Boolean
-        get() = !isLoading && files.isEmpty()
+        get() = isEmptyStateVisible && !isSearchMode
+
+    /** How many items the app bar says are selected: none in copy or move mode, which keeps them for the paste. */
+    val selectionCount: Int
+        get() = if (isInCopyOrMoveMode) 0 else common.selectedFiles.size
 
     /** The create button shows in a listed folder while no item is selected. */
     val isCreateFabVisible: Boolean

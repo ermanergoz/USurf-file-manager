@@ -1,9 +1,5 @@
 <resources>
     <!-- Text sizes, by what the text is. A view Material 3 restyles takes its text appearance instead. -->
-    <!-- A label under an icon in the folder screen's bars. -->
-    <dimen name="text_action_label">10sp</dimen>
-    <!-- A file's extension on its row. -->
-    <dimen name="text_badge">10sp</dimen>
     <!-- A section header, or the name of a field above its value. -->
     <dimen name="text_label">12sp</dimen>
     <!-- A second line, a summary, a link or a notice. -->
@@ -88,13 +84,13 @@
     <dimen name="icon_text_gap">8dp</dimen>
     <!-- Between a sheet option's icon and its text. -->
     <dimen name="sheet_icon_text_gap">16dp</dimen>
-    <!-- Around the icon of a small icon button. -->
-    <dimen name="icon_button_padding">4dp</dimen>
+    <!-- Around the icon of an icon button, so a 24 dp icon fills a 48 dp button. -->
+    <dimen name="icon_button_padding">12dp</dimen>
     <!-- Between the create button and the screen's edges. -->
     <dimen name="fab_margin">16dp</dimen>
     <!-- The height of a control a finger taps. -->
     <dimen name="touch_target">48dp</dimen>
-    <!-- The width of the folder bar's More button. -->
+    <!-- The width of the folder bar's More button, which it keeps however wide the labels beside it grow. -->
     <dimen name="more_button_width">60dp</dimen>
 
     <!-- Sizes. -->

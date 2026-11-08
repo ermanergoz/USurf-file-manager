@@ -37,9 +37,11 @@ class MainActivity : AppCompatActivity() {
     private var destination: NavDirections? = null
     private val mainViewModel by viewModel<MainViewModel>()
 
-    // Held here only to ask whether leaving would stop an operation, and to retry the write a new grant was asked for.
+    // Held here to ask whether leaving would stop an operation, to retry the write a new grant was asked for, and to show
+    // the folder screen's selection in the app bar, which this activity owns.
     private val directoryViewModel by viewModel<DirectoryViewModel>()
     private lateinit var permissionHandler: PermissionHandler
+    private lateinit var selectionAppBar: SelectionAppBar
 
     // Added while the drawer is open, after any screen's own handler, so Back closes the drawer before a screen sees it.
     private val drawerBackCallback =
@@ -172,6 +174,15 @@ class MainActivity : AppCompatActivity() {
         drawerToggle.isDrawerIndicatorEnabled = true
         binding.drawerLayout.addDrawerListener(drawerToggle)
         drawerToggle.syncState()
+        selectionAppBar = SelectionAppBar(this, binding.incAppBarMain.toolbar, drawerToggle) { directoryViewModel.endCopyMode() }
+    }
+
+    // The folder screen's selection, shown in the app bar while that screen is on. Its own title, which it has none of, is
+    // set again when the selection ends there; any other screen's title is navigation's.
+    private fun showSelectionBar() {
+        val folderScreen = navController.currentDestination?.takeIf { it.id == R.id.nav_directory }
+        val count = folderScreen?.let { directoryViewModel.uiState.value?.selectionCount } ?: 0
+        selectionAppBar.show(count, screenTitle = folderScreen?.let { it.label ?: "" })
     }
 
     private fun onDrawerOpenChanged(isOpen: Boolean) {
@@ -181,6 +192,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun observeViewModel() {
         mainViewModel.storagePaths.observe(this, ::populateStorageDrawer)
+        directoryViewModel.uiState.observe(this) { showSelectionBar() }
+        navController.addOnDestinationChangedListener { _, _, _ -> showSelectionBar() }
         mainViewModel.uiEvents.observe(
             this,
             EventObserver { event ->

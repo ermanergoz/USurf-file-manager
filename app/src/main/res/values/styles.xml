@@ -58,9 +58,11 @@
         <item name="subtitleTextColor">@color/onAppBar</item>
     </style>
 
-    <!-- An action of the folder screen's bars, its icon above its label, sharing the bar's width with the others. Under
-         Material 3 a button is a Material button, so this keeps the bar's own spacing and leaves it unfilled. -->
+    <!-- An action of the folder screen's bars, its icon above its label, sharing the bar's width with the others and at
+         least a finger's height. Under Material 3 a button is a Material button, so this keeps the bar's own spacing and
+         leaves it unfilled. -->
     <style name="BarActionButton" parent="Widget.Material3.Button.TextButton">
+        <item name="android:minHeight">@dimen/touch_target</item>
         <item name="android:paddingLeft">0dp</item>
         <item name="android:paddingRight">0dp</item>
         <item name="android:paddingBottom">0dp</item>
@@ -75,7 +77,8 @@
         <item name="android:textStyle">bold</item>
     </style>
 
-    <!-- One option of a bottom sheet: a full-width row at least 48 dp tall, with its icon before the text. -->
+    <!-- One option of a bottom sheet: a full-width row at least 48 dp tall, with its icon before the text, every icon in
+         the primary blue, as the storage icons are. -->
     <style name="SheetRow">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
@@ -85,6 +88,7 @@
         <item name="android:focusable">true</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:drawablePadding">@dimen/sheet_icon_text_gap</item>
+        <item name="drawableTint">?attr/colorPrimary</item>
         <item name="android:paddingStart">@dimen/card_padding</item>
         <item name="android:paddingEnd">@dimen/card_padding</item>
         <item name="android:textColor">@color/daynnightTextColor</item>

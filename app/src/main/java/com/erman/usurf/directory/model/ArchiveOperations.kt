@@ -131,7 +131,7 @@ class ArchiveOperations(
 
     override suspend fun extractFiles(selectedDirectory: FileModel) = operationOn(ioDispatcher) {
         val parentPath: String = File(selectedDirectory.path).parent ?: ""
-        val extractedFolderName = freeExtractionFolderName(parentPath, selectedDirectory.nameWithoutExtension)
+        val extractedFolderName = freeExtractionFolderName(parentPath, nameWithoutExtensionOf(selectedDirectory))
         val extractionDestination = "$parentPath${File.separator}$extractedFolderName"
         // createFolder refuses a folder that already exists, so from here on the folder is one this extraction made.
         fileOperations.createFolder(parentPath, extractedFolderName)
@@ -147,6 +147,10 @@ class ArchiveOperations(
             if (!isDone) removeIfEmpty(File(extractionDestination))
         }
     }
+
+    // The archive's name without its extension, as a row of the file list shows it. A row listed through root carries its
+    // whole name there, so the name is read from the archive's own name; one that is all extension keeps its whole name.
+    private fun nameWithoutExtensionOf(archive: FileModel): String = File(archive.name).nameWithoutExtension.ifEmpty { archive.name }
 
     // An archive extracted again goes into a new folder, "<name>_extracted (2)" and on, so no earlier result is mixed in.
     private fun freeExtractionFolderName(parentPath: String, archiveName: String): String {

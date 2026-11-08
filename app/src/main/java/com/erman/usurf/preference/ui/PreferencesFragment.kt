@@ -63,7 +63,9 @@ class PreferencesFragment : PreferenceFragmentCompat() {
     private fun bindSortPreference() {
         val sortListPreference = findPreference<ListPreference>(KEY_SORT_FILES_LIST_PREFERENCE)
         sortListPreference?.setOnPreferenceChangeListener { _, newValue ->
-            sortListPreference.title = newValue.toString()
+            // The title names the choice as the screen shows it, in its language, not as the setting stores it.
+            val choice = sortListPreference.entries.getOrNull(sortListPreference.findIndexOfValue(newValue.toString()))
+            sortListPreference.title = choice ?: newValue.toString()
             preferencesViewModel.onSortPreferenceChanged(newValue.toString())
             true
         }

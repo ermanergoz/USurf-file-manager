@@ -45,7 +45,7 @@
             <ImageView
                 android:layout_width="@dimen/icon_size"
                 android:layout_height="@dimen/icon_size"
-                android:contentDescription="@string/path_icon"
+                android:importantForAccessibility="no"
                 android:src="@drawable/ic_chevron_right" />
 
             <TextView
@@ -82,7 +82,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:orientation="vertical"
-            android:visibility="@{viewModel.uiState.isEmptyFolderVisible ? View.VISIBLE : View.GONE}"
+            android:visibility="@{viewModel.uiState.isEmptyStateVisible ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toTopOf="@+id/confirmationButtonBar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -92,13 +92,13 @@
                 android:layout_width="@dimen/illustration_size"
                 android:layout_height="@dimen/illustration_size"
                 android:layout_marginBottom="@dimen/empty_state_gap"
-                android:contentDescription="@string/empty_folder"
+                android:importantForAccessibility="no"
                 android:src="@drawable/ic_empty_folder" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/empty_folder_title"
+                android:text="@{viewModel.uiState.isSearchMode ? @string/no_search_results(viewModel.uiState.query) : @string/empty_folder_title}"
                 android:textAppearance="?attr/textAppearanceTitleMedium"
                 android:textColor="?attr/colorOnSurface" />
 
@@ -108,7 +108,8 @@
                 android:layout_marginTop="@dimen/text_line_gap"
                 android:text="@string/empty_folder_subtitle"
                 android:textAppearance="?attr/textAppearanceBodySmall"
-                android:textColor="?attr/colorOnSurfaceVariant" />
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:visibility="@{viewModel.uiState.isEmptyFolderVisible ? View.VISIBLE : View.GONE}" />
         </LinearLayout>
 
         <!-- File List -->
@@ -159,7 +160,8 @@
                 android:onClick="@{() -> viewModel.endCopyMode()}"
                 android:text="@string/done"
                 android:textAppearance="?attr/textAppearanceLabelLarge"
-                android:textColor="?attr/colorOnPrimary" />
+                android:textColor="?attr/colorOnPrimary"
+                app:rippleColor="@color/bar_on_primary_ripple" />
 
             <Button
                 android:id="@+id/OKButton"
@@ -170,7 +172,8 @@
                 android:onClick="@{() -> viewModel.confirmAction()}"
                 android:text="@string/ok"
                 android:textAppearance="?attr/textAppearanceLabelLarge"
-                android:textColor="?attr/colorOnPrimary" />
+                android:textColor="?attr/colorOnPrimary"
+                app:rippleColor="@color/bar_on_primary_ripple" />
         </LinearLayout>
 
         <!-- More Menu (floating card) -->
@@ -205,7 +208,7 @@
                 android:paddingTop="@dimen/bar_action_padding_top"
                 android:text="@string/favorite"
                 android:textColor="@color/action_button_text"
-                android:textSize="@dimen/text_action_label" />
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
 
             <Button
                 android:id="@+id/compressButton"
@@ -220,7 +223,7 @@
                 android:paddingTop="@dimen/bar_action_padding_top"
                 android:text="@string/compress"
                 android:textColor="@color/daynnightTextColor"
-                android:textSize="@dimen/text_action_label" />
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
 
             <Button
                 android:id="@+id/extractButton"
@@ -236,7 +239,7 @@
                 android:paddingTop="@dimen/bar_action_padding_top"
                 android:text="@string/extract"
                 android:textColor="@color/action_button_text"
-                android:textSize="@dimen/text_action_label" />
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
 
             <Button
                 android:id="@+id/informationButton"
@@ -251,7 +254,7 @@
                 android:paddingTop="@dimen/bar_action_padding_top"
                 android:text="@string/information"
                 android:textColor="@color/daynnightTextColor"
-                android:textSize="@dimen/text_action_label" />
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
 
             <Button
                 android:id="@+id/shareButton"
@@ -266,7 +269,7 @@
                 android:paddingTop="@dimen/bar_action_padding_top"
                 android:text="@string/share"
                 android:textColor="@color/daynnightTextColor"
-                android:textSize="@dimen/text_action_label" />
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
         </LinearLayout>
 
         <!-- Option Bar (bottom actions) -->
@@ -286,7 +289,7 @@
 
             <Button
                 android:id="@+id/copyButton"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 style="@style/BarActionButton"
@@ -297,11 +300,11 @@
                 android:paddingTop="@dimen/bar_action_padding_top"
                 android:text="@string/copy_file"
                 android:textColor="@color/daynnightTextColor"
-                android:textSize="@dimen/text_action_label" />
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
 
             <Button
                 android:id="@+id/moveButton"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 style="@style/BarActionButton"
@@ -312,11 +315,11 @@
                 android:paddingTop="@dimen/bar_action_padding_top"
                 android:text="@string/move"
                 android:textColor="@color/daynnightTextColor"
-                android:textSize="@dimen/text_action_label" />
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
 
             <Button
                 android:id="@+id/renameButton"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 style="@style/BarActionButton"
@@ -328,11 +331,11 @@
                 android:paddingTop="@dimen/bar_action_padding_top"
                 android:text="@string/rename"
                 android:textColor="@color/action_button_text"
-                android:textSize="@dimen/text_action_label" />
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
 
             <Button
                 android:id="@+id/deleteButton"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 style="@style/BarActionButton"
@@ -343,16 +346,17 @@
                 android:paddingTop="@dimen/bar_action_padding_top"
                 android:text="@string/delete"
                 android:textColor="@color/daynnightTextColor"
-                android:textSize="@dimen/text_action_label" />
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
 
             <ImageButton
                 android:id="@+id/moreButton"
                 android:layout_width="@dimen/more_button_width"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_weight="0"
                 android:background="?android:attr/selectableItemBackground"
                 android:contentDescription="@string/more"
                 android:onClick="@{() -> viewModel.toggleMoreMenu()}"
+                app:expandedState="@{viewModel.uiState.common.isMoreMenuVisible}"
                 android:src="@{viewModel.uiState.common.isMoreMenuVisible ? @drawable/ic_down_arrow : @drawable/ic_up_arrow}"
                 app:tint="@color/daynnightTextColor"
                 android:visibility="@{viewModel.uiState.atRootDirectory ? View.GONE : View.VISIBLE}" />
@@ -385,7 +389,7 @@
             android:layout_marginEnd="@dimen/fab_margin"
             android:layout_marginBottom="@dimen/fab_margin"
             android:clickable="true"
-            android:contentDescription="@string/new_file"
+            android:contentDescription="@string/create_file"
             android:enabled="@{!viewModel.uiState.isSearchMode}"
             android:focusable="true"
             android:onClick="@{() -> viewModel.requestCreate(CreateKind.FILE)}"
@@ -405,7 +409,7 @@
             android:layout_marginEnd="@dimen/fab_margin"
             android:layout_marginBottom="@dimen/fab_margin"
             android:clickable="true"
-            android:contentDescription="@string/new_folder"
+            android:contentDescription="@string/create_new_folder"
             android:enabled="@{!viewModel.uiState.isSearchMode}"
             android:focusable="true"
             android:onClick="@{() -> viewModel.requestCreate(CreateKind.FOLDER)}"

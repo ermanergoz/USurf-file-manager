@@ -10,6 +10,7 @@ The app lists the bundled components on its Information screen. Versions are the
 | 7-Zip | `app/src/main/cpp/7zip` (github.com/ip7z/7zip) | 26.06 | GNU LGPL 2.1 or later; the RAR decoder also under the unRAR license restriction; the LZFSE and Zstandard decoders under BSD 3-Clause; xxHash64 under BSD 2-Clause | Built from source into `libp7zip.so`. The app's whole source is public, so the library can be rebuilt and relinked. Notice below. |
 | AndroidX Core | `androidx.core:core-ktx` | 1.19.1 | Apache-2.0 | |
 | AndroidX AppCompat | `androidx.appcompat:appcompat` | 1.8.0 | Apache-2.0 | |
+| AndroidX Activity | `androidx.activity:activity` | 1.12.4 | Apache-2.0 | Called directly for edge-to-edge drawing and Back; the version AppCompat and Material resolve it to. |
 | AndroidX ConstraintLayout | `androidx.constraintlayout:constraintlayout` | 2.2.2 | Apache-2.0 | |
 | AndroidX RecyclerView | `androidx.recyclerview:recyclerview` | 1.4.0 | Apache-2.0 | |
 | AndroidX SwipeRefreshLayout | `androidx.swiperefreshlayout:swiperefreshlayout` | 1.2.0 | Apache-2.0 | |
@@ -28,6 +29,7 @@ The app lists the bundled components on its Information screen. Versions are the
 | Koin | `io.insert-koin:koin-android` | 4.2.2 | Apache-2.0 | |
 | RootTools | `com.github.Stericson:RootTools` | 5.0 | Apache-2.0 or GPL-2.0, at the user's choice; used under Apache-2.0 | From JitPack. |
 | RootShell | `RootShell.aar` (`app/libs`) | 1.6 | Apache-2.0 or GPL-2.0, at the user's choice, as RootTools; used under Apache-2.0 | The 1.6 build of github.com/Stericson/RootShell, kept in the repository because JitPack serves no artifact for 1.6. SHA-256 `02d1a560fcaa1f803a6179da8be4b0fab3f8ea5bbcf168998f0f305b48cadc45`, which equals the GitHub release asset `RootShell.aar` of RootShell 1.6, 2017-11-26. |
+| Material icons | `app/src/main/res/drawable` (`ic_add`, `ic_close`) | — | Apache-2.0 | The add and close glyphs of Google's Material icons, drawn as vector paths. |
 | Flaticon icons | `app/src/main/res/drawable` | — | Flaticon license, free with attribution | Icons by Pixel perfect, Freepik, iconixar, Smashicons, Roundicons, Those Icons, Kiranshastry and xnimrodx; credited on the Information screen. |
 
 ## Used to build and test only

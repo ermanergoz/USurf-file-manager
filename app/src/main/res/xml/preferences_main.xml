@@ -10,7 +10,7 @@
 
         <ListPreference
             android:entries="@array/sort_files"
-            android:entryValues="@array/sort_files"
+            android:entryValues="@array/sort_file_values"
             android:icon="@drawable/ic_sort"
             android:key="sortListPreference"
             android:defaultValue="Sort by name"

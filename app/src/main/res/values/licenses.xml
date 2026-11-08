@@ -6,6 +6,7 @@
         <item>7-Zip — GNU LGPL 2.1 or later; unRAR license restriction; BSD 3-Clause and BSD 2-Clause parts</item>
         <item>AndroidX Core — Apache-2.0</item>
         <item>AndroidX AppCompat — Apache-2.0</item>
+        <item>AndroidX Activity — Apache-2.0</item>
         <item>AndroidX ConstraintLayout — Apache-2.0</item>
         <item>AndroidX RecyclerView — Apache-2.0</item>
         <item>AndroidX SwipeRefreshLayout — Apache-2.0</item>
@@ -24,6 +25,7 @@
         <item>Koin — Apache-2.0</item>
         <item>RootTools — Apache-2.0</item>
         <item>RootShell — Apache-2.0</item>
+        <item>Material icons — Apache-2.0</item>
         <item>Flaticon icons — Flaticon license, with attribution</item>
     </string-array>
 
