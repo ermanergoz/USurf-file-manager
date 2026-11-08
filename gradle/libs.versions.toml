@@ -17,7 +17,7 @@ jvmTarget = "11"
 # Libraries
 androidxCore = "1.19.1"
 appcompat = "1.8.0"
-activity = "1.12.4"
+activity = "1.13.0"
 fragment = "1.9.1"
 material = "1.14.0"
 constraintlayout = "2.2.2"

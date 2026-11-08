@@ -37,7 +37,7 @@ fails the build; the versions here move on purpose, on a branch of their own.
 |---|---|---|---|
 | `androidx.core:core-ktx` | 1.19.1 | latest stable | 2026-11-08 |
 | `androidx.appcompat:appcompat` | 1.8.0 | latest stable | 2026-11-08 |
-| `androidx.activity:activity` | 1.12.4 | held: 1.13.0 is the newest stable; 1.12.4 is the version AppCompat 1.8.0 and Material 1.14.0 resolve it to, which the app's edge-to-edge drawing and Back were checked on, so declaring it changes no build; it moves on a branch of its own with a device check | 2026-11-08 |
+| `androidx.activity:activity` | 1.13.0 | latest stable; its minimum is API 23, the app's; edge-to-edge drawing and Back are checked on a device for it | 2026-11-09 |
 | `androidx.fragment:fragment` | 1.9.1 | latest stable; declared because the app calls it directly (its dialogs and the Fragment Result API), where before it came only through Navigation, AppCompat, Material and Preference, at 1.8.9 | 2026-11-09 |
 | `com.google.android.material:material` | 1.14.0 | latest stable | 2026-11-08 |
 | `androidx.constraintlayout:constraintlayout` | 2.2.2 | latest stable | 2026-11-08 |
