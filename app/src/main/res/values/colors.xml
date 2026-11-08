@@ -45,6 +45,8 @@
     <!-- The app bar, also under the status bar, and its title and icons. -->
     <color name="appBar">@color/brandStrong</color>
     <color name="onAppBar">@color/onBrandStrong</color>
+    <!-- The pale end of the drawer header's gradient, at its top start corner, away from the app's name. -->
+    <color name="drawerHeaderGradientEnd">#99CBFD</color>
 
     <!-- The brand blue itself, for the create buttons and the storage bars, under white glyphs. -->
     <color name="colorAccent">#168DDA</color>
