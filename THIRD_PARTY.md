@@ -11,6 +11,7 @@ The app lists the bundled components on its Information screen. Versions are the
 | AndroidX Core | `androidx.core:core-ktx` | 1.19.1 | Apache-2.0 | |
 | AndroidX AppCompat | `androidx.appcompat:appcompat` | 1.8.0 | Apache-2.0 | |
 | AndroidX Activity | `androidx.activity:activity` | 1.12.4 | Apache-2.0 | Called directly for edge-to-edge drawing and Back; the version AppCompat and Material resolve it to. |
+| AndroidX Fragment | `androidx.fragment:fragment` | 1.9.1 | Apache-2.0 | Called directly for the dialogs and the Fragment Result API. |
 | AndroidX ConstraintLayout | `androidx.constraintlayout:constraintlayout` | 2.2.2 | Apache-2.0 | |
 | AndroidX RecyclerView | `androidx.recyclerview:recyclerview` | 1.4.0 | Apache-2.0 | |
 | AndroidX SwipeRefreshLayout | `androidx.swiperefreshlayout:swiperefreshlayout` | 1.2.0 | Apache-2.0 | |
