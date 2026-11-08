@@ -9,15 +9,3 @@ plugins {
     alias(libs.plugins.realm) apply false
     alias(libs.plugins.navigation.safeargs) apply false
 }
-
-tasks.register<Delete>("clean") {
-    delete(layout.buildDirectory)
-}
-
-allprojects {
-    gradle.projectsEvaluated {
-        tasks.withType<JavaCompile>().configureEach {
-            options.compilerArgs.addAll(listOf("-Xlint:unchecked", "-Xlint:deprecation"))
-        }
-    }
-}

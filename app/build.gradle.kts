@@ -29,6 +29,8 @@ configure<ApplicationExtension> {
         // https://semver.org/spec/v2.0.0.html
         // major.minor.patch
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        // Vector drawables stay vectors on API 23. Without this the Android plugin writes PNG copies of ic_file, whose evenOdd
+        // fill needs API 24, and the app's file icon on API 23 changes.
         vectorDrawables.useSupportLibrary = true
         externalNativeBuild {
             cmake {
@@ -92,6 +94,11 @@ kapt {
     correctErrorTypes = true
 }
 
+// Javac's unchecked and deprecation warnings, shown for the Java that DataBinding and Realm generate.
+tasks.withType<JavaCompile>().configureEach {
+    options.compilerArgs.addAll(listOf("-Xlint:unchecked", "-Xlint:deprecation"))
+}
+
 // Lint reads the stubs kapt writes for every variant. In a build that runs both, lint starts once kapt is done, so it
 // never reads a stub kapt is still writing.
 tasks.matching { it.name.startsWith("lintAnalyze") }.configureEach {
@@ -126,7 +133,6 @@ dependencies {
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
-    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     implementation(libs.androidx.viewpager)
     implementation(libs.androidx.documentfile)
     implementation(libs.androidx.lifecycle.livedata.ktx)
