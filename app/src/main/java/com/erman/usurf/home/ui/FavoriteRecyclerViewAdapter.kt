@@ -1,0 +1,51 @@
+package com.erman.usurf.home.ui
+
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
+import androidx.recyclerview.widget.RecyclerView
+import com.erman.usurf.R
+import com.erman.usurf.databinding.RecyclerFavoriteLayoutBinding
+import com.erman.usurf.home.model.FavoriteItem
+import com.erman.usurf.utils.updateWithDiff
+
+class FavoriteRecyclerViewAdapter(private val listener: FavoriteItemListener) :
+    RecyclerView.Adapter<FavoriteRecyclerViewAdapter.FavoriteHolder>() {
+    private var favorites = listOf<FavoriteItem>()
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FavoriteHolder {
+        val itemBinding =
+            DataBindingUtil.inflate<RecyclerFavoriteLayoutBinding>(
+                LayoutInflater.from(parent.context),
+                R.layout.recycler_favorite_layout,
+                parent,
+                false
+            )
+        itemBinding.listener = listener
+        return FavoriteHolder(itemBinding)
+    }
+
+    override fun getItemCount(): Int = favorites.count()
+
+    override fun onBindViewHolder(holder: FavoriteHolder, position: Int) {
+        holder.bind(favorites.elementAt(position))
+    }
+
+    inner class FavoriteHolder(private val binding: RecyclerFavoriteLayoutBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(favorite: FavoriteItem) {
+            binding.favoriteItem = favorite
+            binding.executePendingBindings()
+        }
+    }
+
+    fun updateData(newFavorites: List<FavoriteItem>) {
+        favorites =
+            updateWithDiff(
+                oldList = favorites,
+                newList = newFavorites,
+                areItemsTheSame = { oldItem, newItem -> oldItem.id == newItem.id },
+                // The kind counts too: a row binds the item its tap acts on.
+                areContentsTheSame = { oldItem, newItem -> oldItem == newItem }
+            )
+    }
+}

@@ -1,37 +1,35 @@
 package com.erman.usurf.ftp.model
 
-import android.content.Intent
-import android.os.Build
-import androidx.core.content.ContextCompat
-import com.erman.usurf.application.MainApplication.Companion.appContext
-import com.erman.usurf.utils.logd
+import android.os.Environment
+import com.erman.usurf.storage.domain.StorageKind
+import com.erman.usurf.storage.domain.storageKindOf
+import com.erman.usurf.utils.UNKNOWN_ERROR
+import com.erman.usurf.utils.loge
+import java.io.File
+import java.io.IOException
 import java.net.Inet4Address
 import java.net.NetworkInterface
 
+private const val URL_SCHEME: String = "ftp://"
+
 class FtpModel {
     fun getIpAddress(): String {
-        logd("Get ip address")
         var ip = ""
         NetworkInterface.getNetworkInterfaces()?.toList()?.map { networkInterface ->
             networkInterface.inetAddresses?.toList()?.find {
                 !it.isLoopbackAddress && it is Inet4Address
-            }?.let { ip = it.hostAddress?.toString() ?: "" }
+            }?.let { ip = it.hostAddress ?: "" }
         }
-        return "ftps://$ip"
+        // With no IPv4 address there is nothing a client could connect to.
+        return if (ip.isEmpty()) "" else "$URL_SCHEME$ip"
     }
 
-    fun startFTPServer() {
-        Intent(appContext, FtpServer()::class.java).also { intent ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                ContextCompat.startForegroundService(appContext, intent)
-            } else
-                appContext.startService(intent)
-        }
-    }
+    fun storageKindOf(path: String): StorageKind = storageKindOf(path, getInternalStoragePath())
 
-    fun stopFTPServer() {
-        Intent(appContext, FtpServer()::class.java).also { intent ->
-            appContext.stopService(intent)
-        }
+    private fun getInternalStoragePath(): String = try {
+        File(Environment.getExternalStorageDirectory().absolutePath).canonicalPath
+    } catch (err: IOException) {
+        loge(err.localizedMessage ?: UNKNOWN_ERROR)
+        Environment.getExternalStorageDirectory().absolutePath
     }
 }

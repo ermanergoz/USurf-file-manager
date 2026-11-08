@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- An action of the folder screen's menu reads in the text colour, and in the empty state's grey while it cannot be used. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/emptyStateColor" android:state_enabled="false" />
+    <item android:color="@color/daynnightTextColor" />
+</selector>

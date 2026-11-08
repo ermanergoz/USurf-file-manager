@@ -1,48 +1,76 @@
 package com.erman.usurf.ftp.data
 
 import android.content.SharedPreferences
-import com.erman.usurf.ftp.utils.*
-import com.erman.usurf.utils.StoragePaths
-import com.erman.usurf.utils.logd
+import androidx.core.content.edit
+import com.erman.usurf.ftp.domain.FtpCredentials
+import com.erman.usurf.ftp.domain.FtpCredentialsInitializer
+import com.erman.usurf.ftp.utils.DEFAULT_PORT
+import com.erman.usurf.ftp.utils.PORT_KEY
+import com.erman.usurf.storage.domain.StoragePathsProvider
 
-class FtpPreferenceProvider(private val preferences: SharedPreferences) {
-    fun getUsername(): String? {
-        logd("getUsername")
-        return preferences.getString(USERNAME_KEY, DEFAULT_USER_NAME)
+private const val PASSWORD_KEY: String = "password"
+private const val USERNAME_KEY: String = "username"
+private const val CREDENTIALS_INITIALIZED_KEY: String = "ftpCredentialsInitialized"
+private const val KEY_INTENT_CHOSEN_PATH: String = "ftpChosenPath"
+private const val ALLOW_UPLOADS_KEY: String = "ftpAllowUploads"
+
+class FtpPreferenceProvider(
+    private val preferences: SharedPreferences,
+    private val storagePathsProvider: StoragePathsProvider,
+    private val credentialsInitializer: FtpCredentialsInitializer
+) {
+    fun getUsername(): String {
+        initializeCredentials()
+        return preferences.getString(USERNAME_KEY, null).orEmpty()
     }
 
     fun editUsername(username: String) {
-        logd("editUsername")
-        preferences.edit().putString(USERNAME_KEY, username).apply()
+        preferences.edit { putString(USERNAME_KEY, username) }
     }
 
-    fun getPassword(): String? {
-        logd("getPassword")
-        return preferences.getString(PASSWORD_KEY, PASSWORD_DEF_VAL)
+    fun getPassword(): String {
+        initializeCredentials()
+        return preferences.getString(PASSWORD_KEY, null).orEmpty()
     }
 
     fun editPassword(password: String) {
-        logd("editPassword")
-        preferences.edit().putString(PASSWORD_KEY, password).apply()
+        preferences.edit { putString(PASSWORD_KEY, password) }
     }
 
-    fun getPort(): Int {
-        logd("getPort")
-        return preferences.getInt(PORT_KEY, 2221)
+    // Runs once per install, on the first read: a new install, or an update over an open anonymous login.
+    @Synchronized
+    private fun initializeCredentials() {
+        if (preferences.getBoolean(CREDENTIALS_INITIALIZED_KEY, false)) return
+        val credentials: FtpCredentials =
+            credentialsInitializer.initialCredentials(
+                storedUsername = preferences.getString(USERNAME_KEY, null),
+                storedPassword = preferences.getString(PASSWORD_KEY, null)
+            )
+        preferences.edit {
+            putString(USERNAME_KEY, credentials.username)
+            putString(PASSWORD_KEY, credentials.password)
+            putBoolean(CREDENTIALS_INITIALIZED_KEY, true)
+        }
     }
+
+    fun getPort(): Int = preferences.getInt(PORT_KEY, DEFAULT_PORT)
 
     fun editPort(port: Int) {
-        logd("editPort")
-        preferences.edit().putInt(PORT_KEY, port).apply()
+        preferences.edit { putInt(PORT_KEY, port) }
+    }
+
+    fun isUploadAllowed(): Boolean = preferences.getBoolean(ALLOW_UPLOADS_KEY, false)
+
+    fun editUploadAllowed(allowed: Boolean) {
+        preferences.edit { putBoolean(ALLOW_UPLOADS_KEY, allowed) }
     }
 
     fun getFtpPath(): String? {
-        logd("getFtpPath")
-        return preferences.getString(KEY_INTENT_CHOSEN_PATH, StoragePaths().getStorageDirectories().first())
+        val defaultPath: String? = storagePathsProvider.getStorageDirectories().firstOrNull()
+        return preferences.getString(KEY_INTENT_CHOSEN_PATH, defaultPath)
     }
 
     fun editFtpPath(path: String?) {
-        logd("editPort")
-        preferences.edit().putString(KEY_INTENT_CHOSEN_PATH, path).apply()
+        preferences.edit { putString(KEY_INTENT_CHOSEN_PATH, path) }
     }
 }

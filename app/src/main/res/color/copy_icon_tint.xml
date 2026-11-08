@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A copy icon is the primary blue, as the storage icons are; grey only while it cannot be used. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/sectionHeaderColor" android:state_enabled="false" />
+    <item android:color="@color/colorPrimary" />
+</selector>

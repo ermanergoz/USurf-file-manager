@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
@@ -15,158 +16,258 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <!-- Takes the first focus, so no field does and the keyboard opens only on a tap in a field. -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:orientation="vertical"
+            android:paddingStart="@dimen/screen_edge"
+            android:paddingEnd="@dimen/screen_edge"
             tools:context=".ftp.ui.FTPFragment">
 
+            <!-- Connection Section Header -->
             <TextView
-                android:id="@+id/textView15"
+                android:id="@+id/statusSectionHeader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/horizontal_margin_4"
-                android:layout_marginTop="@dimen/vertical_margin_16"
-                android:layout_marginRight="@dimen/horizontal_margin_4"
-                android:text="@string/wifi_status"
-                android:textSize="@dimen/text_size_18"
+                android:layout_marginTop="@dimen/section_gap"
+                android:text="@string/ftp_section_status"
+                android:textColor="@color/sectionHeaderColor"
+                android:textSize="@dimen/text_label"
                 android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/statusTextView"
+            <!-- Status Card -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/statusCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/horizontal_margin_8"
-                android:layout_marginTop="@dimen/vertical_margin_4"
-                android:layout_marginRight="@dimen/horizontal_margin_8"
-                android:text="@{viewModel.isConnectedToWifi() ? @string/connected : @string/no_connection}"
-                android:textColor="@{viewModel.isConnectedToWifi() ? @android:color/holo_green_dark : @android:color/holo_red_dark}"
-                android:textSize="@dimen/text_size_16" />
+                android:layout_marginTop="@dimen/header_to_content"
+                android:background="@drawable/button_frame"
+                android:padding="@dimen/card_padding_compact">
 
+                <ImageView
+                    android:id="@+id/wifiIcon"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:contentDescription="@string/wifi_icon"
+                    android:activated="@{viewModel.uiState.isConnectedToWifi}"
+                    android:src="@{viewModel.uiState.isConnectedToWifi ? @drawable/ic_wifi : @drawable/ic_wifi_off}"
+                    app:tint="@color/wifi_icon_tint"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/statusTextView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/icon_text_gap"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:text="@{viewModel.uiState.statusTextRes}"
+                    android:textColor="@color/daynnightTextColor"
+                    android:textSize="@dimen/text_body"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toTopOf="@+id/urlTextView"
+                    app:layout_constraintEnd_toStartOf="@+id/copyUrlButton"
+                    app:layout_constraintStart_toEndOf="@+id/wifiIcon"
+                    app:layout_constraintTop_toTopOf="@+id/wifiIcon"
+                    app:layout_constraintVertical_chainStyle="packed" />
+
+                <TextView
+                    android:id="@+id/urlTextView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/icon_text_gap"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:text="@{viewModel.uiState.urlText(context.resources)}"
+                    android:textColor="@color/sectionHeaderColor"
+                    android:textSize="@dimen/text_supporting"
+                    app:layout_constraintBottom_toBottomOf="@+id/wifiIcon"
+                    app:layout_constraintEnd_toStartOf="@+id/copyUrlButton"
+                    app:layout_constraintStart_toEndOf="@+id/wifiIcon"
+                    app:layout_constraintTop_toBottomOf="@+id/statusTextView" />
+
+                <ImageView
+                    android:id="@+id/copyUrlButton"
+                    android:layout_width="@dimen/touch_target"
+                    android:layout_height="@dimen/touch_target"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:contentDescription="@string/copy_url"
+                    android:focusable="true"
+                    android:onClick="@{() -> viewModel.onCopyUrlClicked()}"
+                    android:padding="@dimen/icon_button_padding"
+                    android:src="@drawable/ic_copy"
+                    app:tint="@color/copy_icon_tint"
+                    android:visibility="@{viewModel.uiState.isCopyUrlVisible ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- Server Settings Section Header -->
             <TextView
-                android:id="@+id/textView7"
+                android:id="@+id/settingsSectionHeader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/horizontal_margin_4"
-                android:layout_marginTop="@dimen/vertical_margin_16"
-                android:layout_marginRight="@dimen/horizontal_margin_4"
-                android:text="@string/url"
-                android:textSize="@dimen/text_size_18"
+                android:layout_marginTop="@dimen/section_gap"
+                android:text="@string/ftp_section_settings"
+                android:textColor="@color/sectionHeaderColor"
+                android:textSize="@dimen/text_label"
                 android:textStyle="bold" />
 
+            <!-- Settings Card -->
+            <LinearLayout
+                android:id="@+id/settingsCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/header_to_content"
+                android:alpha="@{viewModel.uiState.isServerActive ? 0.5f : 1.0f}"
+                android:background="@drawable/button_frame"
+                android:orientation="vertical"
+                android:padding="@dimen/card_padding">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/usernameInputLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:errorTextRes="@{viewModel.uiState.usernameErrorRes}">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/editUserNameTextView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:enabled="@{!viewModel.uiState.isServerActive}"
+                        android:hint="@string/hint_username"
+                        android:importantForAutofill="no"
+                        android:inputType="textPersonName"
+                        android:afterTextChanged="@{(text) -> viewModel.onUsernameChanged(text.toString())}"
+                        android:text="@{viewModel.uiState.username}"
+                        android:textSize="@dimen/text_input" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/passwordInputLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/item_gap"
+                    app:endIconContentDescription="@string/copy_password"
+                    app:endIconDrawable="@drawable/ic_copy"
+                    app:endIconMode="custom"
+                    app:endIconTint="@color/copy_icon_tint"
+                    app:endIconOnClickListener="@{() -> viewModel.onCopyPasswordClicked()}"
+                    app:errorTextRes="@{viewModel.uiState.passwordErrorRes}">
+
+                    <!-- Shown in clear: it is typed on the other device. -->
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/editPasswordTextView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:enabled="@{!viewModel.uiState.isServerActive}"
+                        android:hint="@string/hint_password"
+                        android:importantForAutofill="no"
+                        android:inputType="textVisiblePassword"
+                        android:afterTextChanged="@{(text) -> viewModel.onPasswordChanged(text.toString())}"
+                        android:text="@{viewModel.uiState.password}"
+                        android:textSize="@dimen/text_input" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/portInputLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/item_gap"
+                    app:errorTextRes="@{viewModel.uiState.portErrorRes}">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/editPortTextView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:enabled="@{!viewModel.uiState.isServerActive}"
+                        android:hint="@string/hint_port"
+                        android:importantForAutofill="no"
+                        android:inputType="number"
+                        android:afterTextChanged="@{(text) -> viewModel.onPortChanged(text.toString())}"
+                        android:text="@{viewModel.uiState.port}"
+                        android:textSize="@dimen/text_input" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/allowUploadsSwitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/item_gap"
+                    android:checked="@{viewModel.uiState.allowUploads}"
+                    android:enabled="@{!viewModel.uiState.isServerActive}"
+                    android:minHeight="@dimen/touch_target"
+                    android:onCheckedChanged="@{(button, checked) -> viewModel.onAllowUploadsChanged(checked)}"
+                    android:text="@string/ftp_allow_uploads"
+                    android:textColor="@color/daynnightTextColor"
+                    android:textSize="@dimen/text_title" />
+
+                <TextView
+                    android:id="@+id/allowUploadsSummary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/ftp_allow_uploads_summary"
+                    android:textColor="@color/sectionHeaderColor"
+                    android:textSize="@dimen/text_supporting" />
+
+            </LinearLayout>
+
+            <!-- Storage Path Section Header -->
             <TextView
-                android:id="@+id/urlTextView"
+                android:id="@+id/storageSectionHeader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/horizontal_margin_8"
-                android:layout_marginTop="@dimen/vertical_margin_4"
-                android:layout_marginRight="@dimen/horizontal_margin_8"
-                android:text="@{viewModel.isConnectedToWifi() ? viewModel.url : @string/empty}"
-                android:textSize="@dimen/text_size_16" />
+                android:layout_marginTop="@dimen/section_gap"
+                android:text="@string/ftp_section_storage"
+                android:textColor="@color/sectionHeaderColor"
+                android:textSize="@dimen/text_label"
+                android:textStyle="bold"
+                android:visibility="@{viewModel.uiState.isServerActive ? View.GONE : View.VISIBLE}" />
 
-            <TextView
-                android:id="@+id/textView6"
+            <!-- Storage Card -->
+            <LinearLayout
+                android:id="@+id/storageCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/horizontal_margin_4"
-                android:layout_marginTop="@dimen/vertical_margin_16"
-                android:layout_marginRight="@dimen/horizontal_margin_4"
-                android:text="@string/username"
-                android:textSize="@dimen/text_size_18"
-                android:textStyle="bold" />
+                android:layout_marginTop="@dimen/header_to_content"
+                android:background="@drawable/button_frame"
+                android:orientation="vertical"
+                android:padding="@dimen/card_padding_compact"
+                android:visibility="@{viewModel.uiState.isServerActive ? View.GONE : View.VISIBLE}">
 
-            <EditText
-                android:id="@+id/editUserNameTextView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/horizontal_margin_8"
-                android:layout_marginTop="@dimen/vertical_margin_4"
-                android:layout_marginRight="@dimen/horizontal_margin_8"
-                android:ems="10"
-                android:enabled="@{viewModel.isServiceRunning ? false : true}"
-                android:importantForAutofill="no"
-                android:inputType="textPersonName"
-                android:onTextChanged="@{viewModel::onUsernameChanged}"
-                android:text="@{viewModel.username}"
-                android:textSize="@dimen/text_size_16"
-                tools:ignore="LabelFor" />
+                <RadioGroup
+                    android:id="@+id/radioButtonGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:checkedPath="@{viewModel.uiState.selectedPath}" />
 
-            <TextView
-                android:id="@+id/textView14"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/horizontal_margin_4"
-                android:layout_marginTop="@dimen/vertical_margin_16"
-                android:layout_marginRight="@dimen/horizontal_margin_4"
-                android:text="@string/password"
-                android:textSize="@dimen/text_size_18"
-                android:textStyle="bold" />
+            </LinearLayout>
 
-            <EditText
-                android:id="@+id/editPasswordTextView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/horizontal_margin_8"
-                android:layout_marginTop="@dimen/vertical_margin_4"
-                android:layout_marginRight="@dimen/horizontal_margin_8"
-                android:autofillHints=""
-                android:ems="10"
-                android:enabled="@{viewModel.isServiceRunning ? false : true}"
-                android:inputType="textPassword"
-                android:onTextChanged="@{viewModel::onPasswordChanged}"
-                android:text="@{viewModel.password}"
-                android:textSize="@dimen/text_size_16"
-                tools:ignore="LabelFor" />
-
-            <TextView
-                android:id="@+id/textView13"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/horizontal_margin_4"
-                android:layout_marginTop="@dimen/vertical_margin_16"
-                android:layout_marginRight="@dimen/horizontal_margin_4"
-                android:text="@string/port"
-                android:textSize="@dimen/text_size_18"
-                android:textStyle="bold" />
-
-            <EditText
-                android:id="@+id/editPortTextView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/horizontal_margin_8"
-                android:layout_marginTop="@dimen/vertical_margin_4"
-                android:layout_marginRight="@dimen/horizontal_margin_8"
-                android:layout_marginBottom="@dimen/vertical_margin_16"
-                android:ems="10"
-                android:enabled="@{viewModel.isServiceRunning ? false : true}"
-                android:importantForAutofill="no"
-                android:inputType="numberDecimal"
-                android:onTextChanged="@{viewModel::onPortChanged}"
-                android:text="@{viewModel.port}"
-                android:textSize="@dimen/text_size_16"
-                tools:ignore="LabelFor" />
-
-            <RadioGroup
-                android:id="@+id/radioButtonGroup"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/layout_margin_8"
-                android:layout_marginTop="@dimen/vertical_margin_16"
-                android:layout_marginBottom="@dimen/vertical_margin_16"
-                android:onCheckedChanged="@{viewModel::onFtpPathSelected}"
-                android:visibility="@{viewModel.isServiceRunning ? View.GONE : View.VISIBLE}" />
-
+            <!-- Connect / Disconnect Button -->
             <Button
                 android:id="@+id/connectButton"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/horizontal_margin_24"
-                android:layout_marginTop="@dimen/vertical_margin_16"
-                android:layout_marginRight="@dimen/horizontal_margin_24"
-                android:background="@drawable/button_selectable_background"
-                android:enabled="@{viewModel.isConnectedToWifi()}"
+                android:layout_height="@dimen/touch_target"
+                android:layout_marginTop="@dimen/section_gap"
+                android:layout_marginBottom="@dimen/screen_bottom"
+                android:enabled="@{viewModel.uiState.isConnectButtonEnabled}"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
                 android:onClick="@{() -> viewModel.onConnectClicked()}"
-                android:text="@{viewModel.isServiceRunning ? @string/disconnect : @string/connect}" />
+                android:text="@{viewModel.uiState.connectButtonTextRes}"
+                android:textAppearance="?attr/textAppearanceTitleMedium"
+                app:shapeAppearance="?attr/shapeAppearanceCornerMedium" />
 
         </LinearLayout>
     </ScrollView>

@@ -1,269 +1,511 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipToPadding="false">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/layout_margin_8"
-        android:layout_marginTop="@dimen/layout_margin_8"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingStart="@dimen/screen_edge"
+        android:paddingTop="@dimen/screen_top"
+        android:paddingEnd="@dimen/screen_edge"
+        android:paddingBottom="@dimen/screen_bottom">
 
-        <ImageView
+        <!-- Hero Section -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="119dp"
-            android:layout_marginBottom="@dimen/layout_margin_8"
-            android:background="@drawable/side_nav_bar"
-            android:contentDescription="@string/applogo_description"
-            app:srcCompat="@mipmap/ic_launcher" />
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingTop="@dimen/hero_padding_top"
+            android:paddingBottom="@dimen/hero_padding_bottom">
 
+            <ImageView
+                android:layout_width="@dimen/illustration_size"
+                android:layout_height="@dimen/illustration_size"
+                android:contentDescription="@string/applogo_description"
+                app:srcCompat="@mipmap/ic_launcher" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/item_gap"
+                android:text="@string/app_name"
+                android:textColor="@color/daynnightTextColor"
+                android:textSize="@dimen/text_app_name"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/text_line_gap"
+                android:text="@string/app_version"
+                android:textColor="@color/sectionHeaderColor"
+                android:textSize="@dimen/text_body" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/text_line_gap"
+                android:text="@string/yusuf_erman_ergoz"
+                android:textColor="@color/sectionHeaderColor"
+                android:textSize="@dimen/text_supporting" />
+        </LinearLayout>
+
+        <!-- Links Section -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/developer"
-            android:textSize="@dimen/text_size_24"
+            android:text="@string/section_links"
+            android:textColor="@color/sectionHeaderColor"
+            android:textSize="@dimen/text_label"
             android:textStyle="bold" />
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
-            android:text="@string/yusuf_erman_ergoz"
-            android:textSize="@dimen/text_size_18" />
+            android:layout_marginTop="@dimen/header_to_content"
+            android:background="@drawable/button_frame"
+            android:orientation="vertical">
 
+            <!-- GitHub -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/card_padding"
+                android:paddingTop="@dimen/card_row_padding_vertical"
+                android:paddingEnd="@dimen/card_padding"
+                android:paddingBottom="@dimen/card_row_padding_vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/github"
+                    android:textColor="@color/daynnightTextColor"
+                    android:textSize="@dimen/text_body" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/text_line_gap"
+                    android:autoLink="web"
+                    android:singleLine="true"
+                    android:text="@string/github_link"
+                    android:textSize="@dimen/text_supporting" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="@dimen/card_padding"
+                android:layout_marginEnd="@dimen/card_padding"
+                android:background="@color/cardStroke" />
+
+            <!-- Privacy Policy -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/card_padding"
+                android:paddingTop="@dimen/card_row_padding_vertical"
+                android:paddingEnd="@dimen/card_padding"
+                android:paddingBottom="@dimen/card_row_padding_vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/privacy_policy"
+                    android:textColor="@color/daynnightTextColor"
+                    android:textSize="@dimen/text_body" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/text_line_gap"
+                    android:autoLink="web"
+                    android:singleLine="true"
+                    android:text="@string/privacy_policy_url"
+                    android:textSize="@dimen/text_supporting" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Icon Credits Section -->
         <TextView
-            android:layout_marginTop="@dimen/vertical_margin_16"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/version"
-            android:textSize="@dimen/text_size_24"
+            android:layout_marginTop="@dimen/section_gap"
+            android:text="@string/section_icon_credits"
+            android:textColor="@color/sectionHeaderColor"
+            android:textSize="@dimen/text_label"
             android:textStyle="bold" />
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
-            android:text="@string/app_version"
-            android:textSize="@dimen/text_size_18" />
+            android:layout_marginTop="@dimen/header_to_content"
+            android:background="@drawable/button_frame"
+            android:orientation="vertical">
 
+            <!-- Pixel Perfect -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/card_padding"
+                android:paddingTop="@dimen/card_row_padding_vertical"
+                android:paddingEnd="@dimen/card_padding"
+                android:paddingBottom="@dimen/card_row_padding_vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/icons_pix_perfect"
+                    android:textColor="@color/daynnightTextColor"
+                    android:textSize="@dimen/text_supporting" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/text_line_gap"
+                    android:autoLink="web"
+                    android:singleLine="true"
+                    android:text="@string/pix_perfect_link"
+                    android:textSize="@dimen/text_supporting" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="@dimen/card_padding"
+                android:layout_marginEnd="@dimen/card_padding"
+                android:background="@color/cardStroke" />
+
+            <!-- Freepic -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/card_padding"
+                android:paddingTop="@dimen/card_row_padding_vertical"
+                android:paddingEnd="@dimen/card_padding"
+                android:paddingBottom="@dimen/card_row_padding_vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/icons_freepic"
+                    android:textColor="@color/daynnightTextColor"
+                    android:textSize="@dimen/text_supporting" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/text_line_gap"
+                    android:autoLink="web"
+                    android:singleLine="true"
+                    android:text="@string/freepic_url"
+                    android:textSize="@dimen/text_supporting" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="@dimen/card_padding"
+                android:layout_marginEnd="@dimen/card_padding"
+                android:background="@color/cardStroke" />
+
+            <!-- Those Icons -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/card_padding"
+                android:paddingTop="@dimen/card_row_padding_vertical"
+                android:paddingEnd="@dimen/card_padding"
+                android:paddingBottom="@dimen/card_row_padding_vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/icons_those_icons"
+                    android:textColor="@color/daynnightTextColor"
+                    android:textSize="@dimen/text_supporting" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/text_line_gap"
+                    android:autoLink="web"
+                    android:singleLine="true"
+                    android:text="@string/those_icons_url"
+                    android:textSize="@dimen/text_supporting" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="@dimen/card_padding"
+                android:layout_marginEnd="@dimen/card_padding"
+                android:background="@color/cardStroke" />
+
+            <!-- Smashicons -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/card_padding"
+                android:paddingTop="@dimen/card_row_padding_vertical"
+                android:paddingEnd="@dimen/card_padding"
+                android:paddingBottom="@dimen/card_row_padding_vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/icons_smashicons"
+                    android:textColor="@color/daynnightTextColor"
+                    android:textSize="@dimen/text_supporting" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/text_line_gap"
+                    android:autoLink="web"
+                    android:singleLine="true"
+                    android:text="@string/smashicons_url"
+                    android:textSize="@dimen/text_supporting" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="@dimen/card_padding"
+                android:layout_marginEnd="@dimen/card_padding"
+                android:background="@color/cardStroke" />
+
+            <!-- Roundicons -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/card_padding"
+                android:paddingTop="@dimen/card_row_padding_vertical"
+                android:paddingEnd="@dimen/card_padding"
+                android:paddingBottom="@dimen/card_row_padding_vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/icons_roundicons"
+                    android:textColor="@color/daynnightTextColor"
+                    android:textSize="@dimen/text_supporting" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/text_line_gap"
+                    android:autoLink="web"
+                    android:singleLine="true"
+                    android:text="@string/round_icons_url"
+                    android:textSize="@dimen/text_supporting" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="@dimen/card_padding"
+                android:layout_marginEnd="@dimen/card_padding"
+                android:background="@color/cardStroke" />
+
+            <!-- Srip (Storage icon) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/card_padding"
+                android:paddingTop="@dimen/card_row_padding_vertical"
+                android:paddingEnd="@dimen/card_padding"
+                android:paddingBottom="@dimen/card_row_padding_vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/storage_icon"
+                    android:textColor="@color/daynnightTextColor"
+                    android:textSize="@dimen/text_supporting" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/text_line_gap"
+                    android:autoLink="web"
+                    android:singleLine="true"
+                    android:text="@string/srip_url"
+                    android:textSize="@dimen/text_supporting" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="@dimen/card_padding"
+                android:layout_marginEnd="@dimen/card_padding"
+                android:background="@color/cardStroke" />
+
+            <!-- Kiranshastry -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/card_padding"
+                android:paddingTop="@dimen/card_row_padding_vertical"
+                android:paddingEnd="@dimen/card_padding"
+                android:paddingBottom="@dimen/card_row_padding_vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/icons_kiranshastry"
+                    android:textColor="@color/daynnightTextColor"
+                    android:textSize="@dimen/text_supporting" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/text_line_gap"
+                    android:autoLink="web"
+                    android:singleLine="true"
+                    android:text="@string/kiranshastry_url"
+                    android:textSize="@dimen/text_supporting" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="@dimen/card_padding"
+                android:layout_marginEnd="@dimen/card_padding"
+                android:background="@color/cardStroke" />
+
+            <!-- Iconixar -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/card_padding"
+                android:paddingTop="@dimen/card_row_padding_vertical"
+                android:paddingEnd="@dimen/card_padding"
+                android:paddingBottom="@dimen/card_row_padding_vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/icons_iconixar"
+                    android:textColor="@color/daynnightTextColor"
+                    android:textSize="@dimen/text_supporting" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/text_line_gap"
+                    android:autoLink="web"
+                    android:singleLine="true"
+                    android:text="@string/iconixar_url"
+                    android:textSize="@dimen/text_supporting" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="@dimen/card_padding"
+                android:layout_marginEnd="@dimen/card_padding"
+                android:background="@color/cardStroke" />
+
+            <!-- Xnimrodx (Folder/File icons) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/card_padding"
+                android:paddingTop="@dimen/card_row_padding_vertical"
+                android:paddingEnd="@dimen/card_padding"
+                android:paddingBottom="@dimen/card_row_padding_vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/folder_icon"
+                    android:textColor="@color/daynnightTextColor"
+                    android:textSize="@dimen/text_supporting" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/text_line_gap"
+                    android:autoLink="web"
+                    android:singleLine="true"
+                    android:text="@string/xnimrodx_url"
+                    android:textSize="@dimen/text_supporting" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Open Source Licenses Section -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/vertical_margin_16"
-            android:text="@string/github"
-            android:textSize="@dimen/text_size_24"
+            android:layout_marginTop="@dimen/section_gap"
+            android:text="@string/section_licenses"
+            android:textColor="@color/sectionHeaderColor"
+            android:textSize="@dimen/text_label"
             android:textStyle="bold" />
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
-            android:autoLink="web"
-            android:singleLine="true"
-            android:text="@string/github_link"
-            android:textSize="@dimen/text_size_18" />
+            android:layout_marginTop="@dimen/header_to_content"
+            android:background="@drawable/button_frame"
+            android:orientation="vertical"
+            android:paddingTop="@dimen/card_row_padding_vertical"
+            android:paddingBottom="@dimen/card_row_padding_vertical">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/vertical_margin_16"
-            android:text="@string/privacy_policy"
-            android:textSize="@dimen/text_size_24"
-            android:textStyle="bold" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/card_padding"
+                android:paddingEnd="@dimen/card_padding"
+                android:autoLink="web"
+                android:text="@string/license_7zip_notice"
+                android:textColor="@color/daynnightTextColor"
+                android:textSize="@dimen/text_supporting" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
-            android:autoLink="web"
-            android:singleLine="true"
-            android:text="@string/privacy_policy_url"
-            android:textSize="@dimen/text_size_18" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/text_line_gap"
+                android:paddingStart="@dimen/card_padding"
+                android:paddingEnd="@dimen/card_padding"
+                android:text="@string/license_unrar_restriction"
+                android:textColor="@color/sectionHeaderColor"
+                android:textSize="@dimen/text_supporting"
+                android:textStyle="italic" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/vertical_margin_16"
-            android:text="@string/icons"
-            android:textSize="@dimen/text_size_24"
-            android:textStyle="bold" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="@dimen/card_padding"
+                android:layout_marginTop="@dimen/card_row_padding_vertical"
+                android:layout_marginEnd="@dimen/card_padding"
+                android:layout_marginBottom="@dimen/item_gap"
+                android:background="@color/cardStroke" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
-            android:text="@string/icons_pix_perfect"
-            android:textSize="@dimen/text_size_18" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
-            android:autoLink="web"
-            android:singleLine="true"
-            android:text="@string/pix_perfect_link"
-            android:textSize="@dimen/text_size_18" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
-            android:layout_marginTop="@dimen/vertical_margin_16"
-            android:text="@string/icons_freepic"
-            android:textSize="@dimen/text_size_18" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
-            android:autoLink="web"
-            android:singleLine="true"
-            android:text="@string/freepic_url"
-            android:textSize="@dimen/text_size_18" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
-            android:layout_marginTop="@dimen/vertical_margin_16"
-            android:text="@string/icons_those_icons"
-            android:textSize="@dimen/text_size_18" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
-            android:autoLink="web"
-            android:singleLine="true"
-            android:text="@string/those_icons_url"
-            android:textSize="@dimen/text_size_18" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
-            android:layout_marginTop="@dimen/vertical_margin_16"
-            android:text="@string/icons_smashicons"
-            android:textSize="@dimen/text_size_18" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
-            android:autoLink="web"
-            android:singleLine="true"
-            android:text="@string/smashicons_url"
-            android:textSize="@dimen/text_size_18" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
-            android:layout_marginTop="@dimen/vertical_margin_16"
-            android:text="@string/storage_icon"
-            android:textSize="@dimen/text_size_18" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
-            android:autoLink="web"
-            android:singleLine="true"
-            android:text="@string/srip_url"
-            android:textSize="@dimen/text_size_18" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
-            android:layout_marginTop="@dimen/vertical_margin_16"
-            android:text="@string/icons_roundicons"
-            android:textSize="@dimen/text_size_18" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
-            android:autoLink="web"
-            android:singleLine="true"
-            android:text="@string/round_icons_url"
-            android:textSize="@dimen/text_size_18" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
-            android:layout_marginTop="@dimen/vertical_margin_16"
-            android:text="@string/icons_kiranshastry"
-            android:textSize="@dimen/text_size_18" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
-            android:autoLink="web"
-            android:singleLine="true"
-            android:text="@string/kiranshastry_url"
-            android:textSize="@dimen/text_size_18" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
-            android:layout_marginTop="@dimen/vertical_margin_16"
-            android:text="@string/icons_iconixar"
-            android:textSize="@dimen/text_size_18" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
-            android:autoLink="web"
-            android:singleLine="true"
-            android:text="@string/iconixar_url"
-            android:textSize="@dimen/text_size_18" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
-            android:layout_marginTop="@dimen/vertical_margin_16"
-            android:text="@string/folder_icon"
-            android:textSize="@dimen/text_size_18" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/layout_margin_8"
-            android:layout_marginLeft="@dimen/layout_margin_8"
-            android:text="@string/xnimrodx_url"
-            android:autoLink="web"
-            android:singleLine="true"
-            android:textSize="@dimen/text_size_18"
-            android:layout_marginBottom="@dimen/vertical_margin_32"/>
+            <!-- One row per bundled component, added by the screen from license_entries. -->
+            <LinearLayout
+                android:id="@+id/licenseList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>

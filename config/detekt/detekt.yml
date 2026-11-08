@@ -1,0 +1,20 @@
+# detekt's defaults hold except for the values below; each one says why above it.
+
+complexity:
+  # Counts a class's public surface: private functions are how long functions are split.
+  TooManyFunctions:
+    thresholdInClasses: 30
+    thresholdInFiles: 30
+    ignorePrivate: true
+
+style:
+  # Guard clauses (?: return) are the idiom here; three returns in a body beyond them is the limit.
+  ReturnCount:
+    max: 3
+    excludeGuardClauses: true
+  # One line length for detekt and ktlint (.editorconfig max_line_length = 140).
+  MaxLineLength:
+    maxLineLength: 140
+  # A note of work left may stay in a comment: a reviewer reads every comment, so the build does not refuse one.
+  ForbiddenComment:
+    active: false

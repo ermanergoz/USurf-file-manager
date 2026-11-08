@@ -10,32 +10,31 @@
         app:destination="@id/nav_home"
         app:enterAnim="@anim/layout_animation_fadein"
         app:exitAnim="@anim/layout_animation_fadeout"
-        app:popUpTo='@+id/nav_home'
-        app:popUpToInclusive="true" />
+        app:popUpTo="@id/nav_home" />
     <action
         android:id="@+id/global_action_nav_directory"
         app:destination="@id/nav_directory"
         app:enterAnim="@anim/layout_animation_fadein"
         app:exitAnim="@anim/layout_animation_fadeout"
-        app:popUpTo='@+id/nav_home' />
+        app:popUpTo="@id/nav_home" />
     <action
         android:id="@+id/global_action_to_nav_ftp"
         app:destination="@id/nav_ftp"
         app:enterAnim="@anim/layout_animation_fadein"
         app:exitAnim="@anim/layout_animation_fadeout"
-        app:popUpTo='@+id/nav_home' />
+        app:popUpTo="@id/nav_home" />
     <action
         android:id="@+id/global_action_nav_preferences"
         app:destination="@id/nav_preferences"
         app:enterAnim="@anim/layout_animation_fadein"
         app:exitAnim="@anim/layout_animation_fadeout"
-        app:popUpTo='@+id/nav_home' />
+        app:popUpTo="@id/nav_home" />
     <action
         android:id="@+id/global_action_nav_info"
         app:destination="@id/nav_info"
         app:enterAnim="@anim/layout_animation_fadein"
         app:exitAnim="@anim/layout_animation_fadeout"
-        app:popUpTo='@+id/nav_home' />
+        app:popUpTo="@id/nav_home" />
 
     <fragment
         android:id="@+id/nav_home"
@@ -47,7 +46,13 @@
         android:id="@+id/nav_directory"
         android:name="com.erman.usurf.directory.ui.DirectoryFragment"
         android:label=""
-        tools:layout="@layout/fragment_directory" />
+        tools:layout="@layout/fragment_directory">
+        <argument
+            android:name="currentPath"
+            app:argType="string"
+            app:nullable="true"
+            app:defaultValue="" />
+    </fragment>
 
     <fragment
         android:id="@+id/nav_info"
@@ -63,7 +68,7 @@
 
     <fragment
         android:id="@+id/nav_preferences"
-        android:name="com.erman.usurf.preference.ui.MainPreferencesFragment"
+        android:name="com.erman.usurf.preference.ui.PreferencesFragment"
         android:label="@string/menu_preferences" />
 
 </navigation>

@@ -7,49 +7,143 @@
 
         <import type="android.view.View" />
 
+        <import type="com.erman.usurf.directory.ui.ActionType" />
+
+        <import type="com.erman.usurf.directory.ui.CreateKind" />
+
         <variable
             name="viewModel"
             type="com.erman.usurf.directory.ui.DirectoryViewModel" />
-    </data>
 
+    </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".directory.ui.DirectoryFragment">
 
-        <TextView
-            android:id="@+id/emptyFolderTextView"
+        <!-- Path Bar Card -->
+        <LinearLayout
+            android:id="@+id/pathBarCard"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/bar_margin"
+            android:layout_marginTop="@dimen/bar_margin"
+            android:layout_marginEnd="@dimen/bar_margin"
+            android:background="@drawable/path_bar_background"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/row_padding_horizontal"
+            android:paddingTop="@dimen/row_padding_vertical"
+            android:paddingEnd="@dimen/row_padding_horizontal"
+            android:paddingBottom="@dimen/row_padding_vertical"
+            app:layout_constraintEnd_toStartOf="@+id/actionProgress"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:visibility="@{viewModel.uiState.isPathVisible ? View.VISIBLE : View.GONE}">
+
+            <ImageView
+                android:layout_width="@dimen/icon_size"
+                android:layout_height="@dimen/icon_size"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_chevron_right" />
+
+            <TextView
+                android:id="@+id/pathTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/icon_label_gap"
+                android:layout_weight="1"
+                android:ellipsize="start"
+                android:singleLine="true"
+                android:text="@{viewModel.uiState.displayPath}"
+                android:textColor="@color/daynnightTextColor"
+                android:textSize="@dimen/text_body" />
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/actionProgress"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginEnd="@dimen/bar_margin"
+            android:contentDescription="@string/action_progress_description"
+            android:indeterminateTint="@color/colorPrimary"
+            android:visibility="@{viewModel.uiState.isActionInProgress ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="@+id/pathBarCard"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/pathBarCard"
+            app:layout_constraintTop_toTopOf="@+id/pathBarCard" />
+
+        <!-- Empty State -->
+        <LinearLayout
+            android:id="@+id/emptyStateContainer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/text_size_18"
-            app:layout_constraintBottom_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="parent" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/fileListRecyclerView"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:clipToPadding="false"
-            android:paddingBottom="128dp"
-            android:scrollbarStyle="outsideOverlay"
-            android:visibility="@{viewModel.loading ? View.GONE : View.VISIBLE}"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="@{viewModel.uiState.isEmptyStateVisible ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toTopOf="@+id/confirmationButtonBar"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/divider" />
+            app:layout_constraintTop_toBottomOf="@+id/pathBarCard">
 
+            <ImageView
+                android:layout_width="@dimen/illustration_size"
+                android:layout_height="@dimen/illustration_size"
+                android:layout_marginBottom="@dimen/empty_state_gap"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_empty_folder" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{viewModel.uiState.isSearchMode ? @string/no_search_results(viewModel.uiState.query) : @string/empty_folder_title}"
+                android:textAppearance="?attr/textAppearanceTitleMedium"
+                android:textColor="?attr/colorOnSurface" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/text_line_gap"
+                android:text="@string/empty_folder_subtitle"
+                android:textAppearance="?attr/textAppearanceBodySmall"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:visibility="@{viewModel.uiState.isEmptyFolderVisible ? View.VISIBLE : View.GONE}" />
+        </LinearLayout>
+
+        <!-- File List -->
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefreshLayout"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:refreshing="@{viewModel.uiState.isRefreshing}"
+            app:layout_constraintBottom_toTopOf="@+id/confirmationButtonBar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/pathBarCard">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/fileListRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:files="@{viewModel.uiState.files}"
+                android:clipToPadding="false"
+                android:paddingTop="@dimen/list_top_gap"
+                android:paddingBottom="@dimen/list_bottom_inset"
+                android:scrollbarStyle="outsideOverlay"
+                android:visibility="@{viewModel.uiState.isLoading ? View.GONE : View.VISIBLE}" />
+
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+        <!-- Confirmation Bar (Copy/Move mode) -->
         <LinearLayout
             android:id="@+id/confirmationButtonBar"
-            android:layout_width="411dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@color/colorAccent"
+            android:background="?attr/colorPrimary"
             android:orientation="horizontal"
-            android:visibility="@{(viewModel.moveMode || viewModel.copyMode) ? View.VISIBLE : View.GONE}"
+            android:visibility="@{viewModel.uiState.isConfirmationBarVisible ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toTopOf="@+id/optionButtonBar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -62,296 +156,303 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="?android:attr/selectableItemBackground"
+                style="@style/BarActionButton"
                 android:onClick="@{() -> viewModel.endCopyMode()}"
                 android:text="@string/done"
-                android:textColor="@color/textColorDark"
-                android:textSize="@dimen/text_size_12" />
+                android:textAppearance="?attr/textAppearanceLabelLarge"
+                android:textColor="?attr/colorOnPrimary"
+                app:rippleColor="@color/bar_on_primary_ripple" />
 
             <Button
                 android:id="@+id/OKButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="?android:attr/selectableItemBackground"
+                style="@style/BarActionButton"
                 android:onClick="@{() -> viewModel.confirmAction()}"
                 android:text="@string/ok"
-                android:textColor="@color/textColorDark"
-                android:textSize="@dimen/text_size_12" />
+                android:textAppearance="?attr/textAppearanceLabelLarge"
+                android:textColor="?attr/colorOnPrimary"
+                app:rippleColor="@color/bar_on_primary_ripple" />
         </LinearLayout>
 
+        <!-- More Menu (floating card) -->
         <LinearLayout
             android:id="@+id/moreMenuButtonBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/colorAccent"
+            android:layout_marginEnd="@dimen/bar_margin"
+            android:layout_marginBottom="@dimen/bar_margin"
+            android:background="@drawable/button_frame"
+            android:elevation="4dp"
             android:orientation="vertical"
-            android:visibility="@{viewModel.moreMenuMode ? View.VISIBLE : View.GONE}"
-            app:layout_constraintBottom_toBottomOf="@+id/fileListRecyclerView"
+            android:paddingStart="@dimen/card_padding_compact"
+            android:paddingTop="@dimen/bar_padding_vertical"
+            android:paddingEnd="@dimen/card_padding_compact"
+            android:paddingBottom="@dimen/bar_padding_vertical"
+            app:layout_constraintBottom_toTopOf="@+id/optionButtonBar"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintVertical_bias="1.0">
+            android:visibility="@{viewModel.uiState.common.isMoreMenuVisible ? View.VISIBLE : View.GONE}">
 
             <Button
                 android:id="@+id/favoriteButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
                 android:layout_weight="1"
-                android:background="?android:attr/selectableItemBackground"
-                android:enabled="@{viewModel.isSingleOperationMode}"
+                style="@style/BarActionButton"
+                android:drawablePadding="@dimen/icon_label_gap"
+                android:drawableTop="@{viewModel.uiState.actionButtonsEnabled ? @drawable/ic_favorite : @drawable/ic_favorite_disabled}"
+                android:drawableTint="@color/colorPrimary"
+                android:enabled="@{viewModel.uiState.actionButtonsEnabled}"
                 android:onClick="@{() -> viewModel.onFavoriteButtonPressed()}"
+                android:paddingTop="@dimen/bar_action_padding_top"
                 android:text="@string/favorite"
-                android:textColor="@{viewModel.isSingleOperationMode ? @color/textColorDark : @color/textColorLight}"
-                android:textSize="@dimen/text_size_10" />
+                android:textColor="@color/action_button_text"
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
 
             <Button
                 android:id="@+id/compressButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
                 android:layout_weight="1"
-                android:background="?android:attr/selectableItemBackground"
+                style="@style/BarActionButton"
+                android:drawablePadding="@dimen/icon_label_gap"
+                android:drawableTop="@drawable/ic_zip"
+                android:drawableTint="@color/colorPrimary"
                 android:onClick="@{() -> viewModel.compress()}"
+                android:paddingTop="@dimen/bar_action_padding_top"
                 android:text="@string/compress"
-                android:textColor="@color/textColorDark"
-                android:textSize="@dimen/text_size_10" />
+                android:textColor="@color/daynnightTextColor"
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
 
             <Button
                 android:id="@+id/extractButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
                 android:layout_weight="1"
-                android:background="?android:attr/selectableItemBackground"
-                android:enabled="@{viewModel.isSingleOperationMode}"
+                style="@style/BarActionButton"
+                android:drawablePadding="@dimen/icon_label_gap"
+                android:drawableTop="@{viewModel.uiState.actionButtonsEnabled ? @drawable/ic_unzip : @drawable/ic_unzip_disabled}"
+                android:drawableTint="@color/colorPrimary"
+                android:enabled="@{viewModel.uiState.actionButtonsEnabled}"
                 android:onClick="@{() -> viewModel.extract()}"
+                android:paddingTop="@dimen/bar_action_padding_top"
                 android:text="@string/extract"
-                android:textColor="@{viewModel.isSingleOperationMode ? @color/textColorDark : @color/textColorLight}"
-                android:textSize="@dimen/text_size_10" />
+                android:textColor="@color/action_button_text"
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
 
             <Button
                 android:id="@+id/informationButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
                 android:layout_weight="1"
-                android:background="?android:attr/selectableItemBackground"
+                style="@style/BarActionButton"
+                android:drawablePadding="@dimen/icon_label_gap"
+                android:drawableTop="@drawable/ic_info_menu"
+                android:drawableTint="@color/colorPrimary"
                 android:onClick="@{() -> viewModel.showFileInformation()}"
+                android:paddingTop="@dimen/bar_action_padding_top"
                 android:text="@string/information"
-                android:textColor="@color/textColorDark"
-                android:textSize="@dimen/text_size_10" />
+                android:textColor="@color/daynnightTextColor"
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
 
             <Button
                 android:id="@+id/shareButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
                 android:layout_weight="1"
-                android:background="?android:attr/selectableItemBackground"
+                style="@style/BarActionButton"
+                android:drawablePadding="@dimen/icon_label_gap"
+                android:drawableTop="@drawable/ic_share"
+                android:drawableTint="@color/colorPrimary"
                 android:onClick="@{() -> viewModel.share()}"
+                android:paddingTop="@dimen/bar_action_padding_top"
                 android:text="@string/share"
-                android:textColor="@color/textColorDark"
-                android:textSize="@dimen/text_size_10" />
+                android:textColor="@color/daynnightTextColor"
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
         </LinearLayout>
 
+        <!-- Option Bar (bottom actions) -->
         <LinearLayout
             android:id="@+id/optionButtonBar"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@color/colorAccent"
+            android:background="@drawable/bottom_bar_background"
             android:gravity="center"
             android:orientation="horizontal"
-            android:visibility="@{(viewModel.optionMode &amp;&amp; (viewModel.moveMode==false &amp;&amp; viewModel.copyMode==false)) ? View.VISIBLE : View.GONE}"
+            android:paddingTop="@dimen/bar_padding_vertical"
+            android:paddingBottom="@dimen/bar_padding_vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
+            app:layout_constraintStart_toStartOf="parent"
+            android:visibility="@{viewModel.uiState.isOptionBarVisible ? View.VISIBLE : View.GONE}">
 
             <Button
                 android:id="@+id/copyButton"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
                 android:layout_weight="1"
-                android:background="?android:attr/selectableItemBackground"
-                android:onClick="@{() -> viewModel.copy()}"
+                style="@style/BarActionButton"
+                android:drawablePadding="@dimen/icon_label_gap"
+                android:drawableTop="@drawable/ic_copy"
+                android:drawableTint="@color/colorPrimary"
+                android:onClick="@{() -> viewModel.enterTransferMode(ActionType.COPY)}"
+                android:paddingTop="@dimen/bar_action_padding_top"
                 android:text="@string/copy_file"
-                android:textColor="@color/textColorDark"
-                android:textSize="@dimen/text_size_10" />
+                android:textColor="@color/daynnightTextColor"
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
 
             <Button
                 android:id="@+id/moveButton"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
                 android:layout_weight="1"
-                android:background="?android:attr/selectableItemBackground"
-                android:onClick="@{() -> viewModel.move()}"
+                style="@style/BarActionButton"
+                android:drawablePadding="@dimen/icon_label_gap"
+                android:drawableTop="@drawable/ic_move"
+                android:drawableTint="@color/colorPrimary"
+                android:onClick="@{() -> viewModel.enterTransferMode(ActionType.MOVE)}"
+                android:paddingTop="@dimen/bar_action_padding_top"
                 android:text="@string/move"
-                android:textColor="@color/textColorDark"
-                android:textSize="@dimen/text_size_10" />
+                android:textColor="@color/daynnightTextColor"
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
 
             <Button
                 android:id="@+id/renameButton"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
                 android:layout_weight="1"
-                android:background="?android:attr/selectableItemBackground"
-                android:enabled="@{viewModel.isSingleOperationMode}"
+                style="@style/BarActionButton"
+                android:drawablePadding="@dimen/icon_label_gap"
+                android:drawableTop="@{viewModel.uiState.actionButtonsEnabled ? @drawable/ic_rename : @drawable/ic_rename_disabled}"
+                android:drawableTint="@color/colorPrimary"
+                android:enabled="@{viewModel.uiState.actionButtonsEnabled}"
                 android:onClick="@{() -> viewModel.rename()}"
+                android:paddingTop="@dimen/bar_action_padding_top"
                 android:text="@string/rename"
-                android:textColor="@{viewModel.isSingleOperationMode ? @color/textColorDark : @color/textColorLight}"
-                android:textSize="@dimen/text_size_10" />
+                android:textColor="@color/action_button_text"
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
 
             <Button
                 android:id="@+id/deleteButton"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
                 android:layout_weight="1"
-                android:background="?android:attr/selectableItemBackground"
-                android:onClick="@{() -> viewModel.delete()}"
+                style="@style/BarActionButton"
+                android:drawablePadding="@dimen/icon_label_gap"
+                android:drawableTop="@drawable/ic_delete"
+                android:drawableTint="@color/colorPrimary"
+                android:onClick="@{() -> viewModel.requestDelete()}"
+                android:paddingTop="@dimen/bar_action_padding_top"
                 android:text="@string/delete"
-                android:textColor="@color/textColorDark"
-                android:textSize="@dimen/text_size_10" />
+                android:textColor="@color/daynnightTextColor"
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
 
             <ImageButton
                 android:id="@+id/moreButton"
-                android:layout_width="60dp"
+                android:layout_width="@dimen/more_button_width"
                 android:layout_height="match_parent"
-                android:layout_marginTop="4dp"
-                android:layout_weight="1"
+                android:layout_weight="0"
                 android:background="?android:attr/selectableItemBackground"
-                android:onClick="@{() -> viewModel.showMoreOption()}"
-                android:src="@{viewModel.moreMenuMode ? @drawable/ic_down_arrow : @drawable/ic_up_arrow}"
-                android:visibility="@{viewModel.isRootMode ? View.GONE : View.VISIBLE}"
-                tools:ignore="ContentDescription" />
+                android:contentDescription="@string/more"
+                android:onClick="@{() -> viewModel.toggleMoreMenu()}"
+                app:expandedState="@{viewModel.uiState.common.isMoreMenuVisible}"
+                android:src="@{viewModel.uiState.common.isMoreMenuVisible ? @drawable/ic_down_arrow : @drawable/ic_up_arrow}"
+                app:tint="@color/daynnightTextColor"
+                android:visibility="@{viewModel.uiState.atRootDirectory ? View.GONE : View.VISIBLE}" />
         </LinearLayout>
 
+        <!-- FABs -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/createNewFloatingButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginEnd="@dimen/fab_margin"
+            android:layout_marginBottom="@dimen/fab_margin"
             android:clickable="true"
             android:contentDescription="@string/create_new"
             android:focusable="true"
-            android:onClick="@{() -> viewModel.onCreate()}"
-            android:visibility="@{viewModel.optionMode || viewModel.loading ? View.GONE : View.VISIBLE}"
+            android:onClick="@{() -> viewModel.toggleCreateMenu()}"
             app:backgroundTint="@color/colorAccent"
+            app:tint="@color/onColorAccent"
+            app:fadeVisible="@{viewModel.uiState.isCreateFabVisible}"
             app:layout_constraintBottom_toTopOf="@+id/moreMenuButtonBar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:srcCompat="@drawable/ic_menu" />
+            app:srcCompat="@drawable/ic_add" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/newFileFloatingButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginEnd="@dimen/fab_margin"
+            android:layout_marginBottom="@dimen/fab_margin"
             android:clickable="true"
-            android:contentDescription="@string/new_file"
-            android:enabled="@{!viewModel.fileSearchMode}"
+            android:contentDescription="@string/create_file"
+            android:enabled="@{!viewModel.uiState.isSearchMode}"
             android:focusable="true"
-            android:onClick="@{() -> viewModel.createFile()}"
-            android:visibility="@{(viewModel.menuMode &amp;&amp; (viewModel.optionMode == false  &amp;&amp; viewModel.loading == false)) ? View.VISIBLE : View.GONE}"
+            android:onClick="@{() -> viewModel.requestCreate(CreateKind.FILE)}"
             app:backgroundTint="@color/colorAccent"
+            app:tint="@color/onColorAccent"
             app:layout_constraintBottom_toTopOf="@+id/createNewFloatingButton"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
+            app:popVisible="@{viewModel.uiState.isCreateMenuVisible}"
             app:srcCompat="@drawable/ic_file_white" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/deviceWideSearchFloatingButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginBottom="16dp"
-            android:clickable="true"
-            android:contentDescription="@string/device_wide_search"
-            android:focusable="true"
-            android:onClick="@{() -> viewModel.deviceWideSearch()}"
-            android:visibility="@{((viewModel.menuMode &amp;&amp; (viewModel.optionMode==false &amp;&amp; viewModel.loading == false))) ? View.VISIBLE : View.GONE}"
-            app:backgroundTint="@color/colorAccent"
-            app:layout_constraintBottom_toTopOf="@+id/newFolderFloatingButton"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="1.0"
-            app:srcCompat="@drawable/ic_search" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/newFolderFloatingButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginEnd="@dimen/fab_margin"
+            android:layout_marginBottom="@dimen/fab_margin"
             android:clickable="true"
-            android:contentDescription="@string/new_folder"
-            android:enabled="@{!viewModel.fileSearchMode}"
+            android:contentDescription="@string/create_new_folder"
+            android:enabled="@{!viewModel.uiState.isSearchMode}"
             android:focusable="true"
-            android:onClick="@{() -> viewModel.createFolder()}"
-            android:visibility="@{(viewModel.menuMode &amp;&amp; (viewModel.optionMode==false  &amp;&amp; viewModel.loading == false)) ? View.VISIBLE : View.GONE}"
+            android:onClick="@{() -> viewModel.requestCreate(CreateKind.FOLDER)}"
             app:backgroundTint="@color/colorAccent"
+            app:tint="@color/onColorAccent"
             app:layout_constraintBottom_toTopOf="@+id/newFileFloatingButton"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0"
+            app:popVisible="@{viewModel.uiState.isCreateMenuVisible}"
             app:srcCompat="@drawable/ic_folder_white" />
 
-        <TextView
-            android:id="@+id/pathTextView"
-            android:layout_width="0dp"
+        <!-- Loading State -->
+        <LinearLayout
+            android:id="@+id/loadingContainer"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:layout_marginLeft="4dp"
-            android:layout_marginTop="4dp"
-            android:layout_marginEnd="4dp"
-            android:layout_marginRight="4dp"
-            android:ellipsize="start"
-            android:singleLine="true"
-            android:text="@{viewModel.path}"
-            android:textSize="@dimen/text_size_14"
-            android:visibility="@{viewModel.fileSearchMode ? View.GONE : View.VISIBLE}"
+            android:gravity="center"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/pathBarCard"
+            android:visibility="@{viewModel.uiState.isLoading ? View.VISIBLE : View.GONE}">
 
-        <View
-            android:id="@+id/divider"
-            android:layout_width="0dp"
-            android:layout_height="2dp"
-            android:layout_marginTop="4dp"
-            android:background="?android:attr/listDivider"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/pathTextView" />
+            <ProgressBar
+                android:id="@+id/loadingProgressBar"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="@dimen/loading_indicator_size"
+                android:layout_height="@dimen/loading_indicator_size"
+                android:contentDescription="@string/loading_description"
+                android:indeterminateTint="@color/colorPrimary" />
 
-        <ProgressBar
-            android:id="@+id/loadingProgressBar"
-            style="?android:attr/progressBarStyle"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginTop="64dp"
-            android:visibility="@{viewModel.loading ? View.VISIBLE : View.GONE}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/empty_state_gap"
+                android:text="@string/loading_text"
+                android:textAppearance="?attr/textAppearanceBodyMedium"
+                android:textColor="?attr/colorOnSurfaceVariant" />
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

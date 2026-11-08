@@ -1,32 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
 
         <variable
             name="viewModel"
             type="com.erman.usurf.home.ui.HomeViewModel" />
+
+        <variable
+            name="storageItem"
+            type="com.erman.usurf.home.model.StorageItem" />
     </data>
 
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/storageButton"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/button_selectable_background"
         android:clickable="true"
         android:focusable="true"
-        android:onClick="@{() -> viewModel.onStorageButtonClick(storageButton)}">
+        android:onClick="@{() -> viewModel.onStorageButtonClick(storageItem.path)}"
+        android:padding="@dimen/card_padding_compact">
+
+        <ImageView
+            android:id="@+id/storageIcon"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:importantForAccessibility="no"
+            android:src="@{storageItem.isExternal ? @drawable/ic_sd_card : @drawable/ic_hdd}"
+            app:tint="@color/colorPrimary"
+            app:layout_constraintBottom_toTopOf="@+id/storageProgressBar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/buttonText"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="@dimen/horizontal_margin_8"
-            android:layout_marginRight="@dimen/horizontal_margin_8"
-            android:ellipsize="start"
-            android:gravity="center"
+            android:id="@+id/storageName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/icon_text_gap"
+            android:ellipsize="end"
             android:singleLine="true"
+            app:storageName="@{storageItem.kind}"
             android:textColor="@color/daynnightTextColor"
-            android:textSize="@dimen/text_size_18" />
-    </RelativeLayout>
+            android:textSize="@dimen/text_body"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/storageUsage"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/storageIcon"
+            app:layout_constraintTop_toTopOf="@+id/storageIcon"
+            app:layout_constraintVertical_chainStyle="packed" />
+
+        <TextView
+            android:id="@+id/storageUsage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/icon_text_gap"
+            android:ellipsize="end"
+            android:singleLine="true"
+            app:storageUsage="@{storageItem}"
+            android:textColor="@color/sectionHeaderColor"
+            android:textSize="@dimen/text_supporting"
+            app:layout_constraintBottom_toBottomOf="@+id/storageIcon"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/storageIcon"
+            app:layout_constraintTop_toBottomOf="@+id/storageName" />
+
+        <ProgressBar
+            android:id="@+id/storageProgressBar"
+            style="@style/StorageProgressBar"
+            android:layout_width="0dp"
+            android:layout_height="6dp"
+            android:layout_marginTop="@dimen/item_gap"
+            android:progress="@{storageItem.usedPercentage}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

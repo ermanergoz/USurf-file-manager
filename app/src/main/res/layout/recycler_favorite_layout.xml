@@ -1,31 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
 
         <variable
-            name="viewModel"
-            type="com.erman.usurf.home.ui.HomeViewModel" />
+            name="listener"
+            type="com.erman.usurf.home.ui.FavoriteItemListener" />
+
+        <variable
+            name="favoriteItem"
+            type="com.erman.usurf.home.model.FavoriteItem" />
     </data>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:background="@drawable/button_selectable_background"
+        android:layout_margin="6dp"
+        android:background="@drawable/card_favorite_background"
         android:clickable="true"
         android:focusable="true"
-        android:onClick="@{() -> viewModel.onFavoriteClick(favorite)}"
-        android:onLongClick="@{() -> viewModel.onFavoriteLongClick(favorite)}"
-        android:orientation="vertical">
+        android:gravity="center"
+        android:onClick="@{() -> listener.onFavoriteClick(favoriteItem)}"
+        android:onLongClick="@{() -> listener.onFavoriteLongClick(favoriteItem.path, favoriteItem.name)}"
+        android:orientation="vertical"
+        android:padding="@dimen/card_padding_compact">
+
+        <ImageView
+            android:id="@+id/favoriteIcon"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginBottom="@dimen/icon_label_gap"
+            android:importantForAccessibility="no"
+            android:src="@{favoriteItem.isDirectory ? @drawable/ic_folder : @drawable/ic_file}"
+            app:tint="@color/colorPrimary" />
 
         <TextView
             android:id="@+id/favorite"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_margin="@dimen/layout_margin_4"
+            android:layout_height="wrap_content"
+            android:ellipsize="middle"
             android:gravity="center"
+            android:singleLine="true"
+            android:text="@{favoriteItem.name}"
             android:textColor="@color/daynnightTextColor"
-            android:textSize="@dimen/text_size_22" />
+            android:textSize="@dimen/text_body" />
     </LinearLayout>
 </layout>

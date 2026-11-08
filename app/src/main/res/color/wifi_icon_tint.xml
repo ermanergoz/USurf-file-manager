@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The Wi-Fi icon is in the brand colour while the device is on Wi-Fi (the icon is activated) and muted otherwise. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/colorPrimary" android:state_activated="true" />
+    <item android:color="@color/emptyStateColor" />
+</selector>

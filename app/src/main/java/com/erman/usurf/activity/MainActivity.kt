@@ -1,248 +1,239 @@
 package com.erman.usurf.activity
 
-import android.Manifest
-import android.annotation.SuppressLint
 import android.content.Intent
-import android.net.Uri
-import android.os.Build
+import android.graphics.Color
 import android.os.Bundle
-import android.os.Environment
-import android.provider.Settings
-import android.util.DisplayMetrics
 import android.view.Menu
 import android.view.View
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
-import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.DialogFragment
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.window.layout.WindowMetricsCalculator
 import com.erman.usurf.MobileNavigationDirections
 import com.erman.usurf.R
-import com.erman.usurf.activity.data.StorageDirectoryPreferenceProvider
-import com.erman.usurf.activity.model.RefreshNavDrawer
-import com.erman.usurf.activity.model.ShowDialog
-import com.erman.usurf.activity.utils.*
 import com.erman.usurf.databinding.ActivityMainBinding
-import com.erman.usurf.dialog.model.DialogListener
-import com.erman.usurf.dialog.ui.ManageAllFilesRequestDialog
-import com.erman.usurf.dialog.ui.SafAccessRequestDialog
 import com.erman.usurf.directory.ui.DirectoryViewModel
-import com.erman.usurf.ftp.utils.KEY_INTENT_IS_FTP_NOTIFICATION_CLICKED
-import com.erman.usurf.home.model.FinishActivity
-import com.erman.usurf.home.model.HomeStorageButton
-import com.erman.usurf.home.model.StorageAccessFramework
-import com.erman.usurf.utils.StoragePaths
-import com.erman.usurf.utils.logd
-import com.google.android.material.navigation.NavigationView
-import org.koin.android.ext.android.inject
-import org.koin.android.viewmodel.ext.android.viewModel
-import java.io.File
+import com.erman.usurf.utils.EventObserver
+import com.erman.usurf.utils.KEY_INTENT_IS_FTP_NOTIFICATION_CLICKED
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class MainActivity : AppCompatActivity(), ShowDialog, FinishActivity, RefreshNavDrawer, StorageAccessFramework, HomeStorageButton,
-    DialogListener {
+private const val INTENT_IS_FTP_NOTIFICATION_CLICKED_DEF_VAL: Boolean = false
+private const val STORAGE_MENU_ITEM_ORDER_FIRST: Int = 0
+
+class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
-    private val storageDirectoryPreferenceProvider: StorageDirectoryPreferenceProvider by inject()
-    private lateinit var resultLauncher: ActivityResultLauncher<Intent>
     private lateinit var binding: ActivityMainBinding
     private var destination: NavDirections? = null
+    private val mainViewModel by viewModel<MainViewModel>()
+
+    // Held here to ask whether leaving would stop an operation, to retry the write a new grant was asked for, and to show
+    // the folder screen's selection in the app bar, which this activity owns.
     private val directoryViewModel by viewModel<DirectoryViewModel>()
+    private lateinit var permissionHandler: PermissionHandler
+    private lateinit var selectionAppBar: SelectionAppBar
 
-    @SuppressLint("ObsoleteSdkInt")
-    private fun requestPermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN &&
-            Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
-            logd("Request read and write permissions")
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-                ),
-                READ_AND_WRITE_PERMISSION_REQUEST_CODE
-            )
-
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            logd("Request access to manage all files")
-            if (!Environment.isExternalStorageManager()) {
-                showDialog(ManageAllFilesRequestDialog())
+    // Added while the drawer is open, after any screen's own handler, so Back closes the drawer before a screen sees it.
+    private val drawerBackCallback =
+        object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                binding.drawerLayout.closeDrawers()
             }
         }
-    }
+
+    private val navController: NavController
+        get() = findNavController(R.id.nav_host_fragment)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-        setContentView(binding.root)
-        setSupportActionBar(binding.incAppBarMain.toolbar)
-
-        val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
-        val navView: NavigationView = findViewById(R.id.nav_view)
-        val navController = findNavController(R.id.nav_host_fragment)
-
-        setupNavDrawer(navView, navController, drawerLayout)
-        addStoragesToDrawer(navView, drawerLayout)
-        requestPermissions()
-
-        if (intent.getBooleanExtra(KEY_INTENT_IS_FTP_NOTIFICATION_CLICKED, INTENT_IS_FTP_NOTIFICATION_CLICKED_DEF_VAL))
-            navController.navigate(R.id.global_action_to_nav_ftp)
-
-        resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            val data: Intent? = result.data
-            data?.data?.let { treeUri ->
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    this.contentResolver.takePersistableUriPermission(
-                        treeUri,
-                        Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                    )
-                }
-                storageDirectoryPreferenceProvider.editChosenUri(treeUri.toString())
+        // Drawn edge to edge on every version, as Android 15 and later draw it anyway. The status bar's icons are light,
+        // over the brand-blue app bar of both themes; each screen keeps its content clear of the navigation bar.
+        enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT))
+        permissionHandler =
+            PermissionHandler(this) { uri: String ->
+                mainViewModel.onSafUriChosen(uri)
+                directoryViewModel.onSafAccessGranted()
             }
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        setSupportActionBar(binding.incAppBarMain.toolbar)
+        permissionHandler.rootView = binding.root
+
+        configureAppBar()
+        bindDrawerItems()
+        installDrawerToggle()
+        observeViewModel()
+        permissionHandler.requestInitialPermissions()
+
+        if (savedInstanceState == null) {
+            handleFtpNotificationIntent(intent)
+        }
+        onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() = handleBackPressed()
+            }
+        )
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // A drawer the system reopened after a recreation gets its Back handler too.
+        if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) onDrawerOpenChanged(isOpen = true)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleFtpNotificationIntent(intent)
+    }
+
+    // What no screen used: the drawer closes, the screen below comes back, or the app is left.
+    private fun handleBackPressed() {
+        if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            binding.drawerLayout.closeDrawers()
+            return
+        }
+        if (navController.popBackStack()) return
+        exitOrConfirm()
+    }
+
+    private fun handleFtpNotificationIntent(intent: Intent) {
+        val fromFtpNotification =
+            intent.getBooleanExtra(
+                KEY_INTENT_IS_FTP_NOTIFICATION_CLICKED,
+                INTENT_IS_FTP_NOTIFICATION_CLICKED_DEF_VAL
+            )
+        if (fromFtpNotification) {
+            intent.removeExtra(KEY_INTENT_IS_FTP_NOTIFICATION_CLICKED)
+            navController.navigate(R.id.global_action_to_nav_ftp)
         }
     }
 
-    private fun setupNavDrawer(navView: NavigationView, navController: NavController, drawerLayout: DrawerLayout) {
-        appBarConfiguration = AppBarConfiguration(
-            setOf(
-                R.id.nav_home,
-                R.id.nav_directory,
-                R.id.nav_preferences,
-                R.id.nav_ftp,
-                R.id.nav_info
-            ), drawerLayout
-        )
+    private fun configureAppBar() {
+        appBarConfiguration =
+            AppBarConfiguration(
+                setOf(
+                    R.id.nav_home,
+                    R.id.nav_directory,
+                    R.id.nav_preferences,
+                    R.id.nav_ftp,
+                    R.id.nav_info
+                ),
+                binding.drawerLayout
+            )
         setupActionBarWithNavController(navController, appBarConfiguration)
+    }
 
-        navView.setNavigationItemSelectedListener {
+    // A destination is opened once the drawer has closed, so the drawer does not slide over the new screen.
+    private fun bindDrawerItems() {
+        binding.navView.setNavigationItemSelectedListener {
             when (it.itemId) {
                 R.id.nav_home -> destination = MobileNavigationDirections.globalActionNavHome()
                 R.id.nav_preferences -> destination = MobileNavigationDirections.globalActionNavPreferences()
                 R.id.nav_ftp -> destination = MobileNavigationDirections.globalActionToNavFtp()
                 R.id.nav_info -> destination = MobileNavigationDirections.globalActionNavInfo()
             }
-            drawerLayout.closeDrawers()
+            binding.drawerLayout.closeDrawers()
             true
         }
+    }
 
+    private fun installDrawerToggle() {
         val drawerToggle: ActionBarDrawerToggle =
             object : ActionBarDrawerToggle(
                 this,
-                drawerLayout,
+                binding.drawerLayout,
                 binding.incAppBarMain.toolbar,
                 R.string.drawer_open,
                 R.string.drawer_close
             ) {
+                override fun onDrawerOpened(drawerView: View) {
+                    super.onDrawerOpened(drawerView)
+                    onDrawerOpenChanged(isOpen = true)
+                }
+
                 override fun onDrawerClosed(view: View) {
                     super.onDrawerClosed(view)
-                    //This whole thing is a workaround to fix nav drawer lag issue.
-                    //Goes to the destination after it closes instead of right after the click.
-                    destination?.let { navController.navigate(it) }
+                    onDrawerOpenChanged(isOpen = false)
+                    destination?.let {
+                        navController.navigate(it)
+                        destination = null
+                    }
                 }
             }
         drawerToggle.isDrawerIndicatorEnabled = true
-        drawerLayout.addDrawerListener(drawerToggle)
+        binding.drawerLayout.addDrawerListener(drawerToggle)
         drawerToggle.syncState()
+        selectionAppBar = SelectionAppBar(this, binding.incAppBarMain.toolbar, drawerToggle) { directoryViewModel.endCopyMode() }
     }
 
-    private fun addStoragesToDrawer(navView: NavigationView, drawerLayout: DrawerLayout) {
-        val storageDirectories = StoragePaths().getStorageDirectories()
+    // The folder screen's selection, shown in the app bar while that screen is on. Its own title, which it has none of, is
+    // set again when the selection ends there; any other screen's title is navigation's.
+    private fun showSelectionBar() {
+        val folderScreen = navController.currentDestination?.takeIf { it.id == R.id.nav_directory }
+        val count = folderScreen?.let { directoryViewModel.uiState.value?.selectionCount } ?: 0
+        selectionAppBar.show(count, screenTitle = folderScreen?.let { it.label ?: "" })
+    }
 
-        for (path in storageDirectories) {
-            val storage = navView.menu.add(R.id.storage, Menu.NONE, 0, path)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                storage.icon = ContextCompat.getDrawable(this, R.drawable.ic_hdd)
+    private fun onDrawerOpenChanged(isOpen: Boolean) {
+        drawerBackCallback.remove()
+        if (isOpen) onBackPressedDispatcher.addCallback(this, drawerBackCallback)
+    }
+
+    private fun observeViewModel() {
+        mainViewModel.storagePaths.observe(this, ::populateStorageDrawer)
+        directoryViewModel.uiState.observe(this) { showSelectionBar() }
+        navController.addOnDestinationChangedListener { _, _, _ -> showSelectionBar() }
+        mainViewModel.uiEvents.observe(
+            this,
+            EventObserver { event ->
+                when (event) {
+                    MainUiEvent.LaunchSafPicker -> permissionHandler.requestSafAccess()
+                }
             }
+        )
+    }
+
+    private fun populateStorageDrawer(paths: List<String>) {
+        val menu: Menu = binding.navView.menu
+        menu.removeGroup(R.id.storage)
+        for (path in paths) {
+            val storage = menu.add(R.id.storage, Menu.NONE, STORAGE_MENU_ITEM_ORDER_FIRST, path)
+            storage.icon = ContextCompat.getDrawable(this, R.drawable.ic_hdd)
             storage.setOnMenuItemClickListener {
-                onStorageButtonClick(path)
-                drawerLayout.closeDrawers()
+                destination = MobileNavigationDirections.globalActionNavDirectory(path)
+                mainViewModel.onStorageSelected(path)
+                binding.drawerLayout.closeDrawers()
                 true
             }
         }
     }
 
-    private fun refreshNavDrawer(navView: NavigationView, drawerLayout: DrawerLayout) {
-        navView.menu.removeGroup(R.id.storage)
-        addStoragesToDrawer(navView, drawerLayout)
-    }
+    override fun onSupportNavigateUp(): Boolean = navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
 
-    private fun onStorageButtonClick(path: String) {
-        directoryViewModel.setPath(path)
-        destination = MobileNavigationDirections.globalActionNavDirectory()
-        if (path != ROOT_DIRECTORY && !File(path).canWrite() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q
-            && storageDirectoryPreferenceProvider.getChosenUri() == EMPTY_STR) {
-            launchSAF()
+    private fun exitOrConfirm() {
+        if (directoryViewModel.shouldConfirmExit()) {
+            showExitConfirmationDialog()
+        } else {
+            finish()
         }
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment)
-        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
-    }
-
-    override fun showDialog(dialog: DialogFragment) {
-        logd("Show a dialog")
-        dialog.show(supportFragmentManager, EMPTY_STR)
-    }
-
-    override fun onBackPressed() {
-        val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
-        if (drawerLayout.isDrawerOpen(GravityCompat.START))
-            drawerLayout.closeDrawers()
-        else super.onBackPressed()
-    }
-
-    override fun finishActivity() {
-        finish()
-    }
-
-    override fun refreshStorageButtons() {
-        val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
-        val navView: NavigationView = findViewById(R.id.nav_view)
-        refreshNavDrawer(navView, drawerLayout)
-    }
-
-    override fun launchSAF() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            showDialog(SafAccessRequestDialog())
-        }
-    }
-
-    override fun autoSizeButtonDimensions(storageButtonCount: Int, sideMargin: Int): Pair<Int, Int> {
-        //to calculate the storage buttons so that they will fill the screen vertically
-        val windowMetrics = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(this)
-        val currentBounds = windowMetrics.bounds // E.g. [0 0 1350 1800]
-        val screenWidth = currentBounds.width()
-        val screenHeight = currentBounds.height()
-
-        return Pair(
-            ((screenWidth - ((sideMargin * 2) * storageButtonCount)) / storageButtonCount),
-            (screenHeight / (8 + storageButtonCount))
-        )
-    }
-
-    @SuppressLint("InlinedApi") //Version check already exists
-    override fun manageAllFilesRequestListener() {
-        val intent = Intent()
-        intent.action = Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
-        val uri: Uri = Uri.fromParts(URI_SCHEME, this.packageName, null)
-        intent.data = uri
-        startActivity(intent)
-    }
-
-    @SuppressLint("InlinedApi") //Version check already exists
-    override fun safAccessRequestListener() {
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-        resultLauncher.launch(intent)
+    private fun showExitConfirmationDialog() {
+        MaterialAlertDialogBuilder(this)
+            .setMessage(R.string.exit_confirmation_message)
+            .setPositiveButton(R.string.ok) { _, _ -> finish() }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
     }
 }

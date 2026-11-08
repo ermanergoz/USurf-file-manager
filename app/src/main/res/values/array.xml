@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- The sort choices as the screen shows them, in the screen's language. -->
     <string-array name="sort_files">
+        <item>"Sort by name"</item>
+        <item>"Sort by size"</item>
+        <item>"Sort by last modified"</item>
+    </string-array>
+
+    <!-- The sort choices as the setting stores them, one for each above: the values the listing sorts by, the same in
+         every language, so a choice made in one language holds in another. -->
+    <string-array name="sort_file_values" translatable="false">
         <item>"Sort by name"</item>
         <item>"Sort by size"</item>
         <item>"Sort by last modified"</item>

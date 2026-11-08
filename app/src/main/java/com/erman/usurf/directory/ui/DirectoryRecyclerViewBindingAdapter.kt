@@ -1,21 +1,34 @@
 package com.erman.usurf.directory.ui
 
+import android.graphics.drawable.Drawable
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
+import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestBuilder
 import com.erman.usurf.R
-import com.erman.usurf.directory.utils.THUMBNAIL_SIZE_MULTIPLIER
-import com.erman.usurf.preference.data.PreferenceProvider
-import org.koin.java.KoinJavaComponent.getKoin
-import java.io.File
+import com.erman.usurf.directory.model.FileModel
 
-@BindingAdapter("filePath")
-fun setImage(imageView: ImageView, filePath: String) {
-    val preferenceProvider: PreferenceProvider = getKoin().get()
-    val file = File(filePath)
+private const val THUMBNAIL_SIZE_MULTIPLIER = 0.1F
 
-    if (file.isFile && preferenceProvider.getShowThumbnailsPreference()) {
-        GlideApp.with(imageView.context).load(filePath).thumbnail(THUMBNAIL_SIZE_MULTIPLIER)
+@BindingAdapter("filePath", "showThumbnails", "isDirectory")
+fun setImage(imageView: ImageView, filePath: String, showThumbnails: Boolean, isDirectory: Boolean) {
+    if (isDirectory) {
+        imageView.setImageResource(R.drawable.ic_folder)
+    } else if (showThumbnails) {
+        val requestBuilder: RequestBuilder<Drawable> =
+            Glide.with(imageView.context)
+                .asDrawable().sizeMultiplier(THUMBNAIL_SIZE_MULTIPLIER)
+
+        Glide.with(imageView.context).load(filePath).thumbnail(requestBuilder)
             .into(imageView)
-    } else if (file.isFile) imageView.setImageResource(R.drawable.ic_file)
-    else imageView.setImageResource(R.drawable.ic_folder)
+    } else {
+        imageView.setImageResource(R.drawable.ic_file)
+    }
+}
+
+/** The rows of the folder or the search on screen, handed to the list's adapter, which redraws only the rows that changed. */
+@BindingAdapter("files")
+fun setFiles(recyclerView: RecyclerView, files: List<FileModel>?) {
+    (recyclerView.adapter as? DirectoryRecyclerViewAdapter)?.updateData(files.orEmpty())
 }

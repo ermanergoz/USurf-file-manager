@@ -1,52 +1,58 @@
 package com.erman.usurf.ftp.model
 
-import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.net.ConnectivityManager
+import android.net.Network
 import android.net.NetworkCapabilities
-import android.os.Build
+import android.net.NetworkRequest
 import androidx.lifecycle.LiveData
-import com.erman.usurf.application.MainApplication.Companion.appContext
-import com.erman.usurf.utils.logd
+import com.erman.usurf.utils.UNKNOWN_ERROR
 import com.erman.usurf.utils.loge
 
-class ConnectionLiveData : LiveData<Boolean>() {
-    private val networkReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            postValue(context.isConnected)
+class ConnectionLiveData(private val context: Context) : LiveData<Boolean>() {
+    private val connectivityManager =
+        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+    private val networkCallback =
+        object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                postValue(true)
+            }
+
+            override fun onLost(network: Network) {
+                postValue(false)
+            }
         }
-    }
 
     override fun onActive() {
         super.onActive()
-        logd("Register networkReceiver")
-        appContext.registerReceiver(
-            networkReceiver,
-            IntentFilter("android.net.conn.CONNECTIVITY_CHANGE")
-        )
+        postValue(context.isConnected)
+        val request =
+            NetworkRequest.Builder()
+                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                .build()
+        // Refused without the network state permission; the screen then keeps the state read above.
+        try {
+            connectivityManager.registerNetworkCallback(request, networkCallback)
+        } catch (err: SecurityException) {
+            loge(err.localizedMessage ?: UNKNOWN_ERROR)
+        }
     }
 
     override fun onInactive() {
         super.onInactive()
+        // Refused for a callback that was never registered, when registering it was refused.
         try {
-            logd("Unregister networkReceiver")
-            appContext.unregisterReceiver(networkReceiver)
-        } catch (err: Exception) {
-            loge("onInactive $err")
+            connectivityManager.unregisterNetworkCallback(networkCallback)
+        } catch (err: IllegalArgumentException) {
+            loge(err.localizedMessage ?: UNKNOWN_ERROR)
         }
     }
 }
 
-val Context.isConnected: Boolean?
-    get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-        val connectivityManager =
-            (getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager)
-        val activeNetwork =
-            connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
-        activeNetwork?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ?: false
-    } else {
-        @Suppress("DEPRECATION")
-        (getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager)?.getNetworkInfo(ConnectivityManager.TYPE_WIFI)?.isConnected
+val Context.isConnected: Boolean
+    get() {
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+        return activeNetwork?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ?: false
     }

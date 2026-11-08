@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Each bundled component and its license, as THIRD_PARTY.md lists them. Names and license names stay as they are
+         in every language. -->
+    <string-array name="license_entries" translatable="false">
+        <item>7-Zip — GNU LGPL 2.1 or later; unRAR license restriction; BSD 3-Clause and BSD 2-Clause parts</item>
+        <item>AndroidX Core — Apache-2.0</item>
+        <item>AndroidX AppCompat — Apache-2.0</item>
+        <item>AndroidX Activity — Apache-2.0</item>
+        <item>AndroidX ConstraintLayout — Apache-2.0</item>
+        <item>AndroidX RecyclerView — Apache-2.0</item>
+        <item>AndroidX SwipeRefreshLayout — Apache-2.0</item>
+        <item>AndroidX Navigation — Apache-2.0</item>
+        <item>AndroidX ViewPager — Apache-2.0</item>
+        <item>AndroidX DocumentFile — Apache-2.0</item>
+        <item>AndroidX Lifecycle — Apache-2.0</item>
+        <item>AndroidX Preference — Apache-2.0</item>
+        <item>Material Components for Android — Apache-2.0</item>
+        <item>Kotlin standard library — Apache-2.0</item>
+        <item>Kotlin coroutines — Apache-2.0</item>
+        <item>Apache MINA — Apache-2.0</item>
+        <item>Apache FtpServer — Apache-2.0</item>
+        <item>Realm Java — Apache-2.0</item>
+        <item>Glide — BSD 2-Clause; parts Apache-2.0 and MIT</item>
+        <item>Koin — Apache-2.0</item>
+        <item>RootTools — Apache-2.0</item>
+        <item>RootShell — Apache-2.0</item>
+        <item>Material icons — Apache-2.0</item>
+        <item>Flaticon icons — Flaticon license, with attribution</item>
+    </string-array>
+
+    <!-- The restriction as the unRAR license words it, quoted, so it is never reworded. -->
+    <string name="license_unrar_restriction" translatable="false">"The unRAR sources cannot be used to re-create the RAR compression algorithm, which is proprietary. Distribution of modified unRAR sources in separate form or as a part of other software is permitted, provided that it is clearly stated in the documentation and source comments that the code may not be used to develop a RAR (WinRAR) compatible archiver."</string>
+</resources>

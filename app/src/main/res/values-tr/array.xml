@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="sort_files">
+        <item>"Ada göre sırala"</item>
+        <item>"Boyuta göre sırala"</item>
+        <item>"Son değiştirilme tarihine göre sırala"</item>
+    </string-array>
+</resources>

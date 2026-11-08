@@ -1,6 +1,7 @@
 # Built application files
 *.apk
 *.aar
+!app/libs/RootShell.aar
 *.ap_
 *.aab
 
@@ -15,8 +16,8 @@ bin/
 gen/
 out/
 build/
-#  Uncomment the following line in case you need and you don't have the release build type files in your app
-# release/
+# The release build's output folder: the signed bundle's metadata and baseline profiles it writes on every build
+/app/release/
 
 # Gradle files
 .gradle/

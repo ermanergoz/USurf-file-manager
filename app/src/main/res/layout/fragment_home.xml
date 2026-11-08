@@ -4,76 +4,97 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-        <variable
-            name="viewModel"
-            type="com.erman.usurf.home.ui.HomeViewModel" />
-    </data>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".library.ui.LibraryFragment">
+        android:paddingStart="@dimen/screen_edge"
+        android:paddingEnd="@dimen/screen_edge"
+        tools:context=".home.ui.HomeFragment">
+
+        <TextView
+            android:id="@+id/storageSectionHeader"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/section_gap"
+            android:text="@string/section_storage"
+            android:textColor="@color/sectionHeaderColor"
+            android:textSize="@dimen/text_label"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- The storage cards share the width and take the height their text needs, at any font size. -->
+        <LinearLayout
+            android:id="@+id/storageUsageBarLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/header_to_content"
+            android:baselineAligned="false"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/storageSectionHeader" />
+
+        <TextView
+            android:id="@+id/favoritesSectionHeader"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/section_gap"
+            android:text="@string/section_favorites"
+            android:textColor="@color/sectionHeaderColor"
+            android:textSize="@dimen/text_label"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/storageUsageBarLayout" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/favoriteRecyclerView"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginBottom="@dimen/layout_margin_8"
+            android:layout_marginTop="@dimen/list_top_gap"
+            android:clipToPadding="false"
+            android:paddingBottom="@dimen/list_bottom_gap"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/dividerRight"
-            app:layout_constraintStart_toEndOf="@+id/dividerLeft"
-            app:layout_constraintTop_toBottomOf="@+id/dividerTop" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/favoritesSectionHeader" />
 
-        <androidx.gridlayout.widget.GridLayout
-            android:id="@+id/storageUsageBarLayout"
+        <LinearLayout
+            android:id="@+id/emptyFavoritesContainer"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/vertical_margin_8"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-        </androidx.gridlayout.widget.GridLayout>
-
-        <View
-            android:id="@+id/dividerTop"
-            android:layout_width="0dp"
-            android:layout_height="2dp"
-            android:layout_marginStart="1dp"
-            android:layout_marginLeft="1dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginEnd="1dp"
-            android:layout_marginRight="1dp"
-            android:background="@color/separatorColor"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/storageUsageBarLayout" />
-
-        <View
-            android:id="@+id/dividerLeft"
-            android:layout_width="2dp"
             android:layout_height="0dp"
-            android:layout_marginStart="1dp"
-            android:layout_marginLeft="1dp"
-            android:background="@color/separatorColor"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/favoriteRecyclerView"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/dividerTop" />
-
-        <View
-            android:id="@+id/dividerRight"
-            android:layout_width="2dp"
-            android:layout_height="0dp"
-            android:layout_marginEnd="1dp"
-            android:layout_marginRight="1dp"
-            android:background="@color/separatorColor"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/favoriteRecyclerView"
-            app:layout_constraintTop_toBottomOf="@+id/dividerTop" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/favoritesSectionHeader">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginBottom="@dimen/item_gap"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_favorite"
+                app:tint="@color/emptyStateColor" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/empty_favorites_title"
+                android:textColor="@color/daynnightTextColor"
+                android:textSize="@dimen/text_title" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/text_line_gap"
+                android:text="@string/empty_favorites_subtitle"
+                android:textAppearance="?attr/textAppearanceBodySmall"
+                android:textColor="?attr/colorOnSurfaceVariant" />
+        </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
