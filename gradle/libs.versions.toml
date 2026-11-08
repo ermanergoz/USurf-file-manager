@@ -10,8 +10,8 @@ navigation = "2.9.8"
 compileSdk = "37"
 targetSdk = "36"
 minSdk = "23"
-ndk = "29.0.14206865"
-cmake = "3.22.1"
+ndk = "30.0.16248370"
+cmake = "4.1.2"
 jvmTarget = "11"
 
 # Libraries

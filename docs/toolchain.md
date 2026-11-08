@@ -26,8 +26,8 @@ fails the build; the versions here move on purpose, on a branch of their own.
 | compileSdk | 37 | latest stable platform | 2026-11-08 |
 | targetSdk | 36 | held: the level Google Play requires; a newer target changes how the app runs and moves on its own branch with a device check | 2026-11-08 |
 | minSdk | 23 | the product's minimum (Android 6.0) | 2026-11-08 |
-| NDK | 29.0.14206865 | held: 30.0.16248370 is the newest stable; the 7-Zip native library is built and checked on 29 for all four ABIs, so the NDK moves on a branch of its own with that build and a device check | 2026-11-08 |
-| CMake | 3.22.1 | held: 4.1.2 is the newest stable; the native build list asks for 3.22.1 at least and is checked on it, so CMake moves with the NDK, on the same branch | 2026-11-08 |
+| NDK | 30.0.16248370 | latest stable; the 7-Zip native library builds on it for all four ABIs with 16 KB-aligned segments, and each still reports 7-Zip 26.06 | 2026-11-09 |
+| CMake | 4.1.2 | latest stable; moves with the NDK; the native build list asks for 3.22.1 at least | 2026-11-09 |
 | 7-Zip (`app/src/main/cpp/7zip`, ip7z/7zip) | 26.06 (`d3296e3`) | latest stable tag; never below 26.02 | 2026-11-08 |
 | JDK | 17 | the build machine's; Java and Kotlin compile for JVM 11 | 2026-11-08 |
 
