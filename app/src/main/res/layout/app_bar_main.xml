@@ -8,9 +8,10 @@
         tools:context="com.erman.usurf.activity.MainActivity">
 
         <!-- Brand blue in both themes, never lifted to another colour by a scrolled list, and drawn under the status bar,
-             whose icons are light over it. -->
+             whose icons are light over it. Its style casts the shadow below it. -->
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/app_bar_layout"
+            style="@style/Widget.App.AppBarLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/appBar"

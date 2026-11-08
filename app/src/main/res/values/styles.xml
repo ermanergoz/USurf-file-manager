@@ -64,6 +64,14 @@
         <item name="android:textColorSecondary">@color/onAppBar</item>
     </style>
 
+    <!-- The app bar stands 4 dp above the screen, so a shadow shows below it as in the README screenshots. Material 3
+         draws that shadow in no colour from Android 9 on, so values-v28 colours it there. -->
+    <style name="Base.Widget.App.AppBarLayout" parent="Widget.Material3.AppBarLayout">
+        <item name="elevation">4dp</item>
+    </style>
+
+    <style name="Widget.App.AppBarLayout" parent="Base.Widget.App.AppBarLayout" />
+
     <style name="AppBarToolbar" parent="Widget.Material3.Toolbar">
         <item name="titleTextColor">@color/onAppBar</item>
         <item name="subtitleTextColor">@color/onAppBar</item>
