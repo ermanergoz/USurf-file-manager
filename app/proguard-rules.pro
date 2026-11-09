@@ -1,9 +1,5 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# The app's own R8 rules. The release build in app/build.gradle.kts applies them after the Android plugin's
+# proguard-android-optimize.txt (its proguardFiles setting).
 
 # Keep code readable (no obfuscation), but allow shrinking/optimization
 -dontobfuscate
