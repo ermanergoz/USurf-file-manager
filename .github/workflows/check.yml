@@ -42,7 +42,7 @@ jobs:
 
       - name: Install the NDK and CMake the native build uses
         run: |
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "ndk;29.0.14206865" "cmake;3.22.1" > /dev/null
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "ndk;30.0.16248370" "cmake;4.1.2" > /dev/null
 
       - name: Run lint, detekt and ktlint, and build the debug app for every ABI
         run: ./gradlew --no-daemon lint detekt ktlintCheck assembleDebug

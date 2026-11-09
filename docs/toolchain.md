@@ -1,9 +1,14 @@
 # Toolchain — USurf
 
-Every version the build pins, one row each. Versions move as a ladder, top down: Gradle, the Android Gradle plugin,
-Kotlin, the libraries, the quality tools, the test libraries; each rung takes the newest stable release the rungs above
-it support. The ladder is capped by Realm 10.19.0, the last release of Realm Java, which the app keeps for its
-favourites.
+Every version the build pins, one row each. The build reads them from `gradle/libs.versions.toml`, where each is
+written once, except four rows that live elsewhere: the Gradle wrapper (`gradle/wrapper/gradle-wrapper.properties`),
+7-Zip (the submodule commit at `app/src/main/cpp/7zip`), RootShell (the AAR in `app/libs`) and the JDK (the build
+machine's, and `java-version` in `.github/workflows/check.yml`). The CI workflow also repeats the NDK and CMake
+versions, as their rows say, so a change to any of these is made in each place that holds it.
+
+Versions move as a ladder, top down: Gradle, the Android Gradle plugin, Kotlin, the libraries, the quality tools, the
+test libraries; each rung takes the newest stable release the rungs above it support. The ladder is capped by Realm
+10.19.0, the last release of Realm Java, which the app keeps for its favourites.
 
 Resolved as, one of three:
 - `latest stable`: the newest release with no pre-release marker on the day it was checked;
@@ -18,7 +23,7 @@ fails the build; the versions here move on purpose, on a branch of their own.
 | Dependency | Version | Resolved as | Checked on |
 |---|---|---|---|
 | Gradle (wrapper) | 9.9.0 | latest stable | 2026-11-08 |
-| Android Gradle plugin (`com.android.tools.build:gradle`) | 9.5.1 | latest stable; run with `android.builtInKotlin=false` and `android.newDsl=false`, because Realm's plugin finds Kotlin through the Kotlin Android plugin and reads the classic `android` extension. A later plugin that drops both options is held until the favourites leave Realm Java. The plugin prints both options as deprecated on every build, beside the Kotlin Android plugin's own deprecation notice and the obsolete variant API warnings of Realm's and Safe Args' plugins; those warnings are this hold's trigger and are never silenced: the first plugin release that removes either option, or breaks this path, is held here with its reason | 2026-11-08 |
+| Android Gradle plugin (`com.android.tools.build:gradle`) | 9.5.1 | latest stable; run with `android.builtInKotlin=false` and `android.newDsl=false`, because Realm's plugin finds Kotlin through the Kotlin Android plugin and reads the classic `android` extension. A later plugin that drops both options is held until the favourites leave Realm Java. The plugin prints both options as deprecated on every build, beside the Kotlin Android plugin's own deprecation notice and the obsolete variant API warnings (`applicationVariants`, `testVariants`, `unitTestVariants`) that the Android plugin traces to the Kotlin Android plugin; those warnings are this hold's trigger and are never silenced: the first plugin release that removes either option, or breaks this path, is held here with its reason | 2026-11-09 |
 | Kotlin (`org.jetbrains.kotlin:kotlin-gradle-plugin`, with kapt and parcelize) | 2.4.21 | latest stable | 2026-11-08 |
 | KSP (`com.google.devtools.ksp:symbol-processing-gradle-plugin`) | 2.3.13 | latest stable | 2026-11-08 |
 | Realm (`io.realm:realm-gradle-plugin`, `realm-annotations-processor`) | 10.19.0 | latest stable; the last Realm Java release | 2026-11-08 |
@@ -26,8 +31,8 @@ fails the build; the versions here move on purpose, on a branch of their own.
 | compileSdk | 37 | latest stable platform | 2026-11-08 |
 | targetSdk | 36 | held: the level Google Play requires; a newer target changes how the app runs and moves on its own branch with a device check | 2026-11-08 |
 | minSdk | 23 | the product's minimum (Android 6.0) | 2026-11-08 |
-| NDK | 29.0.14206865 | held: 30.0.16248370 is the newest stable; the 7-Zip native library is built and checked on 29 for all four ABIs, so the NDK moves on a branch of its own with that build and a device check | 2026-11-08 |
-| CMake | 3.22.1 | held: 4.1.2 is the newest stable; the native build list asks for 3.22.1 at least and is checked on it, so CMake moves with the NDK, on the same branch | 2026-11-08 |
+| NDK | 30.0.16248370 | latest stable; the 7-Zip native library builds on it for all four ABIs with 16 KB-aligned segments, and each still reports 7-Zip 26.06. CI installs the same version on the `sdkmanager` line of `.github/workflows/check.yml`, so a bump changes both | 2026-11-09 |
+| CMake | 4.1.2 | latest stable; moves with the NDK; the native build list asks for 3.22.1 at least. CI installs the same version on the `sdkmanager` line of `.github/workflows/check.yml`, so a bump changes both | 2026-11-09 |
 | 7-Zip (`app/src/main/cpp/7zip`, ip7z/7zip) | 26.06 (`d3296e3`) | latest stable tag; never below 26.02 | 2026-11-08 |
 | JDK | 17 | the build machine's; Java and Kotlin compile for JVM 11 | 2026-11-08 |
 
@@ -37,7 +42,8 @@ fails the build; the versions here move on purpose, on a branch of their own.
 |---|---|---|---|
 | `androidx.core:core-ktx` | 1.19.1 | latest stable | 2026-11-08 |
 | `androidx.appcompat:appcompat` | 1.8.0 | latest stable | 2026-11-08 |
-| `androidx.activity:activity` | 1.12.4 | held: 1.13.0 is the newest stable; 1.12.4 is the version AppCompat 1.8.0 and Material 1.14.0 resolve it to, which the app's edge-to-edge drawing and Back were checked on, so declaring it changes no build; it moves on a branch of its own with a device check | 2026-11-08 |
+| `androidx.activity:activity` | 1.13.0 | latest stable; its minimum is API 23, the app's; edge-to-edge drawing and Back are checked on a device for it | 2026-11-09 |
+| `androidx.fragment:fragment` | 1.9.1 | latest stable; declared because the app calls it directly (its dialogs and the Fragment Result API), where before it came only through Navigation, AppCompat, Material and Preference, at 1.8.9 | 2026-11-09 |
 | `com.google.android.material:material` | 1.14.0 | latest stable | 2026-11-08 |
 | `androidx.constraintlayout:constraintlayout` | 2.2.2 | latest stable | 2026-11-08 |
 | `androidx.recyclerview:recyclerview` | 1.4.0 | latest stable | 2026-11-08 |
@@ -59,7 +65,7 @@ fails the build; the versions here move on purpose, on a branch of their own.
 
 | Dependency | Version | Resolved as | Checked on |
 |---|---|---|---|
-| detekt (`io.gitlab.arturbosch.detekt`) | 1.23.8 | latest stable; detekt 2 has no stable release | 2026-11-08 |
+| detekt (`io.gitlab.arturbosch.detekt`) | 1.23.8 | latest stable; detekt 2 has no stable release. Its Gradle plugin calls two Gradle methods that Gradle 9 deprecates, `ReportingExtension.file` and `Configuration.setVisible`, so every build reports deprecated Gradle features; the warnings stay until detekt moves, and are never silenced | 2026-11-09 |
 | ktlint Gradle plugin (`org.jlleitschuh.gradle.ktlint`) | 14.2.0 | latest stable | 2026-11-08 |
 | ktlint | 1.8.0 | latest stable | 2026-11-08 |
 
