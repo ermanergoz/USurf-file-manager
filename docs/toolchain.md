@@ -1,9 +1,14 @@
 # Toolchain — USurf
 
 Every version the build pins, one row each. The build reads them from `gradle/libs.versions.toml`, where each is
-written once. Versions move as a ladder, top down: Gradle, the Android Gradle plugin, Kotlin, the libraries, the quality
-tools, the test libraries; each rung takes the newest stable release the rungs above it support. The ladder is capped by
-Realm 10.19.0, the last release of Realm Java, which the app keeps for its favourites.
+written once, except four rows that live elsewhere: the Gradle wrapper (`gradle/wrapper/gradle-wrapper.properties`),
+7-Zip (the submodule commit at `app/src/main/cpp/7zip`), RootShell (the AAR in `app/libs`) and the JDK (the build
+machine's, and `java-version` in `.github/workflows/check.yml`). The CI workflow also repeats the NDK and CMake
+versions, as their rows say, so a change to any of these is made in each place that holds it.
+
+Versions move as a ladder, top down: Gradle, the Android Gradle plugin, Kotlin, the libraries, the quality tools, the
+test libraries; each rung takes the newest stable release the rungs above it support. The ladder is capped by Realm
+10.19.0, the last release of Realm Java, which the app keeps for its favourites.
 
 Resolved as, one of three:
 - `latest stable`: the newest release with no pre-release marker on the day it was checked;
@@ -26,8 +31,8 @@ fails the build; the versions here move on purpose, on a branch of their own.
 | compileSdk | 37 | latest stable platform | 2026-11-08 |
 | targetSdk | 36 | held: the level Google Play requires; a newer target changes how the app runs and moves on its own branch with a device check | 2026-11-08 |
 | minSdk | 23 | the product's minimum (Android 6.0) | 2026-11-08 |
-| NDK | 30.0.16248370 | latest stable; the 7-Zip native library builds on it for all four ABIs with 16 KB-aligned segments, and each still reports 7-Zip 26.06 | 2026-11-09 |
-| CMake | 4.1.2 | latest stable; moves with the NDK; the native build list asks for 3.22.1 at least | 2026-11-09 |
+| NDK | 30.0.16248370 | latest stable; the 7-Zip native library builds on it for all four ABIs with 16 KB-aligned segments, and each still reports 7-Zip 26.06. CI installs the same version on the `sdkmanager` line of `.github/workflows/check.yml`, so a bump changes both | 2026-11-09 |
+| CMake | 4.1.2 | latest stable; moves with the NDK; the native build list asks for 3.22.1 at least. CI installs the same version on the `sdkmanager` line of `.github/workflows/check.yml`, so a bump changes both | 2026-11-09 |
 | 7-Zip (`app/src/main/cpp/7zip`, ip7z/7zip) | 26.06 (`d3296e3`) | latest stable tag; never below 26.02 | 2026-11-08 |
 | JDK | 17 | the build machine's; Java and Kotlin compile for JVM 11 | 2026-11-08 |
 
