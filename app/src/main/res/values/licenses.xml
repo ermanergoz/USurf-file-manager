@@ -7,6 +7,7 @@
         <item>AndroidX Core — Apache-2.0</item>
         <item>AndroidX AppCompat — Apache-2.0</item>
         <item>AndroidX Activity — Apache-2.0</item>
+        <item>AndroidX Fragment — Apache-2.0</item>
         <item>AndroidX ConstraintLayout — Apache-2.0</item>
         <item>AndroidX RecyclerView — Apache-2.0</item>
         <item>AndroidX SwipeRefreshLayout — Apache-2.0</item>
