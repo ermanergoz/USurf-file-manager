@@ -25,6 +25,7 @@ import com.erman.usurf.databinding.ActivityMainBinding
 import com.erman.usurf.directory.ui.DirectoryViewModel
 import com.erman.usurf.utils.EventObserver
 import com.erman.usurf.utils.KEY_INTENT_IS_FTP_NOTIFICATION_CLICKED
+import com.erman.usurf.utils.keepClearOfTopInset
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -70,6 +71,8 @@ class MainActivity : AppCompatActivity() {
 
         configureAppBar()
         bindDrawerItems()
+        // The drawer's header starts below the status bar, whose strip its scrim darkens.
+        binding.navView.getHeaderView(0).keepClearOfTopInset()
         installDrawerToggle()
         observeViewModel()
         permissionHandler.requestInitialPermissions()

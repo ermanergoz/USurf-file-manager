@@ -37,24 +37,44 @@
     <color name="md_theme_surfaceContainerHigh">#E6E8EE</color>
     <color name="md_theme_surfaceContainerHighest">#E1E2E8</color>
 
-    <!-- The app bar is brand blue in both themes: the primary role here, the primary container in the dark theme, each
-         with its own colour for the title and icons. -->
-    <color name="appBar">@color/md_theme_primary</color>
-    <color name="onAppBar">@color/md_theme_onPrimary</color>
+    <!-- The brand blue darkened only as far as white text on it needs, 4.55:1, the same in both themes. It stays apart
+         from the primary role, which Material draws dialog buttons in as text. -->
+    <color name="brandStrong">#127BC0</color>
+    <color name="onBrandStrong">#FFFFFF</color>
+
+    <!-- The app bar, also under the status bar, and its title and icons. -->
+    <color name="appBar">@color/brandStrong</color>
+    <color name="onAppBar">@color/onBrandStrong</color>
+    <!-- The pale end of the drawer header's gradient, at its top start corner, away from the app's name. -->
+    <color name="drawerHeaderGradientEnd">#99CBFD</color>
+    <!-- Black at 42 %, over the open drawer's status-bar strip: the lightest that keeps the white clock 4.5:1 on the
+         gradient's pale end. -->
+    <color name="drawerStatusBarScrim">#6B000000</color>
 
     <!-- The brand blue itself, for the create buttons and the storage bars, under white glyphs. -->
     <color name="colorAccent">#168DDA</color>
     <color name="onColorAccent">#FFFFFF</color>
 
-    <!-- Older names the layouts still use, each now the role that replaces it. -->
-    <color name="colorPrimary">@color/md_theme_primary</color>
-    <color name="lightBlue">@color/md_theme_secondaryContainer</color>
-    <color name="textColorLight">@color/md_theme_onSecondaryContainer</color>
-    <color name="daynnightTextColor">@color/md_theme_onSurface</color>
-    <color name="cardSurface">@color/md_theme_surfaceContainerHigh</color>
-    <color name="cardStroke">@color/md_theme_outlineVariant</color>
-    <color name="progressTrack">@color/md_theme_outlineVariant</color>
-    <color name="sectionHeaderColor">@color/md_theme_onSurfaceVariant</color>
+    <!-- The colours of the cards and lists, one role each, as the README screenshots show them; the dark theme's are in
+         values-night. Material's own components and dialogs keep the roles above. -->
+    <!-- Icons and spinners, in the brand blue in both themes. It never colours text: it is 3.59:1 on a card. -->
+    <color name="colorPrimary">@color/colorAccent</color>
+    <!-- Cards, the path bar, the bottom bar and the More menu. -->
+    <color name="cardSurface">#FFFFFF</color>
+    <!-- A card's 1 dp outline and the line between list rows. -->
+    <color name="cardStroke">#E2E8F0</color>
+    <!-- The unfilled part of a storage bar, light enough that the brand blue fill stands 3:1 against it. -->
+    <color name="progressTrack">#E8EDF3</color>
+    <!-- The main text of cards and list rows. -->
+    <color name="daynnightTextColor">#3C3C3C</color>
+    <!-- Section headers and supporting text: a storage's usage, a row's count and date, a file's extension badge. -->
+    <color name="sectionHeaderColor">#64748B</color>
+    <!-- The press ripple of cards and list rows. -->
+    <color name="pressRipple">#99CBFD</color>
+    <!-- The fill of a selected list row. -->
+    <color name="selectionBackground">#99CBFD</color>
+    <!-- Every text of a selected list row, on selectionBackground. -->
+    <color name="selectedRowText">#3C3C3C</color>
     <!-- Disabled text and glyphs that are not text, so 3:1 is their floor; text that is read uses the variant role. -->
     <color name="emptyStateColor">@color/md_theme_outline</color>
 </resources>

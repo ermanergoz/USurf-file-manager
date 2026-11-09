@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The drawer header's background: the app bar's brand blue, in both themes. -->
+<!-- The drawer header's background, in both themes: the app bar's brand blue at the bottom end, behind the app's name,
+     fading to a pale blue at the top start. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
-    <solid android:color="@color/appBar" />
+    <gradient
+        android:angle="135"
+        android:endColor="@color/drawerHeaderGradientEnd"
+        android:startColor="@color/brandStrong"
+        android:type="linear" />
 </shape>

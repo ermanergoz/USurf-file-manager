@@ -38,6 +38,9 @@
         <item name="colorSurfaceContainerHighest">@color/md_theme_surfaceContainerHighest</item>
         <item name="materialAlertDialogTheme">@style/ThemeOverlay.App.MaterialAlertDialog</item>
         <item name="preferenceCategoryTitleTextAppearance">@style/PreferenceCategoryStyle</item>
+        <!-- Preferences' category titles are section headers, as on Home. The library's title layout takes its colour
+             from this attribute, never from the text appearance above. -->
+        <item name="preferenceCategoryTitleTextColor">@color/sectionHeaderColor</item>
     </style>
 
     <!-- Dialogs keep the width the app's dialogs had: most of the screen, so a long name fits on one line. -->
@@ -64,6 +67,14 @@
         <item name="android:textColorSecondary">@color/onAppBar</item>
     </style>
 
+    <!-- The app bar stands 4 dp above the screen, so a shadow shows below it as in the README screenshots. Material 3
+         draws that shadow in no colour from Android 9 on, so values-v28 colours it there. -->
+    <style name="Base.Widget.App.AppBarLayout" parent="Widget.Material3.AppBarLayout">
+        <item name="elevation">4dp</item>
+    </style>
+
+    <style name="Widget.App.AppBarLayout" parent="Base.Widget.App.AppBarLayout" />
+
     <style name="AppBarToolbar" parent="Widget.Material3.Toolbar">
         <item name="titleTextColor">@color/onAppBar</item>
         <item name="subtitleTextColor">@color/onAppBar</item>
@@ -82,8 +93,17 @@
         <item name="shapeAppearance">?attr/shapeAppearanceCornerSmall</item>
     </style>
 
-    <style name="PreferenceCategoryStyle">
+    <!-- A section header on a screen's background, such as Home's "Storage" and "Favorites". values-v28 also makes it an
+         accessibility heading, so a screen reader can jump between them. -->
+    <style name="Base.Widget.App.SectionHeader" parent="">
         <item name="android:textColor">@color/sectionHeaderColor</item>
+        <item name="android:textSize">@dimen/text_label</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Widget.App.SectionHeader" parent="Base.Widget.App.SectionHeader" />
+
+    <style name="PreferenceCategoryStyle">
         <item name="android:textSize">@dimen/text_label</item>
         <item name="android:textStyle">bold</item>
     </style>
@@ -99,7 +119,7 @@
         <item name="android:focusable">true</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:drawablePadding">@dimen/sheet_icon_text_gap</item>
-        <item name="drawableTint">?attr/colorPrimary</item>
+        <item name="drawableTint">@color/colorPrimary</item>
         <item name="android:paddingStart">@dimen/card_padding</item>
         <item name="android:paddingEnd">@dimen/card_padding</item>
         <item name="android:textColor">@color/daynnightTextColor</item>
