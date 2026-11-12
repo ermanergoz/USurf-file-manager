@@ -62,6 +62,11 @@ The archive engine is the upstream [7-Zip source](https://github.com/ip7z/7zip),
 - [Glide](https://github.com/bumptech/glide)
 - [Koin](https://insert-koin.io/)
 
+## Repository history
+
+The git history was rewritten in November 2026 for consistency and cleanliness. If you cloned the repository before
+then, clone it again rather than pulling.
+
 ## License
 
 Distributed under the MIT license. See `LICENSE` for more information.
